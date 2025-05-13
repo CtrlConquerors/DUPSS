@@ -1,3 +1,3 @@
 # Projekt
 
-## Welcome this ia a project README
+## Welcome this is a project README

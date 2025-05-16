@@ -1,5 +1,7 @@
 # DUPS System
 
+# Class - SE1854
+
 # Members
 - Hồ Lê Hữu Bằng
 - Phạm Đình Khôi

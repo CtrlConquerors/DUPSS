@@ -1,4 +1,5 @@
-﻿using Objects;
+﻿using Microsoft.Extensions.Configuration;
+using Objects;
 
 namespace DAL
 {
@@ -6,6 +7,7 @@ namespace DAL
     {
         public List<Category> GetCategories()
         {
+            
 
             var listCategories = new List<Category>();
             try

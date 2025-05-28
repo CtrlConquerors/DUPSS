@@ -1,6 +1,15 @@
+using DAL;
 using DUPSS.Components;
+using Microsoft.EntityFrameworkCore;
+using Objects;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<MyStoreContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+builder.Services.AddScoped<CategoryDAO>();
+builder.Services.AddScoped<ProductDAO>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()

@@ -28,10 +28,10 @@ public partial class MyStoreContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql(GetConnectionString());
-        }
+        //if (!optionsBuilder.IsConfigured)
+        //{
+        //    optionsBuilder.UseNpgsql(GetConnectionString());
+        //}
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

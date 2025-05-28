@@ -5,15 +5,20 @@ namespace DAL
 {
     public class CategoryDAO
     {
+
+        private readonly MyStoreContext _context;
+
+        public CategoryDAO(MyStoreContext context)
+        {
+            _context = context;
+        }
         public List<Category> GetCategories()
         {
-            
 
             var listCategories = new List<Category>();
             try
             {
-                using var context = new MyStoreContext();
-                listCategories = context.Categories.ToList();
+                listCategories = _context.Categories.ToList();
             }
             catch (Exception e)
             {

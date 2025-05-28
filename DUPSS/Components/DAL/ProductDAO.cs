@@ -5,10 +5,11 @@ namespace DAL
 {
     public class ProductDAO
     {
-        private List<Product> listProducts;
+        private readonly MyStoreContext _context;
 
-        public ProductDAO()
+        public ProductDAO(MyStoreContext context)
         {
+            _context = context;
         }
 
         public List<Product> GetProducts()
@@ -16,8 +17,7 @@ namespace DAL
             var listProducts = new List<Product>();
             try
             {
-                using var db = new MyStoreContext();
-                listProducts = db.Products.ToList();
+                listProducts = _context.Products.ToList();
             }
             catch (Exception e) { }
             return listProducts;
@@ -28,7 +28,6 @@ namespace DAL
         {
             try
             {
-                using var context = new MyStoreContext();
                 // Server-side validation
                 if (string.IsNullOrWhiteSpace(p.ProductName))
                     throw new Exception("Product Name is required.");
@@ -40,8 +39,8 @@ namespace DAL
                     throw new Exception("Units in Stock must be non-negative.");
                 if (p.UnitPrice.HasValue && (p.UnitPrice < 0 || p.UnitPrice > 999999.99m))
                     throw new Exception("Unit Price must be non-negative and less than 1,000,000.");
-                context.Products.Add(p);
-                context.SaveChanges();
+                _context.Products.Add(p);
+                _context.SaveChanges();
             }
             catch (Exception e)
             {
@@ -53,8 +52,6 @@ namespace DAL
         {
             try
             {
-                using var context = new MyStoreContext();
-
                 // Server-side validation
                 if (string.IsNullOrWhiteSpace(product.ProductName))
                     throw new Exception("Product Name is required.");
@@ -67,8 +64,20 @@ namespace DAL
                 if (product.UnitPrice.HasValue && (product.UnitPrice < 0 || product.UnitPrice > 999999.99m))
                     throw new Exception("Unit Price must be non-negative and less than 1,000,000.");
 
-                context.Entry<Product>(product).State = Microsoft.EntityFrameworkCore.EntityState.Modified;
-                context.SaveChanges();
+                var tracked = _context.Products.SingleOrDefault(p => p.ProductId == product.ProductId);
+                if (tracked != null)
+                {
+                    tracked.ProductName = product.ProductName;
+                    tracked.CategoryId = product.CategoryId;
+                    tracked.UnitsInStock = product.UnitsInStock;
+                    tracked.UnitPrice = product.UnitPrice;
+
+                    _context.SaveChanges();
+                }
+                else
+                {
+                    throw new Exception("Product not found.");
+                }
             }
             catch (Exception e)
             {
@@ -76,14 +85,14 @@ namespace DAL
             }
         }
 
+
         public void DeleteProduct(Product product)
         {
             try
             {
-                using var context = new MyStoreContext();
-                var p1 = context.Products.SingleOrDefault(c => c.ProductId == product.ProductId);
-                context.Products.Remove(p1);
-                context.SaveChanges();
+                var p1 = _context.Products.SingleOrDefault(c => c.ProductId == product.ProductId);
+                _context.Products.Remove(p1);
+                _context.SaveChanges();
             }
             catch (Exception e)
             {
@@ -93,8 +102,7 @@ namespace DAL
 
         public Product GetProductById(int id)
         {
-            using var db = new MyStoreContext();
-            return db.Products.FirstOrDefault(c => c.ProductId.Equals(id));
+            return _context.Products.FirstOrDefault(c => c.ProductId.Equals(id));
         }
         
     }

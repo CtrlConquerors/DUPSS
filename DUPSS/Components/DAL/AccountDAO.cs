@@ -4,10 +4,16 @@ namespace DAL
 {
     public class AccountDAO
     {
-        public static AccountMember GetAccountById(string accountID)
+        private readonly MyStoreContext _context;
+
+        public AccountDAO(MyStoreContext context)
         {
-            using var db = new MyStoreContext();
-            return db.AccountMembers.FirstOrDefault(x => x.MemberId.Equals(accountID));
+            _context = context;
+        }
+
+        public AccountMember GetAccountById(string accountID)
+        {
+            return _context.AccountMembers.FirstOrDefault(x => x.MemberId.Equals(accountID));
         }
     }
 }

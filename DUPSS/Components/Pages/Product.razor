@@ -4,6 +4,8 @@
 @using DAL
 @using Objects
 @using System.ComponentModel.DataAnnotations
+@inject DAL.CategoryDAO CategoryDAO
+@inject DAL.ProductDAO ProductDAO
 
 <PageTitle>Product</PageTitle>
 
@@ -105,8 +107,8 @@ else
     private string? errorMessage;
     private bool isEditing = false;
 
-    ProductDAO productDAO = new ProductDAO();
-    CategoryDAO categoryDAO = new CategoryDAO();
+    // ProductDAO productDAO = new ProductDAO();
+    // CategoryDAO categoryDAO = new CategoryDAO();
 
     protected override async Task OnInitializedAsync()
     {
@@ -116,9 +118,9 @@ else
 
     private void loadProducts()
     {
-        categories = categoryDAO.GetCategories();
+        categories = CategoryDAO.GetCategories();
 
-        products = productDAO.GetProducts();
+        products = ProductDAO.GetProducts();
 
         foreach (var item in products)
         {
@@ -135,7 +137,7 @@ else
 
     private void delete(Objects.Product p)
     {
-        productDAO.DeleteProduct(p);
+        ProductDAO.DeleteProduct(p);
         loadProducts();
     }
 
@@ -144,11 +146,11 @@ else
 
         if (isEditing)
         {
-            productDAO.UpdateProduct(currentProduct);
+            ProductDAO.UpdateProduct(currentProduct);
         }
         else
         {
-            productDAO.SaveProduct(currentProduct);
+            ProductDAO.SaveProduct(currentProduct);
         }
         currentProduct = new Objects.Product(); // Reset form
         isEditing = false;

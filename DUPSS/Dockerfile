@@ -14,8 +14,8 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0-nanoserver-1809 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["DUPSS/DUPSS.csproj", "DUPSS/"]
-RUN dotnet restore "./DUPSS/DUPSS.csproj"
+COPY ["DUPSS.csproj", "DUPSS/"]
+RUN dotnet restore "./DUPSS.csproj"
 COPY . .
 WORKDIR "/src/DUPSS"
 RUN dotnet build "./DUPSS.csproj" -c %BUILD_CONFIGURATION% -o /app/build

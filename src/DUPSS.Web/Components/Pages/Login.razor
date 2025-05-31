@@ -56,7 +56,7 @@
 
     private void HandleLogin()
     {
-        var user = DbContext.User.FirstOrDefault(u => u.Email == loginModel.Email && u.Password == HashPassword(loginModel.Password));
+        var user = DbContext.Users.FirstOrDefault(u => u.Email == loginModel.Email && u.Password == HashPassword(loginModel.Password));
         if (user != null)
         {
             NavigationManager.NavigateTo("/");

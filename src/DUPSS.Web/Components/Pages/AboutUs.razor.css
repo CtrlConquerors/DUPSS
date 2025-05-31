@@ -1,0 +1,234 @@
+﻿/* General Body and Container Styling */
+body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.5; /* Giảm nhẹ khoảng cách dòng cho chữ nhỏ hơn */
+    color: #333;
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 0;
+}
+
+.about-us-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 50px 20px;
+    animation: fadeIn 1s ease-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Heading Styles */
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 3.5em; /* Giảm nhẹ kích thước H1 */
+    color: #004d99;
+    text-align: center;
+    margin-bottom: 50px;
+    position: relative;
+    padding-bottom: 20px;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+    h1::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        transform: translateX(-50%);
+        width: 90px; /* Giảm nhẹ chiều rộng đường gạch dưới */
+        height: 4px; /* Giảm nhẹ độ dày */
+        background-color: #007bff;
+        border-radius: 3px;
+    }
+
+h2 {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 2em; /* Giảm kích thước H2 */
+    color: #0056b3;
+    margin-top: 0;
+    margin-bottom: 20px; /* Giảm nhẹ margin-bottom */
+    border-bottom: 2px solid #cceeff;
+    padding-bottom: 8px; /* Giảm nhẹ padding-bottom */
+    font-weight: 600;
+}
+
+/* Paragraph Styles */
+p {
+    font-size: 1em; /* Giảm kích thước chữ cho đoạn văn xuống 1em (16px mặc định) */
+    margin-bottom: 15px; /* Giảm nhẹ margin-bottom */
+    color: #444;
+    text-align: justify;
+}
+
+/* List Styles */
+ul {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 20px; /* Giảm nhẹ margin-bottom */
+}
+
+    ul li {
+        font-size: 0.95em; /* Giảm kích thước chữ cho mỗi item danh sách */
+        margin-bottom: 10px; /* Giảm nhẹ khoảng cách giữa các item */
+        position: relative;
+        padding-left: 30px; /* Giảm nhẹ padding-left */
+        color: #555;
+        background-color: #fcfcfc;
+        padding: 8px 12px 8px 30px; /* Giảm padding tổng thể cho list item */
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s ease-in-out;
+    }
+
+        ul li:hover {
+            transform: translateX(5px);
+        }
+
+        ul li::before {
+            content: '★';
+            color: #ffc107;
+            font-weight: bold;
+            position: absolute;
+            left: 8px; /* Điều chỉnh vị trí biểu tượng */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1em; /* Giảm kích thước biểu tượng */
+        }
+
+        ul li strong {
+            color: #004d99;
+        }
+
+/* Section as Grid Items Styling */
+.about-section {
+    background-color: #e9f7ff;
+    border-radius: 12px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    padding: 40px; /* Giảm nhẹ padding bên trong section */
+    margin-bottom: 40px; /* Giảm nhẹ khoảng cách giữa các section */
+    border: 1px solid #cceeff;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+    .about-section:hover {
+        transform: translateY(-7px);
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    }
+
+/* Optional: To arrange sections in a grid layout across columns if desired
+   (this applies to the parent .about-us-container)
+*/
+/*
+.about-us-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(380px, 1fr)); // Điều chỉnh minwidth cho cột
+    gap: 30px; // Giảm khoảng cách giữa các section grid
+    padding: 50px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.about-us-container h1 {
+    grid-column: 1 / -1;
+}
+
+.about-section {
+    margin-bottom: 0;
+}
+*/
+
+
+/* Responsive Design */
+@media (max-width: 992px) {
+    .about-us-container {
+        padding: 30px 15px;
+        /* Nếu dùng grid cho container, điều chỉnh cột ở đây */
+        /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
+    }
+
+    h1 {
+        font-size: 2.8em; /* Giảm thêm cho màn hình nhỏ */
+    }
+
+    h2 {
+        font-size: 1.8em; /* Giảm thêm cho màn hình nhỏ */
+    }
+
+    p, ul li {
+        font-size: 0.95em; /* Giảm thêm cho màn hình nhỏ */
+    }
+
+    .about-section {
+        padding: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-us-container {
+        padding: 25px 15px;
+        /* Nếu dùng grid cho container, chuyển về 1 cột trên mobile */
+        /* grid-template-columns: 1fr; */
+    }
+
+    h1 {
+        font-size: 2.2em;
+        margin-bottom: 40px;
+    }
+
+    h2 {
+        font-size: 1.6em;
+    }
+
+    p, ul li {
+        font-size: 0.9em; /* Giảm thêm cho màn hình nhỏ */
+    }
+
+    .about-section {
+        padding: 25px;
+        margin-bottom: 25px;
+    }
+}
+
+@media (max-width: 480px) {
+    .about-us-container {
+        padding: 15px 10px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+
+    h2 {
+        font-size: 1.3em;
+        margin-bottom: 12px;
+    }
+
+    .about-section {
+        padding: 18px;
+        margin-bottom: 20px;
+    }
+
+    ul li {
+        font-size: 0.85em; /* Giảm thêm cho màn hình rất nhỏ */
+        padding: 6px 10px 6px 25px;
+        margin-bottom: 8px;
+    }
+
+        ul li::before {
+            font-size: 1em;
+            left: 5px;
+            padding-left: 20px;
+        }
+}

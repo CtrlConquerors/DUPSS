@@ -1,0 +1,167 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<div class="container-fluid px-5 py-4">
+    <section class="hero-section">
+        <div class="hero-content">
+            
+        </div>
+
+        <div class="hero-card">
+            <h2>Một ước mơ liên thế hệ</h2>
+            <p class="quote">"Mình có thể một phần nào đó... chứng minh rằng người LGBT luôn xuất hiện và đóng góp sức lực của mình ở mọi ngành nghề"</p>
+            <a href="/cau-chuyen-nay" class="btn-read-story">ĐỌC CÂU CHUYỆN NÀY <span class="arrow">→</span></a>
+        </div>
+    </section>
+
+
+    <!-- Main Content -->
+    <div class="row">
+        <!-- Sidebar Topics -->
+        <div class="col-md-3">
+            <h5 class="fw-semibold">Blog Topics</h5>
+            <ul class="list-group">
+                <li class="list-group-item">Health & Wellness</li>
+                <li class="list-group-item">Education</li>
+                <li class="list-group-item">Science & Research</li>
+                <li class="list-group-item">Policy & Advocacy</li>
+                <li class="list-group-item">Events & Campaigns</li>
+                <li class="list-group-item">Social Life</li>
+            </ul>
+        </div>
+
+        <!-- Blog Cards -->
+        <div class="col-md-9">
+            <h6 class="text-primary mb-3">Trending Topics</h6>
+            <div class="row g-4">
+                <!-- Blog Card 1 -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="..." />
+                        <div class="card-body">
+                            <h5 class="card-title">Place Holder</h5>
+                            <p class="card-text text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+                            <span class="badge bg-secondary">Education</span>
+                            <div class="mt-2 text-muted small">By Mark Tuchel • 7 min read</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Blog Card 2 -->
+                <div class="col-md-6">
+                    <div class="card h-100 shadow-sm">
+                        <img src="https://via.placeholder.com/400x200" class="card-img-top" alt="..." />
+                        <div class="card-body">
+                            <h5 class="card-title">Place Holder</h5>
+                            <p class="card-text text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
+                            <span class="badge bg-secondary">Health & Wellness</span>
+                            <div class="mt-2 text-muted small">By Harry Duval • 4 min read</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="new-hero-section">
+        <div class="container new-hero-container">
+            <h1>
+                Every individual and community has the ability to protect themselves from the risks of drug use and plays a vital role in building a healthier, safer society.
+
+            </h1>
+
+            <div class="image-carousel-wrapper">
+                <button class="carousel-control-image prev-btn-image">
+                    <span class="arrow-icon">&lt;</span>
+                </button>
+
+                <div class="carousel-image-slides">
+                    <div class="carousel-image-slide active">
+                        <img src="images/1.jpg" alt="Câu chuyện 1" class="carousel-image" />
+                        <img src="images/2.jpg" alt="Câu chuyện 2" class="carousel-image" />
+                    </div>
+
+                    <div class="carousel-image-slide">
+                        <img src="images/3.jpg" alt="Câu chuyện 3" class="carousel-image" />
+                        <img src="images/4.jpg" alt="Câu chuyện 4" class="carousel-image" />
+                    </div>
+
+                    
+                </div>
+
+                <button class="carousel-control-image next-btn-image">
+                    <span class="arrow-icon">&gt;</span>
+                </button>
+            </div>
+        </div>
+    </section>
+    
+
+    <footer class="main-footer mt-10">
+        <div class="container footer-content-wrapper">
+            <div class="footer-section footer-logo-section col-1" >
+                <img src="images/logo.png" alt="Logo" class="footer-logo" />
+                <p class="footer-copyright">Copyright © ALPHA</p>
+            </div>
+
+            <div class="footer-section footer-info-section text-center col-2">
+                <h5 class="footer-heading">OUR INFORMATION</h5>
+                <p>Address: Phuoc Hiep</p>
+                <p>Contact number: 090 538 4233</p>
+                <p>Email: abcd@fgmail.com</p>
+            </div>
+
+            <div class="footer-section footer-subscribe-section col-7">
+                <div class="subscribe-box">
+                    <h4 class="subscribe-heading">Stay up to date</h4>
+                    <p class="subscribe-text">Get Started</p>
+                    <div class="input-group subscribe-input-group">
+                        <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
+                        <button class="btn btn-primary" type="button">Register now</button>
+                    </div>
+                    <small class="subscribe-note">*You can unsubscribe anytime</small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const slides = document.querySelectorAll('.carousel-image-slide');
+        const prevBtn = document.querySelector('.prev-btn-image');
+        const nextBtn = document.querySelector('.next-btn-image');
+        let currentIndex = 0;
+
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+        }
+
+        function nextSlide() {
+            currentIndex = (currentIndex + 1) % slides.length;
+            showSlide(currentIndex);
+        }
+
+        function prevSlide() {
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            showSlide(currentIndex);
+        }
+
+        // Kiểm tra để đảm bảo nút tồn tại trước khi thêm event listener
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
+        }
+
+        // Hiển thị slide đầu tiên khi tải trang
+        showSlide(currentIndex);
+    });
+</script>

@@ -1,0 +1,79 @@
+﻿@page "/login"
+@using DUPSS.Object
+@using System.Security.Cryptography
+@using System.Text
+@rendermode InteractiveServer
+
+<PageTitle>Login</PageTitle>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">Login to Your Account</h3>
+                    <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger mb-3" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText @bind-Value="loginModel.Email" class="form-control" placeholder="Enter your email" />
+                            <ValidationMessage For="@(() => loginModel.Email)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <InputText type="password" @bind-Value="loginModel.Password" class="form-control" placeholder="Enter your password" />
+                            <ValidationMessage For="@(() => loginModel.Password)" class="text-danger" />
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary">Login</button>
+                        </div>
+
+                        <div class="text-center">
+                            <NavLink href="/register" class="btn btn-link">Need an account? Register</NavLink>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+
+    private LoginModel loginModel = new LoginModel();
+
+    [Inject]
+    private AppDbContext DbContext { get; set; }
+
+    private void HandleLogin()
+    {
+        var user = DbContext.User.FirstOrDefault(u => u.Email == loginModel.Email && u.Password == HashPassword(loginModel.Password));
+        if (user != null)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            // Add error message (e.g., "Invalid credentials")
+        }
+    }
+
+    private string HashPassword(string password)
+    {
+        using var sha256 = SHA256.Create();
+        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return Convert.ToBase64String(hashedBytes);
+    }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+}

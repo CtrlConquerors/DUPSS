@@ -1,0 +1,127 @@
+﻿@page "/register"
+@using DUPSS.Object
+@using DUPSS.AccessLayer.Interfaces
+@using System.Security.Cryptography
+@using System.Text
+@rendermode InteractiveServer
+@inject DUPSS.AccessLayer.DAOs.UserDAO userDAO;
+
+<PageTitle>Register</PageTitle>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h3 class="text-center mb-4">Create Your Account</h3>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+                    <EditForm Model="@user" OnValidSubmit="HandleRegister">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="text-danger mb-3" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Username</label>
+                            <InputText @bind-Value="user.Username" class="form-control" placeholder="Enter your username" />
+                            <ValidationMessage For="@(() => user.Username)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Date of Birth</label>
+                            <InputDate @bind-Value="dob" class="form-control" />
+                            <ValidationMessage For="@(() => dob)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <InputText @bind-Value="user.PhoneNumber" class="form-control" placeholder="Enter your phone number" />
+                            <ValidationMessage For="@(() => user.PhoneNumber)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <InputText @bind-Value="user.Email" class="form-control" placeholder="Enter your email" />
+                            <ValidationMessage For="@(() => user.Email)" class="text-danger" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Password</label>
+                            <InputText type="password" @bind-Value="user.Password" class="form-control" placeholder="Enter your password" />
+                            <ValidationMessage For="@(() => user.Password)" class="text-danger" />
+                        </div>
+
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary">Register</button>
+                        </div>
+
+                        <div class="text-center">
+                            <NavLink href="/login" class="btn btn-link">Already have an account? Login</NavLink>
+                        </div>
+                    </EditForm>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private User user = new User
+    {
+        UserId = Guid.NewGuid().ToString(),
+        Username = "",
+        Email = "",
+        Password = "",
+        RoleId = "me"       //force new Registered user to be member
+    };
+
+    private DateTime? dob
+    {
+        get => user.Dob.HasValue ? user.Dob.Value.ToDateTime(new TimeOnly(0, 0)) : null;
+        set => user.Dob = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+    }
+
+    private string errorMessage = "";
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            // Hash the password
+            user.Password = HashPassword(user.Password);
+
+            // Add the user
+            await userDAO.CreateAsync(user);
+
+            // Clear any previous error message
+            errorMessage = "";
+
+            // Redirect to login page
+            NavigationManager.NavigateTo("/login");
+        }
+        catch (Exception ex)
+        {
+            if (ex.Message.Contains("FOREIGN KEY constraint"))
+            {
+                errorMessage = "The assigned role does not exist in the database. Please contact support.";
+            }
+            else
+            {
+                errorMessage = $"An error occurred while registering: {ex.Message}";
+            }
+        }
+    }
+
+    private string HashPassword(string password)
+    {
+        using var sha256 = SHA256.Create();
+        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return Convert.ToBase64String(hashedBytes);
+    }
+}

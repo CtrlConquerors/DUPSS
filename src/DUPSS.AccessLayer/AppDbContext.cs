@@ -4,8 +4,8 @@ namespace DUPSS.Object;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<User> Users { get; set; }
+    public DbSet<Role> Role { get; set; }
+    public DbSet<User> User { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<Campaign> Campaigns { get; set; }
     public DbSet<CourseTopic> CourseTopics { get; set; }

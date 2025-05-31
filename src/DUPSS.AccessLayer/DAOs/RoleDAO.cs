@@ -13,43 +13,43 @@ namespace DUPSS.AccessLayer.DAOs
             _context = context;
         }
 
-        public async Task<Role> CreateAsync(Role role)
-        {
-            _context.Roles.Add(role);
-            await _context.SaveChangesAsync();
-            return role;
-        }
+        //public async Task<Role> CreateAsync(Role role)
+        //{
+        //    _context.Roles.Add(role);
+        //    await _context.SaveChangesAsync();
+        //    return role;
+        //}
 
-        public async Task<Role> GetByIdAsync(string roleId)
-        {
-            return await _context.Roles
-                .Include(r => r.Users)
-                .FirstOrDefaultAsync(r => r.RoleId == roleId);
-        }
+        //public async Task<Role> GetByIdAsync(string roleId)
+        //{
+        //    return await _context.Roles
+        //        .Include(r => r.Users)
+        //        .FirstOrDefaultAsync(r => r.RoleId == roleId);
+        //}
 
-        public async Task<List<Role>> GetAllAsync()
-        {
-            return await _context.Roles
-                .Include(r => r.Users)
-                .ToListAsync();
-        }
+        //public async Task<List<Role>> GetAllAsync()
+        //{
+        //    return await _context.Roles
+        //        .Include(r => r.Users)
+        //        .ToListAsync();
+        //}
 
-        public async Task<Role> UpdateAsync(Role role)
-        {
-            _context.Roles.Update(role);
-            await _context.SaveChangesAsync();
-            return role;
-        }
+        //public async Task<Role> UpdateAsync(Role role)
+        //{
+        //    _context.Roles.Update(role);
+        //    await _context.SaveChangesAsync();
+        //    return role;
+        //}
 
-        public async Task<bool> DeleteAsync(string roleId)
-        {
-            var role = await _context.Roles.FindAsync(roleId);
-            if (role == null)
-                return false;
+        //public async Task<bool> DeleteAsync(string roleId)
+        //{
+        //    var role = await _context.Roles.FindAsync(roleId);
+        //    if (role == null)
+        //        return false;
 
-            _context.Roles.Remove(role);
-            await _context.SaveChangesAsync();
-            return true;
-        }
+        //    _context.Roles.Remove(role);
+        //    await _context.SaveChangesAsync();
+        //    return true;
+        //}
     }
 }

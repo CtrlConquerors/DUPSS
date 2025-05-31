@@ -15,14 +15,14 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<AssessmentResult> CreateAsync(AssessmentResult assessmentResult)
         {
-            _context.AssessmentResults.Add(assessmentResult);
+            _context.AssessmentResult.Add(assessmentResult);
             await _context.SaveChangesAsync();
             return assessmentResult;
         }
 
         public async Task<AssessmentResult> GetByIdAsync(string resultId)
         {
-            return await _context.AssessmentResults
+            return await _context.AssessmentResult
                 .Include(ar => ar.Assessment)
                 .Include(ar => ar.Member)
                 .FirstOrDefaultAsync(ar => ar.ResultId == resultId);
@@ -30,7 +30,7 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<List<AssessmentResult>> GetAllAsync()
         {
-            return await _context.AssessmentResults
+            return await _context.AssessmentResult
                 .Include(ar => ar.Assessment)
                 .Include(ar => ar.Member)
                 .ToListAsync();
@@ -38,18 +38,18 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<AssessmentResult> UpdateAsync(AssessmentResult assessmentResult)
         {
-            _context.AssessmentResults.Update(assessmentResult);
+            _context.AssessmentResult.Update(assessmentResult);
             await _context.SaveChangesAsync();
             return assessmentResult;
         }
 
         public async Task<bool> DeleteAsync(string resultId)
         {
-            var assessmentResult = await _context.AssessmentResults.FindAsync(resultId);
+            var assessmentResult = await _context.AssessmentResult.FindAsync(resultId);
             if (assessmentResult == null)
                 return false;
 
-            _context.AssessmentResults.Remove(assessmentResult);
+            _context.AssessmentResult.Remove(assessmentResult);
             await _context.SaveChangesAsync();
             return true;
         }

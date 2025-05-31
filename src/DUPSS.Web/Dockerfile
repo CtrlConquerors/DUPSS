@@ -12,19 +12,21 @@ EXPOSE 8081
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
-COPY ["DUPSS/DUPSS.csproj", "DUPSS/"]
-RUN dotnet restore "./DUPSS/DUPSS.csproj"
+COPY ["DUPSS.Web/DUPSS.Web.csproj", "DUPSS.Web/"]
+COPY ["DUPSS.AccessLayer/DUPSS.AccessLayer.csproj", "DUPSS.AccessLayer/"]
+COPY ["DUPSS.Object/DUPSS.Object.csproj", "DUPSS.Object/"]
+RUN dotnet restore "./DUPSS.Web/DUPSS.Web.csproj"
 COPY . .
-WORKDIR "/src/DUPSS"
-RUN dotnet build "./DUPSS.csproj" -c $BUILD_CONFIGURATION -o /app/build
+WORKDIR "/src/DUPSS.Web"
+RUN dotnet build "./DUPSS.Web.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
 # This stage is used to publish the service project to be copied to the final stage
 FROM build AS publish
 ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./DUPSS.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "./DUPSS.Web.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
 
 # This stage is used in production or when running from VS in regular mode (Default when not using the Debug configuration)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "DUPSS.dll"]
+ENTRYPOINT ["dotnet", "DUPSS.Web.dll"]

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -21,6 +21,11 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\images\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DUPSS.AccessLayer\DUPSS.AccessLayer.csproj" />
+    <ProjectReference Include="..\DUPSS.Object\DUPSS.Object.csproj" />
   </ItemGroup>
 
 </Project>

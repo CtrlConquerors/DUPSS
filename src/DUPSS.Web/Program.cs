@@ -1,19 +1,29 @@
-using DAL;
-using DUPSS.Components;
+using DUPSS.Object;
+using DUPSS.AccessLayer.DAOs;
+using DUPSS.AccessLayer.Interfaces;
 using Microsoft.EntityFrameworkCore;
-using Objects;
+using DUPSS.Web.Components;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<MyStoreContext>(options =>
+builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddScoped<CategoryDAO>();
-builder.Services.AddScoped<ProductDAO>();
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddScoped<IRoleDAO, RoleDAO>();
+builder.Services.AddScoped<IUserDAO, UserDAO>();
+builder.Services.AddScoped<IAppointmentDAO, AppointmentDAO>();
+builder.Services.AddScoped<ICampaignDAO, CampaignDAO>();
+builder.Services.AddScoped<ICourseTopicDAO, CourseTopicDAO>();
+builder.Services.AddScoped<ICourseDAO, CourseDAO>();
+builder.Services.AddScoped<ICourseEnrollDAO, CourseEnrollDAO>();
+builder.Services.AddScoped<IAssessmentDAO, AssessmentDAO>();
+builder.Services.AddScoped<IAssessmentResultDAO, AssessmentResultDAO>();
+builder.Services.AddScoped<IBlogDAO, BlogDAO>();
 
 var app = builder.Build();
 

@@ -15,39 +15,39 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<CourseTopic> CreateAsync(CourseTopic courseTopic)
         {
-            _context.CourseTopics.Add(courseTopic);
+            _context.CourseTopic.Add(courseTopic);
             await _context.SaveChangesAsync();
             return courseTopic;
         }
 
         public async Task<CourseTopic> GetByIdAsync(string topicId)
         {
-            return await _context.CourseTopics
+            return await _context.CourseTopic
                 .Include(ct => ct.Courses)
                 .FirstOrDefaultAsync(ct => ct.TopicId == topicId);
         }
 
         public async Task<List<CourseTopic>> GetAllAsync()
         {
-            return await _context.CourseTopics
+            return await _context.CourseTopic
                 .Include(ct => ct.Courses)
                 .ToListAsync();
         }
 
         public async Task<CourseTopic> UpdateAsync(CourseTopic courseTopic)
         {
-            _context.CourseTopics.Update(courseTopic);
+            _context.CourseTopic.Update(courseTopic);
             await _context.SaveChangesAsync();
             return courseTopic;
         }
 
         public async Task<bool> DeleteAsync(string topicId)
         {
-            var courseTopic = await _context.CourseTopics.FindAsync(topicId);
+            var courseTopic = await _context.CourseTopic.FindAsync(topicId);
             if (courseTopic == null)
                 return false;
 
-            _context.CourseTopics.Remove(courseTopic);
+            _context.CourseTopic.Remove(courseTopic);
             await _context.SaveChangesAsync();
             return true;
         }

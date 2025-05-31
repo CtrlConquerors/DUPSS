@@ -15,14 +15,14 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<Course> CreateAsync(Course course)
         {
-            _context.Courses.Add(course);
+            _context.Course.Add(course);
             await _context.SaveChangesAsync();
             return course;
         }
 
         public async Task<Course> GetByIdAsync(string courseId)
         {
-            return await _context.Courses
+            return await _context.Course
                 .Include(c => c.Topic)
                 .Include(c => c.Staff)
                 .Include(c => c.Enrollments)
@@ -31,7 +31,7 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<List<Course>> GetAllAsync()
         {
-            return await _context.Courses
+            return await _context.Course
                 .Include(c => c.Topic)
                 .Include(c => c.Staff)
                 .Include(c => c.Enrollments)
@@ -40,18 +40,18 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<Course> UpdateAsync(Course course)
         {
-            _context.Courses.Update(course);
+            _context.Course.Update(course);
             await _context.SaveChangesAsync();
             return course;
         }
 
         public async Task<bool> DeleteAsync(string courseId)
         {
-            var course = await _context.Courses.FindAsync(courseId);
+            var course = await _context.Course.FindAsync(courseId);
             if (course == null)
                 return false;
 
-            _context.Courses.Remove(course);
+            _context.Course.Remove(course);
             await _context.SaveChangesAsync();
             return true;
         }

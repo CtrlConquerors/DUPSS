@@ -4,6 +4,7 @@
 @using System.Security.Cryptography
 @using System.Text
 @rendermode InteractiveServer
+@inject IUserDAO UserDAO
 
 <PageTitle>Register</PageTitle>
 
@@ -31,8 +32,8 @@
 
                         <div class="mb-3">
                             <label class="form-label">Date of Birth</label>
-                            <InputDate @bind-Value="dob" class="form-control" />
-                            <ValidationMessage For="@(() => dob)" class="text-danger" />
+                            <InputDate @bind-Value="DoB" class="form-control" />
+                            <ValidationMessage For="@(() => DoB)" class="text-danger" />
                         </div>
 
                         <div class="mb-3">
@@ -74,19 +75,18 @@
         Username = "",
         Email = "",
         Password = "",
-        RoleId = "me"       //force new Registered user to be member
+        DoB = null,
+        RoleId = "ME"       //force new Registered user to be member
     };
 
-    private DateTime? dob
+    private DateTime? DoB
     {
-        get => user.Dob.HasValue ? user.Dob.Value.ToDateTime(new TimeOnly(0, 0)) : null;
-        set => user.Dob = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
+        get => user.DoB.HasValue ? user.DoB.Value.ToDateTime(new TimeOnly(0, 0)) : null;
+        set => user.DoB = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
     }
 
     private string errorMessage = "";
 
-    [Inject]
-    private IUserDAO UserDAO { get; set; }
 
     [Inject]
     private NavigationManager NavigationManager { get; set; }

@@ -15,14 +15,14 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<Appointment> CreateAsync(Appointment appointment)
         {
-            _context.Appointments.Add(appointment);
+            _context.Appointment.Add(appointment);
             await _context.SaveChangesAsync();
             return appointment;
         }
 
         public async Task<Appointment> GetByIdAsync(string appointmentId)
         {
-            return await _context.Appointments
+            return await _context.Appointment
                 .Include(a => a.Member)
                 .Include(a => a.Consultant)
                 .FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
@@ -30,7 +30,7 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<List<Appointment>> GetAllAsync()
         {
-            return await _context.Appointments
+            return await _context.Appointment
                 .Include(a => a.Member)
                 .Include(a => a.Consultant)
                 .ToListAsync();
@@ -38,18 +38,18 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<Appointment> UpdateAsync(Appointment appointment)
         {
-            _context.Appointments.Update(appointment);
+            _context.Appointment.Update(appointment);
             await _context.SaveChangesAsync();
             return appointment;
         }
 
         public async Task<bool> DeleteAsync(string appointmentId)
         {
-            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            var appointment = await _context.Appointment.FindAsync(appointmentId);
             if (appointment == null)
                 return false;
 
-            _context.Appointments.Remove(appointment);
+            _context.Appointment.Remove(appointment);
             await _context.SaveChangesAsync();
             return true;
         }

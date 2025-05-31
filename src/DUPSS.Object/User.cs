@@ -1,14 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUPSS.Object
 {
+
     public class User
     {
         [Key]
         public required string UserId { get; set; }
         [Required, MaxLength(100)]
         public required string Username { get; set; }
-        public DateOnly? Dob { get; set; }
+        public DateOnly? DoB { get; set; }
         [MaxLength(20)]
         public string? PhoneNumber { get; set; }
         [Required, MaxLength(100)]

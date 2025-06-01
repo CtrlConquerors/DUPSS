@@ -56,8 +56,9 @@
 
     private void HandleLogin()
     {
-        var user = DbContext.User.FirstOrDefault(u => u.Email == loginModel.Email && u.Password == HashPassword(loginModel.Password));
-        if (user != null)
+        var user = DbContext.User.FirstOrDefault(u => u.Email == loginModel.Email);
+
+        if (user != null && VerifyPassword(loginModel.Password, user.Password))
         {
             NavigationManager.NavigateTo("/");
         }
@@ -67,11 +68,19 @@
         }
     }
 
-    private string HashPassword(string password)
+    private bool VerifyPassword(string password, string storedSaltHash)
     {
-        using var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-        return Convert.ToBase64String(hashedBytes);
+        var parts = storedSaltHash.Split(':');
+        if (parts.Length != 2) return false;
+
+        byte[] salt = Convert.FromBase64String(parts[0]);
+        string storedHash = parts[1];
+
+        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256);
+        byte[] hash = pbkdf2.GetBytes(32);
+        string hashBase64 = Convert.ToBase64String(hash);
+
+        return storedHash == hashBase64;
     }
 
     [Inject]

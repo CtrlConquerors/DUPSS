@@ -10,7 +10,7 @@ public class AppDbContext : DbContext
     public DbSet<Campaign> Campaign { get; set; }
     public DbSet<CourseTopic> CourseTopic { get; set; }
     public DbSet<Course> Course { get; set; }
-    public DbSet<CourseEnroll> CourseEnrollment { get; set; }
+    public DbSet<CourseEnroll> CourseEnroll { get; set; }
     public DbSet<Assessment> Assessment { get; set; }
     public DbSet<AssessmentResult> AssessmentResult { get; set; }
     public DbSet<Blog> Blog { get; set; }
@@ -95,5 +95,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.AssessmentId);
         modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.MemberId);
         modelBuilder.Entity<Blog>().HasIndex(b => b.StaffId);
+        
+
     }
 }

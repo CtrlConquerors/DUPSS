@@ -15,14 +15,14 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<CourseEnroll> CreateAsync(CourseEnroll courseEnroll)
         {
-            _context.CourseEnrollment.Add(courseEnroll);
+            _context.CourseEnroll.Add(courseEnroll);
             await _context.SaveChangesAsync();
             return courseEnroll;
         }
 
         public async Task<CourseEnroll> GetByIdAsync(string enrollId)
         {
-            return await _context.CourseEnrollment
+            return await _context.CourseEnroll
                 .Include(ce => ce.Member)
                 .Include(ce => ce.Course)
                 .FirstOrDefaultAsync(ce => ce.EnrollId == enrollId);
@@ -30,7 +30,7 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<List<CourseEnroll>> GetAllAsync()
         {
-            return await _context.CourseEnrollment
+            return await _context.CourseEnroll
                 .Include(ce => ce.Member)
                 .Include(ce => ce.Course)
                 .ToListAsync();
@@ -38,18 +38,18 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<CourseEnroll> UpdateAsync(CourseEnroll courseEnroll)
         {
-            _context.CourseEnrollment.Update(courseEnroll);
+            _context.CourseEnroll.Update(courseEnroll);
             await _context.SaveChangesAsync();
             return courseEnroll;
         }
 
         public async Task<bool> DeleteAsync(string enrollId)
         {
-            var courseEnroll = await _context.CourseEnrollment.FindAsync(enrollId);
+            var courseEnroll = await _context.CourseEnroll.FindAsync(enrollId);
             if (courseEnroll == null)
                 return false;
 
-            _context.CourseEnrollment.Remove(courseEnroll);
+            _context.CourseEnroll.Remove(courseEnroll);
             await _context.SaveChangesAsync();
             return true;
         }

@@ -15,39 +15,39 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<Role> CreateAsync(Role role)
         {
-            _context.Roles.Add(role);
+            _context.Role.Add(role);
             await _context.SaveChangesAsync();
             return role;
         }
 
         public async Task<Role> GetByIdAsync(string roleId)
         {
-            return await _context.Roles
+            return await _context.Role
                 .Include(r => r.Users)
                 .FirstOrDefaultAsync(r => r.RoleId == roleId);
         }
 
         public async Task<List<Role>> GetAllAsync()
         {
-            return await _context.Roles
+            return await _context.Role
                 .Include(r => r.Users)
                 .ToListAsync();
         }
 
         public async Task<Role> UpdateAsync(Role role)
         {
-            _context.Roles.Update(role);
+            _context.Role.Update(role);
             await _context.SaveChangesAsync();
             return role;
         }
 
         public async Task<bool> DeleteAsync(string roleId)
         {
-            var role = await _context.Roles.FindAsync(roleId);
+            var role = await _context.Role.FindAsync(roleId);
             if (role == null)
                 return false;
 
-            _context.Roles.Remove(role);
+            _context.Role.Remove(role);
             await _context.SaveChangesAsync();
             return true;
         }

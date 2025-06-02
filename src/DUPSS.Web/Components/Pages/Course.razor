@@ -1,5 +1,6 @@
 ﻿@page "/Course"
 @inject DUPSS.AccessLayer.Interfaces.ICourseDAO CourseDAO
+@inject NavigationManager NavigationManager
 
 <div class="course-page-container">
     <h1 class="page-title">Our Most Popular Courses</h1>
@@ -10,6 +11,12 @@
         <div class="loading-indicator">
             <p>Loading courses...</p>
             <div class="spinner"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <p>Oops! Something went wrong while loading courses. Please try again later.</p>
         </div>
     }
     else if (!courses.Any())
@@ -25,24 +32,19 @@
             {
                 <div class="course-card">
                     @* <div class="card-image">
-                        <img src="https://placehold.co/300x200/ADD8E6/000000?text=Course+Image" alt="Course Image" />
+                        <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")" alt="Course Image" />
                     </div> *@
                     <div class="card-content">
                         <span class="course-category">@(course.Topic?.TopicName ?? "General")</span>
                         <h3 class="course-name">@course.CourseName</h3>
                         <p class="course-type">Type: @course.CourseType</p>
-                        <div class="course-rating">
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                            <span class="star">&#9733;</span>
-                            <span class="star-empty">&#9733;</span>
-                            <span class="reviews">(4.5 / 5 reviews)</span>
-                        </div>
-                        <button class="explore-button">Explore More</button>
                     </div>
                 </div>
             }
+        </div>
+
+        <div class="main-explore-button-container">
+            <button class="main-explore-button" @onclick="NavigateToCoursesPage">Explore More</button>
         </div>
     }
 </div>
@@ -74,25 +76,30 @@
         </div>
     </div>
 </footer>
-@code {
-    // List to hold the fetched courses
-    private List<DUPSS.Object.Course>? courses;
 
-    // This method is called when the component is initialized.
-    // It's used to fetch data asynchronously.
+@code {
+    private List<DUPSS.Object.Course>? courses;
+    private bool hasError = false;
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            // Fetch all courses using the injected ICourseDAO
             courses = await CourseDAO.GetAllAsync();
+            hasError = false;
         }
         catch (Exception ex)
         {
-            // Log the error or display a user-friendly message
             Console.WriteLine($"Error fetching courses: {ex.Message}");
-            // Optionally, set courses to an empty list or null to indicate an error state
             courses = new List<DUPSS.Object.Course>();
+            hasError = true;
         }
+    }
+
+    private void NavigateToCoursesPage()
+    {
+        // Example navigation method for the main "Explore More" button
+        // NavigationManager.NavigateTo("/AllCourses");
+        Console.WriteLine("Explore More button clicked!");
     }
 }

@@ -1,14 +1,14 @@
-﻿ Course.razor.css - Scoped styles for the Course page 
+﻿/* Course.razor.css - Scoped styles for the Course page */
 
- Overall container for the page content 
+/* Overall container for the page content */
 .course-page-container {
     padding: 20px;
-    max-width: 1200px;  Limit content width for better readability 
-    margin: 0 auto;  Center the container 
-    font-family: 'Inter', sans-serif;  Use Inter font 
+    max-width: 1200px; /* Limit content width for better readability */
+    margin: 0 auto; /* Center the container */
+    font-family: 'Inter', sans-serif; /* Use Inter font */
 }
 
- Page title styling 
+/* Page title styling */
 .page-title {
     font-size: 2.5em;
     color: #333;
@@ -17,7 +17,7 @@
     font-weight: 700;
 }
 
- Page subtitle styling 
+/* Page subtitle styling */
 .page-subtitle {
     font-size: 1.1em;
     color: #666;
@@ -28,7 +28,7 @@
     margin-right: auto;
 }
 
- Loading indicator styling 
+/* Loading indicator styling */
 .loading-indicator {
     text-align: center;
     padding: 50px;
@@ -56,7 +56,7 @@
     }
 }
 
- No courses message styling 
+/* No courses message styling */
 .no-courses-message {
     text-align: center;
     padding: 50px;
@@ -67,57 +67,69 @@
     background-color: #f0f0f0;
 }
 
- Grid for course cards 
+/* New: Error message styling */
+.error-message {
+    text-align: center;
+    padding: 50px;
+    color: #d9534f; /* Red color for error */
+    font-size: 1.2em;
+    border: 1px dashed #d9534f;
+    border-radius: 8px;
+    background-color: #fce7e6;
+}
+
+/* Grid for course cards */
 .course-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));  Responsive grid 
+    /* Responsive grid: 3 columns, minimum 280px, maximum 1fr */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
     padding: 20px 0;
 }
 
- Individual course card styling 
+/* Individual course card styling */
 .course-card {
     background-color: #fff;
-    border-radius: 12px;  Rounded corners 
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);  Soft shadow 
-    overflow: hidden;  Ensures image corners are rounded 
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    overflow: hidden; /* Ensures image corners are rounded */
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
     .course-card:hover {
-        transform: translateY(-5px);  Slight lift on hover 
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);  More pronounced shadow on hover 
+        transform: translateY(-5px); /* Slight lift on hover */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
     }
 
- Course image styling 
+/* Course image styling */
 .card-image img {
     width: 100%;
-    height: 180px;  Fixed height for consistency 
-    object-fit: cover;  Cover the area, cropping if necessary 
+    height: 180px; /* Fixed height for consistency */
+    object-fit: cover; /* Cover the area, cropping if necessary */
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
 }
 
- Card content area styling 
+/* Card content area styling */
 .card-content {
     padding: 15px;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;  Allows content to expand 
+    flex-grow: 1; /* Allows content to expand */
 }
 
- Course category styling 
+/* Course category styling */
 .course-category {
     font-size: 0.9em;
-    color: #007bff;  A distinct color for categories 
+    color: #007bff; /* A distinct color for categories */
     font-weight: 600;
     margin-bottom: 5px;
     text-transform: uppercase;
 }
 
- Course name styling 
+/* Course name styling */
 .course-name {
     font-size: 1.4em;
     color: #333;
@@ -126,30 +138,32 @@
     line-height: 1.3;
 }
 
- Course type styling 
+/* Course type styling */
 .course-type {
     font-size: 0.95em;
     color: #555;
     margin-bottom: 10px;
 }
 
- Rating section styling 
+/* Removed Rating section styling - these are no longer needed */
+/*
 .course-rating {
     display: flex;
     align-items: center;
-    margin-top: auto;  Pushes rating and button to the bottom 
+    margin-top: auto;
     padding-top: 10px;
     border-top: 1px solid #eee;
+    margin-top: 15px;
 }
 
 .star, .star-empty {
-    color: #FFD700;  Gold color for stars 
+    color: #FFD700;
     font-size: 1.2em;
     margin-right: 2px;
 }
 
 .star-empty {
-    color: #ccc;  Lighter color for empty stars 
+    color: #ccc;
 }
 
 .reviews {
@@ -157,32 +171,40 @@
     color: #777;
     margin-left: 5px;
 }
+*/
 
- Explore button styling 
-.explore-button {
-    background-color: #007bff;
-    color: white;
-    padding: 10px 15px;
-    border: none;
-    border-radius: 8px;  Rounded corners for button 
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: 600;
-    margin-top: 15px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    width: 100%;  Full width button 
+/* Styling for the single "Explore More" button at the bottom */
+.main-explore-button-container {
+    text-align: center;
+    margin-top: 40px; /* Space above the button */
+    margin-bottom: 40px; /* Space below the button (before footer) */
 }
 
-    .explore-button:hover {
+.main-explore-button {
+    background-color: #007bff; /* Blue color for the button */
+    color: white;
+    padding: 15px 30px; /* Larger padding for prominence */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block; /* To allow text-align: center on parent */
+    min-width: 200px; /* Ensure it has a decent width */
+}
+
+    .main-explore-button:hover {
         background-color: #0056b3;
         transform: translateY(-2px);
     }
 
-    .explore-button:active {
+    .main-explore-button:active {
         transform: translateY(0);
     }
 
- Responsive adjustments 
+
+/* Responsive adjustments for course grid and cards */
 @media (max-width: 768px) {
     .page-title {
         font-size: 2em;
@@ -193,13 +215,14 @@
     }
 
     .course-grid {
+        /* On smaller screens, allow 2 columns down to 250px minimum */
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
         gap: 20px;
     }
 
     .course-card {
-        margin: 0 auto;  Center cards on smaller screens if they don't fill the grid 
-        max-width: 350px;  Prevent cards from becoming too wide on small screens 
+        margin: 0 auto; /* Center cards on smaller screens if they don't fill the grid */
+        max-width: 350px; /* Prevent cards from becoming too wide on small screens */
     }
 }
 
@@ -218,19 +241,27 @@
     }
 
     .course-grid {
-        grid-template-columns: 1fr;  Single column layout on very small screens 
+        grid-template-columns: 1fr; /* Single column layout on very small screens */
         gap: 15px;
+    }
+
+    .main-explore-button {
+        padding: 12px 25px;
+        font-size: 1em;
+        min-width: 180px;
     }
 }
 
+
+/* Footer Styles */
 .main-footer {
     background-color: #1a237e;
     color: #f0f2f5;
-   
-    margin-top: 150px;
-    width:100%;
+    margin-top: 150px; /* Keep this if you want the large gap, otherwise reduce */
+    width: 100%;
     font-family: 'Open Sans', sans-serif;
-    display:flex;
+    padding: 40px 20px; /* Add padding to the footer itself */
+    box-sizing: border-box; /* Include padding in element's total width/height */
 }
 
     .main-footer .footer-content-wrapper {
@@ -239,11 +270,13 @@
         justify-content: space-between;
         align-items: flex-start;
         gap: 30px;
+        max-width: 1200px; /* Match page container max-width */
+        margin: 0 auto; /* Center footer content */
     }
 
     .main-footer .footer-section {
         flex: 1;
-        min-width: 280px;
+        min-width: 280px; /* Ensure sections don't get too small */
         padding: 15px;
         text-align: left;
     }
@@ -273,7 +306,7 @@
 
     /* Information Section */
     .main-footer .footer-info-section {
-        text-align: center;
+        text-align: center; /* This centers the content for this section */
     }
 
         .main-footer .footer-info-section p {
@@ -295,6 +328,7 @@
         .main-footer .footer-heading::after {
             content: '';
             position: absolute;
+            /* For info section, this will center the underline */
             left: 50%;
             transform: translateX(-50%);
             bottom: 0;
@@ -306,8 +340,10 @@
 
     /* Subscribe Section */
     .main-footer .footer-subscribe-section {
+        /* Adjusted for consistency with main footer content wrapper */
         display: flex;
-        justify-content: flex-end;
+        justify-content: flex-end; /* Pushes content to the right for large screens */
+        align-items: flex-start;
     }
 
     .main-footer .subscribe-box {
@@ -336,9 +372,11 @@
 
     .main-footer .subscribe-input-group {
         margin-bottom: 10px;
+        display: flex; /* Make input and button side-by-side */
     }
 
         .main-footer .subscribe-input-group .form-control {
+            flex-grow: 1; /* Allow input to take available space */
             border-radius: 25px 0 0 25px;
             border: none;
             padding: 10px 15px;
@@ -346,6 +384,7 @@
         }
 
         .main-footer .subscribe-input-group .btn {
+            flex-shrink: 0; /* Prevent button from shrinking */
             border-radius: 0 25px 25px 0;
             background-color: #ffd700;
             color: #1a237e;
@@ -368,31 +407,31 @@
 @media (max-width: 992px) {
     .main-footer .footer-content-wrapper {
         flex-direction: column;
-        align-items: center;
+        align-items: center; /* Center all items when stacked */
     }
 
     .main-footer .footer-section {
         min-width: unset;
-        width: 100%;
-        text-align: center;
+        width: 100%; /* Take full width when stacked */
+        text-align: center; /* Center text for all sections */
         margin-bottom: 30px;
     }
 
     .main-footer .footer-logo-section {
-        align-items: center;
+        align-items: center; /* Center logo when stacked */
     }
 
     .main-footer .footer-heading::after {
         left: 50%;
-        transform: translateX(-50%);
+        transform: translateX(-50%); /* Ensure underline remains centered */
     }
 
     .main-footer .footer-subscribe-section {
-        justify-content: center;
+        justify-content: center; /* Center subscribe box when stacked */
     }
 
     .main-footer .subscribe-box {
-        max-width: 80%;
+        max-width: 80%; /* Limit width of subscribe box on tablets */
     }
 
     .main-footer .subscribe-input-group {
@@ -471,5 +510,3 @@
             font-size: 0.7em;
         }
 }
-
-

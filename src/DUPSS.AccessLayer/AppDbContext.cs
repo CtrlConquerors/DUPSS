@@ -9,7 +9,7 @@ public class AppDbContext : DbContext
     public DbSet<Appointment> Appointment { get; set; }
     public DbSet<Campaign> Campaign { get; set; }
     public DbSet<CourseTopic> CourseTopic { get; set; }
-    public DbSet<Course> Course { get; set; }
+    public DbSet<Course> Course { get; set; } // Make sure Course class has ImageUrl property
     public DbSet<CourseEnroll> CourseEnroll { get; set; }
     public DbSet<Assessment> Assessment { get; set; }
     public DbSet<AssessmentResult> AssessmentResult { get; set; }
@@ -19,6 +19,11 @@ public class AppDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Tell Entity Framework Core to ignore the ImageUrl property on the Course entity
+        // This is crucial because ImageUrl is dynamically set in the DAO, not stored in the DB.
+        modelBuilder.Entity<Course>()
+            .Ignore(c => c.ImageUrl); // <--- ADDED THIS LINE
+
         // Role -> Users (one-to-many)
         modelBuilder.Entity<User>()
             .HasOne(u => u.Role)
@@ -95,7 +100,5 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.AssessmentId);
         modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.MemberId);
         modelBuilder.Entity<Blog>().HasIndex(b => b.StaffId);
-        
-
     }
 }

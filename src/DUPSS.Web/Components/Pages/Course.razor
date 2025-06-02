@@ -31,9 +31,9 @@
             @foreach (var course in courses)
             {
                 <div class="course-card">
-                    @* <div class="card-image">
+                    <div class="card-image">
                         <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")" alt="Course Image" />
-                    </div> *@
+                    </div>
                     <div class="card-content">
                         <span class="course-category">@(course.Topic?.TopicName ?? "General")</span>
                         <h3 class="course-name">@course.CourseName</h3>

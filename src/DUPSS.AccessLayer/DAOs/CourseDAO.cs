@@ -31,10 +31,10 @@ namespace DUPSS.AccessLayer.DAOs
                 .FirstOrDefaultAsync(c => c.CourseId == courseId);
 
             // Dynamically set ImageUrl if the course is found
-            //if (course != null)
-            //{
-            //    course.ImageUrl = $"images/{course.CourseId}.jpg";
-            //}
+            if (course != null)
+            {
+                course.ImageUrl = $"images/{course.CourseId}.jpg";
+            }
 
             return course;
         }
@@ -48,10 +48,10 @@ namespace DUPSS.AccessLayer.DAOs
                 .ToListAsync();
 
             // Dynamically set ImageUrl for each course in the list
-            //foreach (var course in courses)
-            //{
-            //    course.ImageUrl = $"images/{course.CourseId}.jpg";
-            //}
+            foreach (var course in courses)
+            {
+                course.ImageUrl = $"images/{course.CourseId}.jpg";
+            }
 
             return courses;
         }

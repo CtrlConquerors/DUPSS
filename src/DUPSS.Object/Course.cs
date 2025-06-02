@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUPSS.Object
 {
@@ -15,8 +16,10 @@ namespace DUPSS.Object
         [Required]
         public required string StaffId { get; set; }
 
-         // Adjust max length as needed for URL
-        //public string? ImageUrl { get; set; }
+        // Adjust max length as needed for URL
+        [NotMapped]
+        [MaxLength(500)]
+        public string? ImageUrl { get; set; }
 
         public CourseTopic? Topic { get; set; }
         public User? Staff { get; set; }

@@ -13,6 +13,7 @@ body {
     margin: 0 auto;
     padding: 50px 20px;
     animation: fadeIn 1s ease-out;
+    
 }
 
 @keyframes fadeIn {
@@ -111,20 +112,112 @@ ul {
         }
 
 /* Section as Grid Items Styling */
+/* Your existing about-section styles */
 .about-section {
-    background-color: #e9f7ff;
-    border-radius: 12px;
+    background-color: white;
+    border-radius: 50px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    padding: 40px; /* Giảm nhẹ padding bên trong section */
-    margin-bottom: 40px; /* Giảm nhẹ khoảng cách giữa các section */
+    padding: 40px;
+    margin-bottom: 40px;
     border: 1px solid #cceeff;
     transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
     .about-section:hover {
         transform: translateY(-7px);
         box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
     }
+
+/* Typewriter Effect */
+.typewriter-container {
+    position: relative;
+    min-height: 120px; /* Prevent layout shift during animation */
+}
+
+.typewriter-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #333; /* Match your existing text color */
+    margin: 0;
+}
+
+.typewriter-line {
+    display: block;
+    overflow: hidden;
+    white-space: nowrap;
+    margin: 0 auto;
+    width: 0;
+    animation: typing 4s forwards;
+}
+
+    .typewriter-line:first-child {
+        animation: typing 6s forwards;
+    }
+
+    .typewriter-line:nth-child(2) {
+        animation-delay: 2s;
+        animation-duration: 3s;
+    }
+
+    .typewriter-line:nth-child(3) {
+        animation-delay: 5s;
+        animation-duration: 5s;
+    }
+
+.typewriter-cursor {
+    display: inline-block;
+    animation: blink 0.7s infinite;
+    margin-left: 3px;
+    opacity: 0;
+    animation-delay: 11s;
+    color: #0066cc; /* Matching your blue theme */
+    font-weight: bold;
+}
+
+@keyframes typing {
+    from {
+        width: 0
+    }
+
+    to {
+        width: 100%
+    }
+}
+
+@keyframes blink {
+    0%, 100% {
+        opacity: 0
+    }
+
+    50% {
+        opacity: 1
+    }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .about-section {
+        padding: 30px;
+        border-radius: 30px;
+    }
+
+    .typewriter-line {
+        white-space: normal;
+        animation: none;
+        width: 100%;
+    }
+
+    .typewriter-cursor {
+        display: none;
+    }
+
+    .typewriter-container {
+        min-height: auto;
+    }
+}
 
 /* Optional: To arrange sections in a grid layout across columns if desired
    (this applies to the parent .about-us-container)

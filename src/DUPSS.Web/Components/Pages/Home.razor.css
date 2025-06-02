@@ -100,7 +100,7 @@ body {
 /* --- Blog Card Styling --- */
 
 .blog-card{
-    margin-bottom:20px;
+    margin-bottom:30px;
 }
 .blog-card img {
     border-radius:5px;
@@ -306,6 +306,7 @@ body {
     margin-top: 60px;
     font-family: 'Open Sans', sans-serif;
     border-radius: 10px;
+   
 }
 
     .main-footer .footer-content-wrapper {

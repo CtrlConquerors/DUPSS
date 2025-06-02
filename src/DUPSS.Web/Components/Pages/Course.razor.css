@@ -118,6 +118,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1; /* Allows content to expand */
+    align-items: flex-start;
 }
 
 /* Course category styling */
@@ -127,6 +128,12 @@
     font-weight: 600;
     margin-bottom: 5px;
     text-transform: uppercase;
+    /* Border that wraps tightly around text */
+    display: inline-block; /* Critical for proper border wrapping */
+    border: 1px solid #007bff; /* Matching border color */
+    border-radius: 20px; 
+    padding: 2px 6px; /* Space between text and border */
+    background-color: rgba(0, 123, 255, 0.05); /* Very light blue bg */
 }
 
 /* Course name styling */

@@ -158,7 +158,7 @@
             <p>Email: abcd@fgmail.com</p>
         </div>
 
-        <div class="footer-section footer-subscribe-section col-10">
+        @* <div class="footer-section footer-subscribe-section col-10">
             <div class="subscribe-box">
                 <h4 class="subscribe-heading">Stay up to date</h4>
                 <p class="subscribe-text">Get Started</p>
@@ -168,7 +168,7 @@
                 </div>
                 <small class="subscribe-note">*You can unsubscribe anytime</small>
             </div>
-        </div>
+        </div> *@
     </div>
 </footer>
   
@@ -178,67 +178,38 @@
 
 <script>
         document.addEventListener('DOMContentLoaded', () => {
-        const slidesContainer = document.querySelector('.carousel-image-slides');
         const slides = document.querySelectorAll('.carousel-image-slide');
         const prevBtn = document.querySelector('.prev-btn-image');
         const nextBtn = document.querySelector('.next-btn-image');
         let currentIndex = 0;
-        const slideCount = slides.length;
 
-        function updateCarousel() {
-            // Calculate the transform value based on current index
-            const transformValue = -currentIndex * 100;
-            slidesContainer.style.transform = `translateX(${transformValue}%)`;
-
-            // Update active class for indicators (if you add them later)
-            slides.forEach((slide, index) => {
-                slide.classList.toggle('active', index === currentIndex);
+        function showSlide(index) {
+            slides.forEach((slide, i) => {
+                if (i === index) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
             });
         }
 
         function nextSlide() {
-            currentIndex = (currentIndex + 1) % slideCount;
-            updateCarousel();
+            currentIndex = (currentIndex + 1) % slides.length;
+            showSlide(currentIndex);
         }
 
         function prevSlide() {
-            currentIndex = (currentIndex - 1 + slideCount) % slideCount;
-            updateCarousel();
+            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+            showSlide(currentIndex);
         }
 
-        // Add event listeners if buttons exist
-        if (prevBtn) prevBtn.addEventListener('click', prevSlide);
-        if (nextBtn) nextBtn.addEventListener('click', nextSlide);
-
-        // Initialize carousel
-        updateCarousel();
-
-        // Optional: Add keyboard navigation
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowRight') nextSlide();
-            if (e.key === 'ArrowLeft') prevSlide();
-        });
-
-        // Optional: Add swipe for touch devices
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        slidesContainer.addEventListener('touchstart', (e) => {
-            touchStartX = e.changedTouches[0].screenX;
-        }, {passive: true});
-
-        slidesContainer.addEventListener('touchend', (e) => {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, {passive: true});
-
-        function handleSwipe() {
-            const threshold = 50; // Minimum swipe distance
-            if (touchEndX < touchStartX - threshold) {
-                nextSlide(); // Swipe left
-            } else if (touchEndX > touchStartX + threshold) {
-                prevSlide(); // Swipe right
-            }
+        // Kiểm tra để đảm bảo nút tồn tại trước khi thêm event listener
+        if (prevBtn && nextBtn) {
+            prevBtn.addEventListener('click', prevSlide);
+            nextBtn.addEventListener('click', nextSlide);
         }
+
+        // Hiển thị slide đầu tiên khi tải trang
+        showSlide(currentIndex);
     });
 </script>

@@ -28,7 +28,8 @@
     else
     {
         <div class="course-grid">
-            @foreach (var course in courses)
+            @* Conditional display of courses based on showAllCourses flag *@
+            @foreach (var course in (showAllCourses ? courses : courses.Take(3))) // <--- KEY CHANGE HERE
             {
                 <div class="course-card">
                     <div class="card-image">
@@ -43,9 +44,19 @@
             }
         </div>
 
-        <div class="main-explore-button-container">
-            <button class="main-explore-button" @onclick="NavigateToCoursesPage">Explore More</button>
-        </div>
+        @* Only show the button if there are more than 3 courses AND we are not already showing all courses *@
+        @if (courses.Count > 3 && !showAllCourses) // <--- Conditional display and text change
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllCourses">Explore More</button> @* <--- New method *@
+            </div>
+        }
+        @if (showAllCourses) // Optional: Show a "Show Less" or "Back to Top" button when all are displayed
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllCourses">Show Less</button>
+            </div>
+        }
     }
 </div>
 
@@ -80,6 +91,7 @@
 @code {
     private List<DUPSS.Object.Course>? courses;
     private bool hasError = false;
+    private bool showAllCourses = false; // <--- NEW FIELD
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,10 +108,13 @@
         }
     }
 
-    private void NavigateToCoursesPage()
-    {
-        // Example navigation method for the main "Explore More" button
-        // NavigationManager.NavigateTo("/AllCourses");
-        Console.WriteLine("Explore More button clicked!");
-    }
+     private void ToggleShowAllCourses() // <--- NEW METHOD
+ {
+     showAllCourses = !showAllCourses; // Toggle the boolean
+     // Optional: If you want to scroll back to top when showing less
+     // if (!showAllCourses)
+     // {
+     //     await JSRuntime.InvokeVoidAsync("scrollToTop");
+     // }
+ }
 }

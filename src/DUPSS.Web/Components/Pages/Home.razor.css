@@ -17,6 +17,98 @@ body {
     margin: 0 auto;
     padding: 20px;
 }
+/* --- Subcription Styling --- */
+.subscribe-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 300px;
+    padding: 40px;
+    background: white;
+    border: 1px solid #f8f9fa;
+    border-radius: 10px;
+}
+
+    .subscribe-container .left {
+        max-width: 40%;
+    }
+
+        .subscribe-container .left h4 {
+            color: #1e60ff;
+            margin: 0 0 10px 0;
+        }
+
+        .subscribe-container .left h2 {
+            margin: 0 0 20px 0;
+            font-size: 28px;
+        }
+
+        .subscribe-container .left input {
+            padding: 12px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            margin-right: 10px;
+        }
+
+        .subscribe-container .left button {
+            padding: 12px 20px;
+            background-color: #1e60ff;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .subscribe-container .left p {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #333;
+        }
+
+    .subscribe-container .right {
+        position:  relative;
+        width: 300px;
+        height: 137.5%;
+    }
+
+        .subscribe-container .right::before {
+            content: "";
+            position: absolute;
+            top: 0px;
+            right: -40px;
+            width: 100%;
+            height: 100%;
+            background-color: #3766ff;
+            border-top-left-radius: 300px;
+            border-bottom-left-radius: 00px;
+            border-top-right-radius: 10px;
+            border-bottom-right-radius: 10px;
+        }
+
+        .subscribe-container .right::after {
+            content: "";
+            position: absolute;
+            top: 50px;
+            right: 100px;
+            width: 200px;
+            height: 200px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+        }
+
+/* --- Blog Card Styling --- */
+
+.blog-card{
+    margin-bottom:20px;
+}
+.blog-card img {
+    border-radius:5px;
+}
+.card {
+    border: 1px solid #fbfbff;
+}
+
 
 /* --- Hero Section Styling --- */
 .hero-section {
@@ -29,7 +121,8 @@ body {
     align-items: center; 
     color: white; 
     overflow: hidden;
-    margin-bottom: 30px; 
+    margin-bottom: 30px;
+    border-radius:10px;
 }
 
     
@@ -114,13 +207,16 @@ body {
             transform: translateX(5px);
         }
 
+
+
 /* --- Responsive Design --- */
 
 @media (max-width: 992px) {
     .hero-section {
         height: 450px;
         justify-content: center; 
-        background-position: center center; 
+        background-position: center center;
+      
     }
 
         .hero-section::before {
@@ -204,12 +300,12 @@ body {
 
 /* --- Main Footer Styling --- */
 .main-footer {
-    background-color: #1a237e;
+    background-color: #3766ff;
     color: #f0f2f5;
-    margin-top: 150px;
-    width: 100%;
+    padding: 40px 0;
+    margin-top: 60px;
     font-family: 'Open Sans', sans-serif;
-    display: flex;
+    border-radius: 10px;
 }
 
     .main-footer .footer-content-wrapper {
@@ -232,12 +328,14 @@ body {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        justify-content: center; 
+        justify-content:;
+        background-color: ;
+        padding-top: 50px;
     }
 
     .main-footer .footer-logo {
-        width: 90px; 
-        height: 90px;
+        width: 130px; 
+        height: 130px;
         background-color: #fff; 
         padding: 7px;
         border-radius: 50%; 
@@ -252,7 +350,10 @@ body {
 
     /* Information Section */
     .main-footer .footer-info-section {
-        text-align: center; 
+        text-align: center;
+        padding-top: 50px;
+        padding-right: 9px;
+        background-color:;
     }
 
         .main-footer .footer-info-section p {
@@ -286,13 +387,17 @@ body {
     /* Subscribe Section */
     .main-footer .footer-subscribe-section {
         display: flex;
-        justify-content: flex-end; 
+        justify-content: flex-end;
+        padding-left: 00px;
+        background-color:;
     }
 
     .main-footer .subscribe-box {
         background-color: #2c3e50; 
         color: #f0f2f5;
         padding: 30px;
+        padding-left: 10px;
+        padding-right: 10px;
         border-radius: 12px;
         text-align: center;
         max-width: 350px; 
@@ -453,12 +558,13 @@ body {
 
 /* --- New Hero Section for H1 and Image Slider --- */
 .new-hero-section {
-    background-color: #f8f9fa;
+    background-color: #fbfbff;
     padding: 60px 0;
     text-align: center;
     position: relative;
-    overflow: hidden; 
+    overflow: hidden;
     margin-bottom: 50px;
+    border-radius: 100px;
 }
 
     .new-hero-section .new-hero-container h1 {

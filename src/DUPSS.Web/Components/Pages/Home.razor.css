@@ -109,6 +109,9 @@ body {
     border: 1px solid #fbfbff;
 }
 
+.badge{
+    border-radius:20px;
+}
 
 /* --- Hero Section Styling --- */
 .hero-section {
@@ -624,6 +627,7 @@ body {
     position: relative;
     max-width: 900px; 
     margin: 0 auto;
+    margin-top:20px;
     display: flex;
     align-items: center; 
     justify-content: center;

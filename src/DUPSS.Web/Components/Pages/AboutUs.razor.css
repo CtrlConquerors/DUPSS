@@ -154,7 +154,7 @@ ul {
 }
 
     .typewriter-line:first-child {
-        animation: typing 6s forwards;
+        animation: typing 2s forwards;
     }
 
     .typewriter-line:nth-child(2) {
@@ -163,8 +163,8 @@ ul {
     }
 
     .typewriter-line:nth-child(3) {
-        animation-delay: 5s;
-        animation-duration: 5s;
+        animation-delay: 3s;
+        animation-duration: 3s;
     }
 
 .typewriter-cursor {

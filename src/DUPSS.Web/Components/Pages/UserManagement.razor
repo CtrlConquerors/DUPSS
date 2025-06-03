@@ -32,8 +32,8 @@ else if (!filteredUsers.Any())
 else
 {
 
-    
-    <table class="table table-striped">
+
+    <table class="table table-hover table-bordered">
         <thead>
             <tr>
                 <th>No</th>
@@ -59,8 +59,8 @@ else
                     <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
                     <td>@user.Role?.RoleName</td>
                     <td>
-                        <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)">Edit</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">Delete</button>
+                        <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i class="bi bi-three-dots-vertical" ></i></button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i class="bi bi-trash3-fill"></i></button>
                     </td>
                 </tr>
 				index++;

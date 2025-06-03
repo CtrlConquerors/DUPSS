@@ -42,7 +42,9 @@ h1 {
     --bs-table-accent-bg: black;
     background-color: black !important;
 }
-
+.table thead th{
+    text-align:center;
+}
 /* Hover effect on table rows */
 .table tbody tr:hover {
     background-color: white;
@@ -70,13 +72,13 @@ h1 {
     }
 
 .btn-danger {
-    background-color: #dc3545;
-    border-color: #dc3545;
-    color: white;
+    background-color: white;
+    border-color: white;
+    color: red;
 }
 
     .btn-danger:hover {
-        background-color: #c82333;
+        background-color: lightgray;
         border-color: #bd2130;
         transform: translateY(-1px);
     }

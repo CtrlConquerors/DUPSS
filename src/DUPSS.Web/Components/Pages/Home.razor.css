@@ -107,6 +107,7 @@ body {
 }
 .card {
     border: 1px solid #fbfbff;
+    border-radius: 20px;
 }
 
 .badge{

@@ -4,21 +4,26 @@ namespace DUPSS.Object;
 
 public class AppDbContext : DbContext
 {
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<Appointment> Appointments { get; set; }
-    public DbSet<Campaign> Campaigns { get; set; }
-    public DbSet<CourseTopic> CourseTopics { get; set; }
-    public DbSet<Course> Courses { get; set; }
-    public DbSet<CourseEnroll> CourseEnrollments { get; set; }
-    public DbSet<Assessment> Assessments { get; set; }
-    public DbSet<AssessmentResult> AssessmentResults { get; set; }
-    public DbSet<Blog> Blogs { get; set; }
+    public DbSet<Role> Role { get; set; }
+    public DbSet<User> User { get; set; }
+    public DbSet<Appointment> Appointment { get; set; }
+    public DbSet<Campaign> Campaign { get; set; }
+    public DbSet<CourseTopic> CourseTopic { get; set; }
+    public DbSet<Course> Course { get; set; } // Make sure Course class has ImageUrl property
+    public DbSet<CourseEnroll> CourseEnroll { get; set; }
+    public DbSet<Assessment> Assessment { get; set; }
+    public DbSet<AssessmentResult> AssessmentResult { get; set; }
+    public DbSet<Blog> Blog { get; set; }
 
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        // Tell Entity Framework Core to ignore the ImageUrl property on the Course entity
+        // This is crucial because ImageUrl is dynamically set in the DAO, not stored in the DB.
+        modelBuilder.Entity<Course>()
+            .Ignore(c => c.ImageUrl); // <--- ADDED THIS LINE
+
         // Role -> Users (one-to-many)
         modelBuilder.Entity<User>()
             .HasOne(u => u.Role)

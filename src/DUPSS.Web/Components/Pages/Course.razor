@@ -1,6 +1,8 @@
-﻿@page "/Course"
+﻿@rendermode InteractiveServer
+@page "/Course"
 @inject DUPSS.AccessLayer.Interfaces.ICourseDAO CourseDAO
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 
 <div class="course-page-container">
     <h1 class="page-title">Our Most Popular Courses</h1>
@@ -28,15 +30,16 @@
     else
     {
         <div class="course-grid">
-            @* Conditional display of courses based on showAllCourses flag *@
-            @foreach (var course in (showAllCourses ? courses : courses.Take(3))) // <--- KEY CHANGE HERE
+            @foreach (var course in (showAllCourses ? courses : courses.Take(DefaultCourseDisplayLimit)))
             {
+                if (course is null) continue;
+
                 <div class="course-card">
                     <div class="card-image">
                         <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")" alt="Course Image" />
                     </div>
                     <div class="card-content">
-                        <span class="course-category">@(course.Topic?.TopicName ?? "General")</span>
+                        <span class="course-category">@(course.Topic?.TopicName?.Trim() ?? "General")</span>
                         <h3 class="course-name">@course.CourseName</h3>
                         <p class="course-type">Type: @course.CourseType</p>
                     </div>
@@ -44,14 +47,16 @@
             }
         </div>
 
-        @* Only show the button if there are more than 3 courses AND we are not already showing all courses *@
-        @if (courses.Count > 3 && !showAllCourses) // <--- Conditional display and text change
+        @if (courses.Count > DefaultCourseDisplayLimit && !showAllCourses)
         {
             <div class="main-explore-button-container">
-                <button class="main-explore-button" @onclick="ToggleShowAllCourses">Explore More</button> @* <--- New method *@
+                <button class="main-explore-button" @onclick="ToggleShowAllCourses" disabled="@(!_isHydrated)">
+                    @(_isHydrated ? "Explore More" : "Loading...")
+                </button>
             </div>
         }
-        @if (showAllCourses) // Optional: Show a "Show Less" or "Back to Top" button when all are displayed
+
+        @if (showAllCourses)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCourses">Show Less</button>
@@ -91,7 +96,9 @@
 @code {
     private List<DUPSS.Object.Course>? courses;
     private bool hasError = false;
-    private bool showAllCourses = false; // <--- NEW FIELD
+    private bool showAllCourses = false;
+    private const int DefaultCourseDisplayLimit = 3;
+    private bool _isHydrated = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,22 +106,34 @@
         {
             courses = await CourseDAO.GetAllAsync();
             hasError = false;
+            Console.WriteLine($"Courses loaded: {courses?.Count ?? 0}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching courses: {ex.Message}");
+            Console.Error.WriteLine($"[Course Page] Error: {ex}");
             courses = new List<DUPSS.Object.Course>();
             hasError = true;
         }
     }
 
-     private void ToggleShowAllCourses() // <--- NEW METHOD
- {
-     showAllCourses = !showAllCourses; // Toggle the boolean
-     // Optional: If you want to scroll back to top when showing less
-     // if (!showAllCourses)
-     // {
-     //     await JSRuntime.InvokeVoidAsync("scrollToTop");
-     // }
- }
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isHydrated = true;
+            InvokeAsync(StateHasChanged);
+            Console.WriteLine("Course component has fully hydrated and is interactive.");
+        }
+    }
+
+    private async Task ToggleShowAllCourses()
+    {
+        showAllCourses = !showAllCourses;
+        Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
+
+        if (!showAllCourses)
+        {
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+    }
 }

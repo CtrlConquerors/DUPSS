@@ -577,28 +577,6 @@ body {
 
     }
 
-/* Typewriter effect styles */
-.new-hero-container h1.typewriter {
-    overflow: hidden;
-    border-right: 0.15em solid black; /* Typewriter cursor */
-    white-space:  ;
-    margin: 0 auto;
-    letter-spacing: 0.05em; /* Slightly reduced for better readability */
-    animation: typing 6s steps(80, end), blink-caret 0.75s step-end infinite;
-    max-width: 900px; /* Adjusted for your content width */
-    padding: 0 0px; /* Added padding for smaller screens */
-}
-
-/* Typing animation */
-@keyframes typing {
-    from {
-        width: 0
-    }
-
-    to {
-        width: 100%
-    }
-}
 
 /* Cursor blink effect */
 @keyframes blink-caret {

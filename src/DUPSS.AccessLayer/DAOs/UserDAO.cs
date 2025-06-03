@@ -50,10 +50,25 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<User> UpdateAsync(User user)
         {
-            _context.User.Update(user);
+            var existingUser = await _context.User.FindAsync(user.UserId);
+            if (existingUser == null)
+                throw new Exception($"User with ID {user.UserId} not found.");
+
+     
+            existingUser.Username = user.Username;
+            existingUser.Email = user.Email;
+            existingUser.PhoneNumber = user.PhoneNumber;
+            existingUser.DoB = user.DoB;
+            existingUser.RoleId = user.RoleId;
+            existingUser.Password = user.Password;
+
+           
+
             await _context.SaveChangesAsync();
-            return user;
+
+            return existingUser;
         }
+
 
         public async Task<bool> DeleteAsync(string userId)
         {

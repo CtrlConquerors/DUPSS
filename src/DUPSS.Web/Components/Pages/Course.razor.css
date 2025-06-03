@@ -118,6 +118,7 @@
     display: flex;
     flex-direction: column;
     flex-grow: 1; /* Allows content to expand */
+    align-items: flex-start;
 }
 
 /* Course category styling */
@@ -261,13 +262,12 @@
 
 /* Footer Styles */
 .main-footer {
-    background-color: #1a237e;
+    background-color: #3766ff;
     color: #f0f2f5;
-    margin-top: 150px; /* Keep this if you want the large gap, otherwise reduce */
-    width: 100%;
+    padding: 40px 0;
+    margin-top: 60px;
     font-family: 'Open Sans', sans-serif;
-    padding: 40px 20px; /* Add padding to the footer itself */
-    box-sizing: border-box; /* Include padding in element's total width/height */
+    border-radius: 10px;
 }
 
     .main-footer .footer-content-wrapper {
@@ -276,13 +276,11 @@
         justify-content: space-between;
         align-items: flex-start;
         gap: 30px;
-        max-width: 1200px; /* Match page container max-width */
-        margin: 0 auto; /* Center footer content */
     }
 
     .main-footer .footer-section {
         flex: 1;
-        min-width: 280px; /* Ensure sections don't get too small */
+        min-width: 280px;
         padding: 15px;
         text-align: left;
     }
@@ -292,12 +290,14 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        justify-content: center;
+        justify-content:;
+        background-color:;
+        padding-top: 50px;
     }
 
     .main-footer .footer-logo {
-        width: 90px;
-        height: 90px;
+        width: 130px;
+        height: 130px;
         background-color: #fff;
         padding: 7px;
         border-radius: 50%;
@@ -312,7 +312,10 @@
 
     /* Information Section */
     .main-footer .footer-info-section {
-        text-align: center; /* This centers the content for this section */
+        text-align: center;
+        padding-top: 50px;
+        padding-right: 9px;
+        background-color:;
     }
 
         .main-footer .footer-info-section p {
@@ -334,7 +337,6 @@
         .main-footer .footer-heading::after {
             content: '';
             position: absolute;
-            /* For info section, this will center the underline */
             left: 50%;
             transform: translateX(-50%);
             bottom: 0;

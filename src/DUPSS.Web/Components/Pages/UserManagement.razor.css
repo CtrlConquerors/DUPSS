@@ -1,0 +1,95 @@
+﻿/* UserManagement.razor.css */
+
+/* General page styling */
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Thêm quy tắc CSS cho container tìm kiếm */
+.search-input-container {
+    width: 25%; /* Chiếm 25% chiều ngang */
+    min-width: 200px; /* Đảm bảo không quá nhỏ trên màn hình lớn */
+    max-width: 300px; /* Giới hạn chiều rộng tối đa */
+}
+
+/* Table styling */
+.table {
+    width: 100%;
+    margin-top: 0px; /* Có thể điều chỉnh nếu cần khoảng cách với ô tìm kiếm */
+    border-spacing: 0;
+    box-shadow: 0 2px 8px ;
+    border-radius: 16px; /* or your preferred value */
+    overflow: hidden;
+}
+
+    .table th,
+    .table td {
+        padding: 12px 15px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .table thead th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: black;
+    }
+
+/* Striped rows for better readability */
+.table-striped > tbody > tr:nth-of-type(odd) {
+    --bs-table-accent-bg: black;
+    background-color: black !important;
+}
+
+/* Hover effect on table rows */
+.table tbody tr:hover {
+    background-color: white;
+}
+
+/* Button styling enhancements */
+.btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+    background-color: white ;
+    border-color: white ;
+    color: black;
+    font-size:15px;
+}
+
+    .btn-primary:hover {
+        background-color: lightgray;
+        border-color: none;
+        transform: translateY(-1px);
+    }
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+    .btn-danger:hover {
+        background-color: #c82333;
+        border-color: #bd2130;
+        transform: translateY(-1px);
+    }
+
+/* Spacing between buttons */
+.me-2 {
+    margin-right: 0.5rem !important;
+}
+
+/* Styling for loading/no users messages */
+p {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    margin-top: 20px;
+}

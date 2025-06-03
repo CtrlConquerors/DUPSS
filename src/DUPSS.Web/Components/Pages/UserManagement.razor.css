@@ -17,9 +17,11 @@ h1 {
 /* Table styling */
 .table {
     width: 100%;
-    margin-top: 20px; /* Có thể điều chỉnh nếu cần khoảng cách với ô tìm kiếm */
-    border-collapse: collapse;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 0px; /* Có thể điều chỉnh nếu cần khoảng cách với ô tìm kiếm */
+    border-spacing: 0;
+    box-shadow: 0 2px 8px ;
+    border-radius: 16px; /* or your preferred value */
+    overflow: hidden;
 }
 
     .table th,
@@ -32,17 +34,18 @@ h1 {
     .table thead th {
         background-color: #f2f2f2;
         font-weight: bold;
-        color: #555;
+        color: black;
     }
 
 /* Striped rows for better readability */
-.table-striped tbody tr:nth-of-type(odd) {
-    background-color: #f9f9f9;
+.table-striped > tbody > tr:nth-of-type(odd) {
+    --bs-table-accent-bg: black;
+    background-color: black !important;
 }
 
 /* Hover effect on table rows */
 .table tbody tr:hover {
-    background-color: #e9e9e9;
+    background-color: white;
 }
 
 /* Button styling enhancements */
@@ -54,14 +57,15 @@ h1 {
 }
 
 .btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-    color: white;
+    background-color: white ;
+    border-color: white ;
+    color: black;
+    font-size:15px;
 }
 
     .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #004085;
+        background-color: lightgray;
+        border-color: none;
         transform: translateY(-1px);
     }
 

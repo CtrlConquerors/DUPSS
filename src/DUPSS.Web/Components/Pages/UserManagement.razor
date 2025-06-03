@@ -1,12 +1,23 @@
 ﻿@page "/UserManagement"
 @inject DUPSS.AccessLayer.Interfaces.IUserDAO UserDAO
 @inject IJSRuntime JS
+@rendermode InteractiveServer
 
 
 <div class="d-flex justify-content-end mb-3">
     <div class="search-input-container">
         <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-               @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+        @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+    </div>
+
+    <div class="w-25">
+        <select class="form-select" @onchange="OnRoleFilterChanged">
+            <option value="">All Roles</option>
+            @foreach (var role in availableRoles)
+            {
+                <option value="@role">@role</option>
+            }
+        </select>
     </div>
 </div>
 
@@ -20,21 +31,28 @@ else if (!filteredUsers.Any())
 }
 else
 {
+
+    
     <table class="table table-striped">
         <thead>
             <tr>
+                <th>No</th>
                 <th>Username</th>
                 <th>Email</th>
                 <th>Phone Number</th>
                 <th>Date of Birth</th>
                 <th>Role</th>
-                <th>Edit</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var user in filteredUsers)
+            @{
+                int index = (currentPage - 1) * itemsPerPage + 1;
+            }
+            @foreach (var user in PaginatedUsers)
             {
                 <tr>
+                    <td>@index</td>
                     <td>@user.Username</td>
                     <td>@user.Email</td>
                     <td>@user.PhoneNumber</td>
@@ -45,15 +63,93 @@ else
                         <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">Delete</button>
                     </td>
                 </tr>
+				index++;
             }
         </tbody>
     </table>
+    <div class="d-flex justify-content-center mt-3">
+        @for (int i = 1; i <= TotalPages; i++)
+        {
+            var pageIndex = i;
+            <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                    @onclick="() => GoToPage(pageIndex)">
+                @pageIndex
+            </button>
+        }
+
+    </div>
+
+    @if (editingUserId != null && editingUser != null)
+    {
+        <div class="card p-3 my-4">
+            <h5>Edit User: @editingUser.Username</h5>
+
+            <div class="mb-3">
+                <label class="form-label">Username</label>
+                <input class="form-control" @bind="editingUser.Username" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input class="form-control" @bind="editingUser.Email" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Phone Number</label>
+                <input class="form-control" @bind="editingUser.PhoneNumber" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Date of Birth</label>
+                <input type="date" class="form-control" @bind="editingUser.DoB" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Role ID</label>
+                <input class="form-control" @bind="editingUser.RoleId" />
+            </div>
+
+            <div>
+                <button class="btn btn-success me-2" @onclick="SaveEdit">Save</button>
+                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+            </div>
+        </div>
+    }
 }
 
 @code {
+    
     private List<DUPSS.Object.User>? users;
     private List<DUPSS.Object.User>? filteredUsers;
     private string searchTerm = "";
+    private string? message;
+    private string? editingUserId;
+    private DUPSS.Object.User? editingUser;
+	private int currentPage = 1;
+	private int itemsPerPage = 10;
+    private List<string> availableRoles = new() { "Staff", "Member", "Admin", "Manager", "Consultant" };
+    private string selectedRole = "";
+
+    private IEnumerable<DUPSS.Object.User> PaginatedUsers =>
+    filteredUsers?
+        .Skip((currentPage - 1) * itemsPerPage)
+        .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.Object.User>();
+
+    private int TotalPages => (int)Math.Ceiling((filteredUsers?.Count ?? 0) / (double)itemsPerPage);
+
+    private void GoToPage(int page)
+    {
+        if (page < 1) page = 1;
+        if (page > TotalPages) page = TotalPages;
+
+        if (currentPage != page)
+        {
+            currentPage = page;
+            StateHasChanged();
+        }
+    }
+
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -63,27 +159,99 @@ else
 
     private void FilterUsers()
     {
-        if (string.IsNullOrWhiteSpace(searchTerm))
-        {
-            filteredUsers = users;
-        }
-        else
-        {
-            filteredUsers = users?.Where(user =>
-                (user.Username != null && user.Username.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (user.Email != null && user.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase)) ||
-                (user.PhoneNumber != null && user.PhoneNumber.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
-            ).ToList();
-        }
+        if (users == null)
+            return;
+
+        filteredUsers = users.Where(user =>
+            // Lọc theo search term (username/email/phone)
+            (string.IsNullOrWhiteSpace(searchTerm) ||
+             (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+             (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+             (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+            &&
+            // Lọc theo role nếu có chọn
+            (string.IsNullOrWhiteSpace(selectedRole) || (user.Role?.RoleName == selectedRole))
+        ).ToList();
+
+        currentPage = 1;
     }
+
+
 
     private void EditUser(string userId)
     {
-        //todo
+        var user = users?.FirstOrDefault(u => u.UserId == userId);
+        if (user != null)
+        {
+            editingUserId = userId;
+            editingUser = new DUPSS.Object.User
+                {
+                    UserId = user.UserId,
+                    Username = user.Username,
+                    Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    DoB = user.DoB,
+                    Role = user.Role,
+                    RoleId = user.RoleId,
+                    Password = user.Password
+                };
+        }
     }
 
     private async Task DeleteUser(string userId)
     {
-        //todo
+        var user = users?.FirstOrDefault(u => u.UserId == userId);
+        if (user == null)
+        {
+            message = $"User not found.";
+            return;
+        }
+
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete user '{user.Username}'?");
+        if (confirmed)
+        {
+            var success = await UserDAO.DeleteAsync(userId);
+            if (success)
+            {
+                message = $"User '{user.Username}' deleted successfully.";
+                users = await UserDAO.GetAllAsync();
+                FilterUsers(); 
+            }
+            else
+            {
+                message = $"Failed to delete user '{user.Username}'. Please try again.";
+            }
+        }
+
+        currentPage = 1;
+    }
+
+    private async Task SaveEdit()
+    {
+        if (editingUser != null)
+        {
+            await UserDAO.UpdateAsync(editingUser);
+            message = $"User {editingUser.Username} updated successfully.";
+            editingUserId = null;
+            editingUser = null;
+
+            users = await UserDAO.GetAllAsync();
+            FilterUsers(); 
+        }
+
+        currentPage = 1;
+    }
+
+
+    private void CancelEdit()
+    {
+        editingUserId = null;
+        editingUser = null;
+    }
+
+    private void OnRoleFilterChanged(ChangeEventArgs e)
+    {
+        selectedRole = e.Value?.ToString() ?? "";
+        FilterUsers();
     }
 }

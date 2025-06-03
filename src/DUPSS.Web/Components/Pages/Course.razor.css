@@ -1,0 +1,520 @@
+﻿/* Course.razor.css - Scoped styles for the Course page */
+
+/* Overall container for the page content */
+.course-page-container {
+    padding: 20px;
+    max-width: 1200px; /* Limit content width for better readability */
+    margin: 0 auto; /* Center the container */
+    font-family: 'Inter', sans-serif; /* Use Inter font */
+}
+
+/* Page title styling */
+.page-title {
+    font-size: 2.5em;
+    color: #333;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+/* Page subtitle styling */
+.page-subtitle {
+    font-size: 1.1em;
+    color: #666;
+    text-align: center;
+    margin-bottom: 40px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Loading indicator styling */
+.loading-indicator {
+    text-align: center;
+    padding: 50px;
+    color: #555;
+    font-size: 1.2em;
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* No courses message styling */
+.no-courses-message {
+    text-align: center;
+    padding: 50px;
+    color: #888;
+    font-size: 1.2em;
+    border: 1px dashed #ccc;
+    border-radius: 8px;
+    background-color: #f0f0f0;
+}
+
+/* New: Error message styling */
+.error-message {
+    text-align: center;
+    padding: 50px;
+    color: #d9534f; /* Red color for error */
+    font-size: 1.2em;
+    border: 1px dashed #d9534f;
+    border-radius: 8px;
+    background-color: #fce7e6;
+}
+
+/* Grid for course cards */
+.course-grid {
+    display: grid;
+    /* Responsive grid: 3 columns, minimum 280px, maximum 1fr */
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+/* Individual course card styling */
+.course-card {
+    background-color: #fff;
+    border-radius: 12px; /* Rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    overflow: hidden; /* Ensures image corners are rounded */
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+    .course-card:hover {
+        transform: translateY(-5px); /* Slight lift on hover */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+    }
+
+/* Course image styling */
+.card-image img {
+    width: 100%;
+    height: 180px; /* Fixed height for consistency */
+    object-fit: cover; /* Cover the area, cropping if necessary */
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+/* Card content area styling */
+.card-content {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Allows content to expand */
+    align-items: flex-start;
+}
+
+/* Course category styling */
+.course-category {
+    font-size: 0.9em;
+    color: #007bff; /* A distinct color for categories */
+    font-weight: 600;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    /* Border that wraps tightly around text */
+    display: inline-block; /* Critical for proper border wrapping */
+    border: 1px solid #007bff; /* Matching border color */
+    border-radius: 20px; 
+    padding: 2px 6px; /* Space between text and border */
+    background-color: rgba(0, 123, 255, 0.05); /* Very light blue bg */
+}
+
+/* Course name styling */
+.course-name {
+    font-size: 1.4em;
+    color: #333;
+    margin-top: 5px;
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+/* Course type styling */
+.course-type {
+    font-size: 0.95em;
+    color: #555;
+    margin-bottom: 10px;
+}
+
+/* Removed Rating section styling - these are no longer needed */
+/*
+.course-rating {
+    display: flex;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    margin-top: 15px;
+}
+
+.star, .star-empty {
+    color: #FFD700;
+    font-size: 1.2em;
+    margin-right: 2px;
+}
+
+.star-empty {
+    color: #ccc;
+}
+
+.reviews {
+    font-size: 0.85em;
+    color: #777;
+    margin-left: 5px;
+}
+*/
+
+/* Styling for the single "Explore More" button at the bottom */
+.main-explore-button-container {
+    text-align: center;
+    margin-top: 40px; /* Space above the button */
+    margin-bottom: 40px; /* Space below the button (before footer) */
+}
+
+.main-explore-button {
+    background-color: #007bff; /* Blue color for the button */
+    color: white;
+    padding: 15px 30px; /* Larger padding for prominence */
+    border: none;
+    border-radius: 8px; /* Rounded corners */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: inline-block; /* To allow text-align: center on parent */
+    min-width: 200px; /* Ensure it has a decent width */
+}
+
+    .main-explore-button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
+
+    .main-explore-button:active {
+        transform: translateY(0);
+    }
+
+
+/* Responsive adjustments for course grid and cards */
+@media (max-width: 768px) {
+    .page-title {
+        font-size: 2em;
+    }
+
+    .page-subtitle {
+        font-size: 1em;
+    }
+
+    .course-grid {
+        /* On smaller screens, allow 2 columns down to 250px minimum */
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 20px;
+    }
+
+    .course-card {
+        margin: 0 auto; /* Center cards on smaller screens if they don't fill the grid */
+        max-width: 350px; /* Prevent cards from becoming too wide on small screens */
+    }
+}
+
+@media (max-width: 480px) {
+    .course-page-container {
+        padding: 15px;
+    }
+
+    .page-title {
+        font-size: 1.8em;
+    }
+
+    .page-subtitle {
+        font-size: 0.9em;
+        margin-bottom: 30px;
+    }
+
+    .course-grid {
+        grid-template-columns: 1fr; /* Single column layout on very small screens */
+        gap: 15px;
+    }
+
+    .main-explore-button {
+        padding: 12px 25px;
+        font-size: 1em;
+        min-width: 180px;
+    }
+}
+
+
+/* Footer Styles */
+.main-footer {
+    background-color: #3766ff;
+    color: #f0f2f5;
+    padding: 40px 0;
+    margin-top: 60px;
+    font-family: 'Open Sans', sans-serif;
+    border-radius: 10px;
+}
+
+    .main-footer .footer-content-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 30px;
+    }
+
+    .main-footer .footer-section {
+        flex: 1;
+        min-width: 280px;
+        padding: 15px;
+        text-align: left;
+    }
+
+    /* Logo Section */
+    .main-footer .footer-logo-section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        justify-content:;
+        background-color:;
+        padding-top: 50px;
+    }
+
+    .main-footer .footer-logo {
+        width: 130px;
+        height: 130px;
+        background-color: #fff;
+        padding: 7px;
+        border-radius: 50%;
+        margin-bottom: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .main-footer .footer-copyright {
+        font-size: 0.9em;
+        opacity: 0.8;
+    }
+
+    /* Information Section */
+    .main-footer .footer-info-section {
+        text-align: center;
+        padding-top: 50px;
+        padding-right: 9px;
+        background-color:;
+    }
+
+        .main-footer .footer-info-section p {
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+    /* Headings in Footer */
+    .main-footer .footer-heading {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.3em;
+        font-weight: 700;
+        margin-bottom: 20px;
+        color: #ffd700;
+        position: relative;
+        padding-bottom: 5px;
+    }
+
+        .main-footer .footer-heading::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 60px;
+            height: 3px;
+            background-color: #ffd700;
+            border-radius: 2px;
+        }
+
+    /* Subscribe Section */
+    .main-footer .footer-subscribe-section {
+        /* Adjusted for consistency with main footer content wrapper */
+        display: flex;
+        justify-content: flex-end; /* Pushes content to the right for large screens */
+        align-items: flex-start;
+    }
+
+    .main-footer .subscribe-box {
+        background-color: #2c3e50;
+        color: #f0f2f5;
+        padding: 30px;
+        border-radius: 12px;
+        text-align: center;
+        max-width: 350px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .main-footer .subscribe-heading {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.6em;
+        font-weight: 700;
+        margin-bottom: 10px;
+        color: #ffd700;
+    }
+
+    .main-footer .subscribe-text {
+        font-size: 0.9em;
+        opacity: 0.9;
+        margin-bottom: 20px;
+    }
+
+    .main-footer .subscribe-input-group {
+        margin-bottom: 10px;
+        display: flex; /* Make input and button side-by-side */
+    }
+
+        .main-footer .subscribe-input-group .form-control {
+            flex-grow: 1; /* Allow input to take available space */
+            border-radius: 25px 0 0 25px;
+            border: none;
+            padding: 10px 15px;
+            font-size: 0.9em;
+        }
+
+        .main-footer .subscribe-input-group .btn {
+            flex-shrink: 0; /* Prevent button from shrinking */
+            border-radius: 0 25px 25px 0;
+            background-color: #ffd700;
+            color: #1a237e;
+            font-weight: 600;
+            padding: 10px 20px;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+
+            .main-footer .subscribe-input-group .btn:hover {
+                background-color: #e6b800;
+            }
+
+    .main-footer .subscribe-note {
+        font-size: 0.8em;
+        opacity: 0.7;
+    }
+
+/* --- Responsive Design for Footer --- */
+@media (max-width: 992px) {
+    .main-footer .footer-content-wrapper {
+        flex-direction: column;
+        align-items: center; /* Center all items when stacked */
+    }
+
+    .main-footer .footer-section {
+        min-width: unset;
+        width: 100%; /* Take full width when stacked */
+        text-align: center; /* Center text for all sections */
+        margin-bottom: 30px;
+    }
+
+    .main-footer .footer-logo-section {
+        align-items: center; /* Center logo when stacked */
+    }
+
+    .main-footer .footer-heading::after {
+        left: 50%;
+        transform: translateX(-50%); /* Ensure underline remains centered */
+    }
+
+    .main-footer .footer-subscribe-section {
+        justify-content: center; /* Center subscribe box when stacked */
+    }
+
+    .main-footer .subscribe-box {
+        max-width: 80%; /* Limit width of subscribe box on tablets */
+    }
+
+    .main-footer .subscribe-input-group {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-footer {
+        padding: 30px 0;
+    }
+
+        .main-footer .footer-logo {
+            width: 70px;
+            height: 70px;
+        }
+
+        .main-footer .footer-heading {
+            font-size: 1.2em;
+        }
+
+        .main-footer .subscribe-heading {
+            font-size: 1.4em;
+        }
+
+        .main-footer .subscribe-input-group {
+            width: 90%;
+        }
+}
+
+@media (max-width: 576px) {
+    .main-footer {
+        padding: 20px 0;
+    }
+
+        .main-footer .footer-logo {
+            width: 60px;
+            height: 60px;
+        }
+
+        .main-footer .footer-copyright {
+            font-size: 0.8em;
+        }
+
+        .main-footer .footer-heading {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+        }
+
+        .main-footer .footer-info-section p {
+            font-size: 0.85em;
+        }
+
+        .main-footer .subscribe-box {
+            padding: 20px;
+            max-width: 95%;
+        }
+
+        .main-footer .subscribe-heading {
+            font-size: 1.2em;
+        }
+
+        .main-footer .subscribe-text {
+            font-size: 0.8em;
+        }
+
+        .main-footer .subscribe-input-group .form-control,
+        .main-footer .subscribe-input-group .btn {
+            padding: 8px 12px;
+            font-size: 0.8em;
+        }
+
+        .main-footer .subscribe-note {
+            font-size: 0.7em;
+        }
+}

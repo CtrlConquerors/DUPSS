@@ -1,0 +1,105 @@
+﻿@page "/Course"
+@inject DUPSS.AccessLayer.Interfaces.ICourseDAO CourseDAO
+@inject NavigationManager NavigationManager
+
+<div class="course-page-container">
+    <h1 class="page-title">Our Most Popular Courses</h1>
+    <p class="page-subtitle">The sky was cloudless and of a deep dark blue the spectacle before us was indeed.</p>
+
+    @if (courses == null)
+    {
+        <div class="loading-indicator">
+            <p>Loading courses...</p>
+            <div class="spinner"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <p>Oops! Something went wrong while loading courses. Please try again later.</p>
+        </div>
+    }
+    else if (!courses.Any())
+    {
+        <div class="no-courses-message">
+            <p>No courses available at the moment. Please check back later!</p>
+        </div>
+    }
+    else
+    {
+        <div class="course-grid">
+            @foreach (var course in courses)
+            {
+                <div class="course-card">
+                    <div class="card-image">
+                        <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")" alt="Course Image" />
+                    </div>
+                    <div class="card-content">
+                        <span class="course-category">@(course.Topic?.TopicName ?? "General")</span>
+                        <h3 class="course-name">@course.CourseName</h3>
+                        <p class="course-type">Type: @course.CourseType</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="main-explore-button-container">
+            <button class="main-explore-button" @onclick="NavigateToCoursesPage">Explore More</button>
+        </div>
+    }
+</div>
+
+<footer class="main-footer mt-10">
+    <div class="container footer-content-wrapper ">
+        <div class="footer-section footer-logo-section col-1">
+            <img src="images/logo.png" alt="Logo" class="footer-logo" />
+            <p class="footer-copyright">Copyright © ALPHA</p>
+        </div>
+
+        <div class="footer-section footer-info-section text-center col-2">
+            <h5 class="footer-heading">OUR INFORMATION</h5>
+            <p>Address: Phuoc Hiep</p>
+            <p>Contact number: 090 538 4233</p>
+            <p>Email: abcd@fgmail.com</p>
+        </div>
+
+        @* <div class="footer-section footer-subscribe-section col-10">
+            <div class="subscribe-box">
+                <h4 class="subscribe-heading">Stay up to date</h4>
+                <p class="subscribe-text">Get Started</p>
+                <div class="input-group subscribe-input-group">
+                    <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
+                    <button class="btn btn-primary" type="button">Register now</button>
+                </div>
+                <small class="subscribe-note">*You can unsubscribe anytime</small>
+            </div>
+        </div> *@
+    </div>
+</footer>
+
+@code {
+    private List<DUPSS.Object.Course>? courses;
+    private bool hasError = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            courses = await CourseDAO.GetAllAsync();
+            hasError = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching courses: {ex.Message}");
+            courses = new List<DUPSS.Object.Course>();
+            hasError = true;
+        }
+    }
+
+    private void NavigateToCoursesPage()
+    {
+        // Example navigation method for the main "Explore More" button
+        // NavigationManager.NavigateTo("/AllCourses");
+        Console.WriteLine("Explore More button clicked!");
+    }
+}

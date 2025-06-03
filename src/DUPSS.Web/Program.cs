@@ -12,7 +12,10 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options =>
+    {
+        options.DetailedErrors = true;
+    });
 
 builder.Services.AddScoped<IRoleDAO, RoleDAO>();
 builder.Services.AddScoped<IUserDAO, UserDAO>();

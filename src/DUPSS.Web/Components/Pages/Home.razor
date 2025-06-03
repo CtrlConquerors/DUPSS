@@ -5,20 +5,20 @@
 <div class="container-fluid px-5 py-4">
     <section class="hero-section">
         <div class="hero-content">
-            
         </div>
 
         <div class="hero-card">
             <h2>Một ước mơ liên thế hệ</h2>
             <p class="quote">"Mình có thể một phần nào đó... chứng minh rằng người LGBT luôn xuất hiện và đóng góp sức lực của mình ở mọi ngành nghề"</p>
-            <a href="/cau-chuyen-nay" class="btn-read-story">ĐỌC CÂU CHUYỆN NÀY <span class="arrow">→</span></a>
+
+            <NavLink href="/cau-chuyen-nay" class="btn-read-story">
+                ĐỌC CÂU CHUYỆN NÀY <span class="arrow">→</span>
+            </NavLink>
+
         </div>
     </section>
 
-
-    <!-- Main Content -->
     <div class="row ">
-        <!-- Sidebar Topics -->
         <div class="col-md-3">
             <h5 class="fw-semibold mb-5" style="color: #1b6ec2">Blog Topics</h5>
             <ul class="list-unstyled">
@@ -31,20 +31,14 @@
             </ul>
         </div>
 
-        <!-- Blog Cards -->
         <div class="col-md-9 blog-card">
             <h6 class="text-primary mb-3">Trending Topics</h6>
             <div class="d-flex flex-column gap-4 ">
 
-                <!-- Blog Card 1 -->
                 <div class="col-md-10">
                     <div class="card h-100 shadow-sm">
                         <div class="row g-5">
-                            <!-- Remove gutters with g-0 -->
-
-                            <!-- Left Column - Text Content -->
                             <div class="col-md-8 order-md-1">
-                                <!-- order-md-1 keeps it left on desktop -->
                                 <div class="card-body">
                                     <h5 class="card-title">Place Holder</h5>
                                     <p class="card-text text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
@@ -53,23 +47,17 @@
                                 </div>
                             </div>
 
-                            <!-- Right Column - Image -->
                             <div class="col-md-4 order-md-2">
-                                <!-- order-md-2 forces it right -->
                                 <img src="images/1.jpg" class="img-fluid h-100" style="object-fit: cover;" alt="...">
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Blog Card 2 -->
                 <div class="col-md-10">
                     <div class="card h-100 shadow-sm">
                         <div class="row g-5">
-                            <!-- Remove gutters with g-0 -->
-                            <!-- Left Column - Text Content -->
                             <div class="col-md-8 order-md-1">
-                                <!-- order-md-1 keeps it left on desktop -->
                                 <div class="card-body">
                                     <h5 class="card-title">Place Holder</h5>
                                     <p class="card-text text-muted">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.</p>
@@ -78,9 +66,7 @@
                                 </div>
                             </div>
 
-                            <!-- Right Column - Image -->
                             <div class="col-md-4 order-md-2">
-                                <!-- order-md-2 forces it right -->
                                 <img src="images/1.jpg" class="img-fluid h-100" style="object-fit: cover;" alt="...">
                             </div>
                         </div>
@@ -114,7 +100,6 @@
                         <img src="images/4.jpg" alt="Câu chuyện 4" class="carousel-image" />
                     </div>
 
-                    
                 </div>
 
                 <button class="carousel-control-image next-btn-image">
@@ -123,7 +108,7 @@
             </div>
         </div>
     </section>
-    
+
 
     <div class="subscribe-container">
         <div class="left">
@@ -138,46 +123,40 @@
         <div class="right"></div>
     </div>
 
-
-
-
-
-
-
     <footer class="main-footer mt-10">
-    <div class="container footer-content-wrapper ">
-        <div class="footer-section footer-logo-section col-1">
-            <img src="images/logo.png" alt="Logo" class="footer-logo" />
-            <p class="footer-copyright">Copyright © ALPHA</p>
-        </div>
-
-        <div class="footer-section footer-info-section text-center col-2">
-            <h5 class="footer-heading">OUR INFORMATION</h5>
-            <p>Address: Phuoc Hiep</p>
-            <p>Contact number: 090 538 4233</p>
-            <p>Email: abcd@fgmail.com</p>
-        </div>
-
-        @* <div class="footer-section footer-subscribe-section col-10">
-            <div class="subscribe-box">
-                <h4 class="subscribe-heading">Stay up to date</h4>
-                <p class="subscribe-text">Get Started</p>
-                <div class="input-group subscribe-input-group">
-                    <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
-                    <button class="btn btn-primary" type="button">Register now</button>
-                </div>
-                <small class="subscribe-note">*You can unsubscribe anytime</small>
+        <div class="container footer-content-wrapper ">
+            <div class="footer-section footer-logo-section col-1">
+                <img src="images/logo.png" alt="Logo" class="footer-logo" />
+                <p class="footer-copyright">Copyright © ALPHA</p>
             </div>
-        </div> *@
-    </div>
-</footer>
-  
+
+            <div class="footer-section footer-info-section text-center col-2">
+                <h5 class="footer-heading">OUR INFORMATION</h5>
+                <p>Address: Phuoc Hiep</p>
+                <p>Contact number: 090 538 4233</p>
+                <p>Email: abcd@fgmail.com</p>
+            </div>
+
+            @* <div class="footer-section footer-subscribe-section col-10">
+                <div class="subscribe-box">
+                    <h4 class="subscribe-heading">Stay up to date</h4>
+                    <p class="subscribe-text">Get Started</p>
+                    <div class="input-group subscribe-input-group">
+                        <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
+                        <button class="btn btn-primary" type="button">Register now</button>
+                    </div>
+                    <small class="subscribe-note">*You can unsubscribe anytime</small>
+                </div>
+            </div> *@
+        </div>
+    </footer>
+
 
 </div>
 
 
 <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
         const slides = document.querySelectorAll('.carousel-image-slide');
         const prevBtn = document.querySelector('.prev-btn-image');
         const nextBtn = document.querySelector('.next-btn-image');

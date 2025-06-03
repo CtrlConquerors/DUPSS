@@ -140,40 +140,12 @@ ul {
 .typewriter-text {
     font-size: 1rem;
     line-height: 1.6;
-    color: #333; /* Match your existing text color */
+    color: #333;  Match your existing text color 
     margin: 0;
 }
 
 
-.typewriter-cursor {
-    display: inline-block;
-    animation: blink 0.7s infinite;
-    margin-left: 3px;
-    opacity: 0;
-    animation-delay: 11s;
-    color: #0066cc; /* Matching your blue theme */
-    font-weight: bold;
-}
 
-@keyframes typing {
-    from {
-        width: 0
-    }
-
-    to {
-        width: 100%
-    }
-}
-
-@keyframes blink {
-    0%, 100% {
-        opacity: 0
-    }
-
-    50% {
-        opacity: 1
-    }
-}
 
 /* Responsive Design */
 @media (max-width: 768px) {

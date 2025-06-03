@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Remove="wwwroot\Index.cshtml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Components\Pages\Home.razor.js" />
     <None Remove="Components\Pages\JavaScript.js" />
   </ItemGroup>
 

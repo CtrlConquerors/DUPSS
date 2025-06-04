@@ -2,139 +2,216 @@
 @inject DUPSS.AccessLayer.Interfaces.IUserDAO UserDAO
 @inject IJSRuntime JS
 
+<AuthorizeView Roles="AD,MA">
+    <Authorized>
+        <h3>User Management</h3>
 
-<div class="d-flex justify-content-end mb-3">
-    <div class="search-input-container">
-        <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-        @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
-    </div>
+        <div class="d-flex justify-content-between mb-3">
+            <button class="btn btn-primary" @onclick="ShowCreateUserForm">Create New User</button>
+            <div class="d-flex">
+                <div class="search-input-container me-2">
+                    <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                </div>
 
-    <div class="w-25">
-        <select class="form-select" @onchange="OnRoleFilterChanged">
-            <option value="">All Roles</option>
-            @foreach (var role in availableRoles)
-            {
-                <option value="@role">@role</option>
-            }
-        </select>
-    </div>
-</div>
-
-@if (users == null)
-{
-    <p>Loading users...</p>
-}
-else if (!filteredUsers.Any())
-{
-    <p>No users found matching your search criteria.</p>
-}
-else
-{
-
-
-    <table class="table table-hover table-bordered">
-        <thead>
-            <tr>
-                <th>No</th>
-                <th>Username</th>
-                <th>Email</th>
-                <th>Phone Number</th>
-                <th>Date of Birth</th>
-                <th>Role</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @{
-                int index = (currentPage - 1) * itemsPerPage + 1;
-            }
-            @foreach (var user in PaginatedUsers)
-            {
-                <tr>
-                    <td>@index</td>
-                    <td>@user.Username</td>
-                    <td>@user.Email</td>
-                    <td>@user.PhoneNumber</td>
-                    <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
-                    <td>@user.Role?.RoleName</td>
-                    <td>
-                        <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i class="bi bi-three-dots-vertical" ></i></button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i class="bi bi-trash3-fill"></i></button>
-                    </td>
-                </tr>
-				index++;
-            }
-        </tbody>
-    </table>
-    <div class="d-flex justify-content-center mt-3">
-        @for (int i = 1; i <= TotalPages; i++)
-        {
-            var pageIndex = i;
-            <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                    @onclick="() => GoToPage(pageIndex)">
-                @pageIndex
-            </button>
-        }
-
-    </div>
-
-    @if (editingUserId != null && editingUser != null)
-    {
-        <div class="card p-3 my-4">
-            <h5>Edit User: @editingUser.Username</h5>
-
-            <div class="mb-3">
-                <label class="form-label">Username</label>
-                <input class="form-control" @bind="editingUser.Username" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Email</label>
-                <input class="form-control" @bind="editingUser.Email" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Phone Number</label>
-                <input class="form-control" @bind="editingUser.PhoneNumber" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Date of Birth</label>
-                <input type="date" class="form-control" @bind="editingUser.DoB" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Role ID</label>
-                <input class="form-control" @bind="editingUser.RoleId" />
-            </div>
-
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveEdit">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                <div class="w-25">
+                    <select class="form-select" @onchange="OnRoleFilterChanged">
+                        <option value="">All Roles</option>
+                        @foreach (var role in availableRoles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                </div>
             </div>
         </div>
-    }
-}
+
+        @if (showCreateForm)
+        {
+            <div class="card p-3 my-4">
+                <h5>Create New User</h5>
+                <div class="mb-3">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    <input class="form-control" @bind="newUser.Username" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input class="form-control" type="email" @bind="newUser.Email" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input class="form-control" type="password" @bind="newUserPassword" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input class="form-control" @bind="newUser.PhoneNumber" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" @bind="newUser.DoB" />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select class="form-select" @bind="newUser.RoleId">
+                        <option value="">Select Role</option>
+                        @foreach (var role in availableRoleIds)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
+                    <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                </div>
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <div class="alert alert-info mt-3">@message</div>
+                }
+            </div>
+        }
+
+        @if (users == null)
+        {
+            <p>Loading users...</p>
+        }
+        else if (!filteredUsers.Any())
+        {
+            <p>No users found matching your search criteria.</p>
+        }
+        else
+        {
+            <table class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Date of Birth</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = (currentPage - 1) * itemsPerPage + 1;
+                    }
+                    @foreach (var user in PaginatedUsers)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@user.Username</td>
+                            <td>@user.Email</td>
+                            <td>@user.PhoneNumber</td>
+                            <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
+                            <td>@user.Role?.RoleName</td>
+                            <td>
+                                <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i class="bi bi-three-dots-vertical"></i></button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i class="bi bi-trash3-fill"></i></button>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                </tbody>
+            </table>
+            <div class="d-flex justify-content-center mt-3">
+                @for (int i = 1; i <= TotalPages; i++)
+                {
+                    var pageIndex = i;
+                    <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                            @onclick="() => GoToPage(pageIndex)">
+                        @pageIndex
+                    </button>
+                }
+            </div>
+
+            @if (editingUserId != null && editingUser != null)
+            {
+                <div class="card p-3 my-4">
+                    <h5>Edit User: @editingUser.Username</h5>
+
+                    <div class="mb-3">
+                        <label class="form-label">Username <span class="text-danger">*</span></label>
+                        <input class="form-control" @bind="editingUser.Username" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input class="form-control" type="email" @bind="editingUser.Email" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone Number</label>
+                        <input class="form-control" @bind="editingUser.PhoneNumber" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Date of Birth</label>
+                        <input type="date" class="form-control" @bind="editingUser.DoB" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Role <span class="text-danger">*</span></label>
+                        <select class="form-select" @bind="editingUser.RoleId">
+                            <option value="">Select Role</option>
+                            @foreach (var role in availableRoleIds)
+                            {
+                                <option value="@role">@role</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-success me-2" @onclick="SaveEdit">Save</button>
+                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                    @if (!string.IsNullOrEmpty(message))
+                    {
+                        <div class="alert alert-info mt-3">@message</div>
+                    }
+                </div>
+            }
+        }
+
+        @if (!string.IsNullOrEmpty(message) && editingUserId == null && !showCreateForm)
+        {
+            <div class="alert alert-info mt-3">@message</div>
+        }
+    </Authorized>
+    <NotAuthorized>
+        <p>You are not authorized to access this page.</p>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
-    
     private List<DUPSS.Object.User>? users;
     private List<DUPSS.Object.User>? filteredUsers;
     private string searchTerm = "";
     private string? message;
     private string? editingUserId;
     private DUPSS.Object.User? editingUser;
-	private int currentPage = 1;
-	private int itemsPerPage = 10;
+    private int currentPage = 1;
+    private int itemsPerPage = 10;
     private List<string> availableRoles = new() { "Staff", "Member", "Admin", "Manager", "Consultant" };
+    private List<string> availableRoleIds = new() { "ST", "ME", "AD", "MA", "CO" };
     private string selectedRole = "";
+    private bool showCreateForm;
+    private DUPSS.Object.User newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
+    private string newUserPassword = "";
 
     private IEnumerable<DUPSS.Object.User> PaginatedUsers =>
-    filteredUsers?
-        .Skip((currentPage - 1) * itemsPerPage)
-        .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.Object.User>();
+        filteredUsers?
+            .Skip((currentPage - 1) * itemsPerPage)
+            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.Object.User>();
 
     private int TotalPages => (int)Math.Ceiling((filteredUsers?.Count ?? 0) / (double)itemsPerPage);
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await UserDAO.GetAllAsync();
+        filteredUsers = users;
+    }
 
     private void GoToPage(int page)
     {
@@ -148,34 +225,73 @@ else
         }
     }
 
-
-
-    protected override async Task OnInitializedAsync()
-    {
-        users = await UserDAO.GetAllAsync();
-        filteredUsers = users;
-    }
-
     private void FilterUsers()
     {
         if (users == null)
             return;
 
         filteredUsers = users.Where(user =>
-            // Lọc theo search term (username/email/phone)
             (string.IsNullOrWhiteSpace(searchTerm) ||
              (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
              (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
              (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
             &&
-            // Lọc theo role nếu có chọn
             (string.IsNullOrWhiteSpace(selectedRole) || (user.Role?.RoleName == selectedRole))
         ).ToList();
 
         currentPage = 1;
+        StateHasChanged();
     }
 
+    private void OnRoleFilterChanged(ChangeEventArgs e)
+    {
+        selectedRole = e.Value?.ToString() ?? "";
+        FilterUsers();
+    }
 
+    private void ShowCreateUserForm()
+    {
+        showCreateForm = true;
+        newUser = new DUPSS.Object.User { UserId = "", Username = "", Email = "", RoleId = "" };
+        newUserPassword = "";
+        message = null;
+    }
+
+    private async Task CreateUser()
+    {
+        if (newUser == null || string.IsNullOrEmpty(newUser.Username) || string.IsNullOrEmpty(newUser.Email) ||
+            string.IsNullOrEmpty(newUserPassword) || string.IsNullOrEmpty(newUser.RoleId))
+        {
+            message = "Username, email, password, and role are required.";
+            return;
+        }
+
+        try
+        {
+            await UserDAO.CreateAsync(newUser, newUserPassword);
+            message = $"User {newUser.Username} created successfully.";
+            showCreateForm = false;
+            newUser = new DUPSS.Object.User { UserId = "", Username = "", Email = "", RoleId = "" };
+            newUserPassword = "";
+            users = await UserDAO.GetAllAsync();
+            FilterUsers();
+        }
+        catch (Exception ex)
+        {
+            message = $"Failed to create user: {ex.Message}";
+        }
+
+        currentPage = 1;
+        StateHasChanged();
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+        newUser = new DUPSS.Object.User { UserId = "", Username = "", Email = "", RoleId = "" };
+        newUserPassword = "";
+        message = null;
+    }
 
     private void EditUser(string userId)
     {
@@ -184,16 +300,51 @@ else
         {
             editingUserId = userId;
             editingUser = new DUPSS.Object.User
-                {
-                    UserId = user.UserId,
-                    Username = user.Username,
-                    Email = user.Email,
-                    PhoneNumber = user.PhoneNumber,
-                    DoB = user.DoB,
-                    Role = user.Role,
-                    RoleId = user.RoleId
-                };
+            {
+                UserId = user.UserId,
+                Username = user.Username,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                DoB = user.DoB,
+                Role = user.Role,
+                RoleId = user.RoleId
+            };
+            message = null;
         }
+    }
+
+    private async Task SaveEdit()
+    {
+        if (editingUser == null || string.IsNullOrEmpty(editingUser.Username) ||
+            string.IsNullOrEmpty(editingUser.Email) || string.IsNullOrEmpty(editingUser.RoleId))
+        {
+            message = "Username, email, and role are required.";
+            return;
+        }
+
+        try
+        {
+            await UserDAO.UpdateAsync(editingUser);
+            message = $"User {editingUser.Username} updated successfully.";
+            editingUserId = null;
+            editingUser = null;
+            users = await UserDAO.GetAllAsync();
+            FilterUsers();
+        }
+        catch (Exception ex)
+        {
+            message = $"Failed to update user: {ex.Message}";
+        }
+
+        currentPage = 1;
+        StateHasChanged();
+    }
+
+    private void CancelEdit()
+    {
+        editingUserId = null;
+        editingUser = null;
+        message = null;
     }
 
     private async Task DeleteUser(string userId)
@@ -208,48 +359,27 @@ else
         bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete user '{user.Username}'?");
         if (confirmed)
         {
-            var success = await UserDAO.DeleteAsync(userId);
-            if (success)
+            try
             {
-                message = $"User '{user.Username}' deleted successfully.";
-                users = await UserDAO.GetAllAsync();
-                FilterUsers(); 
+                var success = await UserDAO.DeleteAsync(userId);
+                if (success)
+                {
+                    message = $"User '{user.Username}' deleted successfully.";
+                    users = await UserDAO.GetAllAsync();
+                    FilterUsers();
+                }
+                else
+                {
+                    message = $"Failed to delete user '{user.Username}'. Please try again.";
+                }
             }
-            else
+            catch (Exception ex)
             {
-                message = $"Failed to delete user '{user.Username}'. Please try again.";
+                message = $"Failed to delete user: {ex.Message}";
             }
         }
 
         currentPage = 1;
-    }
-
-    private async Task SaveEdit()
-    {
-        if (editingUser != null)
-        {
-            await UserDAO.UpdateAsync(editingUser);
-            message = $"User {editingUser.Username} updated successfully.";
-            editingUserId = null;
-            editingUser = null;
-
-            users = await UserDAO.GetAllAsync();
-            FilterUsers(); 
-        }
-
-        currentPage = 1;
-    }
-
-
-    private void CancelEdit()
-    {
-        editingUserId = null;
-        editingUser = null;
-    }
-
-    private void OnRoleFilterChanged(ChangeEventArgs e)
-    {
-        selectedRole = e.Value?.ToString() ?? "";
-        FilterUsers();
+        StateHasChanged();
     }
 }

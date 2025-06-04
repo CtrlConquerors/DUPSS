@@ -6,6 +6,10 @@ namespace DUPSS.Object
 
     public class User
     {
+        public User()
+        {
+        }
+
         [Key]
         public required string UserId { get; set; }
         [Required, MaxLength(100)]

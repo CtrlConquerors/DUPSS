@@ -28,17 +28,16 @@ namespace DUPSS.Web.Components.Service
             }
 
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
-            new Claim(ClaimTypes.Email, session.User.Email!) // Fallback to email
-        };
+            {
+                new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
+                new Claim(ClaimTypes.Email, session.User.Email!)
+            };
 
-            // Create a new DbContext instance
             await using var context = await _contextFactory.CreateDbContextAsync();
             var user = await context.User.FirstOrDefaultAsync(u => u.UserId == session.User.Id);
             if (user != null)
             {
-                claims.Add(new Claim(ClaimTypes.Name, user.Username)); // Prefer Username
+                claims.Add(new Claim(ClaimTypes.Name, user.Username));
                 claims.Add(new Claim(ClaimTypes.Role, user.RoleId));
             }
 
@@ -60,15 +59,14 @@ namespace DUPSS.Web.Components.Service
             var claims = new List<Claim>
         {
             new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
-            new Claim(ClaimTypes.Email, session.User.Email!) // Fallback to email
+            new Claim(ClaimTypes.Email, session.User.Email!)
         };
 
-            // Create a new DbContext instance
             await using var context = await _contextFactory.CreateDbContextAsync();
             var user = await context.User.FirstOrDefaultAsync(u => u.UserId == session.User.Id);
             if (user != null)
             {
-                claims.Add(new Claim(ClaimTypes.Name, user.Username)); // Prefer Username
+                claims.Add(new Claim(ClaimTypes.Name, user.Username));
                 claims.Add(new Claim(ClaimTypes.Role, user.RoleId));
             }
 

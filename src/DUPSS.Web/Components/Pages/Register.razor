@@ -4,6 +4,7 @@
 @using Supabase
 @inject IUserDAO UserDAO
 @inject Supabase.Client SupabaseClient
+@inject NavigationManager NavigationManager
 
 <PageTitle>Register</PageTitle>
 
@@ -24,7 +25,7 @@
                         <ValidationSummary class="text-danger mb-3" />
 
                         <div class="mb-3">
-                            <label class="form-label">Username</label>
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
                             <InputText @bind-Value="user.Username" class="form-control" placeholder="Enter your username" />
                             <ValidationMessage For="@(() => user.Username)" class="text-danger" />
                         </div>
@@ -42,13 +43,13 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
                             <InputText @bind-Value="user.Email" class="form-control" placeholder="Enter your email" />
                             <ValidationMessage For="@(() => user.Email)" class="text-danger" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
+                            <label class="form-label">Password <span class="text-danger">*</span></label>
                             <InputText type="password" @bind-Value="password" class="form-control" placeholder="Enter your password" />
                             <ValidationMessage For="@(() => password)" class="text-danger" />
                         </div>
@@ -70,10 +71,10 @@
 @code {
     private User user = new User
     {
-        UserId = "", // Will be set after Supabase registration
+        UserId = "",
         Username = "",
         Email = "",
-        RoleId = "ME" // Force new registered user to be member
+        RoleId = "ME" // Force new registered user to be Member
     };
     private string password = "";
     private DateTime? DoB
@@ -83,32 +84,33 @@
     }
     private string errorMessage = "";
 
-    [Inject]
-    private NavigationManager NavigationManager { get; set; }
-
     private async Task HandleRegister()
     {
         try
         {
+            // Validate required fields
+            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(password))
+            {
+                errorMessage = "Username, email, and password are required.";
+                return;
+            }
+
             // Register user with Supabase Auth
             var response = await SupabaseClient.Auth.SignUp(user.Email, password);
-
-            if (response.User == null)
+            if (response!.User == null)
             {
-                errorMessage = "Registration failed: " + (response);
+                errorMessage = $"Registration failed: {response}";
                 return;
             }
 
             // Set UserId to Supabase's UUID
             user.UserId = response.User.Id!;
 
-            // Add user to your User table
-            await UserDAO.CreateAsync(user);
+            // Add user to User table
+            await UserDAO.CreateAsync(user, password);
 
-            // Clear any previous error message
+            // Clear error message and redirect to login
             errorMessage = "";
-
-            // Redirect to login page
             NavigationManager.NavigateTo("/login");
         }
         catch (Exception ex)

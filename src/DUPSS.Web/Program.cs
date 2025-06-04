@@ -23,6 +23,8 @@ builder.Services.AddRazorComponents()
         options.DetailedErrors = true;
     });
 
+builder.Services.AddHttpClient();
+
 // Add Supabase client
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
 var supabaseKey = builder.Configuration["Supabase:AnonKey"]!;

@@ -60,7 +60,6 @@ namespace DUPSS.AccessLayer.DAOs
             existingUser.PhoneNumber = user.PhoneNumber;
             existingUser.DoB = user.DoB;
             existingUser.RoleId = user.RoleId;
-            existingUser.Password = user.Password;
 
            
 

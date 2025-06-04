@@ -1,7 +1,6 @@
 ﻿@page "/UserManagement"
 @inject DUPSS.AccessLayer.Interfaces.IUserDAO UserDAO
 @inject IJSRuntime JS
-@rendermode InteractiveServer
 
 
 <div class="d-flex justify-content-end mb-3">
@@ -192,8 +191,7 @@ else
                     PhoneNumber = user.PhoneNumber,
                     DoB = user.DoB,
                     Role = user.Role,
-                    RoleId = user.RoleId,
-                    Password = user.Password
+                    RoleId = user.RoleId
                 };
         }
     }

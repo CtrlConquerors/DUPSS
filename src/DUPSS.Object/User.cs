@@ -6,6 +6,10 @@ namespace DUPSS.Object
 
     public class User
     {
+        public User()
+        {
+        }
+
         [Key]
         public required string UserId { get; set; }
         [Required, MaxLength(100)]
@@ -16,8 +20,7 @@ namespace DUPSS.Object
         [Required, MaxLength(100)]
         public required string Email { get; set; }
         [Required, MaxLength(255)]
-        public required string Password { get; set; }
-        [Required]
+
         public required string RoleId { get; set; }
         public Role? Role { get; set; }
         public List<Appointment> MemberAppointments { get; set; } = new List<Appointment>();

@@ -1,12 +1,13 @@
 ﻿@inherits LayoutComponentBase
 
 <NavMenu /> @* Đưa navbar lên đầu trang *@
-
+<CascadingAuthenticationState>
 <div class="container mt-4">
     <article class="content px-4">
         @Body
     </article>
 </div>
+</CascadingAuthenticationState>
 
 <footer /> @* Your footer component *@
 <div id="blazor-error-ui" data-nosnippet>

@@ -1,8 +1,10 @@
 ﻿@page "/login"
 @using DUPSS.Object
-@using System.Security.Cryptography
-@using System.Text
-@rendermode InteractiveServer
+@using DUPSS.Web.Components.Service
+@using Supabase
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthStateProvider
 
 <PageTitle>Login</PageTitle>
 
@@ -12,6 +14,12 @@
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h3 class="text-center mb-4">Login to Your Account</h3>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
                     <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
                         <DataAnnotationsValidator />
                         <ValidationSummary class="text-danger mb-3" />
@@ -50,39 +58,32 @@
     }
 
     private LoginModel loginModel = new LoginModel();
+    private string errorMessage = "";
 
-    [Inject]
-    private AppDbContext DbContext { get; set; }
-
-    private void HandleLogin()
+    private async Task HandleLogin()
     {
-        var user = DbContext.User.FirstOrDefault(u => u.Email == loginModel.Email);
+        try
+        {
+            var session = await SupabaseClient.Auth.SignIn(loginModel.Email, loginModel.Password);
+            if (session == null || session.User == null)
+            {
+                errorMessage = "Invalid email or password.";
+                Console.WriteLine("Login failed: No session or user returned.");
+                return;
+            }
 
-        if (user != null && VerifyPassword(loginModel.Password, user.Password))
-        {
-            NavigationManager.NavigateTo("/");
+            Console.WriteLine($"Login successful: User ID = {session.User.Id}, Email = {session.User.Email}");
+            var customAuthStateProvider = (CustomAuthStateProvider)AuthStateProvider;
+            await customAuthStateProvider.UpdateAuthState(session);
+
+            StateHasChanged();
+            Console.WriteLine("Authentication state updated, redirecting to home...");
+            NavigationManager.NavigateTo("/", forceLoad: true);
         }
-        else
+        catch (Exception ex)
         {
-            // Add error message (e.g., "Invalid credentials")
+            errorMessage = $"Login failed: {ex.Message}";
+            Console.WriteLine($"Login error: {ex.Message}\nStackTrace: {ex.StackTrace}");
         }
     }
-
-    private bool VerifyPassword(string password, string storedSaltHash)
-    {
-        var parts = storedSaltHash.Split(':');
-        if (parts.Length != 2) return false;
-
-        byte[] salt = Convert.FromBase64String(parts[0]);
-        string storedHash = parts[1];
-
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256);
-        byte[] hash = pbkdf2.GetBytes(32);
-        string hashBase64 = Convert.ToBase64String(hash);
-
-        return storedHash == hashBase64;
-    }
-
-    [Inject]
-    private NavigationManager NavigationManager { get; set; }
 }

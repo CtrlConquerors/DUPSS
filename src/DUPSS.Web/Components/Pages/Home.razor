@@ -2,6 +2,18 @@
 @inject IJSRuntime JS
 <PageTitle>Home</PageTitle>
 
+@* Demo for Blazor Server with Supabase Authentication *@
+
+@* <AuthorizeView>
+    <Authorized>
+        <h3>Hello, @context.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value</h3>
+        <p>Role: @context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
+    </Authorized>
+    <NotAuthorized>
+        <h3>Welcome, Guest! Please <a href="/login">log in</a> to personalize your experience.</h3>
+    </NotAuthorized>
+</AuthorizeView> *@
+
 <div class="container-fluid px-5 py-4">
     <section class="hero-section">
         <div class="hero-content">
@@ -79,7 +91,8 @@
 
     <section class="new-hero-section">
         <div class="container new-hero-container">
-            <h1 class="typewrite"> @*put letter r to enable effect*@
+            <h1 class="typewrite">
+                @*put letter r to enable effect*@
                 Every individual and community has the ability to protect themselves from the risks of drug use and plays a vital role in building a healthier, safer society.
 
             </h1>
@@ -126,20 +139,20 @@
     <footer class="main-footer mt-10">
         <canvas id="rainCanvas" class="rain-canvas"></canvas>
 
-    <div class=" footer-content-wrapper ">
-        <div class="footer-section footer-logo-section col-1">
-            <img src="images/logo.png" alt="Logo" class="footer-logo" />
-            <p class="footer-copyright">Copyright © ALPHA</p>
-        </div>
+        <div class=" footer-content-wrapper ">
+            <div class="footer-section footer-logo-section col-1">
+                <img src="images/logo.png" alt="Logo" class="footer-logo" />
+                <p class="footer-copyright">Copyright © ALPHA</p>
+            </div>
 
-        <div class="footer-section footer-info-section text-center col-2">
-            <h5 class="footer-heading">OUR INFORMATION</h5>
-            <p>Address: Phuoc Hiep</p>
-            <p>Contact number: 090 538 4233</p>
-            <p>Email: abcd@fgmail.com</p>
-        </div>
-            
-        @* <div class="footer-section footer-subscribe-section col-10">
+            <div class="footer-section footer-info-section text-center col-2">
+                <h5 class="footer-heading">OUR INFORMATION</h5>
+                <p>Address: Phuoc Hiep</p>
+                <p>Contact number: 090 538 4233</p>
+                <p>Email: abcd@fgmail.com</p>
+            </div>
+
+            @* <div class="footer-section footer-subscribe-section col-10">
             <div class="subscribe-box">
                 <h4 class="subscribe-heading">Stay up to date</h4>
                 <p class="subscribe-text">Get Started</p>

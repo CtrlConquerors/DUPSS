@@ -1,10 +1,10 @@
 ﻿@page "/register"
 @using DUPSS.Object
 @using DUPSS.AccessLayer.Interfaces
-@using System.Security.Cryptography
-@using System.Text
-@rendermode InteractiveServer
+@using Supabase
 @inject IUserDAO UserDAO
+@inject Supabase.Client SupabaseClient
+@inject NavigationManager NavigationManager
 
 <PageTitle>Register</PageTitle>
 
@@ -25,7 +25,7 @@
                         <ValidationSummary class="text-danger mb-3" />
 
                         <div class="mb-3">
-                            <label class="form-label">Username</label>
+                            <label class="form-label">Username <span class="text-danger">*</span></label>
                             <InputText @bind-Value="user.Username" class="form-control" placeholder="Enter your username" />
                             <ValidationMessage For="@(() => user.Username)" class="text-danger" />
                         </div>
@@ -43,15 +43,15 @@
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
+                            <label class="form-label">Email <span class="text-danger">*</span></label>
                             <InputText @bind-Value="user.Email" class="form-control" placeholder="Enter your email" />
                             <ValidationMessage For="@(() => user.Email)" class="text-danger" />
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Password</label>
-                            <InputText type="password" @bind-Value="user.Password" class="form-control" placeholder="Enter your password" />
-                            <ValidationMessage For="@(() => user.Password)" class="text-danger" />
+                            <label class="form-label">Password <span class="text-danger">*</span></label>
+                            <InputText type="password" @bind-Value="password" class="form-control" placeholder="Enter your password" />
+                            <ValidationMessage For="@(() => password)" class="text-danger" />
                         </div>
 
                         <div class="d-grid mb-3">
@@ -71,65 +71,51 @@
 @code {
     private User user = new User
     {
-        UserId = Guid.NewGuid().ToString(),
+        UserId = "",
         Username = "",
         Email = "",
-        Password = "",
-        DoB = null,
-        RoleId = "ME"       //force new Registered user to be member
+        RoleId = "ME" // Force new registered user to be Member
     };
-
+    private string password = "";
     private DateTime? DoB
     {
         get => user.DoB.HasValue ? user.DoB.Value.ToDateTime(new TimeOnly(0, 0)) : null;
         set => user.DoB = value.HasValue ? DateOnly.FromDateTime(value.Value) : null;
     }
-
     private string errorMessage = "";
-
-
-    [Inject]
-    private NavigationManager NavigationManager { get; set; }
 
     private async Task HandleRegister()
     {
         try
         {
-            // Hash the password
-            user.Password = HashPassword(user.Password);
+            // Validate required fields
+            if (string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(password))
+            {
+                errorMessage = "Username, email, and password are required.";
+                return;
+            }
 
-            // Add the user
-            await UserDAO.CreateAsync(user);
+            // Register user with Supabase Auth
+            var response = await SupabaseClient.Auth.SignUp(user.Email, password);
+            if (response!.User == null)
+            {
+                errorMessage = $"Registration failed: {response}";
+                return;
+            }
 
-            // Clear any previous error message
+            // Set UserId to Supabase's UUID
+            user.UserId = response.User.Id!;
+
+            // Add user to User table
+            await UserDAO.CreateAsync(user, password);
+
+            // Clear error message and redirect to login
             errorMessage = "";
-
-            // Redirect to login page
             NavigationManager.NavigateTo("/login");
         }
         catch (Exception ex)
         {
-            if (ex.Message.Contains("FOREIGN KEY constraint"))
-            {
-                errorMessage = "The assigned role does not exist in the database. Please contact support.";
-            }
-            else
-            {
-                errorMessage = $"An error occurred while registering: {ex.Message}";
-            }
+            errorMessage = $"An error occurred while registering: {ex.Message}";
         }
-    }
-
-    private string HashPassword(string password)
-    {
-        byte[] salt = RandomNumberGenerator.GetBytes(16); // 128-bit salt
-        using var pbkdf2 = new Rfc2898DeriveBytes(password, salt, 100_000, HashAlgorithmName.SHA256);
-        byte[] hash = pbkdf2.GetBytes(32); // 256-bit hash
-
-        string saltBase64 = Convert.ToBase64String(salt);
-        string hashBase64 = Convert.ToBase64String(hash);
-
-        // Return as "salt:hash"
-        return $"{saltBase64}:{hashBase64}";
     }
 }

@@ -94,6 +94,39 @@ body {
             background-color: rgba(255, 255, 255, 0.2);
             border-radius: 50%;
         }
+@media (max-width: 768px) {
+    .subscribe-container {
+        flex-direction: column;
+        height: auto;
+        padding: 20px;
+    }
+
+        .subscribe-container .left {
+            max-width: 100%;
+            width: 100%;
+            text-align: center;
+        }
+
+            .subscribe-container .left form {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .subscribe-container .left input {
+                width: 100%;
+                margin-right: 0;
+                margin-bottom: 10px;
+            }
+
+            .subscribe-container .left button {
+                width: 100%;
+            }
+
+        .subscribe-container .right {
+            display: none; /* Hide the decorative right section on smaller screens */
+        }
+}
 
 /* --- Blog Card Styling --- */
 
@@ -183,36 +216,37 @@ body {
         line-height: 1.5;
     }
 
-    .hero-card .btn-read-story {
-        display: inline-flex; 
-        align-items: center; 
+    .hero-card ::deep .btn-read-story {
+        display: inline-flex;
+        align-items: center;
         font-family: 'Open Sans', sans-serif;
         font-size: 0.9em;
         font-weight: 600;
-        color: #fff; 
+        color: #fff;
         text-decoration: none;
-        background-color: #fdd835; 
-        border: 1px solid #fdd835; 
+        background-color: #fdd835;
+        border: 1px solid #fdd835;
         padding: 10px 20px;
         border-radius: 20px;
         transition: all 0.3s ease;
     }
 
-        .hero-card .btn-read-story:hover {
-            background-color: #e0c030;
-            border-color: #e0c030;
-            transform: translateX(3px); 
-        }
+    .hero-card ::deep .btn-read-story:hover {
+        background-color: #e0c030;
+        border-color: #e0c030;
+        transform: translateX(3px);
+    }
 
-        .hero-card .btn-read-story .arrow {
-            margin-left: 8px; 
+        .hero-card ::deep .btn-read-story .arrow {
+            margin-left: 8px;
             font-size: 1em;
             transition: transform 0.3s ease;
         }
 
-        .hero-card .btn-read-story:hover .arrow {
+        .hero-card ::deep .btn-read-story:hover .arrow {
             transform: translateX(5px);
         }
+
 
 
 

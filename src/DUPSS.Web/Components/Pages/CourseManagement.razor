@@ -53,7 +53,7 @@
                 @* NEW: Sort controls *@
                 <div class="sort-controls">
                     <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
-                        <option value="CourseId">Sort by Course ID</option> @* Changed default sort option *@
+                        <option value="CourseId">Sort by Course ID</option>
                         <option value="CourseName">Sort by Course Name</option>
                         <option value="TopicName">Sort by Topic Name</option>
                         <option value="StaffName">Sort by Staff Name</option>
@@ -151,6 +151,14 @@
                 <div class="card p-3 my-4 edit-form-card">
                     <h5>@(isNewCourse ? "Add New Course" : "Edit Course: " + courseToEdit.CourseName)</h5>
 
+                    @* Validation Message Display *@
+                    @if (!string.IsNullOrEmpty(validationMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @validationMessage
+                        </div>
+                    }
+
                     <div class="mb-3">
                         <label class="form-label">Course Name</label>
                         <input class="form-control" @bind="courseToEdit.CourseName" />
@@ -168,16 +176,33 @@
 
                     <div class="mb-3">
                         <label class="form-label">Topic</label>
-                        <select class="form-select" @bind="courseToEdit.TopicId">
-                            <option value="">Select Topic</option>
-                            @if (topics != null)
-                            {
-                                @foreach (var topic in topics)
+                        @* Conditional rendering for Topic input/select *@
+                        @if (showNewTopicInput)
+                        {
+                            <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name" />
+                            <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New Topic</button>
+                        }
+                        else
+                        {
+                            <select class="form-select" @bind="courseToEdit.TopicId">
+                                <option value="">Select Topic</option>
+                                @if (topics != null)
                                 {
-                                    <option value="@topic.TopicId">@topic.TopicName</option>
+                                    @foreach (var topic in topics)
+                                    {
+                                        <option value="@topic.TopicId">@topic.TopicName</option>
+                                    }
                                 }
-                            }
-                        </select>
+                            </select>
+                            <div class="d-flex justify-content-between mt-2">
+                                <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
+                                @* Delete Topic button (visible if a topic is selected) *@
+                                @if (!string.IsNullOrWhiteSpace(courseToEdit.TopicId))
+                                {
+                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTopic(courseToEdit.TopicId)">Delete Selected Topic</button>
+                                }
+                            </div>
+                        }
                     </div>
 
                     <div class="mb-3">
@@ -209,19 +234,19 @@
 
 @code {
     private List<DUPSS.Object.Course>? courses;
-    private List<DUPSS.Object.Course>? filteredCourses;
     private List<DUPSS.Object.CourseTopic>? topics;
     private List<DUPSS.Object.User>? staffUsers; // To hold users with 'Staff' role
     private List<DUPSS.Object.Role>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
+    private string validationMessage = string.Empty; // For validation messages
 
     // Search, Sort, Filter state
     private string searchTerm = string.Empty;
     private string selectedTopicId = string.Empty;
     private string selectedStaffId = string.Empty;
-    private string sortBy = "CourseId"; // FIXED: Default sort column is now CourseId
+    private string sortBy = "CourseId"; // Default sort column is CourseId
     private SortDirection sortDirection = SortDirection.Ascending; // Default sort direction
 
     private enum SortDirection { Ascending, Descending }
@@ -237,6 +262,13 @@
     };
     private bool showEditForm = false;
     private bool isNewCourse = false;
+    private bool showNewTopicInput = false; // Controls visibility of new topic input
+    private string newTopicName = string.Empty; // Binds to the new topic input field
+
+    // Removed: showEditTopicInput, editingTopicId, editedTopicName
+
+    // FIXED: Initialize filteredCourses to an empty list to prevent null reference errors
+    private List<DUPSS.Object.Course> filteredCourses = new List<DUPSS.Object.Course>();
 
     private IEnumerable<DUPSS.Object.Course> PaginatedCourses =>
         filteredCourses?
@@ -276,6 +308,7 @@
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
             courses = new List<DUPSS.Object.Course>();
+            // Ensure filteredCourses is also initialized in case of error
             filteredCourses = new List<DUPSS.Object.Course>();
             topics = new List<DUPSS.Object.CourseTopic>();
             staffUsers = new List<DUPSS.Object.User>();
@@ -287,7 +320,11 @@
     // Central method to apply all search, filter, and sort logic
     private void FilterAndSortCourses()
     {
-        if (courses == null) return;
+        if (courses == null)
+        {
+            filteredCourses = new List<DUPSS.Object.Course>(); // Ensure it's not null even if courses is null
+            return;
+        }
 
         IEnumerable<DUPSS.Object.Course> query = courses;
 
@@ -389,8 +426,34 @@
         return $"C{(maxIdNum + 1):D4}"; // D4 formats to 4 digits, e.g., 1 -> 0001
     }
 
+    // NEW: Helper method to generate the next sequential TopicId (TP0000 format)
+    private string GenerateNextTopicId()
+    {
+        int maxIdNum = 0;
+        if (topics != null && topics.Any())
+        {
+            maxIdNum = topics
+                .Select(t =>
+                {
+                    if (t.TopicId != null && t.TopicId.StartsWith("TP") && int.TryParse(t.TopicId.Substring(2), out int num))
+                    {
+                        return num;
+                    }
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+        }
+        return $"TP{(maxIdNum + 1):D4}"; // D4 formats to 4 digits, e.g., 1 -> 0001
+    }
+
     private void AddCourse()
     {
+        validationMessage = string.Empty; // Clear previous validation messages
+        showNewTopicInput = false; // Ensure new topic input is hidden by default for add
+        // Removed: showEditTopicInput = false;
+        newTopicName = string.Empty; // Clear new topic name
+        // Removed: editedTopicName = string.Empty;
         courseToEdit = new DUPSS.Object.Course
         {
             CourseId = GenerateNextCourseId(),
@@ -405,6 +468,11 @@
 
     private void EditCourse(string courseId)
     {
+        validationMessage = string.Empty; // Clear previous validation messages
+        showNewTopicInput = false; // Ensure new topic input is always hidden for edit
+        // Removed: showEditTopicInput = false;
+        newTopicName = string.Empty; // Clear new topic name
+        // Removed: editedTopicName = string.Empty;
         var course = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (course != null)
         {
@@ -423,8 +491,150 @@
         }
     }
 
+    // NEW: Method to prompt for adding a new topic (now available for both add/edit)
+    private void PromptAddNewTopic()
+    {
+        showNewTopicInput = true;
+        // Removed: showEditTopicInput = false;
+        courseToEdit.TopicId = ""; // Clear selected topic when switching to new topic input
+        newTopicName = string.Empty; // Clear new topic name
+        validationMessage = string.Empty; // Clear any previous validation messages
+    }
+
+    // NEW: Method to cancel adding a new topic and revert to dropdown
+    private void CancelNewTopicInput()
+    {
+        showNewTopicInput = false;
+        newTopicName = string.Empty;
+        validationMessage = string.Empty; // Clear any previous validation messages
+    }
+
+    // Removed: EditTopic method
+    // Removed: SaveEditedTopic method
+    // Removed: CancelEditTopicInput method
+
+    // NEW: Method to delete a topic
+    private async Task DeleteTopic(string topicIdToDelete)
+    {
+        if (string.IsNullOrWhiteSpace(topicIdToDelete))
+        {
+            validationMessage = "No topic selected for deletion.";
+            return;
+        }
+
+        var topic = topics?.FirstOrDefault(t => t.TopicId == topicIdToDelete);
+        if (topic == null)
+        {
+            validationMessage = "Topic not found.";
+            return;
+        }
+
+        // Check if any courses are associated with this topic
+        var coursesUsingTopic = courses?.Any(c => c.TopicId == topicIdToDelete) ?? false;
+        if (coursesUsingTopic)
+        {
+            validationMessage = $"Cannot delete topic '{topic.TopicName}' because it is currently assigned to one or more courses. Please reassign courses first.";
+            return;
+        }
+
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete topic '{topic.TopicName}' (ID: {topicIdToDelete})?");
+        if (confirmed)
+        {
+            try
+            {
+                var success = await CourseTopicDAO.DeleteAsync(topicIdToDelete);
+                if (success)
+                {
+                    Console.WriteLine($"Topic '{topic.TopicName}' (ID: {topicIdToDelete}) deleted successfully.");
+                    validationMessage = string.Empty; // Clear message on success
+
+                    // Re-fetch topics and courses to update UI
+                    topics = await CourseTopicDAO.GetAllAsync();
+                    courses = await CourseDAO.GetAllAsync(); // Courses might have had this topic, so refresh all.
+                    FilterAndSortCourses(); // Re-apply filters and sort
+
+                    // If the deleted topic was the one currently selected in the form, clear it
+                    if (courseToEdit.TopicId == topicIdToDelete)
+                    {
+                        courseToEdit.TopicId = "";
+                    }
+                }
+                else
+                {
+                    validationMessage = $"Failed to delete topic '{topic.TopicName}'.";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting topic: {ex.Message}");
+                validationMessage = $"Error deleting topic: {ex.Message}";
+            }
+        }
+    }
+
     private async Task SaveCourse()
     {
+        // Validation checks
+        if (string.IsNullOrWhiteSpace(courseToEdit.CourseName))
+        {
+            validationMessage = "Course Name cannot be empty.";
+            return;
+        }
+
+        // If new topic input is active
+        if (showNewTopicInput)
+        {
+            if (string.IsNullOrWhiteSpace(newTopicName))
+            {
+                validationMessage = "New Topic Name cannot be empty.";
+                return;
+            }
+            // Check if topic already exists to prevent duplicates
+            var existingTopic = topics?.FirstOrDefault(t => t.TopicName.Equals(newTopicName, StringComparison.OrdinalIgnoreCase));
+            if (existingTopic != null)
+            {
+                validationMessage = $"Topic '{newTopicName}' already exists. Please select it from the dropdown or enter a different name.";
+                return;
+            }
+
+            try
+            {
+                // Generate new topic ID
+                string newTopicId = GenerateNextTopicId();
+                var newTopic = new DUPSS.Object.CourseTopic { TopicId = newTopicId, TopicName = newTopicName };
+                await CourseTopicDAO.CreateAsync(newTopic);
+                courseToEdit.TopicId = newTopic.TopicId; // Set the new topic as selected for the course
+                // Re-fetch topics to update dropdown for next time, and clear the new topic input state
+                topics = await CourseTopicDAO.GetAllAsync();
+                showNewTopicInput = false; // Revert to dropdown after successful new topic creation
+                newTopicName = string.Empty; // Clear the input field
+            }
+            catch (Exception ex)
+            {
+                validationMessage = $"Error creating new topic: {ex.Message}";
+                Console.WriteLine($"Error creating new topic: {ex.Message}");
+                return; // Stop save process if topic creation fails
+            }
+        }
+        else // If not adding a new topic (selecting existing)
+        {
+            // Only validate topic selection if not currently editing a topic
+            // Removed: !showEditTopicInput condition
+            if (string.IsNullOrWhiteSpace(courseToEdit.TopicId))
+            {
+                validationMessage = "Please select a Topic.";
+                return;
+            }
+        }
+
+        if (string.IsNullOrWhiteSpace(courseToEdit.StaffId))
+        {
+            validationMessage = "Please select a Staff.";
+            return;
+        }
+
+        validationMessage = string.Empty; // Clear message if all validations pass
+
         try
         {
             if (isNewCourse)
@@ -446,12 +656,17 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error saving course: {ex.Message}");
-            // Implement user-friendly error message display here
+            validationMessage = $"Error saving course: {ex.Message}"; // Display error to user
         }
     }
 
     private void CancelEdit()
     {
+        validationMessage = string.Empty; // Clear validation message on cancel
+        showNewTopicInput = false; // Hide new topic input on cancel
+        // Removed: showEditTopicInput = false;
+        newTopicName = string.Empty; // Clear new topic name on cancel
+        // Removed: editedTopicName = string.Empty;
         courseToEdit = new DUPSS.Object.Course
         {
             CourseId = "",

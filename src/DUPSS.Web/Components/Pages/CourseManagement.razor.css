@@ -252,20 +252,22 @@
 }
 
     .d-flex.justify-content-center.mt-3 .btn.active {
-        background-color: #0056b3; /* Darker blue for active state */
-        border-color: #0056b3;
+        background-color: white; /* Darker blue for active state */
+        border-color: white;
     }
 
 .d-flex.justify-content-center.mt-3 .btn-outline-primary {
-    background-color: white;
-    color: #007bff;
+    background-color: #f8f9fa;
+    color: black;
     border-color: #007bff;
+    border-radius:50px;
 }
 
     .d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
         background-color: #e9f2ff; /* Light blue on hover */
         color: #0056b3;
         border-color: #0056b3;
+        border-radius: 50px;
     }
 
 /* Inline Edit/Add Form */

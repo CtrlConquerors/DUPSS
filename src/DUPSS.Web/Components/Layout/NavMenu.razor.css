@@ -120,6 +120,10 @@
         background-color: #0056e0;
         color: white;
     }
+    ::deep .nav-item .arrow-box:hover {
+        background-color: #0056e0;
+        color: white;
+    }
 
 ::deep .get-started-text {
     padding-left: 8px;
@@ -143,4 +147,7 @@
         color: white;
         margin-bottom: 20px;
         font-weight: bold;
+    }
+    .badge{
+        border-radius:20px;
     }

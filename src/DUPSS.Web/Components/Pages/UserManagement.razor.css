@@ -1,222 +1,137 @@
-﻿/* coursemanagement.razor.css */
-
-/* General page container styling */
-.course-management-container {
-    padding: 30px; /* Increased padding for more space */
-    background-color: #f8f9fa; /* Light background for the page */
-    min-height: 100vh; /* Ensure it takes full viewport height */
-    font-family: 'Inter', sans-serif; /* Consistent font */
+﻿ ﻿ /* UserManagement.razor.css */
+/* General page styling */
+h1 {
+    color: #333;
+    margin-bottom: 20px;
+    text-align: center;
+}
+h3 {
+    text-align: center;
+    margin-bottom:30px;
+}
+/* Thêm quy tắc CSS cho container tìm kiếm */
+.search-input-container {
+    width: 25%; /* Chiếm 25% chiều ngang */
+    min-width: 200px; /* Đảm bảo không quá nhỏ trên màn hình lớn */
+    max-width: 300px; /* Giới hạn chiều rộng tối đa */
 }
 
-/* Header section (Title and Add Button) */
-.header-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 30px;
-    flex-wrap: wrap; /* Allow wrapping on smaller screens */
-    gap: 15px; /* Spacing between elements */
-}
-
-.page-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #343a40; /* Dark text for title */
-    margin: 0;
-}
-
-.add-course-button {
-    background-color: #007bff; /* Primary blue for the button */
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    border-radius: 8px; /* Rounded corners */
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease; /* Smooth hover effects */
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25); /* More prominent shadow */
-}
-
-    .add-course-button:hover {
-        background-color: #0056b3; /* Darker blue on hover */
-        transform: translateY(-2px); /* Slight lift effect */
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35); /* Enhanced shadow on hover */
-    }
-
-    .add-course-button i {
-        font-size: 1.2rem; /* Icon size */
-    }
-
-/* Table Container Styling */
-.table-container {
-    background-color: #ffffff; /* White background for the table card */
-    border-radius: 16px; /* Rounded corners for the table container, matching user's request */
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow, matching user's request */
-    overflow: hidden; /* Ensures border-radius applies to table content */
-    overflow-x: auto; /* Allows horizontal scrolling on small screens */
-    margin-bottom: 30px;
-}
-
-/* Table Styling */
-.course-table {
+/* Table styling */
+.table {
     width: 100%;
-    border-collapse: collapse; /* Collapse borders between cells */
-    table-layout: fixed; /* Helps with consistent column sizing */
-    min-width: 900px; /* Ensure table doesn't get too squished on smaller screens before scrolling */
+    margin-top: 0px; /* Có thể điều chỉnh nếu cần khoảng cách với ô tìm kiếm */
+    border-spacing: 0;
+    box-shadow: 0 2px 8px;
+    border-radius: 16px; /* or your preferred value */
+    overflow: hidden;
 }
 
-    .course-table th,
-    .course-table td {
-        padding: 15px 20px;
+    .table th,
+    .table td {
+        padding: 12px 15px;
         text-align: left;
-        border-bottom: 1px solid #e0e0e0; /* Light border between rows */
-        white-space: nowrap; /* Prevent text wrapping in cells */
-        overflow: hidden; /* Hide overflowed content */
-        text-overflow: ellipsis; /* Show ellipsis for overflowed text */
+        border-bottom: 1px solid #ddd;
     }
 
-    .course-table thead th {
-        background-color: #f2f4f7; /* Light grey background for headers */
-        color: #6c757d; /* Dark grey text for headers */
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.85rem;
-        text-align: center; /* Center align all header text */
+    .table thead th {
+        background-color: #f2f2f2;
+        font-weight: bold;
+        color: black;
     }
 
-        /* Specific alignment for the "NAME" column header */
-        .course-table thead th:first-child, /* Checkbox column */
-        .course-table thead th:nth-child(2) /* Name column */ {
-            text-align: left; /* Keep these left-aligned */
-        }
-
-
-    .course-table tbody tr:hover {
-        background-color: #f5f5f5; /* Subtle hover effect for rows */
-    }
-
-    .course-table tbody tr:last-child td {
-        border-bottom: none; /* No border for the last row */
-    }
-
-.course-name-cell {
-    display: flex;
-    align-items: center;
-    gap: 10px; /* Spacing between thumbnail and name */
+/* Striped rows for better readability */
+.table-striped > tbody > tr:nth-of-type(odd) {
+    --bs-table-accent-bg: black;
+    background-color: black !important;
 }
 
-.course-thumbnail {
-    width: 40px;
-    height: 40px;
-    border-radius: 6px; /* Slightly rounded thumbnail */
-    object-fit: cover; /* Ensure image covers the area */
-    border: 1px solid #e0e0e0; /* Light border for thumbnail */
-}
-
-.status-badge {
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: 600;
-    font-size: 0.8rem;
-    display: inline-block; /* Allows padding and border */
-}
-
-.status-available {
-    background-color: #d4edda; /* Light green */
-    color: #155724; /* Dark green */
-}
-
-.status-unavailable {
-    background-color: #f8d7da; /* Light red */
-    color: #721c24; /* Dark red */
-}
-
-.edit-actions {
-    display: flex;
-    justify-content: center; /* Center the ellipsis button */
-}
-
-.edit-button {
-    background: none;
-    border: none;
-    font-size: 1.2rem;
-    color: #6c757d; /* Dark grey for ellipsis icon */
-    cursor: pointer;
-    padding: 5px;
-    border-radius: 5px;
-    transition: background-color 0.2s ease;
-}
-
-    .edit-button:hover {
-        background-color: #e9ecef; /* Light grey on hover */
-    }
-
-/* Load More Button (formerly pagination) */
-.load-more-container {
+.table thead th {
     text-align: center;
+}
+/* Hover effect on table rows */
+.table tbody tr:hover {
+    background-color: white;
+}
+.table tbody td:nth-child(7) {
+    text-align: center;
+    width:130px;
+}
+/* Button styling enhancements */
+.btn {
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-primary {
+    background-color: white;
+    border-color: white;
+    color: black;
+    font-size: 15px;
+}
+
+    .btn-primary:hover {
+        background-color: lightgray;
+        border-color: none;
+        transform: translateY(-1px);
+    }
+.create {
+    background-color: #007bff;
+    border-color: white;
+    color: white;
+    font-size: 15px;
+    border-radius: 20px;
+    font-weight:bold;
+}
+
+    .create:hover {
+        background-color: #D1E5F4;
+        border-color: none;
+        transform: translateY(-1px);
+    }
+.btn-danger {
+    background-color: white;
+    border-color: white;
+    color: red;
+}
+
+    .btn-danger:hover {
+        background-color: lightgray;
+        border-color: #bd2130;
+        transform: translateY(-1px);
+    }
+.d-flex.justify-content-center.mt-3 .btn.active {
+    background-color: white; /* Darker blue for active state */
+    border-color: white;
+}
+
+.d-flex.justify-content-center.mt-3 .btn-outline-primary {
+    background-color: #f8f9fa;
+    color: black;
+    border-color: #007bff;
+    border-radius: 60px;
+}
+
+    .d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
+        background-color: #e9f2ff; /* Light blue on hover */
+        color: #0056b3;
+        border-color: #0056b3;
+        border-radius: 60px;
+    }
+/* Spacing between buttons */
+.me-2 {
+    margin-right: 0.5rem !important;
+}
+
+/* Styling for loading/no users messages */
+p {
+    text-align: center;
+    color: #666;
+    font-style: italic;
     margin-top: 20px;
-    padding-bottom: 30px; /* Add some padding at the bottom of the page */
 }
 
-.load-more-button {
-    background-color: #f2f4f7; /* Light background for the button */
-    color: #6c757d;
-    border: 1px solid #dee2e6; /* Light border */
-    padding: 12px 30px;
-    border-radius: 8px;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease, color 0.3s ease;
-}
-
-    .load-more-button:hover {
-        background-color: #e9ecef;
-        color: #495057;
-    }
-
-/* Loading, Error, and No Data States */
-.loading-indicator,
-.error-message,
-.no-data-message {
-    text-align: center;
-    padding: 50px;
-    font-size: 1.2rem;
-    color: #6c757d;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    margin-top: 20px; /* Add some space from header */
-}
-
-.error-message {
-    color: #dc3545; /* Red for error messages */
-}
-
-.loading-indicator {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .page-title {
-        font-size: 2rem;
-    }
-
-    .add-course-button {
-        width: 100%; /* Full width button on small screens */
-        justify-content: center;
-    }
-
-    .header-section {
-        flex-direction: column; /* Stack header elements vertically */
-        align-items: flex-start; /* Align to the start */
-    }
+.search-input-container {
+    min-width:300px;
 }

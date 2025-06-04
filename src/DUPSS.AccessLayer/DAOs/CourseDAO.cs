@@ -58,12 +58,31 @@ namespace DUPSS.AccessLayer.DAOs
 
         public async Task<Course> UpdateAsync(Course course)
         {
-            // When updating, we assume ImageUrl is not stored in DB,
-            // so we don't need to explicitly handle it here for persistence.
-            // The ImageUrl will be dynamically set again when retrieved.
-            _context.Course.Update(course);
+            // 1. Find the existing course in the database
+            var existingCourse = await _context.Course.FindAsync(course.CourseId);
+
+            if (existingCourse == null)
+            {
+                // If the course doesn't exist, throw an exception or handle appropriately
+                throw new Exception($"Course with ID {course.CourseId} not found for update.");
+            }
+
+            // 2. Update the properties of the existing entity with the new values
+            //    Only update the properties that are actually stored in the database.
+            //    Do NOT assign NotMapped properties like ImageUrl, CreatedDate, Status, Inventory, IsSelected here.
+            existingCourse.CourseName = course.CourseName;
+            existingCourse.CourseType = course.CourseType;
+            existingCourse.TopicId = course.TopicId;
+            existingCourse.StaffId = course.StaffId;
+
+            // 3. Mark the entity as modified (if not already done by property assignment)
+            //    _context.Entry(existingCourse).State = EntityState.Modified; // Often not needed if properties are changed directly
+
+            // 4. Save the changes to the database
             await _context.SaveChangesAsync();
-            return course;
+
+            // 5. Return the updated existingCourse (which now has the latest data)
+            return existingCourse;
         }
 
         public async Task<bool> DeleteAsync(string courseId)

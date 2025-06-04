@@ -1,5 +1,8 @@
 ﻿@* NavMenu.razor *@
 @inject NavigationManager NavManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.Security.Claims
+
 
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
@@ -17,13 +20,16 @@
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-4">
                
                
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="/CourseManagement">Course Management</NavLink>
-                </li>
+                @if (roleId == "AD")
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/CourseManagement">Course Management</NavLink>
+                    </li>
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="/UserManagement">User Management</NavLink>
+                    </li>
+                }
                 
-                 <li class="nav-item">
-                    <NavLink class="nav-link" href="/UserManagement"> User Management </NavLink>
-                </li>
 
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/aboutUs">About Us</NavLink>
@@ -60,3 +66,30 @@
         </div>
     </div>
 </nav>
+
+@code{
+    private string? roleId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated == true)
+        {
+            Console.WriteLine("User is authenticated.");
+
+            foreach (var claim in user.Claims)
+            {
+                Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
+            }
+
+            roleId = user.FindFirst(ClaimTypes.Role)?.Value;
+            Console.WriteLine($"roleId = {roleId}");
+        }
+        else
+        {
+            Console.WriteLine("User is NOT authenticated.");
+        }
+    }
+}

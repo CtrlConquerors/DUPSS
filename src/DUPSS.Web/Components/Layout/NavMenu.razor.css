@@ -177,7 +177,7 @@
     .badge{
         border-radius:20px;
     }
-/*    avatar   styling   */
+/*    avatar and overlay  styling   */
 .avatar-circle {
     width: 70px;
     height: 70px;
@@ -262,3 +262,20 @@
         transform: translateY(0);
     }
 }
+
+.avatar-overlay-btn {
+    width: 100%;
+    background: red;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 0.5rem;
+    color:white;
+}
+
+    .avatar-overlay-btn:hover {
+        background: #e0e0e0;
+    }

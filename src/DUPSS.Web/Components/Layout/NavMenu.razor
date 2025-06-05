@@ -19,16 +19,17 @@
         <div class="collapse navbar-collapse" id="topNavbar">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-4">
                
-               
-                @if (roleId == "AD")
-                {
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/CourseManagement">Course Management</NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/UserManagement">User Management</NavLink>
-                    </li>
-                }
+                @* Temp *@
+                <AuthorizeView Roles="AD,MA">
+                    <Authorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/CourseManagement">Course Management</NavLink>
+                        </li>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/UserManagement">User Management</NavLink>
+                        </li>
+                    </Authorized>
+                </AuthorizeView>
                 
 
                 <li class="nav-item">
@@ -68,28 +69,5 @@
 </nav>
 
 @code{
-    private string? roleId;
 
-    protected override async Task OnInitializedAsync()
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity?.IsAuthenticated == true)
-        {
-            Console.WriteLine("User is authenticated.");
-
-            foreach (var claim in user.Claims)
-            {
-                Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
-            }
-
-            roleId = user.FindFirst(ClaimTypes.Role)?.Value;
-            Console.WriteLine($"roleId = {roleId}");
-        }
-        else
-        {
-            Console.WriteLine("User is NOT authenticated.");
-        }
-    }
 }

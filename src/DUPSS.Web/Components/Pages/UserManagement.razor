@@ -4,17 +4,17 @@
 
 <AuthorizeView Roles="AD,MA">
     <Authorized>
-        <h3>User Management</h3>
+        <h3 style="font-size:60px;"><strong>User Management</strong></h3>
 
         <div class="d-flex justify-content-between mb-3">
-            <button class="btn btn-primary" @onclick="ShowCreateUserForm">Create New User</button>
+            <button class="btn create" @onclick="ShowCreateUserForm">Create New User</button>
             <div class="d-flex">
                 <div class="search-input-container me-2">
                     <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
                            @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
                 </div>
 
-                <div class="w-25">
+                <div class="w-50">
                     <select class="form-select" @onchange="OnRoleFilterChanged">
                         <option value="">All Roles</option>
                         @foreach (var role in availableRoles)

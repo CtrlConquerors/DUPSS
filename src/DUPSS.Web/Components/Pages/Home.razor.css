@@ -227,7 +227,7 @@ body {
         background-color: #fdd835;
         border: 1px solid #fdd835;
         padding: 10px 20px;
-        border-radius: 20px;
+        border-radius: 30px;
         transition: all 0.3s ease;
     }
 
@@ -239,8 +239,9 @@ body {
 
         .hero-card ::deep .btn-read-story .arrow {
             margin-left: 8px;
-            font-size: 1em;
+            font-size: 2em;
             transition: transform 0.3s ease;
+            margin-bottom: 5px;
         }
 
         .hero-card ::deep .btn-read-story:hover .arrow {
@@ -388,9 +389,10 @@ body {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
-        justify-content:;
+        justify-content:center;
         background-color: ;
         padding-top: 50px;
+        margin-left: 20px;
     }
 
     .main-footer .footer-logo {

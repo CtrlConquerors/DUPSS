@@ -259,7 +259,7 @@
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+        window.initCarousel = () => {
         const slides = document.querySelectorAll('.carousel-image-slide');
         const prevBtn = document.querySelector('.prev-btn-image');
         const nextBtn = document.querySelector('.next-btn-image');
@@ -285,15 +285,12 @@
             showSlide(currentIndex);
         }
 
-        // Kiểm tra để đảm bảo nút tồn tại trước khi thêm event listener
         if (prevBtn && nextBtn) {
-            prevBtn.addEventListener('click', prevSlide);
-            nextBtn.addEventListener('click', nextSlide);
-            
+            prevBtn.onclick = prevSlide;
+            nextBtn.onclick = nextSlide;
         }
-        // Hiển thị slide đầu tiên khi tải trang
         showSlide(currentIndex);
-    });
+    };
 </script>
 
 @* @code{
@@ -302,3 +299,12 @@
         await JS.InvokeVoidAsync("startRain", "rainCanvas");
     }
 } *@
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("initCarousel");
+        }
+    }
+}

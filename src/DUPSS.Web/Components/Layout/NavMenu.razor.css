@@ -262,8 +262,11 @@
         transform: translateY(0);
     }
 }
-
-.avatar-overlay-btn {
+.avatar-overlay-header{
+    text-align:center;
+    font-size:30px;
+}
+::deep .avatar-overlay-btn {
     width: 100%;
     background: red;
     border: none;
@@ -273,9 +276,12 @@
     cursor: pointer;
     transition: background 0.2s;
     margin-top: 0.5rem;
-    color:white;
+    color: white;
+    display: block;
+    text-align: center;
+    text-decoration: none;
 }
 
-    .avatar-overlay-btn:hover {
+    ::deep .avatar-overlay-btn:hover {
         background: #e0e0e0;
     }

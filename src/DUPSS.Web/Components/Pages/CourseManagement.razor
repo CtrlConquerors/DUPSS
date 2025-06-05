@@ -53,10 +53,10 @@
                 @* NEW: Sort controls *@
                 <div class="sort-controls">
                     <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
-                        <option value="CourseId">Sort by Course ID</option>
-                        <option value="CourseName">Sort by Course Name</option>
-                        <option value="TopicName">Sort by Topic Name</option>
-                        <option value="StaffName">Sort by Staff Name</option>
+                        <option value="CourseId">Sort: Course ID</option>
+                        <option value="CourseName">Sort: Course Name</option>
+                        <option value="TopicName">Sort: Topic Name</option>
+                        <option value="StaffName">Sort: Staff Name</option>
                     </select>
                     <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
                         @if (sortDirection == SortDirection.Ascending)

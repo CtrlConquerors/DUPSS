@@ -54,7 +54,7 @@
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/Assessment">Assessment</NavLink>
                 </li>
-
+                @* -----------AVARTAR AND OVERLAY-------------- *@
                 @if (isAuthenticated)
                 {
                     <li class="nav-item d-flex align-items-center position-relative">
@@ -64,6 +64,8 @@
                                 <div class="avatar-overlay-header">
                                     <span>@userName</span>
                                 </div>
+                                <hr />
+                                <button class="avatar-overlay-btn" type="button">Logout</button>
                             </div>
                         </div>
                     </li>

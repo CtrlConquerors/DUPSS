@@ -18,7 +18,7 @@
 
         <div class="collapse navbar-collapse" id="topNavbar">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-4">
-               
+
                 @* Temp *@
                 <AuthorizeView Roles="AD,MA">
                     <Authorized>
@@ -30,7 +30,7 @@
                         </li>
                     </Authorized>
                 </AuthorizeView>
-                
+
 
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/aboutUs">About Us</NavLink>
@@ -44,8 +44,8 @@
                     <NavLink class="nav-link" href="/Blog">Blog</NavLink>
                 </li>
 
-                <li class="nav-item d-flex align-items-center">
-                    <NavLink class="nav-link d-flex align-items-center gap-1" href="/campaign">
+                <li class="nav-item ">
+                    <NavLink class="nav-link d-flex align-items-center gap-0" href="/campaign">
                         Campaign
                         <span class="badge bg-primary text-white">New</span>
                     </NavLink>
@@ -55,19 +55,78 @@
                     <NavLink class="nav-link" href="/Assessment">Assessment</NavLink>
                 </li>
 
-                <li class="nav-item">
-                    <NavLink class="get-started-btn" href="/login">
-                        <span class="get-started-text">Get Started</span>
-                        <span class="arrow-box">
-                            <i class="bi bi-arrow-right"></i>
-                        </span>
-                    </NavLink>
-                </li>
+                @if (isAuthenticated)
+                {
+                    <li class="nav-item d-flex align-items-center position-relative">
+                        <img src="images/avatar2.png" class="avatar-img" alt="User Avatar" title="@userName" @onclick="ToggleOverlay" />
+                        <div class="avatar-overlay @(showOverlay ? "show" : "")" @onclick:stopPropagation>
+                            <div class="avatar-overlay-content">
+                                <div class="avatar-overlay-header">
+                                    <span>@userName</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li class="nav-item">
+                        <NavLink class="get-started-btn" href="/login">
+                            <span class="get-started-text">Get Started</span>
+                            <span class="arrow-box">
+                                <i class="bi bi-arrow-right"></i>
+                            </span>
+                        </NavLink>
+                    </li>
+                }
             </ul>
         </div>
     </div>
 </nav>
 
-@code{
+@code {
+    private string? roleId;
+    private bool isAuthenticated;
+    private string userName = "";
+    private string userInitials = "";
+    private bool showOverlay = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isAuthenticated = user.Identity?.IsAuthenticated == true;
+
+        if (isAuthenticated)
+        {
+            roleId = user.FindFirst(ClaimTypes.Role)?.Value;
+            userName = user.Identity?.Name
+                ?? user.FindFirst(ClaimTypes.Name)?.Value
+                ?? user.FindFirst(ClaimTypes.Email)?.Value
+                ?? "User";
+            userInitials = GetInitials(userName);
+        }
+        else
+        {
+            roleId = null;
+            userName = "";
+            userInitials = "";
+        }
+    }
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1) return parts[0][0].ToString().ToUpper();
+        return (parts[0][0].ToString() + parts[^1][0].ToString()).ToUpper();
+    }
+
+    private void ToggleOverlay()
+    {
+        showOverlay = !showOverlay;
+    }
 }
+
+

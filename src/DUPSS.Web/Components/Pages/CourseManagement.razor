@@ -125,6 +125,8 @@
                                     <td>@course.Topic?.TopicName</td>
                                     <td>@course.Staff?.Username</td>
                                     <td>
+                                    <AuthorizeView Roles="AD,MA" Context="EditDelete">
+                                        <Authorized>
                                         <div class="action-buttons">
                                             <button class="btn btn-sm btn-primary me-2" @onclick="() => EditCourse(course.CourseId)">
                                                 <i class="bi bi-three-dots-vertical"></i>
@@ -133,6 +135,8 @@
                                                 <i class="bi bi-trash3-fill"></i>
                                             </button>
                                         </div>
+                                        </Authorized>
+                                    </AuthorizeView>
                                     </td>
                                 </tr>
                                 index++;
@@ -152,8 +156,7 @@
                     }
                 </div>
             }
-            <AuthorizeView Roles="AD,MA" Context="EditDelete">
-                <Authorized>
+            
                    
             @if (showEditForm)
             {
@@ -234,8 +237,7 @@
                     </div>
                 </div>
             }
-                </Authorized>
-            </AuthorizeView>
+                
         </div>
     </Authorized>
     <NotAuthorized>

@@ -11,7 +11,7 @@
             <div class="d-flex">
                 <div class="search-input-container me-2">
                     <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                    @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
                 </div>
 
                 <div class="w-50">
@@ -24,6 +24,25 @@
                     </select>
                 </div>
             </div>
+        </div>
+
+        <div class="sort-controls">
+            <select class="form-select" @bind="sortBy" @bind:after="SortUsers">
+                <option value="Username">Sort by UserName</option>
+                <option value="Email">Sort by Email</option>
+                <option value="RoleId">Sort by Role</option>
+
+            </select>
+            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                @if (sortDirection == SortDirection.Ascending)
+                {
+                    <i class="bi bi-sort-alpha-down"></i>
+                }
+                else
+                {
+                    <i class="bi bi-sort-alpha-down-alt"></i>
+                }
+            </button>
         </div>
 
         @if (showCreateForm)
@@ -120,7 +139,7 @@
                 {
                     var pageIndex = i;
                     <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                            @onclick="() => GoToPage(pageIndex)">
+                    @onclick="() => GoToPage(pageIndex)">
                         @pageIndex
                     </button>
                 }
@@ -200,6 +219,37 @@
     private DUPSS.Object.User newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
     private string newUserPassword = "";
 
+    private string sortBy = "Username"; // Default sort column is CourseId
+    private SortDirection sortDirection = SortDirection.Ascending;
+
+    private enum SortDirection { Ascending, Descending }
+
+    private void SortUsers()
+    {
+        var query = filteredUsers?.AsEnumerable() ?? Enumerable.Empty<DUPSS.Object.User>();
+
+        switch (sortBy)
+        {
+            case "Username":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(c => c.Username, StringComparer.OrdinalIgnoreCase) :
+                        query.OrderByDescending(c => c.Username, StringComparer.OrdinalIgnoreCase);
+                break;
+            case "Email":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(c => c.Email, StringComparer.OrdinalIgnoreCase) :
+                        query.OrderByDescending(c => c.Email, StringComparer.OrdinalIgnoreCase);
+                break;
+            case "RoleId":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(c => c.RoleId, StringComparer.OrdinalIgnoreCase) :
+                        query.OrderByDescending(c => c.RoleId, StringComparer.OrdinalIgnoreCase);
+                break;     
+        }
+        filteredUsers = query.ToList();
+        currentPage = 1;
+    }
+
     private IEnumerable<DUPSS.Object.User> PaginatedUsers =>
         filteredUsers?
             .Skip((currentPage - 1) * itemsPerPage)
@@ -239,8 +289,14 @@
             (string.IsNullOrWhiteSpace(selectedRole) || (user.Role?.RoleName == selectedRole))
         ).ToList();
 
+
         currentPage = 1;
         StateHasChanged();
+    }
+    private void ToggleSortDirection()
+    {
+        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        SortUsers(); 
     }
 
     private void OnRoleFilterChanged(ChangeEventArgs e)
@@ -383,3 +439,4 @@
         StateHasChanged();
     }
 }
+

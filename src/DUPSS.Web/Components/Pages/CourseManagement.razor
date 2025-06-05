@@ -6,18 +6,25 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS // Used for the confirm dialog, but a custom modal is recommended.
 
-<AuthorizeView Roles="AD,MA">
+@* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
+@*Example below*@
+
+<AuthorizeView Roles="AD,MA,ST">
     <Authorized>
         <div class="course-management-container">
             <div class="header-section">
                 <h1 class="page-title">Course Management</h1>
-                <div class="actions">
+                <AuthorizeView Roles="AD,MA" Context="InnerContext">
+                    <Authorized>
+                        <div class="actions">
                     <button class="add-course-button" @onclick="AddCourse">
                         <i class="bi bi-plus-circle"></i> ADD COURSE
                     </button>
-                </div>
+                        </div>
+                    </Authorized>
+                </AuthorizeView>
+                
             </div>
-
             <div class="filter-sort-section">
                 <div class="search-input-container">
                     <input type="text" class="form-control" placeholder="Search by Course, Topic, Staff, ID"

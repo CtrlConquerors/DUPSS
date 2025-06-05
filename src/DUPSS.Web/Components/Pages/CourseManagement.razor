@@ -152,7 +152,9 @@
                     }
                 </div>
             }
-
+            <AuthorizeView Roles="AD,MA" Context="EditDelete">
+                <Authorized>
+                   
             @if (showEditForm)
             {
                 <div class="card p-3 my-4 edit-form-card">
@@ -232,6 +234,8 @@
                     </div>
                 </div>
             }
+                </Authorized>
+            </AuthorizeView>
         </div>
     </Authorized>
     <NotAuthorized>

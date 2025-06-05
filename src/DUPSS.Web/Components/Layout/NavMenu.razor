@@ -2,6 +2,7 @@
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 
 
 <nav class="navbar navbar-expand-lg">
@@ -55,14 +56,18 @@
                     <NavLink class="nav-link" href="/Assessment">Assessment</NavLink>
                 </li>
 
-                <li class="nav-item">
-                    <NavLink class="get-started-btn" href="/login">
-                        <span class="get-started-text">Get Started</span>
-                        <span class="arrow-box">
-                            <i class="bi bi-arrow-right"></i>
-                        </span>
-                    </NavLink>
-                </li>
+                <AuthorizeView Roles="ME,MA,AD,CO,ST">
+                    <NotAuthorized>
+                        <li class="nav-item">
+                            <NavLink class="get-started-btn" href="/login">
+                                <span class="get-started-text">Get Started</span>
+                                <span class="arrow-box">
+                                    <i class="bi bi-arrow-right"></i>
+                                </span>
+                            </NavLink>
+                        </li>
+                    </NotAuthorized>
+                </AuthorizeView>
             </ul>
         </div>
     </div>

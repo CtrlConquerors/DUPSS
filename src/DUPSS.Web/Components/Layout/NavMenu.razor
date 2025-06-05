@@ -77,19 +77,9 @@
 
         if (user.Identity?.IsAuthenticated == true)
         {
-            Console.WriteLine("User is authenticated.");
-
-            foreach (var claim in user.Claims)
-            {
-                Console.WriteLine($"Claim Type: {claim.Type}, Value: {claim.Value}");
-            }
-
             roleId = user.FindFirst(ClaimTypes.Role)?.Value;
-            Console.WriteLine($"roleId = {roleId}");
-        }
-        else
-        {
-            Console.WriteLine("User is NOT authenticated.");
         }
     }
+
+    
 }

@@ -57,6 +57,11 @@
                 </li>
 
                 <AuthorizeView Roles="ME,MA,AD,CO,ST">
+                    <Authorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/logout">Logout</NavLink>
+                        </li>
+                    </Authorized>
                     <NotAuthorized>
                         <li class="nav-item">
                             <NavLink class="get-started-btn" href="/login">

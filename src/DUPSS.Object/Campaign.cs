@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema; // Make sure this is included for [NotMapped]
 
 namespace DUPSS.Object
 {
@@ -17,5 +18,9 @@ namespace DUPSS.Object
         [Required, MaxLength(50)]
         public required string Status { get; set; }
         public User? Staff { get; set; }
+
+        // New NotMapped property for Duration
+        [NotMapped]
+        public TimeSpan? Duration { get; set; }
     }
 }

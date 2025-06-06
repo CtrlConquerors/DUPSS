@@ -1,0 +1,65 @@
+﻿.login-bg-override {
+    min-height: 100vh;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background: url('/images/login-background.png') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.card {
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    color: #fff;
+    text-align:center;
+}
+
+
+::deep .form-control {
+    background-color: transparent !important; /* Makes the input background transparent */
+    border: 1px solid white !important; /* White border */
+    color: white !important; /* White input text */
+    border-radius: 6px; /* Optional: rounded corners */
+    padding: 10px; /* Optional: internal spacing */
+    width: 50%;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    ::deep .form-control::placeholder {
+        color: rgba(255, 255, 255, 0.7); /* White, slightly faded placeholder */
+    }
+
+.btn-primary {
+    background-color: white;
+    color: blue;
+    border: none;
+    width: 50%; /* Match input width */
+    display: block; /* Make it a block element */
+    margin: 20px auto 0 auto; /* Center horizontally, add top margin */
+    border-radius: 6px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    padding: 10px 0;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: background 0.2s, color 0.2s;
+    letter-spacing: 1px;
+}
+
+::deep .btn-link {
+    color: white;
+}
+
+label, .form-label, .text-center, .btn-link {
+    color: white;
+}
+.logo img{
+    border-radius:20px;
+    height:120px;
+    width:130px;
+}
+

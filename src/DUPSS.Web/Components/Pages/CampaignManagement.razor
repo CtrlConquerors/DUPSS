@@ -51,6 +51,7 @@
                         <option value="Title">Sort by Title</option>
                         <option value="StartDate">Sort by Start Date</option>
                         <option value="EndDate">Sort by End Date</option>
+                        <option value="Duration">Sort by Duration</option> @* ADDED: Sort by Duration option *@
                         <option value="Status">Sort by Status</option>
                         <option value="StaffName">Sort by Staff Name</option>
                     </select>
@@ -91,6 +92,7 @@
                                 <th>Description</th>
                                 <th>Start Date</th>
                                 <th>End Date</th>
+                                <th>Duration</th> @* NEW: Duration Column Header *@
                                 <th>Status</th>
                                 <th>Staff Name</th>
                                 <th>Action</th>
@@ -108,7 +110,9 @@
                                     <td>@campaign.Title</td>
                                     <td>@campaign.Description</td>
                                     <td>@campaign.StartDate.ToString("yyyy-MM-dd")</td>
-                                    <td>@campaign.EndDate?.ToString("yyyy-MM-dd")</td> @* Updated for nullable EndDate *@
+                                    <td>@campaign.EndDate?.ToString("yyyy-MM-dd")</td>
+                                    @* Use campaign.Duration.TotalDays if you want fractional days, otherwise .Days *@
+                                    <td>@(campaign.Duration.HasValue ? $"{campaign.Duration.Value.Days} days" : "-")</td>
                                     <td>
                                         <span class="status-badge @GetStatusClass(campaign.Status)">
                                             @campaign.Status
@@ -278,6 +282,18 @@
             var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
 
+            // Calculate duration for each campaign after fetching
+            if (campaigns != null)
+            {
+                foreach (var campaign in campaigns)
+                {
+                    if (campaign.EndDate.HasValue)
+                    {
+                        campaign.Duration = campaign.EndDate.Value.ToDateTime(TimeOnly.MinValue) - campaign.StartDate.ToDateTime(TimeOnly.MinValue);
+                    }
+                }
+            }
+
             hasError = false; // Set to false only if all fetches succeed
         }
         catch (Exception ex)
@@ -292,7 +308,8 @@
             campaigns ??= new List<DUPSS.Object.Campaign>();
             roles ??= new List<DUPSS.Object.Role>();
             staffUsers ??= new List<DUPSS.Object.User>();
-            filteredCampaigns = new List<DUPSS.Object.Campaign>(); // Re-initialize or assign based on campaigns
+            // If campaigns is null due to an error, filteredCampaigns should also be empty
+            filteredCampaigns = new List<DUPSS.Object.Campaign>();
 
             // Always call FilterAndSortCampaigns to set initial filtered list.
             // It's already robust against null 'campaigns' internally.
@@ -357,6 +374,12 @@
                 query = sortDirection == SortDirection.Ascending ?
                         query.OrderBy(c => c.EndDate) :
                         query.OrderByDescending(c => c.EndDate);
+                break;
+            case "Duration": // NEW: Sort by Duration
+                // Handle nullable TimeSpan. OrderBy will put nulls at the end for ascending, beginning for descending.
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(c => c.Duration) :
+                        query.OrderByDescending(c => c.Duration);
                 break;
             case "Status":
                 query = sortDirection == SortDirection.Ascending ?
@@ -513,6 +536,17 @@
             }
 
             campaigns = await CampaignDAO.GetAllAsync(); // Re-fetch all campaigns
+            // Recalculate duration for updated/new campaigns
+            if (campaigns != null)
+            {
+                foreach (var campaign in campaigns)
+                {
+                    if (campaign.EndDate.HasValue)
+                    {
+                        campaign.Duration = campaign.EndDate.Value.ToDateTime(TimeOnly.MinValue) - campaign.StartDate.ToDateTime(TimeOnly.MinValue);
+                    }
+                }
+            }
             FilterAndSortCampaigns(); // Re-apply all logic after save
             showEditForm = false;
             GoToPage(1);
@@ -559,6 +593,17 @@
                 {
                     Console.WriteLine($"Campaign '{campaignToDelete.Title}' (ID: {campaignId}) deleted successfully.");
                     campaigns = await CampaignDAO.GetAllAsync(); // Re-fetch all campaigns
+                    // Recalculate duration for remaining campaigns
+                    if (campaigns != null)
+                    {
+                        foreach (var campaign in campaigns)
+                        {
+                            if (campaign.EndDate.HasValue)
+                            {
+                                campaign.Duration = campaign.EndDate.Value.ToDateTime(TimeOnly.MinValue) - campaign.StartDate.ToDateTime(TimeOnly.MinValue);
+                            }
+                        }
+                    }
                     FilterAndSortCampaigns(); // Re-apply all logic after delete
                     GoToPage(1);
                 }

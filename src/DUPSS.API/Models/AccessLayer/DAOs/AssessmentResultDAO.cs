@@ -1,5 +1,5 @@
-﻿using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.AccessLayer.Interfaces;
+﻿using DUPSS.API.Models.AccessLayer.Interfaces;
+using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,34 +14,99 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             _context = context;
         }
 
-        public async Task<AssessmentResult> CreateAsync(AssessmentResult assessmentResult)
+        public async Task<AssessmentResultDTO> CreateAsync(AssessmentResult assessmentResult)
         {
             _context.AssessmentResult.Add(assessmentResult);
             await _context.SaveChangesAsync();
-            return assessmentResult;
+            return new AssessmentResultDTO
+            {
+                ResultId = assessmentResult.ResultId,
+                AssessmentId = assessmentResult.AssessmentId,
+                MemberId = assessmentResult.MemberId,
+                Score = assessmentResult.Score,
+                Recommendation = assessmentResult.Recommendation
+            };
         }
 
-        public async Task<AssessmentResult> GetByIdAsync(string resultId)
+        public async Task<AssessmentResultDTO?> GetByIdAsync(string resultId)
         {
             return await _context.AssessmentResult
-                .Include(ar => ar.Assessment)
-                .Include(ar => ar.Member)
-                .FirstOrDefaultAsync(ar => ar.ResultId == resultId);
+                .Where(ar => ar.ResultId == resultId)
+                .Select(ar => new AssessmentResultDTO
+                {
+                    ResultId = ar.ResultId,
+                    AssessmentId = ar.AssessmentId,
+                    MemberId = ar.MemberId,
+                    Score = ar.Score,
+                    Recommendation = ar.Recommendation,
+                    Assessment = ar.Assessment != null ? new AssessmentDTO
+                    {
+                        AssessmentId = ar.Assessment.AssessmentId,
+                        AssessmentType = ar.Assessment.AssessmentType,
+                        Description = ar.Assessment.Description
+                    } : null,
+                    Member = ar.Member != null ? new UserDTO
+                    {
+                        UserId = ar.Member.UserId,
+                        Username = ar.Member.Username,
+                        DoB = ar.Member.DoB,
+                        PhoneNumber = ar.Member.PhoneNumber,
+                        Email = ar.Member.Email,
+                        RoleId = ar.Member.RoleId
+                    } : null
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<List<AssessmentResult>> GetAllAsync()
+        public async Task<List<AssessmentResultDTO>> GetAllAsync()
         {
             return await _context.AssessmentResult
-                .Include(ar => ar.Assessment)
-                .Include(ar => ar.Member)
+                .Select(ar => new AssessmentResultDTO
+                {
+                    ResultId = ar.ResultId,
+                    AssessmentId = ar.AssessmentId,
+                    MemberId = ar.MemberId,
+                    Score = ar.Score,
+                    Recommendation = ar.Recommendation,
+                    Assessment = ar.Assessment != null ? new AssessmentDTO
+                    {
+                        AssessmentId = ar.Assessment.AssessmentId,
+                        AssessmentType = ar.Assessment.AssessmentType,
+                        Description = ar.Assessment.Description
+                    } : null,
+                    Member = ar.Member != null ? new UserDTO
+                    {
+                        UserId = ar.Member.UserId,
+                        Username = ar.Member.Username,
+                        DoB = ar.Member.DoB,
+                        PhoneNumber = ar.Member.PhoneNumber,
+                        Email = ar.Member.Email,
+                        RoleId = ar.Member.RoleId
+                    } : null
+                })
                 .ToListAsync();
         }
 
-        public async Task<AssessmentResult> UpdateAsync(AssessmentResult assessmentResult)
+        public async Task<AssessmentResultDTO> UpdateAsync(AssessmentResult assessmentResult)
         {
-            _context.AssessmentResult.Update(assessmentResult);
+            var existingResult = await _context.AssessmentResult.FindAsync(assessmentResult.ResultId);
+            if (existingResult == null)
+                throw new Exception($"AssessmentResult with ID {assessmentResult.ResultId} not found.");
+
+            existingResult.AssessmentId = assessmentResult.AssessmentId;
+            existingResult.MemberId = assessmentResult.MemberId;
+            existingResult.Score = assessmentResult.Score;
+            existingResult.Recommendation = assessmentResult.Recommendation;
+
             await _context.SaveChangesAsync();
-            return assessmentResult;
+            return new AssessmentResultDTO
+            {
+                ResultId = existingResult.ResultId,
+                AssessmentId = existingResult.AssessmentId,
+                MemberId = existingResult.MemberId,
+                Score = existingResult.Score,
+                Recommendation = existingResult.Recommendation
+            };
         }
 
         public async Task<bool> DeleteAsync(string resultId)

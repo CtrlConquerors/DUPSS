@@ -62,7 +62,7 @@ builder.Services.AddScoped<IUserDAO, UserDAO>();
 builder.Services.AddScoped<IAppointmentDAO, AppointmentDAO>();
 builder.Services.AddScoped<ICampaignDAO, CampaignDAO>();
 builder.Services.AddScoped<ICourseTopicDAO, CourseTopicDAO>();
-builder.Services.AddScoped<ICourseDAO, CourseDAO>();
+//builder.Services.AddScoped<ICourseDAO, CourseDAO>();
 builder.Services.AddScoped<ICourseEnrollDAO, CourseEnrollDAO>();
 builder.Services.AddScoped<IAssessmentDAO, AssessmentDAO>();
 builder.Services.AddScoped<IAssessmentResultDAO, AssessmentResultDAO>();

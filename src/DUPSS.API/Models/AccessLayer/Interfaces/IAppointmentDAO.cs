@@ -1,13 +1,14 @@
-﻿using DUPSS.API.Models.Objects;
+﻿using DUPSS.API.Models.DTOs;
+using DUPSS.API.Models.Objects;
 
 namespace DUPSS.API.Models.AccessLayer.Interfaces
 {
     public interface IAppointmentDAO
     {
-        Task<Appointment> CreateAsync(Appointment appointment);
-        Task<Appointment> GetByIdAsync(string appointmentId);
-        Task<List<Appointment>> GetAllAsync();
-        Task<Appointment> UpdateAsync(Appointment appointment);
+        Task<AppointmentDTO> CreateAsync(Appointment appointment);
+        Task<AppointmentDTO> GetByIdAsync(string appointmentId);
+        Task<List<AppointmentDTO>> GetAllAsync();
+        Task<AppointmentDTO> UpdateAsync(Appointment appointment);
         Task<bool> DeleteAsync(string appointmentId);
     }
 }

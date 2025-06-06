@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using DUPSS.API.Models.Objects;
-using DUPSS.API.Models.AccessLayer;
+﻿using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.Interfaces;
+using DUPSS.API.Models.DTOs;
+using DUPSS.API.Models.Objects;
+using Microsoft.EntityFrameworkCore;
 
 namespace DUPSS.API.Models.AccessLayer.DAOs
 {
@@ -14,32 +15,54 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             _context = context;
         }
 
-        public async Task<Role> CreateAsync(Role role)
+        public async Task<RoleDTO> CreateAsync(Role role)
         {
             _context.Role.Add(role);
             await _context.SaveChangesAsync();
-            return role;
+            return new RoleDTO
+            {
+                RoleId = role.RoleId,
+                RoleName = role.RoleName
+            };
         }
 
-        public async Task<Role> GetByIdAsync(string roleId)
+        public async Task<RoleDTO?> GetByIdAsync(string roleId)
         {
             return await _context.Role
-                .Include(r => r.Users)
-                .FirstOrDefaultAsync(r => r.RoleId == roleId);
+                .Where(r => r.RoleId == roleId)
+                .Select(r => new RoleDTO
+                {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<List<Role>> GetAllAsync()
+        public async Task<List<RoleDTO>> GetAllAsync()
         {
             return await _context.Role
-                .Include(r => r.Users)
+                .Select(r => new RoleDTO
+                {
+                    RoleId = r.RoleId,
+                    RoleName = r.RoleName
+                })
                 .ToListAsync();
         }
 
-        public async Task<Role> UpdateAsync(Role role)
+        public async Task<RoleDTO> UpdateAsync(Role role)
         {
-            _context.Role.Update(role);
+            var existingRole = await _context.Role.FindAsync(role.RoleId);
+            if (existingRole == null)
+                throw new Exception($"Role with ID {role.RoleId} not found.");
+
+            existingRole.RoleName = role.RoleName;
+
             await _context.SaveChangesAsync();
-            return role;
+            return new RoleDTO
+            {
+                RoleId = existingRole.RoleId,
+                RoleName = existingRole.RoleName
+            };
         }
 
         public async Task<bool> DeleteAsync(string roleId)

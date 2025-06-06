@@ -1,10 +1,8 @@
-﻿using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.AccessLayer.Interfaces;
+﻿using DUPSS.API.Models.AccessLayer.Interfaces;
+using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Supabase;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 
@@ -27,14 +25,14 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             _httpClient = httpClient;
         }
 
-        public async Task<User> CreateAsync(User user, string password)
+        public async Task<UserDTO> CreateAsync(User user, string password)
         {
             if (string.IsNullOrEmpty(user.Email) || string.IsNullOrEmpty(user.Username) || string.IsNullOrEmpty(user.RoleId))
                 throw new ArgumentException("Email, username, and role ID are required.");
 
             try
             {
-                // Only perform Supabase SignUp if UserId is not set (i.e., user not already created in auth.users)
+                await using var context = await _contextFactory.CreateDbContextAsync();
                 if (string.IsNullOrEmpty(user.UserId))
                 {
                     if (string.IsNullOrEmpty(password))
@@ -47,21 +45,30 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     user.UserId = signUpResponse.User.Id;
                 }
 
-                // Validate RoleId
-                await using var context = await _contextFactory.CreateDbContextAsync();
                 var role = await context.Role.FirstOrDefaultAsync(r => r.RoleId == user.RoleId);
                 if (role == null)
                     throw new Exception($"Role with ID {user.RoleId} does not exist.");
 
-                // Add user to User table
                 context.User.Add(user);
                 await context.SaveChangesAsync();
 
-                return user;
+                return new UserDTO
+                {
+                    UserId = user.UserId,
+                    Username = user.Username,
+                    DoB = user.DoB,
+                    PhoneNumber = user.PhoneNumber,
+                    Email = user.Email,
+                    RoleId = user.RoleId,
+                    Role = new RoleDTO
+                    {
+                        RoleId = role.RoleId,
+                        RoleName = role.RoleName
+                    }
+                };
             }
             catch (Exception ex)
             {
-                // Clean up Supabase user if User table insert fails and user was created in this call
                 if (!string.IsNullOrEmpty(user.UserId) && !string.IsNullOrEmpty(password))
                 {
                     await DeleteSupabaseUserAsync(user.UserId);
@@ -70,44 +77,56 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             }
         }
 
-        public async Task<User> GetByIdAsync(string userId)
+        public async Task<UserDTO> GetByIdAsync(string userId)
         {
             await using var context = await _contextFactory.CreateDbContextAsync();
             return await context.User
-                .Include(u => u.Role)
-                .Include(u => u.MemberAppointments)
-                .Include(u => u.ConsultantAppointments)
-                .Include(u => u.Campaigns)
-                .Include(u => u.Courses)
-                .Include(u => u.Enrollments)
-                .Include(u => u.AssessmentResults)
-                .Include(u => u.Blogs)
-                .FirstOrDefaultAsync(u => u.UserId == userId);
+                .Where(u => u.UserId == userId)
+                .Select(u => new UserDTO
+                {
+                    UserId = u.UserId,
+                    Username = u.Username,
+                    DoB = u.DoB,
+                    PhoneNumber = u.PhoneNumber,
+                    Email = u.Email,
+                    RoleId = u.RoleId,
+                    Role = u.Role != null ? new RoleDTO
+                    {
+                        RoleId = u.Role.RoleId,
+                        RoleName = u.Role.RoleName
+                    } : null
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<List<User>> GetAllAsync()
+        public async Task<List<UserDTO>> GetAllAsync()
         {
             await using var context = await _contextFactory.CreateDbContextAsync();
             return await context.User
-                .Include(u => u.Role)
-                .Include(u => u.MemberAppointments)
-                .Include(u => u.ConsultantAppointments)
-                .Include(u => u.Campaigns)
-                .Include(u => u.Courses)
-                .Include(u => u.Enrollments)
-                .Include(u => u.AssessmentResults)
-                .Include(u => u.Blogs)
+                .Select(u => new UserDTO
+                {
+                    UserId = u.UserId,
+                    Username = u.Username,
+                    DoB = u.DoB,
+                    PhoneNumber = u.PhoneNumber,
+                    Email = u.Email,
+                    RoleId = u.RoleId,
+                    Role = u.Role != null ? new RoleDTO
+                    {
+                        RoleId = u.Role.RoleId,
+                        RoleName = u.Role.RoleName
+                    } : null
+                })
                 .ToListAsync();
         }
 
-        public async Task<User> UpdateAsync(User user)
+        public async Task<UserDTO> UpdateAsync(User user)
         {
             await using var context = await _contextFactory.CreateDbContextAsync();
             var existingUser = await context.User.FindAsync(user.UserId);
             if (existingUser == null)
                 throw new Exception($"User with ID {user.UserId} not found.");
 
-            // Check if email is changing
             if (existingUser.Email != user.Email)
             {
                 try
@@ -133,12 +152,10 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 }
             }
 
-            // Validate RoleId
             var role = await context.Role.FirstOrDefaultAsync(r => r.RoleId == user.RoleId);
             if (role == null)
                 throw new Exception($"Role with ID {user.RoleId} does not exist.");
 
-            // Update User table
             existingUser.Username = user.Username;
             existingUser.Email = user.Email;
             existingUser.PhoneNumber = user.PhoneNumber;
@@ -146,8 +163,20 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingUser.RoleId = user.RoleId;
 
             await context.SaveChangesAsync();
-
-            return existingUser;
+            return new UserDTO
+            {
+                UserId = existingUser.UserId,
+                Username = existingUser.Username,
+                DoB = existingUser.DoB,
+                PhoneNumber = existingUser.PhoneNumber,
+                Email = existingUser.Email,
+                RoleId = existingUser.RoleId,
+                Role = new RoleDTO
+                {
+                    RoleId = role.RoleId,
+                    RoleName = role.RoleName
+                }
+            };
         }
 
         public async Task<bool> DeleteAsync(string userId)

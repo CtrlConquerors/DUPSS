@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using DUPSS.API.Models.AccessLayer.Interfaces;
+using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
-using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.AccessLayer.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DUPSS.API.Models.AccessLayer.DAOs
 {
@@ -14,32 +14,87 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             _context = context;
         }
 
-        public async Task<Blog> CreateAsync(Blog blog)
+        public async Task<BlogDTO> CreateAsync(Blog blog)
         {
             _context.Blog.Add(blog);
             await _context.SaveChangesAsync();
-            return blog;
+            return new BlogDTO
+            {
+                BlogId = blog.BlogId,
+                StaffId = blog.StaffId,
+                Title = blog.Title,
+                Content = blog.Content,
+                Status = blog.Status
+            };
         }
 
-        public async Task<Blog> GetByIdAsync(string blogId)
+        public async Task<BlogDTO?> GetByIdAsync(string blogId)
         {
             return await _context.Blog
-                .Include(b => b.Staff)
-                .FirstOrDefaultAsync(b => b.BlogId == blogId);
+                .Where(b => b.BlogId == blogId)
+                .Select(b => new BlogDTO
+                {
+                    BlogId = b.BlogId,
+                    StaffId = b.StaffId,
+                    Title = b.Title,
+                    Content = b.Content,
+                    Status = b.Status,
+                    Staff = b.Staff != null ? new UserDTO
+                    {
+                        UserId = b.Staff.UserId,
+                        Username = b.Staff.Username,
+                        DoB = b.Staff.DoB,
+                        PhoneNumber = b.Staff.PhoneNumber,
+                        Email = b.Staff.Email,
+                        RoleId = b.Staff.RoleId
+                    } : null
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<List<Blog>> GetAllAsync()
+        public async Task<List<BlogDTO>> GetAllAsync()
         {
             return await _context.Blog
-                .Include(b => b.Staff)
+                .Select(b => new BlogDTO
+                {
+                    BlogId = b.BlogId,
+                    StaffId = b.StaffId,
+                    Title = b.Title,
+                    Content = b.Content,
+                    Status = b.Status,
+                    Staff = b.Staff != null ? new UserDTO
+                    {
+                        UserId = b.Staff.UserId,
+                        Username = b.Staff.Username,
+                        DoB = b.Staff.DoB,
+                        PhoneNumber = b.Staff.PhoneNumber,
+                        Email = b.Staff.Email,
+                        RoleId = b.Staff.RoleId
+                    } : null
+                })
                 .ToListAsync();
         }
 
-        public async Task<Blog> UpdateAsync(Blog blog)
+        public async Task<BlogDTO> UpdateAsync(Blog blog)
         {
-            _context.Blog.Update(blog);
+            var existingBlog = await _context.Blog.FindAsync(blog.BlogId);
+            if (existingBlog == null)
+                throw new Exception($"Blog with ID {blog.BlogId} not found.");
+
+            existingBlog.StaffId = blog.StaffId;
+            existingBlog.Title = blog.Title;
+            existingBlog.Content = blog.Content;
+            existingBlog.Status = blog.Status;
+
             await _context.SaveChangesAsync();
-            return blog;
+            return new BlogDTO
+            {
+                BlogId = existingBlog.BlogId,
+                StaffId = existingBlog.StaffId,
+                Title = existingBlog.Title,
+                Content = existingBlog.Content,
+                Status = existingBlog.Status
+            };
         }
 
         public async Task<bool> DeleteAsync(string blogId)

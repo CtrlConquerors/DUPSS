@@ -1,13 +1,13 @@
-﻿using DUPSS.API.Models.Objects;
-
+﻿using DUPSS.API.Models.DTOs;
+using DUPSS.API.Models.Objects;
 namespace DUPSS.API.Models.AccessLayer.Interfaces
 {
     public interface ICampaignDAO
     {
-        Task<Campaign> CreateAsync(Campaign campaign);
-        Task<Campaign> GetByIdAsync(string campaignId);
-        Task<List<Campaign>> GetAllAsync();
-        Task<Campaign> UpdateAsync(Campaign campaign);
+        Task<CampaignDTO> CreateAsync(Campaign campaign);
+        Task<CampaignDTO> GetByIdAsync(string campaignId);
+        Task<List<CampaignDTO>> GetAllAsync();
+        Task<CampaignDTO> UpdateAsync(Campaign campaign);
         Task<bool> DeleteAsync(string campaignId);
     }
 }

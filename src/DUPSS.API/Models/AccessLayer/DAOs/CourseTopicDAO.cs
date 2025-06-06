@@ -1,8 +1,7 @@
-﻿using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.AccessLayer.Interfaces;
+﻿using DUPSS.API.Models.AccessLayer.Interfaces;
+using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.EntityFrameworkCore;
-
 namespace DUPSS.API.Models.AccessLayer.DAOs
 {
     public class CourseTopicDAO : ICourseTopicDAO
@@ -14,32 +13,54 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             _context = context;
         }
 
-        public async Task<CourseTopic> CreateAsync(CourseTopic courseTopic)
+        public async Task<CourseTopicDTO> CreateAsync(CourseTopic courseTopic)
         {
             _context.CourseTopic.Add(courseTopic);
             await _context.SaveChangesAsync();
-            return courseTopic;
+            return new CourseTopicDTO
+            {
+                TopicId = courseTopic.TopicId,
+                TopicName = courseTopic.TopicName
+            };
         }
 
-        public async Task<CourseTopic> GetByIdAsync(string topicId)
+        public async Task<CourseTopicDTO?> GetByIdAsync(string topicId)
         {
             return await _context.CourseTopic
-                .Include(ct => ct.Courses)
-                .FirstOrDefaultAsync(ct => ct.TopicId == topicId);
+                .Where(ct => ct.TopicId == topicId)
+                .Select(ct => new CourseTopicDTO
+                {
+                    TopicId = ct.TopicId,
+                    TopicName = ct.TopicName
+                })
+                .FirstOrDefaultAsync();
         }
 
-        public async Task<List<CourseTopic>> GetAllAsync()
+        public async Task<List<CourseTopicDTO>> GetAllAsync()
         {
             return await _context.CourseTopic
-                .Include(ct => ct.Courses)
+                .Select(ct => new CourseTopicDTO
+                {
+                    TopicId = ct.TopicId,
+                    TopicName = ct.TopicName
+                })
                 .ToListAsync();
         }
 
-        public async Task<CourseTopic> UpdateAsync(CourseTopic courseTopic)
+        public async Task<CourseTopicDTO> UpdateAsync(CourseTopic courseTopic)
         {
-            _context.CourseTopic.Update(courseTopic);
+            var existingTopic = await _context.CourseTopic.FindAsync(courseTopic.TopicId);
+            if (existingTopic == null)
+                throw new Exception($"CourseTopic with ID {courseTopic.TopicId} not found.");
+
+            existingTopic.TopicName = courseTopic.TopicName;
+
             await _context.SaveChangesAsync();
-            return courseTopic;
+            return new CourseTopicDTO
+            {
+                TopicId = existingTopic.TopicId,
+                TopicName = existingTopic.TopicName
+            };
         }
 
         public async Task<bool> DeleteAsync(string topicId)

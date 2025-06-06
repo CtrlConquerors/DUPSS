@@ -1,13 +1,14 @@
-﻿using DUPSS.API.Models.Objects;
+﻿using DUPSS.API.Models.DTOs;
+using DUPSS.API.Models.Objects;
 
 namespace DUPSS.API.Models.AccessLayer.Interfaces
 {
     public interface ICourseEnrollDAO
     {
-        Task<CourseEnroll> CreateAsync(CourseEnroll courseEnroll);
-        Task<CourseEnroll> GetByIdAsync(string enrollId);
-        Task<List<CourseEnroll>> GetAllAsync();
-        Task<CourseEnroll> UpdateAsync(CourseEnroll courseEnroll);
+        Task<CourseEnrollDTO> CreateAsync(CourseEnroll courseEnroll);
+        Task<CourseEnrollDTO> GetByIdAsync(string enrollId);
+        Task<List<CourseEnrollDTO>> GetAllAsync();
+        Task<CourseEnrollDTO> UpdateAsync(CourseEnroll courseEnroll);
         Task<bool> DeleteAsync(string enrollId);
     }
 }

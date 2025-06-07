@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CourseTopicController : ControllerBase
+    public class CourseEnrollsController : ControllerBase
     {
-        private readonly CourseTopicDAO _courseTopicDAO;
+        private readonly CourseEnrollDAO _courseEnrollDAO;
 
-        public CourseTopicController(AppDbContext context)
+        public CourseEnrollsController(AppDbContext context)
         {
-            _courseTopicDAO = new CourseTopicDAO(context);
+            _courseEnrollDAO = new CourseEnrollDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<CourseTopicDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CourseEnrollDTO>>> GetAll()
         {
             try
             {
-                var topics = await _courseTopicDAO.GetAllAsync();
-                return Ok(topics);
+                var enrolls = await _courseEnrollDAO.GetAllAsync();
+                return Ok(enrolls);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{topicId}")]
-        public async Task<ActionResult<CourseTopicDTO>> GetById(string topicId)
+        [HttpGet("GetById/{enrollId}")]
+        public async Task<ActionResult<CourseEnrollDTO>> GetById(string enrollId)
         {
             try
             {
-                var topic = await _courseTopicDAO.GetByIdAsync(topicId);
-                if (topic == null)
-                    return NotFound($"CourseTopic with ID {topicId} not found.");
-                return Ok(topic);
+                var enroll = await _courseEnrollDAO.GetByIdAsync(enrollId);
+                if (enroll == null)
+                    return NotFound($"CourseEnroll with ID {enrollId} not found.");
+                return Ok(enroll);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<CourseTopicDTO>> Create([FromBody] CourseTopic courseTopic)
+        public async Task<ActionResult<CourseEnrollDTO>> Create([FromBody] CourseEnroll courseEnroll)
         {
             try
             {
-                var createdTopic = await _courseTopicDAO.CreateAsync(courseTopic);
-                return CreatedAtAction(nameof(GetById), new { topicId = createdTopic.TopicId }, createdTopic);
+                var createdEnroll = await _courseEnrollDAO.CreateAsync(courseEnroll);
+                return CreatedAtAction(nameof(GetById), new { enrollId = createdEnroll.EnrollId }, createdEnroll);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,12 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<CourseTopicDTO>> Update([FromBody] CourseTopic courseTopic)
+        public async Task<ActionResult<CourseEnrollDTO>> Update([FromBody] CourseEnroll courseEnroll)
         {
             try
             {
-                var updatedTopic = await _courseTopicDAO.UpdateAsync(courseTopic);
-                return Ok(updatedTopic);
+                var updatedEnroll = await _courseEnrollDAO.UpdateAsync(courseEnroll);
+                return Ok(updatedEnroll);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -91,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{topicId}")]
-        public async Task<ActionResult<bool>> Delete(string topicId)
+        [HttpDelete("Delete/{enrollId}")]
+        public async Task<ActionResult<bool>> Delete(string enrollId)
         {
             try
             {
-                var result = await _courseTopicDAO.DeleteAsync(topicId);
+                var result = await _courseEnrollDAO.DeleteAsync(enrollId);
                 if (!result)
-                    return NotFound($"CourseTopic with ID {topicId} not found.");
+                    return NotFound($"CourseEnroll with ID {enrollId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

@@ -3,29 +3,27 @@ using DUPSS.API.Models.AccessLayer.DAOs;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Supabase;
 
 namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class UserController : ControllerBase
+    public class BlogsController : ControllerBase
     {
-        private readonly UserDAO _userDAO;
+        private readonly BlogDAO _blogDAO;
 
-        public UserController(IDbContextFactory<AppDbContext> contextFactory, Client supabaseClient, IConfiguration configuration, HttpClient httpClient)
+        public BlogsController(AppDbContext context)
         {
-            _userDAO = new UserDAO(contextFactory, supabaseClient, configuration, httpClient);
+            _blogDAO = new BlogDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<BlogDTO>>> GetAll()
         {
             try
             {
-                var users = await _userDAO.GetAllAsync();
-                return Ok(users);
+                var blogs = await _blogDAO.GetAllAsync();
+                return Ok(blogs);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -37,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{userId}")]
-        public async Task<ActionResult<UserDTO>> GetById(string userId)
+        [HttpGet("GetById/{blogId}")]
+        public async Task<ActionResult<BlogDTO>> GetById(string blogId)
         {
             try
             {
-                var user = await _userDAO.GetByIdAsync(userId);
-                if (user == null)
-                    return NotFound($"User with ID {userId} not found.");
-                return Ok(user);
+                var blog = await _blogDAO.GetByIdAsync(blogId);
+                if (blog == null)
+                    return NotFound($"Blog with ID {blogId} not found.");
+                return Ok(blog);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -58,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<UserDTO>> Create([FromBody] CreateUserRequest request)
+        public async Task<ActionResult<BlogDTO>> Create([FromBody] Blog blog)
         {
             try
             {
-                var createdUser = await _userDAO.CreateAsync(request.User, request.Password);
-                return CreatedAtAction(nameof(GetById), new { userId = createdUser.UserId }, createdUser);
+                var createdBlog = await _blogDAO.CreateAsync(blog);
+                return CreatedAtAction(nameof(GetById), new { blogId = createdBlog.BlogId }, createdBlog);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -76,12 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<UserDTO>> Update([FromBody] User user)
+        public async Task<ActionResult<BlogDTO>> Update([FromBody] Blog blog)
         {
             try
             {
-                var updatedUser = await _userDAO.UpdateAsync(user);
-                return Ok(updatedUser);
+                var updatedBlog = await _blogDAO.UpdateAsync(blog);
+                return Ok(updatedBlog);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -93,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{userId}")]
-        public async Task<ActionResult<bool>> Delete(string userId)
+        [HttpDelete("Delete/{blogId}")]
+        public async Task<ActionResult<bool>> Delete(string blogId)
         {
             try
             {
-                var result = await _userDAO.DeleteAsync(userId);
+                var result = await _blogDAO.DeleteAsync(blogId);
                 if (!result)
-                    return NotFound($"User with ID {userId} not found.");
+                    return NotFound($"Blog with ID {blogId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)
@@ -112,11 +110,5 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-    }
-
-    public class CreateUserRequest
-    {
-        public required User User { get; set; }
-        public required string Password { get; set; }
     }
 }

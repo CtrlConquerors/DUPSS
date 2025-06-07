@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AssessmentController : ControllerBase
+    public class AppointmentsController : ControllerBase
     {
-        private readonly AssessmentDAO _assessmentDAO;
+        private readonly AppointmentDAO _appointmentDAO;
 
-        public AssessmentController(AppDbContext context)
+        public AppointmentsController(AppDbContext context)
         {
-            _assessmentDAO = new AssessmentDAO(context);
+            _appointmentDAO = new AppointmentDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<AssessmentDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAll()
         {
             try
             {
-                var assessments = await _assessmentDAO.GetAllAsync();
-                return Ok(assessments);
+                var appointments = await _appointmentDAO.GetAllAsync();
+                return Ok(appointments);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{assessmentId}")]
-        public async Task<ActionResult<AssessmentDTO>> GetById(string assessmentId)
+        [HttpGet("GetById/{appointmentId}")]
+        public async Task<ActionResult<AppointmentDTO>> GetById(string appointmentId)
         {
             try
             {
-                var assessment = await _assessmentDAO.GetByIdAsync(assessmentId);
-                if (assessment == null)
-                    return NotFound($"Assessment with ID {assessmentId} not found.");
-                return Ok(assessment);
+                var appointment = await _appointmentDAO.GetByIdAsync(appointmentId);
+                if (appointment == null)
+                    return NotFound($"Appointment with ID {appointmentId} not found.");
+                return Ok(appointment);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<AssessmentDTO>> Create([FromBody] Assessment assessment)
+        public async Task<ActionResult<AppointmentDTO>> Create([FromBody] Appointment appointment)
         {
             try
             {
-                var createdAssessment = await _assessmentDAO.CreateAsync(assessment);
-                return CreatedAtAction(nameof(GetById), new { assessmentId = createdAssessment.AssessmentId }, createdAssessment);
+                var createdAppointment = await _appointmentDAO.CreateAsync(appointment);
+                return CreatedAtAction(nameof(GetById), new { appointmentId = createdAppointment.AppointmentId }, createdAppointment);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,12 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<AssessmentDTO>> Update([FromBody] Assessment assessment)
+        public async Task<ActionResult<AppointmentDTO>> Update([FromBody] Appointment appointment)
         {
             try
             {
-                var updatedAssessment = await _assessmentDAO.UpdateAsync(assessment);
-                return Ok(updatedAssessment);
+                var updatedAppointment = await _appointmentDAO.UpdateAsync(appointment);
+                return Ok(updatedAppointment);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -91,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{assessmentId}")]
-        public async Task<ActionResult<bool>> Delete(string assessmentId)
+        [HttpDelete("Delete/{appointmentId}")]
+        public async Task<ActionResult<bool>> Delete(string appointmentId)
         {
             try
             {
-                var result = await _assessmentDAO.DeleteAsync(assessmentId);
+                var result = await _appointmentDAO.DeleteAsync(appointmentId);
                 if (!result)
-                    return NotFound($"Assessment with ID {assessmentId} not found.");
+                    return NotFound($"Appointment with ID {appointmentId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

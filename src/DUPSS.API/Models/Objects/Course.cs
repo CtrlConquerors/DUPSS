@@ -5,6 +5,11 @@ namespace DUPSS.API.Models.Objects
 {
     public class Course
     {
+        public Course()
+        {
+            // Default constructor for EF Core
+        }
+
         [Key]
         public required string CourseId { get; set; }
         [Required]

@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AppointmentController : ControllerBase
+    public class CoursesController : ControllerBase
     {
-        private readonly AppointmentDAO _appointmentDAO;
+        private readonly CourseDAO _courseDAO;
 
-        public AppointmentController(AppDbContext context)
+        public CoursesController(AppDbContext context)
         {
-            _appointmentDAO = new AppointmentDAO(context);
+            _courseDAO = new CourseDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CourseDTO>>> GetAll()
         {
             try
             {
-                var appointments = await _appointmentDAO.GetAllAsync();
-                return Ok(appointments);
+                var courses = await _courseDAO.GetAllAsync();
+                return Ok(courses);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{appointmentId}")]
-        public async Task<ActionResult<AppointmentDTO>> GetById(string appointmentId)
+        [HttpGet("GetById/{courseId}")]
+        public async Task<ActionResult<CourseDTO>> GetById(string courseId)
         {
             try
             {
-                var appointment = await _appointmentDAO.GetByIdAsync(appointmentId);
-                if (appointment == null)
-                    return NotFound($"Appointment with ID {appointmentId} not found.");
-                return Ok(appointment);
+                var course = await _courseDAO.GetByIdAsync(courseId);
+                if (course == null)
+                    return NotFound($"Course with ID {courseId} not found.");
+                return Ok(course);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<AppointmentDTO>> Create([FromBody] Appointment appointment)
+        public async Task<ActionResult<CourseDTO>> Create([FromBody] Course course)
         {
             try
             {
-                var createdAppointment = await _appointmentDAO.CreateAsync(appointment);
-                return CreatedAtAction(nameof(GetById), new { appointmentId = createdAppointment.AppointmentId }, createdAppointment);
+                var createdCourse = await _courseDAO.CreateAsync(course);
+                return CreatedAtAction(nameof(GetById), new { courseId = createdCourse.CourseId }, createdCourse);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,12 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<AppointmentDTO>> Update([FromBody] Appointment appointment)
+        public async Task<ActionResult<CourseDTO>> Update([FromBody] Course course)
         {
             try
             {
-                var updatedAppointment = await _appointmentDAO.UpdateAsync(appointment);
-                return Ok(updatedAppointment);
+                var updatedCourse = await _courseDAO.UpdateAsync(course);
+                return Ok(updatedCourse);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -91,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{appointmentId}")]
-        public async Task<ActionResult<bool>> Delete(string appointmentId)
+        [HttpDelete("Delete/{courseId}")]
+        public async Task<ActionResult<bool>> Delete(string courseId)
         {
             try
             {
-                var result = await _appointmentDAO.DeleteAsync(appointmentId);
+                var result = await _courseDAO.DeleteAsync(courseId);
                 if (!result)
-                    return NotFound($"Appointment with ID {appointmentId} not found.");
+                    return NotFound($"Course with ID {courseId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class RoleController : ControllerBase
+    public class CourseTopicsController : ControllerBase
     {
-        private readonly RoleDAO _roleDAO;
+        private readonly CourseTopicDAO _courseTopicDAO;
 
-        public RoleController(AppDbContext context)
+        public CourseTopicsController(AppDbContext context)
         {
-            _roleDAO = new RoleDAO(context);
+            _courseTopicDAO = new CourseTopicDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<RoleDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CourseTopicDTO>>> GetAll()
         {
             try
             {
-                var roles = await _roleDAO.GetAllAsync();
-                return Ok(roles);
+                var topics = await _courseTopicDAO.GetAllAsync();
+                return Ok(topics);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{roleId}")]
-        public async Task<ActionResult<RoleDTO>> GetById(string roleId)
+        [HttpGet("GetById/{topicId}")]
+        public async Task<ActionResult<CourseTopicDTO>> GetById(string topicId)
         {
             try
             {
-                var role = await _roleDAO.GetByIdAsync(roleId);
-                if (role == null)
-                    return NotFound($"Role with ID {roleId} not found.");
-                return Ok(role);
+                var topic = await _courseTopicDAO.GetByIdAsync(topicId);
+                if (topic == null)
+                    return NotFound($"CourseTopic with ID {topicId} not found.");
+                return Ok(topic);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<RoleDTO>> Create([FromBody] Role role)
+        public async Task<ActionResult<CourseTopicDTO>> Create([FromBody] CourseTopic courseTopic)
         {
             try
             {
-                var createdRole = await _roleDAO.CreateAsync(role);
-                return CreatedAtAction(nameof(GetById), new { roleId = createdRole.RoleId }, createdRole);
+                var createdTopic = await _courseTopicDAO.CreateAsync(courseTopic);
+                return CreatedAtAction(nameof(GetById), new { topicId = createdTopic.TopicId }, createdTopic);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,12 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<RoleDTO>> Update([FromBody] Role role)
+        public async Task<ActionResult<CourseTopicDTO>> Update([FromBody] CourseTopic courseTopic)
         {
             try
             {
-                var updatedRole = await _roleDAO.UpdateAsync(role);
-                return Ok(updatedRole);
+                var updatedTopic = await _courseTopicDAO.UpdateAsync(courseTopic);
+                return Ok(updatedTopic);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -91,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{roleId}")]
-        public async Task<ActionResult<bool>> Delete(string roleId)
+        [HttpDelete("Delete/{topicId}")]
+        public async Task<ActionResult<bool>> Delete(string topicId)
         {
             try
             {
-                var result = await _roleDAO.DeleteAsync(roleId);
+                var result = await _courseTopicDAO.DeleteAsync(topicId);
                 if (!result)
-                    return NotFound($"Role with ID {roleId} not found.");
+                    return NotFound($"CourseTopic with ID {topicId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

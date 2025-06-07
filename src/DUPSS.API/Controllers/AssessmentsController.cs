@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class BlogController : ControllerBase
+    public class AssessmentsController : ControllerBase
     {
-        private readonly BlogDAO _blogDAO;
+        private readonly AssessmentDAO _assessmentDAO;
 
-        public BlogController(AppDbContext context)
+        public AssessmentsController(AppDbContext context)
         {
-            _blogDAO = new BlogDAO(context);
+            _assessmentDAO = new AssessmentDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<BlogDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<AssessmentDTO>>> GetAll()
         {
             try
             {
-                var blogs = await _blogDAO.GetAllAsync();
-                return Ok(blogs);
+                var assessments = await _assessmentDAO.GetAllAsync();
+                return Ok(assessments);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{blogId}")]
-        public async Task<ActionResult<BlogDTO>> GetById(string blogId)
+        [HttpGet("GetById/{assessmentId}")]
+        public async Task<ActionResult<AssessmentDTO>> GetById(string assessmentId)
         {
             try
             {
-                var blog = await _blogDAO.GetByIdAsync(blogId);
-                if (blog == null)
-                    return NotFound($"Blog with ID {blogId} not found.");
-                return Ok(blog);
+                var assessment = await _assessmentDAO.GetByIdAsync(assessmentId);
+                if (assessment == null)
+                    return NotFound($"Assessment with ID {assessmentId} not found.");
+                return Ok(assessment);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<BlogDTO>> Create([FromBody] Blog blog)
+        public async Task<ActionResult<AssessmentDTO>> Create([FromBody] Assessment assessment)
         {
             try
             {
-                var createdBlog = await _blogDAO.CreateAsync(blog);
-                return CreatedAtAction(nameof(GetById), new { blogId = createdBlog.BlogId }, createdBlog);
+                var createdAssessment = await _assessmentDAO.CreateAsync(assessment);
+                return CreatedAtAction(nameof(GetById), new { assessmentId = createdAssessment.AssessmentId }, createdAssessment);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,12 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<BlogDTO>> Update([FromBody] Blog blog)
+        public async Task<ActionResult<AssessmentDTO>> Update([FromBody] Assessment assessment)
         {
             try
             {
-                var updatedBlog = await _blogDAO.UpdateAsync(blog);
-                return Ok(updatedBlog);
+                var updatedAssessment = await _assessmentDAO.UpdateAsync(assessment);
+                return Ok(updatedAssessment);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -91,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{blogId}")]
-        public async Task<ActionResult<bool>> Delete(string blogId)
+        [HttpDelete("Delete/{assessmentId}")]
+        public async Task<ActionResult<bool>> Delete(string assessmentId)
         {
             try
             {
-                var result = await _blogDAO.DeleteAsync(blogId);
+                var result = await _assessmentDAO.DeleteAsync(assessmentId);
                 if (!result)
-                    return NotFound($"Blog with ID {blogId} not found.");
+                    return NotFound($"Assessment with ID {assessmentId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

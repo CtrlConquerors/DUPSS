@@ -62,7 +62,7 @@ builder.Services.AddScoped<IUserDAO, UserDAO>();
 builder.Services.AddScoped<IAppointmentDAO, AppointmentDAO>();
 builder.Services.AddScoped<ICampaignDAO, CampaignDAO>();
 builder.Services.AddScoped<ICourseTopicDAO, CourseTopicDAO>();
-//builder.Services.AddScoped<ICourseDAO, CourseDAO>();
+builder.Services.AddScoped<ICourseDAO, CourseDAO>();
 builder.Services.AddScoped<ICourseEnrollDAO, CourseEnrollDAO>();
 builder.Services.AddScoped<IAssessmentDAO, AssessmentDAO>();
 builder.Services.AddScoped<IAssessmentResultDAO, AssessmentResultDAO>();
@@ -74,6 +74,15 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazor", builder =>
+        builder.WithOrigins("https://localhost:7084")
+               .AllowAnyMethod()
+               .AllowAnyHeader()
+               .AllowCredentials());
+});
 
 var app = builder.Build();
 
@@ -87,6 +96,8 @@ catch (Exception ex)
 {
     Console.WriteLine($"Supabase initialization failed: {ex.Message}");
 }
+
+app.UseCors("AllowBlazor");
 
 app.MapOpenApi();
 app.UseSwagger();

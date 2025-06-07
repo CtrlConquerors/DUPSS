@@ -2,6 +2,10 @@
 {
     public class CourseDTO
     {
+        public CourseDTO()
+        {
+
+        }
         public required string CourseId { get; set; }
         public required string TopicId { get; set; }
         public required string CourseName { get; set; }

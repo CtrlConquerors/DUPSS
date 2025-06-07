@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CampaignController : ControllerBase
+    public class RolesController : ControllerBase
     {
-        private readonly CampaignDAO _campaignDAO;
+        private readonly RoleDAO _roleDAO;
 
-        public CampaignController(AppDbContext context)
+        public RolesController(AppDbContext context)
         {
-            _campaignDAO = new CampaignDAO(context);
+            _roleDAO = new RoleDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<CampaignDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<RoleDTO>>> GetAll()
         {
             try
             {
-                var campaigns = await _campaignDAO.GetAllAsync();
-                return Ok(campaigns);
+                var roles = await _roleDAO.GetAllAsync();
+                return Ok(roles);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{campaignId}")]
-        public async Task<ActionResult<CampaignDTO>> GetById(string campaignId)
+        [HttpGet("GetById/{roleId}")]
+        public async Task<ActionResult<RoleDTO>> GetById(string roleId)
         {
             try
             {
-                var campaign = await _campaignDAO.GetByIdAsync(campaignId);
-                if (campaign == null)
-                    return NotFound($"Campaign with ID {campaignId} not found.");
-                return Ok(campaign);
+                var role = await _roleDAO.GetByIdAsync(roleId);
+                if (role == null)
+                    return NotFound($"Role with ID {roleId} not found.");
+                return Ok(role);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<CampaignDTO>> Create([FromBody] Campaign campaign)
+        public async Task<ActionResult<RoleDTO>> Create([FromBody] Role role)
         {
             try
             {
-                var createdCampaign = await _campaignDAO.CreateAsync(campaign);
-                return CreatedAtAction(nameof(GetById), new { campaignId = createdCampaign.CampaignId }, createdCampaign);
+                var createdRole = await _roleDAO.CreateAsync(role);
+                return CreatedAtAction(nameof(GetById), new { roleId = createdRole.RoleId }, createdRole);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,14 +74,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<CampaignDTO>> Update([FromBody] Campaign campaign)
+        public async Task<ActionResult<RoleDTO>> Update([FromBody] Role role)
         {
             try
             {
-                var updatedCampaign = await _campaignDAO.UpdateAsync(campaign);
-                if (updatedCampaign == null)
-                    return NotFound($"Campaign with ID {campaign.CampaignId} not found.");
-                return Ok(updatedCampaign);
+                var updatedRole = await _roleDAO.UpdateAsync(role);
+                return Ok(updatedRole);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -93,14 +91,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{campaignId}")]
-        public async Task<ActionResult<bool>> Delete(string campaignId)
+        [HttpDelete("Delete/{roleId}")]
+        public async Task<ActionResult<bool>> Delete(string roleId)
         {
             try
             {
-                var result = await _campaignDAO.DeleteAsync(campaignId);
+                var result = await _roleDAO.DeleteAsync(roleId);
                 if (!result)
-                    return NotFound($"Campaign with ID {campaignId} not found.");
+                    return NotFound($"Role with ID {roleId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

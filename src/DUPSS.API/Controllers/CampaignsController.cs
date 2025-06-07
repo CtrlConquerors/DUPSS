@@ -8,22 +8,22 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class CourseController : ControllerBase
+    public class CampaignsController : ControllerBase
     {
-        private readonly CourseDAO _courseDAO;
+        private readonly CampaignDAO _campaignDAO;
 
-        public CourseController(AppDbContext context)
+        public CampaignsController(AppDbContext context)
         {
-            _courseDAO = new CourseDAO(context);
+            _campaignDAO = new CampaignDAO(context);
         }
 
         [HttpGet("GetAll")]
-        public async Task<ActionResult<IEnumerable<CourseDTO>>> GetAll()
+        public async Task<ActionResult<IEnumerable<CampaignDTO>>> GetAll()
         {
             try
             {
-                var courses = await _courseDAO.GetAllAsync();
-                return Ok(courses);
+                var campaigns = await _campaignDAO.GetAllAsync();
+                return Ok(campaigns);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -35,15 +35,15 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("GetById/{courseId}")]
-        public async Task<ActionResult<CourseDTO>> GetById(string courseId)
+        [HttpGet("GetById/{campaignId}")]
+        public async Task<ActionResult<CampaignDTO>> GetById(string campaignId)
         {
             try
             {
-                var course = await _courseDAO.GetByIdAsync(courseId);
-                if (course == null)
-                    return NotFound($"Course with ID {courseId} not found.");
-                return Ok(course);
+                var campaign = await _campaignDAO.GetByIdAsync(campaignId);
+                if (campaign == null)
+                    return NotFound($"Campaign with ID {campaignId} not found.");
+                return Ok(campaign);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -56,12 +56,12 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<CourseDTO>> Create([FromBody] Course course)
+        public async Task<ActionResult<CampaignDTO>> Create([FromBody] Campaign campaign)
         {
             try
             {
-                var createdCourse = await _courseDAO.CreateAsync(course);
-                return CreatedAtAction(nameof(GetById), new { courseId = createdCourse.CourseId }, createdCourse);
+                var createdCampaign = await _campaignDAO.CreateAsync(campaign);
+                return CreatedAtAction(nameof(GetById), new { campaignId = createdCampaign.CampaignId }, createdCampaign);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -74,12 +74,14 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<CourseDTO>> Update([FromBody] Course course)
+        public async Task<ActionResult<CampaignDTO>> Update([FromBody] Campaign campaign)
         {
             try
             {
-                var updatedCourse = await _courseDAO.UpdateAsync(course);
-                return Ok(updatedCourse);
+                var updatedCampaign = await _campaignDAO.UpdateAsync(campaign);
+                if (updatedCampaign == null)
+                    return NotFound($"Campaign with ID {campaign.CampaignId} not found.");
+                return Ok(updatedCampaign);
             }
             catch (Npgsql.NpgsqlException ex)
             {
@@ -91,14 +93,14 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpDelete("Delete/{courseId}")]
-        public async Task<ActionResult<bool>> Delete(string courseId)
+        [HttpDelete("Delete/{campaignId}")]
+        public async Task<ActionResult<bool>> Delete(string campaignId)
         {
             try
             {
-                var result = await _courseDAO.DeleteAsync(courseId);
+                var result = await _campaignDAO.DeleteAsync(campaignId);
                 if (!result)
-                    return NotFound($"Course with ID {courseId} not found.");
+                    return NotFound($"Campaign with ID {campaignId} not found.");
                 return Ok(result);
             }
             catch (Npgsql.NpgsqlException ex)

@@ -8,11 +8,11 @@ namespace DUPSS.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class AssessmentResultController : ControllerBase
+    public class AssessmentResultsController : ControllerBase
     {
         private readonly AssessmentResultDAO _assessmentResultDAO;
 
-        public AssessmentResultController(AppDbContext context)
+        public AssessmentResultsController(AppDbContext context)
         {
             _assessmentResultDAO = new AssessmentResultDAO(context);
         }

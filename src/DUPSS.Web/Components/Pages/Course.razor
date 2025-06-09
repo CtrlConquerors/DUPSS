@@ -46,7 +46,7 @@
             }
         </div>
 
-        @if (courses.Count > DefaultCourseDisplayLimit && !showAllCourses)
+        @* @if (courses.Count > DefaultCourseDisplayLimit && !showAllCourses)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCourses" disabled="@(!_isHydrated)">
@@ -60,7 +60,7 @@
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCourses">Show Less</button>
             </div>
-        }
+        } *@
     }
 </div>
 
@@ -77,17 +77,7 @@
             <p>Email: abcd@fgmail.com</p>
         </div>
 
-        @* <div class="footer-section footer-subscribe-section col-10">
-            <div class="subscribe-box">
-                <h4 class="subscribe-heading">Stay up to date</h4>
-                <p class="subscribe-text">Get Started</p>
-                <div class="input-group subscribe-input-group">
-                    <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
-                    <button class="btn btn-primary" type="button">Register now</button>
-                </div>
-                <small class="subscribe-note">*You can unsubscribe anytime</small>
-            </div>
-        </div> *@
+        
     </div>
 </footer>
 
@@ -105,10 +95,12 @@
         try
         {
             courses = await CourseApiService.GetAllAsync();
+            Console.WriteLine($"Loaded {courses?.Count} courses.");
             hasError = false;
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error loading courses: {ex.Message}");
             hasError = true;
         }
     }
@@ -125,73 +117,73 @@
         }
     }
 
-    private async Task ToggleShowAllCourses()
-    {
-        showAllCourses = !showAllCourses;
-        Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
+    // private async Task ToggleShowAllCourses()
+    // {
+    //     showAllCourses = !showAllCourses;
+    //     Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
 
-        if (!showAllCourses)
-        {
-            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
-        }
-    }
+    //     if (!showAllCourses)
+    //     {
+    //         await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+    //     }
+    // }
     // Use GetByIdAsync
-    private async Task GetCourseById(string courseId)
-    {
-        var course = await CourseApiService.GetByIdAsync(courseId);
-        if (course != null)
-        {
-            await JSRuntime.InvokeVoidAsync("alert", $"Course: {course.CourseName}");
-        }
-        else
-        {
-            await JSRuntime.InvokeVoidAsync("alert", "Course not found.");
-        }
-    }
+    // private async Task GetCourseById(string courseId)
+    // {
+    //     var course = await CourseApiService.GetByIdAsync(courseId);
+    //     if (course != null)
+    //     {
+    //         await JSRuntime.InvokeVoidAsync("alert", $"Course: {course.CourseName}");
+    //     }
+    //     else
+    //     {
+    //         await JSRuntime.InvokeVoidAsync("alert", "Course not found.");
+    //     }
+    // }
 
     // Use CreateAsync
-    private async Task CreateCourse()
-    {
-        var newCourse = new DUPSS.API.Models.Objects.Course
-        {
-            CourseId = Guid.NewGuid().ToString(),
-            CourseName = "New Course " + DateTime.Now.Ticks,
-            CourseType = "Online",
-            TopicId = "1", // Replace with a valid TopicId
-            StaffId = "1"  // Replace with a valid StaffId
-        };
-        var created = await CourseApiService.CreateAsync(newCourse);
-        if (created != null)
-        {
-            courses?.Add(created);
-            StateHasChanged();
-        }
-    }
+    // private async Task CreateCourse()
+    // {
+    //     var newCourse = new DUPSS.API.Models.Objects.Course
+    //     {
+    //         CourseId = Guid.NewGuid().ToString(),
+    //         CourseName = "New Course " + DateTime.Now.Ticks,
+    //         CourseType = "Online",
+    //         TopicId = "1", Replace with a valid TopicId
+    //         StaffId = "1"  Replace with a valid StaffId
+    //     };
+    //     var created = await CourseApiService.CreateAsync(newCourse);
+    //     if (created != null)
+    //     {
+    //         courses?.Add(created);
+    //         StateHasChanged();
+    //     }
+    // }
 
     // Use UpdateAsync
-    private async Task UpdateCourse(DUPSS.API.Models.Objects.Course course)
-    {
-        course.CourseName += " (Updated)";
-        var updated = await CourseApiService.UpdateAsync(course);
-        if (updated != null)
-        {
-            var idx = courses?.FindIndex(c => c.CourseId == updated.CourseId) ?? -1;
-            if (idx >= 0 && courses != null)
-            {
-                courses[idx] = updated;
-                StateHasChanged();
-            }
-        }
-    }
+    // private async Task UpdateCourse(DUPSS.API.Models.Objects.Course course)
+    // {
+    //     course.CourseName += " (Updated)";
+    //     var updated = await CourseApiService.UpdateAsync(course);
+    //     if (updated != null)
+    //     {
+    //         var idx = courses?.FindIndex(c => c.CourseId == updated.CourseId) ?? -1;
+    //         if (idx >= 0 && courses != null)
+    //         {
+    //             courses[idx] = updated;
+    //             StateHasChanged();
+    //         }
+    //     }
+    // }
 
     // Use DeleteAsync
-    private async Task DeleteCourse(string courseId)
-    {
-        var success = await CourseApiService.DeleteAsync(courseId);
-        if (success && courses != null)
-        {
-            courses.RemoveAll(c => c.CourseId == courseId);
-            StateHasChanged();
-        }
-    }
+    // private async Task DeleteCourse(string courseId)
+    // {
+    //     var success = await CourseApiService.DeleteAsync(courseId);
+    //     if (success && courses != null)
+    //     {
+    //         courses.RemoveAll(c => c.CourseId == courseId);
+    //         StateHasChanged();
+    //     }
+    // }
 }

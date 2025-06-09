@@ -8,6 +8,12 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddScoped<CourseApiService>();
 builder.Services.AddHttpClient<CourseApiService>();
+builder.Services.AddHttpClient<CourseApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
+
+
 
 var app = builder.Build();
 

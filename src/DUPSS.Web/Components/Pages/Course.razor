@@ -46,7 +46,7 @@
             }
         </div>
 
-        @* @if (courses.Count > DefaultCourseDisplayLimit && !showAllCourses)
+        @if (courses.Count > DefaultCourseDisplayLimit && !showAllCourses)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCourses" disabled="@(!_isHydrated)">
@@ -60,7 +60,7 @@
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCourses">Show Less</button>
             </div>
-        } *@
+        }
     }
 </div>
 
@@ -89,7 +89,7 @@
     private bool _isHydrated = false;
 
 
-  
+
     protected override async Task OnInitializedAsync()
     {
         try
@@ -117,40 +117,37 @@
         }
     }
 
-    // private async Task ToggleShowAllCourses()
-    // {
-    //     showAllCourses = !showAllCourses;
-    //     Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
+    private async Task ToggleShowAllCourses()
+    {
+        showAllCourses = !showAllCourses;
+        Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
 
-    //     if (!showAllCourses)
-    //     {
-    //         await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
-    //     }
-    // }
-    // Use GetByIdAsync
-    // private async Task GetCourseById(string courseId)
-    // {
-    //     var course = await CourseApiService.GetByIdAsync(courseId);
-    //     if (course != null)
-    //     {
-    //         await JSRuntime.InvokeVoidAsync("alert", $"Course: {course.CourseName}");
-    //     }
-    //     else
-    //     {
-    //         await JSRuntime.InvokeVoidAsync("alert", "Course not found.");
-    //     }
-    // }
+        if (!showAllCourses)
+        {
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+    }
+    private async Task GetCourseById(string courseId)
+    {
+        var course = await CourseApiService.GetByIdAsync(courseId);
+        if (course != null)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Course: {course.CourseName}");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Course not found.");
+        }
+    }
 
-    // Use CreateAsync
     // private async Task CreateCourse()
     // {
-    //     var newCourse = new DUPSS.API.Models.Objects.Course
+    //     var newCourse = new Course
     //     {
     //         CourseId = Guid.NewGuid().ToString(),
     //         CourseName = "New Course " + DateTime.Now.Ticks,
     //         CourseType = "Online",
-    //         TopicId = "1", Replace with a valid TopicId
-    //         StaffId = "1"  Replace with a valid StaffId
+    //         TopicId = "1", 
     //     };
     //     var created = await CourseApiService.CreateAsync(newCourse);
     //     if (created != null)
@@ -160,30 +157,28 @@
     //     }
     // }
 
-    // Use UpdateAsync
-    // private async Task UpdateCourse(DUPSS.API.Models.Objects.Course course)
-    // {
-    //     course.CourseName += " (Updated)";
-    //     var updated = await CourseApiService.UpdateAsync(course);
-    //     if (updated != null)
-    //     {
-    //         var idx = courses?.FindIndex(c => c.CourseId == updated.CourseId) ?? -1;
-    //         if (idx >= 0 && courses != null)
-    //         {
-    //             courses[idx] = updated;
-    //             StateHasChanged();
-    //         }
-    //     }
-    // }
+    private async Task UpdateCourse(DUPSS.API.Models.Objects.Course course)
+    {
+        course.CourseName += " (Updated)";
+        var updated = await CourseApiService.UpdateAsync(course);
+        if (updated != null)
+        {
+            var idx = courses?.FindIndex(c => c.CourseId == updated.CourseId) ?? -1;
+            if (idx >= 0 && courses != null)
+            {
+                courses[idx] = updated;
+                StateHasChanged();
+            }
+        }
+    }
 
-    // Use DeleteAsync
-    // private async Task DeleteCourse(string courseId)
-    // {
-    //     var success = await CourseApiService.DeleteAsync(courseId);
-    //     if (success && courses != null)
-    //     {
-    //         courses.RemoveAll(c => c.CourseId == courseId);
-    //         StateHasChanged();
-    //     }
-    // }
+    private async Task DeleteCourse(string courseId)
+    {
+        var success = await CourseApiService.DeleteAsync(courseId);
+        if (success && courses != null)
+        {
+            courses.RemoveAll(c => c.CourseId == courseId);
+            StateHasChanged();
+        }
+    }
 }

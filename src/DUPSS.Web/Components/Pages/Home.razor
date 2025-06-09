@@ -185,10 +185,12 @@
                 </div>
             </div> *@
         </div>
+        <div class="right"></div>
+    
+
+
     </footer>
 
-
-</div>
 @* ---raining effect--- *@
 <script>
     (function () {
@@ -258,6 +260,7 @@
     })();
 </script>
 
+
 <script>
         window.initCarousel = () => {
         const slides = document.querySelectorAll('.carousel-image-slide');
@@ -299,7 +302,7 @@
         await JS.InvokeVoidAsync("startRain", "rainCanvas");
     }
 } *@
-@code {
+@* @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -307,4 +310,4 @@
             await JS.InvokeVoidAsync("initCarousel");
         }
     }
-}
+} *@ </div>

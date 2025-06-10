@@ -115,12 +115,12 @@
                     </div>
 
                 </div>
-                
+
 
                 <button class="carousel-control-image next-btn-image">
                     <span class="arrow-icon">&gt;</span>
                 </button>
-                
+
             </div>
         </div>
     </section>
@@ -186,128 +186,129 @@
             </div> *@
         </div>
         <div class="right"></div>
-    
+
 
 
     </footer>
 
-@* ---raining effect--- *@
-<script>
-    (function () {
-        function startRain() {
-            const canvas = document.getElementById('rainCanvas');
-            if (!canvas) return;
+    @* ---raining effect--- *@
+    <script>
+        (function () {
+            function startRain() {
+                const canvas = document.getElementById('rainCanvas');
+                if (!canvas) return;
 
-            // Set fixed height for the canvas
-            canvas.width = canvas.offsetWidth || canvas.parentElement.offsetWidth;
-            canvas.height = 120;
-
-            const ctx = canvas.getContext('2d');
-            const raindropCount = Math.floor(canvas.width / 7);
-            let raindrops = [];
-
-            function createRaindrop() {
-                return {
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * -canvas.height,
-                    length: 10 + Math.random() * 15,
-                    speed: 2 + Math.random() * 4,
-                    opacity: 0.2 + Math.random() * 0.4
-                };
-            }
-
-            function initRaindrops() {
-                raindrops = [];
-                for (let i = 0; i < raindropCount; i++) {
-                    raindrops.push(createRaindrop());
-                }
-            }
-
-            function drawRain() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeStyle = 'rgba(173,216,230,0.6)';
-                ctx.lineWidth = 1.2;
-
-                for (let drop of raindrops) {
-                    ctx.globalAlpha = drop.opacity;
-                    ctx.beginPath();
-                    ctx.moveTo(drop.x, drop.y);
-                    ctx.lineTo(drop.x, drop.y + drop.length);
-                    ctx.stroke();
-
-                    drop.y += drop.speed;
-                    if (drop.y > canvas.height) {
-                        Object.assign(drop, createRaindrop());
-                        drop.y = 0;
-                    }
-                }
-                ctx.globalAlpha = 1.0;
-                requestAnimationFrame(drawRain);
-            }
-
-            initRaindrops();
-            drawRain();
-
-            window.addEventListener('resize', () => {
+                // Set fixed height for the canvas
                 canvas.width = canvas.offsetWidth || canvas.parentElement.offsetWidth;
                 canvas.height = 120;
-                initRaindrops();
-            });
-        }
 
-        // Use a small delay to ensure Blazor has rendered the DOM
-        setTimeout(startRain, 500);
-    })();
-</script>
+                const ctx = canvas.getContext('2d');
+                const raindropCount = Math.floor(canvas.width / 7);
+                let raindrops = [];
 
-
-<script>
-        window.initCarousel = () => {
-        const slides = document.querySelectorAll('.carousel-image-slide');
-        const prevBtn = document.querySelector('.prev-btn-image');
-        const nextBtn = document.querySelector('.next-btn-image');
-        let currentIndex = 0;
-
-        function showSlide(index) {
-            slides.forEach((slide, i) => {
-                if (i === index) {
-                    slide.classList.add('active');
-                } else {
-                    slide.classList.remove('active');
+                function createRaindrop() {
+                    return {
+                        x: Math.random() * canvas.width,
+                        y: Math.random() * -canvas.height,
+                        length: 10 + Math.random() * 15,
+                        speed: 2 + Math.random() * 4,
+                        opacity: 0.2 + Math.random() * 0.4
+                    };
                 }
-            });
-        }
 
-        function nextSlide() {
-            currentIndex = (currentIndex + 1) % slides.length;
+                function initRaindrops() {
+                    raindrops = [];
+                    for (let i = 0; i < raindropCount; i++) {
+                        raindrops.push(createRaindrop());
+                    }
+                }
+
+                function drawRain() {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.strokeStyle = 'rgba(173,216,230,0.6)';
+                    ctx.lineWidth = 1.2;
+
+                    for (let drop of raindrops) {
+                        ctx.globalAlpha = drop.opacity;
+                        ctx.beginPath();
+                        ctx.moveTo(drop.x, drop.y);
+                        ctx.lineTo(drop.x, drop.y + drop.length);
+                        ctx.stroke();
+
+                        drop.y += drop.speed;
+                        if (drop.y > canvas.height) {
+                            Object.assign(drop, createRaindrop());
+                            drop.y = 0;
+                        }
+                    }
+                    ctx.globalAlpha = 1.0;
+                    requestAnimationFrame(drawRain);
+                }
+
+                initRaindrops();
+                drawRain();
+
+                window.addEventListener('resize', () => {
+                    canvas.width = canvas.offsetWidth || canvas.parentElement.offsetWidth;
+                    canvas.height = 120;
+                    initRaindrops();
+                });
+            }
+
+            // Use a small delay to ensure Blazor has rendered the DOM
+            setTimeout(startRain, 500);
+        })();
+    </script>
+
+
+    <script>
+            window.initCarousel = () => {
+            const slides = document.querySelectorAll('.carousel-image-slide');
+            const prevBtn = document.querySelector('.prev-btn-image');
+            const nextBtn = document.querySelector('.next-btn-image');
+            let currentIndex = 0;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    if (i === index) {
+                        slide.classList.add('active');
+                    } else {
+                        slide.classList.remove('active');
+                    }
+                });
+            }
+
+            function nextSlide() {
+                currentIndex = (currentIndex + 1) % slides.length;
+                showSlide(currentIndex);
+            }
+
+            function prevSlide() {
+                currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+                showSlide(currentIndex);
+            }
+
+            if (prevBtn && nextBtn) {
+                prevBtn.onclick = prevSlide;
+                nextBtn.onclick = nextSlide;
+            }
             showSlide(currentIndex);
-        }
+        };
+    </script>
 
-        function prevSlide() {
-            currentIndex = (currentIndex - 1 + slides.length) % slides.length;
-            showSlide(currentIndex);
-        }
-
-        if (prevBtn && nextBtn) {
-            prevBtn.onclick = prevSlide;
-            nextBtn.onclick = nextSlide;
-        }
-        showSlide(currentIndex);
-    };
-</script>
-
-@* @code{
+    @* @code{
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         await JS.InvokeVoidAsync("startRain", "rainCanvas");
     }
 } *@
-@* @code {
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+    @code {
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await JS.InvokeVoidAsync("initCarousel");
+            if (firstRender)
+            {
+                await JS.InvokeVoidAsync("initCarousel");
+            }
         }
     }
-} *@ </div>
+</div>

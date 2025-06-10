@@ -120,6 +120,14 @@
                                         {
                                             <span class="online-indicator" title="Online Course"></span>
                                         }
+                                        else if (course.CourseType?.Equals("Offline", StringComparison.OrdinalIgnoreCase) == true)
+                                {
+                                    <span class="offline-indicator" title="Offline Course"></span>
+                                }
+                                else if (course.CourseType?.Equals("Hybrid", StringComparison.OrdinalIgnoreCase) == true)
+                                {
+                                    <span class="hybrid-indicator" title="Hybrid Course"></span>
+                                }
                                         @course.CourseType
                                     </td>
                                     <td>@course.Topic?.TopicName</td>
@@ -176,8 +184,7 @@
 
                     <div class="mb-3">
                         <label class="form-label">Course Type</label>
-                        <select class="form-select" @bind="courseToEdit.CourseType">
-                            <option value="">Select Type</option>
+                        <select class="form-select" @bind="courseToEdit.CourseType">                           
                             <option value="Online">Online</option>
                             <option value="Hybrid">Hybrid</option>
                             <option value="Offline">Offline</option>
@@ -238,7 +245,7 @@
                 
         </div>
  
-        @* <p>You are not authorized to access this page.</p> *@
+      
 
 @code {
     private List<DUPSS.API.Models.Objects.Course>? courses;
@@ -588,7 +595,6 @@
             validationMessage = "Course Name cannot be empty.";
             return;
         }
-
         // If new topic input is active
         if (showNewTopicInput)
         {

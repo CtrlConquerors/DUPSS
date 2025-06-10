@@ -1,9 +1,12 @@
-@page "/UserManagement"
-@inject DUPSS.AccessLayer.Interfaces.IUserDAO UserDAO
+﻿@page "/UserManagement"
+@using DUPSS.API.Models.Common
+@using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Service
+@inject RoleApiService RoleApiService
+@inject UserApiService UserApiService
 @inject IJSRuntime JS
 
-<AuthorizeView Roles="AD,MA,ST">
-    <Authorized>
+
         <div class="user-management-container">
             <div class="header-section">
                 <div class="page-title">User Management</div>
@@ -196,26 +199,23 @@
                 <div class="alert alert-info mt-3">@message</div>
             }
         </div>
-    </Authorized>
-    <NotAuthorized>
+
         <p>You are not authorized to access this page.</p>
-    </NotAuthorized>
-</AuthorizeView>
 
 @code {
-    private List<DUPSS.Object.User>? users;
-    private List<DUPSS.Object.User>? filteredUsers;
+    private List<User>? users;
+    private List<User>? filteredUsers;
     private string searchTerm = "";
     private string? message;
     private string? editingUserId;
-    private DUPSS.Object.User? editingUser;
+    private User? editingUser;
     private int currentPage = 1;
     private int itemsPerPage = 10;
     private List<string> availableRoles = new() { "Staff", "Member", "Admin", "Manager", "Consultant" };
     private List<string> availableRoleIds = new() { "ST", "ME", "AD", "MA", "CO" };
     private string selectedRole = "";
     private bool showCreateForm;
-    private DUPSS.Object.User newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
+    private User newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
     private string newUserPassword = "";
 
     private string sortBy = "Username"; // Default sort column is CourseId
@@ -225,7 +225,7 @@
 
     private void SortUsers()
     {
-        var query = filteredUsers?.AsEnumerable() ?? Enumerable.Empty<DUPSS.Object.User>();
+        var query = filteredUsers?.AsEnumerable() ?? Enumerable.Empty<User>();
 
         switch (sortBy)
         {
@@ -249,16 +249,16 @@
         currentPage = 1;
     }
 
-    private IEnumerable<DUPSS.Object.User> PaginatedUsers =>
+    private IEnumerable<User> PaginatedUsers =>
         filteredUsers?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.Object.User>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<User>();
 
     private int TotalPages => (int)Math.Ceiling((filteredUsers?.Count ?? 0) / (double)itemsPerPage);
 
     protected override async Task OnInitializedAsync()
     {
-        users = await UserDAO.GetAllAsync();
+        users = await UserApiService.GetAllAsync();
         filteredUsers = users;
     }
 
@@ -307,7 +307,7 @@
     private void ShowCreateUserForm()
     {
         showCreateForm = true;
-        newUser = new DUPSS.Object.User { UserId = "", Username = "", Email = "", RoleId = "" };
+        newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
         newUserPassword = "";
         message = null;
     }
@@ -321,14 +321,22 @@
             return;
         }
 
+        Console.WriteLine("Create user");
+
         try
         {
-            await UserDAO.CreateAsync(newUser, newUserPassword);
+
+            await UserApiService.CreateAsync(new CreateUserRequest
+            {
+                User = newUser,
+                Password = newUserPassword
+            });
+
             message = $"User {newUser.Username} created successfully.";
             showCreateForm = false;
-            newUser = new DUPSS.Object.User { UserId = "", Username = "", Email = "", RoleId = "" };
+            newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
             newUserPassword = "";
-            users = await UserDAO.GetAllAsync();
+            users = await UserApiService.GetAllAsync();
             FilterUsers();
         }
         catch (Exception ex)
@@ -343,7 +351,7 @@
     private void CancelCreate()
     {
         showCreateForm = false;
-        newUser = new DUPSS.Object.User { UserId = "", Username = "", Email = "", RoleId = "" };
+        newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
         newUserPassword = "";
         message = null;
     }
@@ -354,7 +362,7 @@
         if (user != null)
         {
             editingUserId = userId;
-            editingUser = new DUPSS.Object.User
+            editingUser = new User
             {
                 UserId = user.UserId,
                 Username = user.Username,
@@ -379,11 +387,11 @@
 
         try
         {
-            await UserDAO.UpdateAsync(editingUser);
+            await UserApiService.UpdateAsync(editingUser);
             message = $"User {editingUser.Username} updated successfully.";
             editingUserId = null;
             editingUser = null;
-            users = await UserDAO.GetAllAsync();
+            users = await UserApiService.GetAllAsync();
             FilterUsers();
         }
         catch (Exception ex)
@@ -416,11 +424,11 @@
         {
             try
             {
-                var success = await UserDAO.DeleteAsync(userId);
+                var success = await UserApiService.DeleteAsync(userId);
                 if (success)
                 {
                     message = $"User '{user.Username}' deleted successfully.";
-                    users = await UserDAO.GetAllAsync();
+                    users = await UserApiService.GetAllAsync();
                     FilterUsers();
                 }
                 else
@@ -438,4 +446,3 @@
         StateHasChanged();
     }
 }
-

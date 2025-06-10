@@ -13,7 +13,6 @@ body {
     margin: 0 auto;
     padding: 50px 20px;
     animation: fadeIn 1s ease-out;
-    
 }
 
 @keyframes fadeIn {
@@ -140,8 +139,8 @@ ul {
 .typewriter-text {
     font-size: 1rem;
     line-height: 1.6;
-    color: #333;  Match your existing text color 
-    margin: 0;
+    color: #333;
+    Match your existing text color margin: 0;
 }
 
 
@@ -167,7 +166,7 @@ ul {
     opacity: 0;
     animation-delay: 11s;
     color: #0066cc;*/ /* Matching your blue theme */
-    /*font-weight: bold;
+/*font-weight: bold;
 }
 
 @keyframes typing {

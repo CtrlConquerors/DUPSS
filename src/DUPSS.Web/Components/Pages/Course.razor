@@ -1,6 +1,8 @@
 ﻿@page "/Course"
-@inject DUPSS.AccessLayer.Interfaces.ICourseDAO CourseDAO
+@using DUPSS.API.Models.AccessLayer.Interfaces
+@using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
+@inject CourseApiService CourseApiService
 @inject IJSRuntime JSRuntime
 
 <div class="course-page-container">
@@ -75,42 +77,34 @@
             <p>Email: abcd@fgmail.com</p>
         </div>
 
-        @* <div class="footer-section footer-subscribe-section col-10">
-            <div class="subscribe-box">
-                <h4 class="subscribe-heading">Stay up to date</h4>
-                <p class="subscribe-text">Get Started</p>
-                <div class="input-group subscribe-input-group">
-                    <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
-                    <button class="btn btn-primary" type="button">Register now</button>
-                </div>
-                <small class="subscribe-note">*You can unsubscribe anytime</small>
-            </div>
-        </div> *@
+        
     </div>
 </footer>
 
 @code {
-    private List<DUPSS.Object.Course>? courses;
+    private List<DUPSS.API.Models.Objects.Course>? courses;
     private bool hasError = false;
     private bool showAllCourses = false;
     private const int DefaultCourseDisplayLimit = 3;
     private bool _isHydrated = false;
 
+
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            courses = await CourseDAO.GetAllAsync();
+            courses = await CourseApiService.GetAllAsync();
+            Console.WriteLine($"Loaded {courses?.Count} courses.");
             hasError = false;
-            Console.WriteLine($"Courses loaded: {courses?.Count ?? 0}");
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching courses: {ex.Message}");
-            courses = new List<DUPSS.Object.Course>();
+            Console.WriteLine($"Error loading courses: {ex.Message}");
             hasError = true;
         }
     }
+
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -133,4 +127,5 @@
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
     }
+     
 }

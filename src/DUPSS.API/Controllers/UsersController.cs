@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.DAOs;
+using DUPSS.API.Models.Common;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Authorization;
@@ -10,7 +11,6 @@ using System.Security.Claims;
 
 namespace DUPSS.API.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase
@@ -116,28 +116,6 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("Current")]
-        public async Task<ActionResult<UserDTO>> GetCurrent()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
-
-            var user = await _userDAO.GetByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
-        }
     }
 
-    public class CreateUserRequest
-    {
-        public required User User { get; set; }
-        public required string Password { get; set; }
-    }
 }

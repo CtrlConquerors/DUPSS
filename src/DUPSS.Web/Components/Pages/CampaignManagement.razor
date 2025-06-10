@@ -1,12 +1,12 @@
 ﻿@page "/CampaignManagement"
-@inject DUPSS.AccessLayer.Interfaces.ICampaignDAO CampaignDAO
-@inject DUPSS.AccessLayer.Interfaces.IUserDAO UserDAO
-@inject DUPSS.AccessLayer.Interfaces.IRoleDAO RoleDAO
+@using DUPSS.API.Models.Objects;
+@using DUPSS.Web.Components.Service
+@inject CampaignApiService CampaignApiService
+@inject UserApiService UserApiService
+@inject RoleApiService RoleApiService  
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS // Used for the confirm dialog, but a custom modal is recommended.
 
-<AuthorizeView Roles="AD,MA">
-    <Authorized>
         <div class="campaign-management-container">
             <div class="header-section">
                 <h1 class="page-title">Campaign Management</h1>
@@ -211,19 +211,16 @@
                 </div>
             }
         </div>
-    </Authorized>
-    <NotAuthorized>
         <p>You are not authorized to access this page.</p>
-    </NotAuthorized>
-</AuthorizeView>
+
 
 @code {
-    private List<DUPSS.Object.Campaign>? campaigns;
+    private List<Campaign>? campaigns;
     // Initializing to empty list here to prevent NullReferenceException during early rendering.
     // The finally block in OnInitializedAsync will ensure it's always populated.
-    private List<DUPSS.Object.Campaign> filteredCampaigns = new();
-    private List<DUPSS.Object.User>? staffUsers;
-    private List<DUPSS.Object.Role>? roles;
+    private List<Campaign> filteredCampaigns = new();
+    private List<User>? staffUsers;
+    private List<Role>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -239,7 +236,7 @@
     private enum SortDirection { Ascending, Descending }
 
     // For Add/Edit Form
-    private DUPSS.Object.Campaign campaignToEdit = new()
+    private Campaign campaignToEdit = new()
     {
         CampaignId = "",
         Title = "",
@@ -252,10 +249,10 @@
     private bool showEditForm = false;
     private bool isNewCampaign = false;
 
-    private IEnumerable<DUPSS.Object.Campaign> PaginatedCampaigns =>
+    private IEnumerable<Campaign> PaginatedCampaigns =>
         filteredCampaigns?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.Object.Campaign>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<Campaign>();
 
     private int TotalPages => (int)Math.Ceiling((filteredCampaigns?.Count ?? 0) / (double)itemsPerPage);
 
@@ -275,9 +272,9 @@
     {
         try
         {
-            campaigns = await CampaignDAO.GetAllAsync();
-            roles = await RoleDAO.GetAllAsync();
-            var allUsers = await UserDAO.GetAllAsync();
+            campaigns = await CampaignApiService.GetAllAsync();
+            roles = await RoleApiService.GetAllAsync();
+            var allUsers = await UserApiService.GetAllAsync();
 
             var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
@@ -305,11 +302,11 @@
         {
             // Ensure lists are initialized, regardless of success or failure.
             // This prevents NullReferenceExceptions during rendering and filtering.
-            campaigns ??= new List<DUPSS.Object.Campaign>();
-            roles ??= new List<DUPSS.Object.Role>();
-            staffUsers ??= new List<DUPSS.Object.User>();
+            campaigns ??= new List<Campaign>();
+            roles ??= new List<Role>();
+            staffUsers ??= new List<User>();
             // If campaigns is null due to an error, filteredCampaigns should also be empty
-            filteredCampaigns = new List<DUPSS.Object.Campaign>();
+            filteredCampaigns = new List<Campaign>();
 
             // Always call FilterAndSortCampaigns to set initial filtered list.
             // It's already robust against null 'campaigns' internally.
@@ -322,11 +319,11 @@
     {
         if (campaigns == null)
         {
-            filteredCampaigns = new List<DUPSS.Object.Campaign>();
+            filteredCampaigns = new List<Campaign>();
             return;
         }
 
-        IEnumerable<DUPSS.Object.Campaign> query = campaigns;
+        IEnumerable<Campaign> query = campaigns;
 
         // Apply Search Term (CampaignId, Title, Description, Staff Name)
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -442,7 +439,7 @@
     private void AddCampaign()
     {
         validationMessage = string.Empty; // Clear previous validation messages
-        campaignToEdit = new DUPSS.Object.Campaign
+        campaignToEdit = new Campaign
         {
             CampaignId = GenerateNextCampaignId(),
             Title = "",
@@ -462,7 +459,7 @@
         var campaign = campaigns?.FirstOrDefault(c => c.CampaignId == campaignId);
         if (campaign != null)
         {
-            campaignToEdit = new DUPSS.Object.Campaign
+            campaignToEdit = new Campaign
             {
                 CampaignId = campaign.CampaignId,
                 Title = campaign.Title,
@@ -526,16 +523,16 @@
         {
             if (isNewCampaign)
             {
-                await CampaignDAO.CreateAsync(campaignToEdit);
+                await CampaignApiService.CreateAsync(campaignToEdit);
                 Console.WriteLine($"Campaign '{campaignToEdit.Title}' created with ID: {campaignToEdit.CampaignId}");
             }
             else
             {
-                await CampaignDAO.UpdateAsync(campaignToEdit);
+                await CampaignApiService.UpdateAsync(campaignToEdit);
                 Console.WriteLine($"Campaign '{campaignToEdit.Title}' updated.");
             }
 
-            campaigns = await CampaignDAO.GetAllAsync(); // Re-fetch all campaigns
+            campaigns = await CampaignApiService.GetAllAsync(); // Re-fetch all campaigns
             // Recalculate duration for updated/new campaigns
             if (campaigns != null)
             {
@@ -561,7 +558,7 @@
     private void CancelEdit()
     {
         validationMessage = string.Empty; // Clear validation message on cancel
-        campaignToEdit = new DUPSS.Object.Campaign
+        campaignToEdit = new Campaign
         {
             CampaignId = "",
             Title = "",
@@ -588,11 +585,11 @@
         {
             try
             {
-                var success = await CampaignDAO.DeleteAsync(campaignId);
+                var success = await CampaignApiService.DeleteAsync(campaignId);
                 if (success)
                 {
                     Console.WriteLine($"Campaign '{campaignToDelete.Title}' (ID: {campaignId}) deleted successfully.");
-                    campaigns = await CampaignDAO.GetAllAsync(); // Re-fetch all campaigns
+                    campaigns = await CampaignApiService.GetAllAsync(); // Re-fetch all campaigns
                     // Recalculate duration for remaining campaigns
                     if (campaigns != null)
                     {

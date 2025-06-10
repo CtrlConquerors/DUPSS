@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36109.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUPSS.Web", "DUPSS.Web\DUPSS.Web.csproj", "{0E31C7F3-1414-4CA8-9311-A39FC4F4EF01}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUPSS.API", "DUPSS.API\DUPSS.API.csproj", "{B01782D9-56A2-40D3-B3E3-62025DE07015}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUPSS.Web", "DUPSS.Web\DUPSS.Web.csproj", "{C11FE3B9-EF72-485F-ACF0-75EDCCEA4866}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,14 +13,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0E31C7F3-1414-4CA8-9311-A39FC4F4EF01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0E31C7F3-1414-4CA8-9311-A39FC4F4EF01}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0E31C7F3-1414-4CA8-9311-A39FC4F4EF01}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0E31C7F3-1414-4CA8-9311-A39FC4F4EF01}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B01782D9-56A2-40D3-B3E3-62025DE07015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B01782D9-56A2-40D3-B3E3-62025DE07015}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B01782D9-56A2-40D3-B3E3-62025DE07015}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B01782D9-56A2-40D3-B3E3-62025DE07015}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C11FE3B9-EF72-485F-ACF0-75EDCCEA4866}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C11FE3B9-EF72-485F-ACF0-75EDCCEA4866}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C11FE3B9-EF72-485F-ACF0-75EDCCEA4866}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C11FE3B9-EF72-485F-ACF0-75EDCCEA4866}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

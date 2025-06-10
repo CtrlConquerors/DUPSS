@@ -23,6 +23,10 @@ builder.Services.AddHttpClient<UserApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
+builder.Services.AddHttpClient<CampaignApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
 
 
 

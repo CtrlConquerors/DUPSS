@@ -12,9 +12,10 @@ namespace DUPSS.Web.Components.Service
         public UserApiService(HttpClient httpClient)
             : base(httpClient, "api/Users")
         {
+            _httpClient = httpClient;
         }
 
-        public async Task<User?> CreateRequestAsync(CreateUserRequest user)
+        public async Task<User?> CreateAsync(CreateUserRequest user)
         {
             var response = await _httpClient.PostAsJsonAsync($"api/Users/Create", user);
             if (response.IsSuccessStatusCode)

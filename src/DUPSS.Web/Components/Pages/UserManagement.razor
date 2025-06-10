@@ -5,7 +5,6 @@
 @inject RoleApiService RoleApiService
 @inject UserApiService UserApiService
 @inject IJSRuntime JS
-@rendermode InteractiveRender
 
 
         <div class="user-management-container">
@@ -326,12 +325,13 @@
 
         try
         {
-            CreateUserRequest createUserRequest = new CreateUserRequest
+
+            await UserApiService.CreateAsync(new CreateUserRequest
             {
                 User = newUser,
                 Password = newUserPassword
-            };
-            await UserApiService.CreateRequestAsync(createUserRequest);
+            });
+
             message = $"User {newUser.Username} created successfully.";
             showCreateForm = false;
             newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
@@ -345,7 +345,6 @@
         }
 
         currentPage = 1;
-        Console.WriteLine("Created user");
         StateHasChanged();
     }
 

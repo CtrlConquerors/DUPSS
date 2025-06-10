@@ -79,8 +79,6 @@ namespace DUPSS.API.Controllers
             try
             {
                 var updatedCampaign = await _campaignDAO.UpdateAsync(campaign);
-                if (updatedCampaign == null)
-                    return NotFound($"Campaign with ID {campaign.CampaignId} not found.");
                 return Ok(updatedCampaign);
             }
             catch (Npgsql.NpgsqlException ex)

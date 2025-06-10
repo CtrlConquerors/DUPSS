@@ -1,0 +1,34 @@
+﻿@page "/debug"
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthStateProvider
+
+<PageTitle>Debug Authentication State</PageTitle>
+<h3>Debug Authentication State</h3>
+
+@if (user == null)
+{
+    <p>Loading authentication state...</p>
+}
+else
+{
+    <p>Is Authenticated: @user.Identity.IsAuthenticated</p>
+    <p>Name: @user.Identity.Name</p>
+    <p>Role: @user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
+    <p>Claims:</p>
+    <ul>
+        @foreach (var claim in user.Claims)
+        {
+            <li>@claim.Type: @claim.Value</li>
+        }
+    </ul>
+}
+
+@code {
+    private ClaimsPrincipal? user;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        user = authState.User;
+    }
+}

@@ -6,6 +6,15 @@
 @inject UserApiService UserApiService
 @inject IJSRuntime JS
 
+<AuthorizeView Roles="AD,MA,ST">
+    <Authorized>
+        <div class="user-management-container">
+            <div class="header-section">
+                <div class="page-title">User Management</div>
+                <div class="actions">
+                    <button class="create" @onclick="ShowCreateUserForm">Create New User</button>
+                </div>
+            </div>
 
         <div class="user-management-container">
             <div class="header-section">
@@ -446,3 +455,4 @@
         StateHasChanged();
     }
 }
+

@@ -97,6 +97,7 @@
             courses = await CourseApiService.GetAllAsync();
             Console.WriteLine($"Loaded {courses?.Count} courses.");
             hasError = false;
+            Console.WriteLine($"Courses loaded: {courses?.Count ?? 0}");
         }
         catch (Exception ex)
         {

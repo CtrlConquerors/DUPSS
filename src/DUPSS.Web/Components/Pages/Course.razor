@@ -127,58 +127,5 @@
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
     }
-    private async Task GetCourseById(string courseId)
-    {
-        var course = await CourseApiService.GetByIdAsync(courseId);
-        if (course != null)
-        {
-            await JSRuntime.InvokeVoidAsync("alert", $"Course: {course.CourseName}");
-        }
-        else
-        {
-            await JSRuntime.InvokeVoidAsync("alert", "Course not found.");
-        }
-    }
-
-    // private async Task CreateCourse()
-    // {
-    //     var newCourse = new Course
-    //     {
-    //         CourseId = Guid.NewGuid().ToString(),
-    //         CourseName = "New Course " + DateTime.Now.Ticks,
-    //         CourseType = "Online",
-    //         TopicId = "1", 
-    //     };
-    //     var created = await CourseApiService.CreateAsync(newCourse);
-    //     if (created != null)
-    //     {
-    //         courses?.Add(created);
-    //         StateHasChanged();
-    //     }
-    // }
-
-    private async Task UpdateCourse(DUPSS.API.Models.Objects.Course course)
-    {
-        course.CourseName += " (Updated)";
-        var updated = await CourseApiService.UpdateAsync(course);
-        if (updated != null)
-        {
-            var idx = courses?.FindIndex(c => c.CourseId == updated.CourseId) ?? -1;
-            if (idx >= 0 && courses != null)
-            {
-                courses[idx] = updated;
-                StateHasChanged();
-            }
-        }
-    }
-
-    private async Task DeleteCourse(string courseId)
-    {
-        var success = await CourseApiService.DeleteAsync(courseId);
-        if (success && courses != null)
-        {
-            courses.RemoveAll(c => c.CourseId == courseId);
-            StateHasChanged();
-        }
-    }
+     
 }

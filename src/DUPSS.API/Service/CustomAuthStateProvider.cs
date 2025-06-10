@@ -1,8 +1,6 @@
 ﻿using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Supabase;
 using System.Security.Claims;
 
 namespace DUPSS.API.Service

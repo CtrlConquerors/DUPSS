@@ -1,12 +1,11 @@
 ﻿@page "/CourseManagement"
+@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CourseApiService CourseApiService
 @inject CourseTopicApiService CourseTopicApiService
 @inject RoleApiService RoleApiService
 @inject UserApiService UserApiService
-@* @inject CourseTopicApiService CourseTopicApiService
-@inject UserApiService UserApiService *@
 
 @inject IJSRuntime JS // Used for the confirm dialog, but a custom modal is recommended.
 

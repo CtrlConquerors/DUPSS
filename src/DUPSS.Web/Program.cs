@@ -31,10 +31,7 @@ builder.Services.AddHttpClient<CampaignApiService>(client =>
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
 
-
-
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthStateProvider>();
 
 var app = builder.Build();
 
@@ -59,8 +56,6 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // Ensure static files are served
 app.UseAntiforgery();
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

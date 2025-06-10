@@ -1,7 +1,5 @@
-﻿using DUPSS.API.Controllers;
-using DUPSS.API.Models.Common;
+﻿using DUPSS.API.Models.Common;
 using DUPSS.API.Models.Objects;
-using System.Net.Http;
 
 namespace DUPSS.Web.Components.Service
 {

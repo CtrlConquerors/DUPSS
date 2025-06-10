@@ -1,6 +1,4 @@
-﻿using System.Net.Http.Json;
-
-namespace DUPSS.Web.Components.Service
+﻿namespace DUPSS.Web.Components.Service
 {
     public class GenericApiService<T> where T : class
     {

@@ -3,11 +3,9 @@ using DUPSS.API.Models.AccessLayer.DAOs;
 using DUPSS.API.Models.Common;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Supabase;
-using System.Security.Claims;
 
 namespace DUPSS.API.Controllers
 {

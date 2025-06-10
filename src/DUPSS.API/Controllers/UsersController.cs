@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.DAOs;
+using DUPSS.API.Models.Common;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Authorization;
@@ -134,9 +135,4 @@ namespace DUPSS.API.Controllers
         }
     }
 
-    public class CreateUserRequest
-    {
-        public required User User { get; set; }
-        public required string Password { get; set; }
-    }
 }

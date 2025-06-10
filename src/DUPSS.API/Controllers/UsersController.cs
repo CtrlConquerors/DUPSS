@@ -116,23 +116,6 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        [HttpGet("Current")]
-        public async Task<ActionResult<UserDTO>> GetCurrent()
-        {
-            var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userId))
-            {
-                return Unauthorized();
-            }
-
-            var user = await _userDAO.GetByIdAsync(userId);
-            if (user == null)
-            {
-                return NotFound();
-            }
-
-            return Ok(user);
-        }
     }
 
 }

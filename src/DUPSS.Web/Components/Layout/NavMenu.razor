@@ -2,6 +2,7 @@
 @inject NavigationManager NavManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 
 
 <nav class="navbar navbar-expand-lg">
@@ -19,15 +20,15 @@
         <div class="collapse navbar-collapse" id="topNavbar">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0 gap-4">
 
-                @* Temp *@
+                @* Temp
                 <AuthorizeView Roles="AD,MA,ST">
                     <Authorized>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/Management">Management</NavLink>
-                        </li>
+                        
                     </Authorized>
-                </AuthorizeView>
-
+                </AuthorizeView> *@
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="/Management">Management</NavLink>
+                </li>
 
                 <li class="nav-item">
                     <NavLink class="nav-link" href="/aboutUs">About Us</NavLink>
@@ -52,7 +53,7 @@
                     <NavLink class="nav-link" href="/assessment">Assessment</NavLink>
                 </li>
                 @* -----------AVARTAR AND OVERLAY-------------- *@
-                @if (isAuthenticated)
+                @* @if (isAuthenticated)
                 {
                     <li class="nav-item d-flex align-items-center position-relative">
                         <img src="images/avatar2.png" class="avatar-img" alt="User Avatar" title="@userName" @onclick="ToggleOverlay" />
@@ -65,9 +66,8 @@
                             </div>
                         </div>
                     </li>
-                }
-                else
-                {
+                } *@
+               
                     <li class="nav-item">
                         <NavLink class="get-started-btn" href="/login">
                             <span class="get-started-text">Get Started</span>
@@ -76,13 +76,13 @@
                             </span>
                         </NavLink>
                     </li>
-                }
+                
             </ul>
         </div>
     </div>
 </nav>
 
-@code {
+@* @code {
     private string? roleId;
     private bool isAuthenticated;
     private string userName = "";
@@ -125,6 +125,5 @@
     {
         showOverlay = !showOverlay;
     }
-}
-
+} *@
 

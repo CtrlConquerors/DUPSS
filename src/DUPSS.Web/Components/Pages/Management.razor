@@ -1,23 +1,17 @@
-﻿@* Management.razor *@
-@page "/Management"
-@inject NavigationManager NavManager
-@inject AuthenticationStateProvider AuthenticationStateProvider
+﻿@page "/Management"
+
 <h3>Management</h3>
-<AuthorizeView Roles="AD,MA,ST">
-    <Authorized>
-        <li class="nav-item">
+
+
+                <li class="nav-item">
             <NavLink class="nav-link" href="/CampaignManagement">Campaign Management</NavLink>
-        </li>
-        <li class="nav-item">
+                </li>
+
+                <li class="nav-item">
             <NavLink class="nav-link" href="/CourseManagement">Course Management</NavLink>
-        </li>
-        <li class="nav-item">
+                </li>
+
+                <li class="nav-item">
             <NavLink class="nav-link" href="/UserManagement">User Management</NavLink>
-        </li>
-
-    </Authorized>
-</AuthorizeView>
-
-@code {
-
-}
+                </li>
+  

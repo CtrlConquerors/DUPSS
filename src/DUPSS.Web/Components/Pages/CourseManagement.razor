@@ -1,28 +1,28 @@
 ﻿@page "/CourseManagement"
-@inject DUPSS.AccessLayer.Interfaces.ICourseDAO CourseDAO
-@inject DUPSS.AccessLayer.Interfaces.ICourseTopicDAO CourseTopicDAO
-@inject DUPSS.AccessLayer.Interfaces.IUserDAO UserDAO
-@inject DUPSS.AccessLayer.Interfaces.IRoleDAO RoleDAO
+@using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
+@inject CourseApiService CourseApiService
+@inject CourseTopicApiService CourseTopicApiService
+@inject RoleApiService RoleApiService
+@inject UserApiService UserApiService
+@* @inject CourseTopicApiService CourseTopicApiService
+@inject UserApiService UserApiService *@
+
 @inject IJSRuntime JS // Used for the confirm dialog, but a custom modal is recommended.
 
 @* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
 @*Example below*@
 
-<AuthorizeView Roles="AD,MA,ST">
-    <Authorized>
         <div class="course-management-container">
             <div class="header-section">
                 <h1 class="page-title">Course Management</h1>
-                <AuthorizeView Roles="AD,MA" Context="InnerContext">
-                    <Authorized>
+                
                         <div class="actions">
                     <button class="add-course-button" @onclick="AddCourse">
                         <i class="bi bi-plus-circle"></i> ADD COURSE
                     </button>
                         </div>
-                    </Authorized>
-                </AuthorizeView>
+               
                 
             </div>
             <div class="filter-sort-section">
@@ -125,8 +125,7 @@
                                     <td>@course.Topic?.TopicName</td>
                                     <td>@course.Staff?.Username</td>
                                     <td>
-                                    <AuthorizeView Roles="AD,MA" Context="EditDelete">
-                                        <Authorized>
+                                    
                                         <div class="action-buttons">
                                             <button class="btn btn-sm btn-primary me-2" @onclick="() => EditCourse(course.CourseId)">
                                                 <i class="bi bi-three-dots-vertical"></i>
@@ -135,8 +134,7 @@
                                                 <i class="bi bi-trash3-fill"></i>
                                             </button>
                                         </div>
-                                        </Authorized>
-                                    </AuthorizeView>
+                                       
                                     </td>
                                 </tr>
                                 index++;
@@ -239,17 +237,14 @@
             }
                 
         </div>
-    </Authorized>
-    <NotAuthorized>
-        <p>You are not authorized to access this page.</p>
-    </NotAuthorized>
-</AuthorizeView>
+ 
+        @* <p>You are not authorized to access this page.</p> *@
 
 @code {
-    private List<DUPSS.Object.Course>? courses;
-    private List<DUPSS.Object.CourseTopic>? topics;
-    private List<DUPSS.Object.User>? staffUsers; // To hold users with 'Staff' role
-    private List<DUPSS.Object.Role>? roles;
+    private List<DUPSS.API.Models.Objects.Course>? courses;
+    private List<DUPSS.API.Models.Objects.CourseTopic>? topics;
+    private List<DUPSS.API.Models.Objects.User>? staffUsers; // To hold users with 'Staff' role
+    private List<DUPSS.API.Models.Objects.Role>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -265,7 +260,7 @@
     private enum SortDirection { Ascending, Descending }
 
     // For Add/Edit Form
-    private DUPSS.Object.Course courseToEdit = new()
+    private DUPSS.API.Models.Objects.Course courseToEdit = new()
     {
         CourseId = "",
         CourseName = "",
@@ -281,12 +276,12 @@
     // Removed: showEditTopicInput, editingTopicId, editedTopicName
 
     // FIXED: Initialize filteredCourses to an empty list to prevent null reference errors
-    private List<DUPSS.Object.Course> filteredCourses = new List<DUPSS.Object.Course>();
+    private List<DUPSS.API.Models.Objects.Course> filteredCourses = new List<DUPSS.API.Models.Objects.Course>();
 
-    private IEnumerable<DUPSS.Object.Course> PaginatedCourses =>
+    private IEnumerable<DUPSS.API.Models.Objects.Course> PaginatedCourses =>
         filteredCourses?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.Object.Course>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.API.Models.Objects.Course>();
 
     private int TotalPages => (int)Math.Ceiling((filteredCourses?.Count ?? 0) / (double)itemsPerPage);
 
@@ -306,10 +301,10 @@
     {
         try
         {
-            courses = await CourseDAO.GetAllAsync();
-            topics = await CourseTopicDAO.GetAllAsync();
-            roles = await RoleDAO.GetAllAsync();
-            var allUsers = await UserDAO.GetAllAsync();
+            courses = await CourseApiService.GetAllAsync();
+            topics = await CourseTopicApiService.GetAllAsync();
+            roles = await RoleApiService.GetAllAsync();
+            var allUsers = await UserApiService.GetAllAsync();
 
             var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
@@ -320,12 +315,12 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
-            courses = new List<DUPSS.Object.Course>();
+            courses = new List<DUPSS.API.Models.Objects.Course>();
             // Ensure filteredCourses is also initialized in case of error
-            filteredCourses = new List<DUPSS.Object.Course>();
-            topics = new List<DUPSS.Object.CourseTopic>();
-            staffUsers = new List<DUPSS.Object.User>();
-            roles = new List<DUPSS.Object.Role>();
+            filteredCourses = new List<DUPSS.API.Models.Objects.Course>();
+            topics = new List<DUPSS.API.Models.Objects.CourseTopic>();
+            staffUsers = new List<DUPSS.API.Models.Objects.User>();
+            roles = new List<DUPSS.API.Models.Objects.Role>();
             hasError = true;
         }
     }
@@ -335,11 +330,11 @@
     {
         if (courses == null)
         {
-            filteredCourses = new List<DUPSS.Object.Course>(); // Ensure it's not null even if courses is null
+            filteredCourses = new List<DUPSS.API.Models.Objects.Course>(); // Ensure it's not null even if courses is null
             return;
         }
 
-        IEnumerable<DUPSS.Object.Course> query = courses;
+        IEnumerable<DUPSS.API.Models.Objects.Course> query = courses;
 
         // Apply Search Term (Course Name, Topic Name, Staff Name, Course ID)
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -467,7 +462,7 @@
         // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name
         // Removed: editedTopicName = string.Empty;
-        courseToEdit = new DUPSS.Object.Course
+        courseToEdit = new DUPSS.API.Models.Objects.Course
         {
             CourseId = GenerateNextCourseId(),
             CourseName = "",
@@ -489,7 +484,7 @@
         var course = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (course != null)
         {
-            courseToEdit = new DUPSS.Object.Course
+            courseToEdit = new DUPSS.API.Models.Objects.Course
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
@@ -555,15 +550,15 @@
         {
             try
             {
-                var success = await CourseTopicDAO.DeleteAsync(topicIdToDelete);
+                var success = await CourseTopicApiService.DeleteAsync(topicIdToDelete);
                 if (success)
                 {
                     Console.WriteLine($"Topic '{topic.TopicName}' (ID: {topicIdToDelete}) deleted successfully.");
                     validationMessage = string.Empty; // Clear message on success
 
                     // Re-fetch topics and courses to update UI
-                    topics = await CourseTopicDAO.GetAllAsync();
-                    courses = await CourseDAO.GetAllAsync(); // Courses might have had this topic, so refresh all.
+                    topics = await CourseTopicApiService.GetAllAsync();
+                    courses = await CourseApiService.GetAllAsync(); // Courses might have had this topic, so refresh all.
                     FilterAndSortCourses(); // Re-apply filters and sort
 
                     // If the deleted topic was the one currently selected in the form, clear it
@@ -614,11 +609,11 @@
             {
                 // Generate new topic ID
                 string newTopicId = GenerateNextTopicId();
-                var newTopic = new DUPSS.Object.CourseTopic { TopicId = newTopicId, TopicName = newTopicName };
-                await CourseTopicDAO.CreateAsync(newTopic);
+                var newTopic = new DUPSS.API.Models.Objects.CourseTopic { TopicId = newTopicId, TopicName = newTopicName };
+                await CourseTopicApiService.CreateAsync(newTopic);
                 courseToEdit.TopicId = newTopic.TopicId; // Set the new topic as selected for the course
                 // Re-fetch topics to update dropdown for next time, and clear the new topic input state
-                topics = await CourseTopicDAO.GetAllAsync();
+                topics = await CourseTopicApiService.GetAllAsync();
                 showNewTopicInput = false; // Revert to dropdown after successful new topic creation
                 newTopicName = string.Empty; // Clear the input field
             }
@@ -652,16 +647,16 @@
         {
             if (isNewCourse)
             {
-                await CourseDAO.CreateAsync(courseToEdit);
+                await CourseApiService.CreateAsync(courseToEdit);
                 Console.WriteLine($"Course '{courseToEdit.CourseName}' created with ID: {courseToEdit.CourseId}");
             }
             else
             {
-                await CourseDAO.UpdateAsync(courseToEdit);
+                await CourseApiService.UpdateAsync(courseToEdit);
                 Console.WriteLine($"Course '{courseToEdit.CourseName}' updated.");
             }
 
-            courses = await CourseDAO.GetAllAsync();
+            courses = await CourseApiService.GetAllAsync();
             FilterAndSortCourses(); // Re-apply all logic after save
             showEditForm = false;
             GoToPage(1);
@@ -680,7 +675,7 @@
         // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name on cancel
         // Removed: editedTopicName = string.Empty;
-        courseToEdit = new DUPSS.Object.Course
+        courseToEdit = new DUPSS.API.Models.Objects.Course
         {
             CourseId = "",
             CourseName = "",
@@ -705,11 +700,11 @@
         {
             try
             {
-                var success = await CourseDAO.DeleteAsync(courseId);
+                var success = await CourseApiService.DeleteAsync(courseId);
                 if (success)
                 {
                     Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseId}) deleted successfully.");
-                    courses = await CourseDAO.GetAllAsync();
+                    courses = await CourseApiService.GetAllAsync();
                     FilterAndSortCourses(); // Re-apply all logic after delete
                     GoToPage(1);
                 }

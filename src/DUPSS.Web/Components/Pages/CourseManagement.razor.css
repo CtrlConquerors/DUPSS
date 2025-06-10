@@ -333,6 +333,26 @@
     vertical-align: middle; /* Align with text */
     box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle glow */
 }
+.offline-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: lightgrey; 
+    border-radius: 50%; /* Make it a circle */
+    margin-right: 5px; /* Space before text */
+    vertical-align: middle; /* Align with text */
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle glow */
+}
+.hybrid-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: blue;
+    border-radius: 50%; /* Make it a circle */
+    margin-right: 5px; /* Space before text */
+    vertical-align: middle; /* Align with text */
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle glow */
+}
 
 
 /* Loading, Error, and No Data States */

@@ -1,10 +1,7 @@
-﻿using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.AccessLayer.Interfaces;
+﻿using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace DUPSS.API.Models.AccessLayer.DAOs
 {

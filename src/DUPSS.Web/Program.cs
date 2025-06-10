@@ -11,6 +11,18 @@ builder.Services.AddHttpClient<CourseApiService>(client =>
 {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
+builder.Services.AddHttpClient<CourseTopicApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
+builder.Services.AddHttpClient<RoleApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
+builder.Services.AddHttpClient<UserApiService>(client =>
+{
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
 
 
 

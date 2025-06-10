@@ -2,6 +2,9 @@
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CourseApiService CourseApiService
+@inject CourseTopicApiService CourseTopicApiService
+@inject RoleApiService RoleApiService
+@inject UserApiService UserApiService
 @* @inject CourseTopicApiService CourseTopicApiService
 @inject UserApiService UserApiService *@
 
@@ -235,7 +238,7 @@
                 
         </div>
  
-        <p>You are not authorized to access this page.</p>
+        @* <p>You are not authorized to access this page.</p> *@
 
 @code {
     private List<DUPSS.API.Models.Objects.Course>? courses;
@@ -298,10 +301,10 @@
     {
         try
         {
-            courses = await CourseDAO.GetAllAsync();
-            topics = await CourseTopicDAO.GetAllAsync();
-            roles = await RoleDAO.GetAllAsync();
-            var allUsers = await UserDAO.GetAllAsync();
+            courses = await CourseApiService.GetAllAsync();
+            topics = await CourseTopicApiService.GetAllAsync();
+            roles = await RoleApiService.GetAllAsync();
+            var allUsers = await UserApiService.GetAllAsync();
 
             var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
@@ -547,15 +550,15 @@
         {
             try
             {
-                var success = await CourseTopicDAO.DeleteAsync(topicIdToDelete);
+                var success = await CourseTopicApiService.DeleteAsync(topicIdToDelete);
                 if (success)
                 {
                     Console.WriteLine($"Topic '{topic.TopicName}' (ID: {topicIdToDelete}) deleted successfully.");
                     validationMessage = string.Empty; // Clear message on success
 
                     // Re-fetch topics and courses to update UI
-                    topics = await CourseTopicDAO.GetAllAsync();
-                    courses = await CourseDAO.GetAllAsync(); // Courses might have had this topic, so refresh all.
+                    topics = await CourseTopicApiService.GetAllAsync();
+                    courses = await CourseApiService.GetAllAsync(); // Courses might have had this topic, so refresh all.
                     FilterAndSortCourses(); // Re-apply filters and sort
 
                     // If the deleted topic was the one currently selected in the form, clear it
@@ -607,10 +610,10 @@
                 // Generate new topic ID
                 string newTopicId = GenerateNextTopicId();
                 var newTopic = new DUPSS.API.Models.Objects.CourseTopic { TopicId = newTopicId, TopicName = newTopicName };
-                await CourseTopicDAO.CreateAsync(newTopic);
+                await CourseTopicApiService.CreateAsync(newTopic);
                 courseToEdit.TopicId = newTopic.TopicId; // Set the new topic as selected for the course
                 // Re-fetch topics to update dropdown for next time, and clear the new topic input state
-                topics = await CourseTopicDAO.GetAllAsync();
+                topics = await CourseTopicApiService.GetAllAsync();
                 showNewTopicInput = false; // Revert to dropdown after successful new topic creation
                 newTopicName = string.Empty; // Clear the input field
             }
@@ -644,16 +647,16 @@
         {
             if (isNewCourse)
             {
-                await CourseDAO.CreateAsync(courseToEdit);
+                await CourseApiService.CreateAsync(courseToEdit);
                 Console.WriteLine($"Course '{courseToEdit.CourseName}' created with ID: {courseToEdit.CourseId}");
             }
             else
             {
-                await CourseDAO.UpdateAsync(courseToEdit);
+                await CourseApiService.UpdateAsync(courseToEdit);
                 Console.WriteLine($"Course '{courseToEdit.CourseName}' updated.");
             }
 
-            courses = await CourseDAO.GetAllAsync();
+            courses = await CourseApiService.GetAllAsync();
             FilterAndSortCourses(); // Re-apply all logic after save
             showEditForm = false;
             GoToPage(1);
@@ -697,11 +700,11 @@
         {
             try
             {
-                var success = await CourseDAO.DeleteAsync(courseId);
+                var success = await CourseApiService.DeleteAsync(courseId);
                 if (success)
                 {
                     Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseId}) deleted successfully.");
-                    courses = await CourseDAO.GetAllAsync();
+                    courses = await CourseApiService.GetAllAsync();
                     FilterAndSortCourses(); // Re-apply all logic after delete
                     GoToPage(1);
                 }

@@ -10,7 +10,6 @@ using System.Security.Claims;
 
 namespace DUPSS.API.Controllers
 {
-    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class UsersController : ControllerBase

@@ -1,3 +1,20 @@
+/*.navmenu-default-bg {
+    background-color: rgba(0,0,0,0.4);
+}
+
+.navmenu-course-bg {
+    background-color: #1e68ff;
+}
+
+.navmenu-campaign-bg {
+    background-color: #ff9800;
+}
+
+.navmenu-management-bg {
+    background-color: #4caf50;
+}
+*/
+
 .navbar-toggler {
     appearance: none;
     cursor: pointer;
@@ -20,7 +37,32 @@
     padding-bottom: 0;
     margin-bottom:-50px;
 }
+/*-----------hover effects for navbar---------------*/
+.nav-item ::deep .nav-link {
+    color: #666;
+    background: none;
+    border: none;
+    border-radius: 20px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    width: 100%;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1), text-decoration-color 0.2s;
+    font-size: 1.2rem;
+}
 
+    .nav-item ::deep .nav-link:hover {
+        background-color: #f0f0f0;
+        color: #1e68ff;
+        transform: translateY(-2px) scale(1.1);
+        box-shadow: 0 2px 8px rgba(30,104,255,0.08);
+        transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+        /* text-decoration: underline; */
+        /* text-decoration-thickness: 2px; */
+        /* text-underline-offset: 4px; */
+    }
 .container-fluid {
     height: 100%;
     display: flex;

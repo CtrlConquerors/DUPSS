@@ -2,8 +2,9 @@
 @inject NavigationManager NavManager
 @using System.Security.Claims
 @using Microsoft.AspNetCore.Components.Authorization
+@* @inject NavigationManager NavManager *@
 
-
+@* <nav class="navbar navbar-expand-lg @NavMenuBackgroundClass"> *@
 <nav class="navbar navbar-expand-lg">
     <div class="container-fluid">
         <a href="/" class="navbar-brand d-flex align-items-center" style="gap: 5px;">
@@ -87,7 +88,7 @@
         </div>
     </div>
 </nav>
-
+@* </nav> *@
 @* @code {
     private string? roleId;
     private bool isAuthenticated;
@@ -133,3 +134,32 @@
     }
 } *@
 
+
+
+@*------- Changing NavMenu color function ----------- *@
+@* @code {
+    private string? currentUri;
+
+    protected override void OnInitialized()
+    {
+        currentUri = NavManager.Uri;
+        NavManager.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
+    {
+        currentUri = e.Location;
+        StateHasChanged();
+    }
+
+    private string NavMenuBackgroundClass =>
+        currentUri?.Contains("/CourseManagement", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-course-bg"
+        : currentUri?.Contains("/CampaignManagement", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-campaign-bg"
+        : currentUri?.Contains("/Management", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-management-bg"
+        : "navmenu-default-bg";
+
+    public void Dispose()
+    {
+        NavManager.LocationChanged -= OnLocationChanged;
+    }
+} *@

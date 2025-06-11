@@ -182,8 +182,14 @@ body {
     border-radius: 20px;
     padding: 10px;
     width: 800px;
+    transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
 }
-
+    .card:hover {
+        transform: translateY(-6px) scale(1.03);
+        box-shadow: 0 8px 32px rgba(30, 96, 255, 0.15), 0 1.5px 6px rgba(0,0,0,0.08);
+        transition: transform 0.4s cubic-bezier(.4,2,.6,1), box-shadow 0.4s cubic-bezier(.4,2,.6,1);
+        cursor: pointer;
+    }
 .badge {
     border-radius: 20px;
 }
@@ -191,16 +197,23 @@ body {
 /* --- Hero Section Styling --- */
 .hero-section {
     position: relative;
-    width: 100%;
+    width: 99.3vw;
+    margin-left:-7px;
+    margin-right:-7px;
+    max-width: none;
+    left: 50%;
+    right: 50%;
+    transform: translateX(-50%);
     height: 500px;
-    background: url('/images/banner1.png') no-repeat top center / cover;
+    background: url('/images/test.gif') no-repeat  center / cover;
+    image-rendering: auto;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     color: white;
     overflow: hidden;
     margin-bottom: 30px;
-    border-radius: 30px;
+    border-radius: 0; /* Remove border-radius for true edge-to-edge */
 }
 
 

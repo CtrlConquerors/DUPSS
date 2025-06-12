@@ -17,7 +17,7 @@
     <div class="filter-sort-section">
         <div class="search-input-container">
             <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers"/>
+            @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers"/>
         </div>
         <div class="filter-dropdown-container">
             <select class="form-select" @onchange="OnRoleFilterChanged">
@@ -47,50 +47,7 @@
         </div>
     </div>
 
-    @if (showCreateForm)
-    {
-        <div class="edit-form-card">
-            <h5>Create New User</h5>
-            <div class="mb-3">
-                <label class="form-label">Username <span class="text-danger">*</span></label>
-                <input class="form-control" @bind="newUser.Username"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Email <span class="text-danger">*</span></label>
-                <input class="form-control" type="email" @bind="newUser.Email"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Password <span class="text-danger">*</span></label>
-                <input class="form-control" type="password" @bind="newUserPassword"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Phone Number</label>
-                <input class="form-control" @bind="newUser.PhoneNumber"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Date of Birth</label>
-                <input type="date" class="form-control" @bind="newUser.DoB"/>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Role <span class="text-danger">*</span></label>
-                <select class="form-select" @bind="newUser.RoleId">
-                    <option value="">Select Role</option>
-                    @foreach (var role in availableRoleIds)
-                    {
-                        <option value="@role">@role</option>
-                    }
-                </select>
-            </div>
-            <div>
-                <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
-                <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
-            </div>
-            @if (!string.IsNullOrEmpty(message))
-            {
-                <div class="alert alert-info mt-3">@message</div>
-            }
-        </div>
-    }
+
 
     @if (users == null)
     {
@@ -105,40 +62,40 @@
         <div class="table-container">
             <table class="user-table">
                 <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Username</th>
-                    <th>Email</th>
-                    <th>Phone Number</th>
-                    <th>Date of Birth</th>
-                    <th>Role</th>
-                    <th>Action</th>
-                </tr>
+                    <tr>
+                        <th>No</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Date of Birth</th>
+                        <th>Role</th>
+                        <th>Action</th>
+                    </tr>
                 </thead>
                 <tbody>
-                @{
-                    var index = (currentPage - 1) * itemsPerPage + 1;
-                }
-                @foreach (var user in PaginatedUsers)
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@user.Username</td>
-                        <td>@user.Email</td>
-                        <td>@user.PhoneNumber</td>
-                        <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
-                        <td>@user.Role?.RoleName</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i
+                    @{
+                        var index = (currentPage - 1) * itemsPerPage + 1;
+                    }
+                    @foreach (var user in PaginatedUsers)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@user.Username</td>
+                            <td>@user.Email</td>
+                            <td>@user.PhoneNumber</td>
+                            <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
+                            <td>@user.Role?.RoleName</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i
                                         class="bi bi-three-dots-vertical"></i></button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i
                                         class="bi bi-trash3-fill"></i></button>
-                            </div>
-                        </td>
-                    </tr>
-                    index++;
-                }
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
                 </tbody>
             </table>
         </div>
@@ -147,11 +104,56 @@
             {
                 var pageIndex = i;
                 <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
+                @onclick="() => GoToPage(pageIndex)">
                     @pageIndex
                 </button>
             }
         </div>
+
+        @if (showCreateForm)
+        {
+            <div class="edit-form-card">
+                <h5>Create New User</h5>
+                <div class="mb-3">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    <input class="form-control" @bind="newUser.Username"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input class="form-control" type="email" @bind="newUser.Email"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input class="form-control" type="password" @bind="newUserPassword"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input class="form-control" @bind="newUser.PhoneNumber"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" @bind="newUser.DoB"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select class="form-select" @bind="newUser.RoleId">
+                        <option value="">Select Role</option>
+                        @foreach (var role in availableRoleIds)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
+                    <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                </div>
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <div class="alert alert-info mt-3">@message</div>
+                }
+            </div>
+        }
 
         @if (editingUserId != null && editingUser != null)
         {
@@ -308,6 +310,8 @@
         showCreateForm = true;
         newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
         newUserPassword = "";
+        editingUserId = null;
+        editingUser = null;
         message = null;
     }
 
@@ -373,6 +377,7 @@
             };
             message = null;
         }
+        showCreateForm = false;
     }
 
     private async Task SaveEdit()

@@ -27,6 +27,9 @@ builder.Services.AddHttpClient<CampaignApiService>(client => {
 builder.Services.AddHttpClient<BlogApiService>(client => {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
+builder.Services.AddHttpClient<AppointmentApiService>(client => {
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
 
 builder.Services.AddHttpContextAccessor();
 

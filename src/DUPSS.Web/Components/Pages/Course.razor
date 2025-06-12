@@ -31,16 +31,18 @@
     else
     {
         <div class="course-grid">
-            @foreach (var course in (showAllCourses ? courses : courses.Take(DefaultCourseDisplayLimit)))
+            @foreach (var course in showAllCourses ? courses : courses.Take(DefaultCourseDisplayLimit))
             {
                 <div class="course-card">
                     <div class="card-image">
-                        <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")" alt="Course Image" />
+                        <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")"
+                             alt="Course Image"/>
                     </div>
                     <div class="card-content">
                         <span class="course-category">@(course.Topic?.TopicName?.Trim() ?? "General")</span>
                         <h3 class="course-name">@course.CourseName</h3>
-                        <p class="course-type">Type: <span class="online-indicator" title="Online Course"></span>@course.CourseType</p>
+                        <p class="course-type">Type: <span class="online-indicator"
+                                                           title="Online Course"></span>@course.CourseType</p>
                     </div>
                 </div>
             }
@@ -67,7 +69,7 @@
 <footer class="main-footer mt-10">
     <div class="container footer-content-wrapper ">
         <div class="footer-section footer-logo-section col-1">
-            <img src="images/logo.png" alt="Logo" class="footer-logo" />
+            <img src="images/logo.png" alt="Logo" class="footer-logo"/>
             <p class="footer-copyright">Copyright © ALPHA</p>
         </div>
         <div class="footer-section footer-info-section text-center col-2">
@@ -77,7 +79,7 @@
             <p>Email: abcd@fgmail.com</p>
         </div>
 
-        
+
     </div>
 </footer>
 
@@ -128,5 +130,5 @@
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
     }
-     
+
 }

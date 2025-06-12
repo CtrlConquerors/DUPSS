@@ -27,6 +27,7 @@
     border: 1px solid rgba(255, 255, 255, 0.1);
     background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.55%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") no-repeat center/1.75rem rgba(255, 255, 255, 0.1);
 }
+
 .navbar {
     height: 100px;
     min-height: 100px;
@@ -35,8 +36,9 @@
     /* Optional: remove default Bootstrap padding if needed */
     padding-top: 0;
     padding-bottom: 0;
-    margin-bottom:-50px;
+    margin-bottom: -50px;
 }
+
 /*-----------hover effects for navbar---------------*/
 .nav-item ::deep .nav-link {
     color: #666;
@@ -49,20 +51,21 @@
     line-height: 3rem;
     width: 100%;
     text-decoration: none;
-    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.4,0,0.2,1), box-shadow 0.2s cubic-bezier(0.4,0,0.2,1), text-decoration-color 0.2s;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), text-decoration-color 0.2s;
     font-size: 1.2rem;
 }
 
-    .nav-item ::deep .nav-link:hover {
-        background-color: #f0f0f0;
-        color: #1e68ff;
-        transform: translateY(-2px) scale(1.1);
-        box-shadow: 0 2px 8px rgba(30,104,255,0.08);
-        transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
-        /* text-decoration: underline; */
-        /* text-decoration-thickness: 2px; */
-        /* text-underline-offset: 4px; */
-    }
+.nav-item ::deep .nav-link:hover {
+    background-color: #f0f0f0;
+    color: #1e68ff;
+    transform: translateY(-2px) scale(1.1);
+    box-shadow: 0 2px 8px rgba(30, 104, 255, 0.08);
+    transition: transform 0.25s ease-out, box-shadow 0.25s ease-out;
+    /* text-decoration: underline; */
+    /* text-decoration-thickness: 2px; */
+    /* text-underline-offset: 4px; */
+}
+
 .container-fluid {
     height: 100%;
     display: flex;
@@ -87,7 +90,7 @@
 
 .top-row {
     min-height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: rgba(0, 0, 0, 0.4);
 }
 
 .navbar-brand {
@@ -133,26 +136,26 @@
     display: flex;
 }
 
-    .search-bar input {
-        background: transparent;
-        border-radius: 1.5em;
-        box-shadow: 0 0 0 0.4em #171717 inset;
-        padding: 0.75em;
-        width: 3em;
-        height: 3em;
-        transform: translate(0.5em,0.5em) scale(0.5);
-        transform-origin: 100% 0;
-        transition: all 0.25s ease-out;
-    }
+.search-bar input {
+    background: transparent;
+    border-radius: 1.5em;
+    box-shadow: 0 0 0 0.4em #171717 inset;
+    padding: 0.75em;
+    width: 3em;
+    height: 3em;
+    transform: translate(0.5em, 0.5em) scale(0.5);
+    transform-origin: 100% 0;
+    transition: all 0.25s ease-out;
+}
 
-        .search-bar input:focus,
-        .search-bar input:valid {
-            width: 14em;
-            background: #fff;
-            border-radius: 0.375em 0 0 0.375em;
-            box-shadow: 0 0 0 0.1em #d9d9d9 inset;
-            transform: scale(1);
-        }
+.search-bar input:focus,
+.search-bar input:valid {
+    width: 14em;
+    background: #fff;
+    border-radius: 0.375em 0 0 0.375em;
+    box-shadow: 0 0 0 0.1em #d9d9d9 inset;
+    transform: scale(1);
+}
 
 .search-btn {
     background: #171717;
@@ -161,46 +164,46 @@
     width: 3em;
     height: 3em;
     position: relative;
-    transform: translate(0.25em,0.25em) rotate(45deg) scale(0.25,0.125);
+    transform: translate(0.25em, 0.25em) rotate(45deg) scale(0.25, 0.125);
     transform-origin: 0 50%;
     transition: all 0.25s ease-out;
     cursor: pointer;
 }
 
-    .search-btn span {
-        display: inline-block;
-        overflow: hidden;
-        width: 1px;
-        height: 1px;
-    }
+.search-btn span {
+    display: inline-block;
+    overflow: hidden;
+    width: 1px;
+    height: 1px;
+}
 
-    .search-btn:before,
-    .search-btn:after {
-        content: "";
-        display: block;
-        opacity: 0;
-        position: absolute;
-    }
+.search-btn:before,
+.search-btn:after {
+    content: "";
+    display: block;
+    opacity: 0;
+    position: absolute;
+}
 
-    .search-btn:before {
-        border-radius: 50%;
-        box-shadow: 0 0 0 0.2em #f1f1f1 inset;
-        top: 0.75em;
-        left: 0.75em;
-        width: 1.2em;
-        height: 1.2em;
-    }
+.search-btn:before {
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.2em #f1f1f1 inset;
+    top: 0.75em;
+    left: 0.75em;
+    width: 1.2em;
+    height: 1.2em;
+}
 
-    .search-btn:after {
-        background: #f1f1f1;
-        border-radius: 0 0.25em 0.25em 0;
-        top: 51%;
-        left: 51%;
-        width: 0.75em;
-        height: 0.25em;
-        transform: translate(0.2em,0) rotate(45deg);
-        transform-origin: 0 50%;
-    }
+.search-btn:after {
+    background: #f1f1f1;
+    border-radius: 0 0.25em 0.25em 0;
+    top: 51%;
+    left: 51%;
+    width: 0.75em;
+    height: 0.25em;
+    transform: translate(0.2em, 0) rotate(45deg);
+    transform-origin: 0 50%;
+}
 
 .search-bar input:focus + .search-btn,
 .search-bar input:valid + .search-btn {
@@ -209,54 +212,55 @@
     transform: scale(1);
 }
 
-    .search-bar input:focus + .search-btn:before,
-    .search-bar input:focus + .search-btn:after,
-    .search-bar input:valid + .search-btn:before,
-    .search-bar input:valid + .search-btn:after {
-        opacity: 1;
-    }
+.search-bar input:focus + .search-btn:before,
+.search-bar input:focus + .search-btn:after,
+.search-bar input:valid + .search-btn:before,
+.search-bar input:valid + .search-btn:after {
+    opacity: 1;
+}
 
-    .search-bar input:focus + .search-btn:hover,
-    .search-bar input:valid + .search-btn:hover,
-    .search-bar input:valid:not(:focus) + .search-btn:focus {
-        background: #0c48db;
-    }
+.search-bar input:focus + .search-btn:hover,
+.search-bar input:valid + .search-btn:hover,
+.search-bar input:valid:not(:focus) + .search-btn:focus {
+    background: #0c48db;
+}
 
-    .search-bar input:focus + .search-btn:active,
-    .search-bar input:valid + .search-btn:active {
-        transform: translateY(1px);
-    }
+.search-bar input:focus + .search-btn:active,
+.search-bar input:valid + .search-btn:active {
+    transform: translateY(1px);
+}
+
 .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;
 }
 
-    .nav-item ::deep .nav-link {
-        color: #666;
-        background: none;
-        border: none;
-        border-radius: 20px;
-        height: 3rem;
-        display: flex;
-        align-items: center;
-        line-height: 3rem;
-        width: 100%;
-        text-decoration: none;
-        transition: background-color 0.2s ease, color 0.2s ease;
-        font-size: 1.2rem;
-    }
+.nav-item ::deep .nav-link {
+    color: #666;
+    background: none;
+    border: none;
+    border-radius: 20px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+    width: 100%;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease;
+    font-size: 1.2rem;
+}
 
-        .nav-item ::deep .nav-link:hover {
-            background-color: #f0f0f0;
-            color: #333;
-            border-radius: 40px;
-        }
+.nav-item ::deep .nav-link:hover {
+    background-color: #f0f0f0;
+    color: #333;
+    border-radius: 40px;
+}
 
-    .nav-item ::deep a.active {
-        background-color: transparent;
-        color: black !important;
-        font-weight: 600;
-    }
+.nav-item ::deep a.active {
+    background-color: transparent;
+    color: black !important;
+    font-weight: 600;
+}
 
 .nav-scrollable {
     display: none;
@@ -295,14 +299,15 @@
     border: none;
 }
 
-    ::deep .nav-item .get-started-btn:hover {
-        background-color: #0056e0;
-        color: white;
-    }
-    ::deep .nav-item .arrow-box:hover {
-        background-color: #0056e0;
-        color: white;
-    }
+::deep .nav-item .get-started-btn:hover {
+    background-color: #0056e0;
+    color: white;
+}
+
+::deep .nav-item .arrow-box:hover {
+    background-color: #0056e0;
+    color: white;
+}
 
 ::deep .nav-item .arrow-box:hover {
     background-color: #0056e0;
@@ -326,16 +331,17 @@
     height: 40px;
 }
 
-    ::deep .arrow-box i {
-        font-size: 1.8rem;
-        color: white;
-        margin-bottom: 20px;
-        font-weight: bold;
-    }
+::deep .arrow-box i {
+    font-size: 1.8rem;
+    color: white;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
 
 .badge {
     border-radius: 20px;
 }
+
 /*    avatar and overlay  styling   */
 .avatar-circle {
     width: 70px;
@@ -349,18 +355,18 @@
     font-weight: bold;
     font-size: 1.2rem;
     margin-left: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     user-select: none;
 }
 
-    .avatar-circle:hover {
-        background-color: #0056e0;
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-        transform: scale(1.07);
-        transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
-    }
+.avatar-circle:hover {
+    background-color: #0056e0;
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    transform: scale(1.07);
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
 
 .avatar-overlay {
     position: absolute;
@@ -369,12 +375,12 @@
     min-width: 220px;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
     z-index: 1000;
     padding: 0.5rem 0;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.35s cubic-bezier(0.4,0,0.2,1), visibility 0.35s;
+    transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s;
     pointer-events: none;
     margin-top: 20px;
 }
@@ -401,16 +407,16 @@
     border-radius: 50%;
     object-fit: cover;
     margin-left: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     cursor: pointer;
     user-select: none;
     transition: box-shadow 0.2s, transform 0.2s;
 }
 
-    .avatar-img:hover {
-        box-shadow: 0 4px 16px rgba(0,0,0,0.18);
-        transform: scale(1.07);
-    }
+.avatar-img:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+    transform: scale(1.07);
+}
 
 @keyframes fadeIn {
     from {
@@ -445,6 +451,6 @@
     text-decoration: none;
 }
 
-    ::deep .avatar-overlay-btn:hover {
-        background: #e0e0e0;
-    }
+::deep .avatar-overlay-btn:hover {
+    background: #e0e0e0;
+}

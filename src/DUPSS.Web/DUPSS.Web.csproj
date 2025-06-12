@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>2a3b1ba4-16cf-41fd-bc03-1a0856eaf224</UserSecretsId>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <UserSecretsId>2a3b1ba4-16cf-41fd-bc03-1a0856eaf224</UserSecretsId>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
+    <ItemGroup>
+        <Folder Include="wwwroot\images\"/>
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\DUPSS.API\DUPSS.API.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\DUPSS.API\DUPSS.API.csproj"/>
+    </ItemGroup>
 
 </Project>

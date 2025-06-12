@@ -12,27 +12,199 @@
 @* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
 @*Example below*@
 
-        <div class="course-management-container">
-            <div class="header-section">
-                <h1 class="page-title">Course Management</h1>
-                
-                        <div class="actions">
-                    <button class="add-course-button" @onclick="AddCourse">
-                        <i class="bi bi-plus-circle"></i> ADD COURSE
-                    </button>
-                        </div>
-               
-                
-            </div>
-            <div class="filter-sort-section">
-                <div class="search-input-container">
-                    <input type="text" class="form-control" placeholder="Search by Course, Topic, Staff, ID"
-                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCourses" />
-                </div>
+<div class="course-management-container">
+    <div class="header-section">
+        <h1 class="page-title">Course Management</h1>
 
-                <div class="filter-dropdown-container">
-                    <select class="form-select" @onchange="OnTopicFilterChanged">
-                        <option value="">All Topics</option>
+        <div class="actions">
+            <button class="add-course-button" @onclick="AddCourse">
+                <i class="bi bi-plus-circle"></i> ADD COURSE
+            </button>
+        </div>
+
+
+    </div>
+    <div class="filter-sort-section">
+        <div class="search-input-container">
+            <input type="text" class="form-control" placeholder="Search by Course, Topic, Staff, ID"
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCourses"/>
+        </div>
+
+        <div class="filter-dropdown-container">
+            <select class="form-select" @onchange="OnTopicFilterChanged">
+                <option value="">All Topics</option>
+                @if (topics != null)
+                {
+                    @foreach (var topic in topics)
+                    {
+                        <option value="@topic.TopicId">@topic.TopicName</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="filter-dropdown-container">
+            <select class="form-select" @onchange="OnStaffFilterChanged">
+                <option value="">All Staff</option>
+                @if (staffUsers != null)
+                {
+                    @foreach (var staff in staffUsers)
+                    {
+                        <option value="@staff.UserId">@staff.Username</option>
+                    }
+                }
+            </select>
+        </div>
+
+        @* NEW: Sort controls *@
+        <div class="sort-controls">
+            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
+                <option value="CourseId">Sort: Course ID</option>
+                <option value="CourseName">Sort: Course Name</option>
+                <option value="TopicName">Sort: Topic Name</option>
+                <option value="StaffName">Sort: Staff Name</option>
+            </select>
+            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                @if (sortDirection == SortDirection.Ascending)
+                {
+                    <i class="bi bi-sort-alpha-down"></i>
+                }
+                else
+                {
+                    <i class="bi bi-sort-alpha-down-alt"></i>
+                }
+            </button>
+        </div>
+    </div>
+
+    @if (courses == null || topics == null || staffUsers == null || roles == null)
+    {
+        <div class="loading-indicator">Loading courses and related data...</div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">Error loading data. Please try again later.</div>
+    }
+    else if (!filteredCourses.Any())
+    {
+        <div class="no-data-message">No courses found matching your criteria.</div>
+    }
+    else
+    {
+        <div class="table-container">
+            <table class="course-table">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Course ID</th>
+                    <th>Course Name</th>
+                    <th>Course Type</th>
+                    <th>Topic Name</th>
+                    <th>Staff Name</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    var index = (currentPage - 1) * itemsPerPage + 1;
+                }
+                @foreach (var course in PaginatedCourses)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@course.CourseId</td>
+                        <td>@course.CourseName</td>
+                        <td>
+                            @if (course.CourseType?.Equals("Online", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                <span class="online-indicator" title="Online Course"></span>
+                            }
+                            else if (course.CourseType?.Equals("Offline", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                <span class="offline-indicator" title="Offline Course"></span>
+                            }
+                            else if (course.CourseType?.Equals("Hybrid", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                <span class="hybrid-indicator" title="Hybrid Course"></span>
+                            }
+                            @course.CourseType
+                        </td>
+                        <td>@course.Topic?.TopicName</td>
+                        <td>@course.Staff?.Username</td>
+                        <td>
+
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary me-2"
+                                        @onclick="() => EditCourse(course.CourseId)">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteCourse(course.CourseId)">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </div>
+
+                        </td>
+                    </tr>
+                    index++;
+                }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center mt-3">
+            @for (var i = 1; i <= TotalPages; i++)
+            {
+                var pageIndex = i;
+                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                        @onclick="() => GoToPage(pageIndex)">
+                    @pageIndex
+                </button>
+            }
+        </div>
+    }
+
+
+    @if (showEditForm)
+    {
+        <div class="card p-3 my-4 edit-form-card">
+            <h5>@(isNewCourse ? "Add New Course" : "Edit Course: " + courseToEdit.CourseName)</h5>
+
+            @* Validation Message Display *@
+            @if (!string.IsNullOrEmpty(validationMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @validationMessage
+                </div>
+            }
+
+            <div class="mb-3">
+                <label class="form-label">Course Name</label>
+                <input class="form-control" @bind="courseToEdit.CourseName"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Course Type</label>
+                <select class="form-select" @bind="courseToEdit.CourseType">
+                    <option value="Online">Online</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="Offline">Offline</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Topic</label>
+                @* Conditional rendering for Topic input/select *@
+                @if (showNewTopicInput)
+                {
+                    <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name"/>
+                    <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New
+                        Topic
+                    </button>
+                }
+                else
+                {
+                    <select class="form-select" @bind="courseToEdit.TopicId">
+                        <option value="">Select Topic</option>
                         @if (topics != null)
                         {
                             @foreach (var topic in topics)
@@ -41,216 +213,49 @@
                             }
                         }
                     </select>
-                </div>
-
-                <div class="filter-dropdown-container">
-                    <select class="form-select" @onchange="OnStaffFilterChanged">
-                        <option value="">All Staff</option>
-                        @if (staffUsers != null)
+                    <div class="d-flex justify-content-between mt-2">
+                        <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
+                        @* Delete Topic button (visible if a topic is selected) *@
+                        @if (!string.IsNullOrWhiteSpace(courseToEdit.TopicId))
                         {
-                            @foreach (var staff in staffUsers)
-                            {
-                                <option value="@staff.UserId">@staff.Username</option>
-                            }
+                            <button class="btn btn-sm btn-outline-danger"
+                                    @onclick="() => DeleteTopic(courseToEdit.TopicId)">Delete Selected Topic
+                            </button>
                         }
-                    </select>
-                </div>
-
-                @* NEW: Sort controls *@
-                <div class="sort-controls">
-                    <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
-                        <option value="CourseId">Sort: Course ID</option>
-                        <option value="CourseName">Sort: Course Name</option>
-                        <option value="TopicName">Sort: Topic Name</option>
-                        <option value="StaffName">Sort: Staff Name</option>
-                    </select>
-                    <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                        @if (sortDirection == SortDirection.Ascending)
-                        {
-                            <i class="bi bi-sort-alpha-down"></i>
-                        }
-                        else
-                        {
-                            <i class="bi bi-sort-alpha-down-alt"></i>
-                        }
-                    </button>
-                </div>
+                    </div>
+                }
             </div>
 
-            @if (courses == null || topics == null || staffUsers == null || roles == null)
-            {
-                <div class="loading-indicator">Loading courses and related data...</div>
-            }
-            else if (hasError)
-            {
-                <div class="error-message">Error loading data. Please try again later.</div>
-            }
-            else if (!filteredCourses.Any())
-            {
-                <div class="no-data-message">No courses found matching your criteria.</div>
-            }
-            else
-            {
-                <div class="table-container">
-                    <table class="course-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Course ID</th>
-                                <th>Course Name</th>
-                                <th>Course Type</th>
-                                <th>Topic Name</th>
-                                <th>Staff Name</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int index = (currentPage - 1) * itemsPerPage + 1;
-                            }
-                            @foreach (var course in PaginatedCourses)
-                            {
-                                <tr>
-                                    <td>@index</td>
-                                    <td>@course.CourseId</td>
-                                    <td>@course.CourseName</td>
-                                    <td>
-                                        @if (course.CourseType?.Equals("Online", StringComparison.OrdinalIgnoreCase) == true)
-                                        {
-                                            <span class="online-indicator" title="Online Course"></span>
-                                        }
-                                        else if (course.CourseType?.Equals("Offline", StringComparison.OrdinalIgnoreCase) == true)
-                                {
-                                    <span class="offline-indicator" title="Offline Course"></span>
-                                }
-                                else if (course.CourseType?.Equals("Hybrid", StringComparison.OrdinalIgnoreCase) == true)
-                                {
-                                    <span class="hybrid-indicator" title="Hybrid Course"></span>
-                                }
-                                        @course.CourseType
-                                    </td>
-                                    <td>@course.Topic?.TopicName</td>
-                                    <td>@course.Staff?.Username</td>
-                                    <td>
-                                    
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-primary me-2" @onclick="() => EditCourse(course.CourseId)">
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteCourse(course.CourseId)">
-                                                <i class="bi bi-trash3-fill"></i>
-                                            </button>
-                                        </div>
-                                       
-                                    </td>
-                                </tr>
-                                index++;
-                            }
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="d-flex justify-content-center mt-3">
-                    @for (int i = 1; i <= TotalPages; i++)
+            <div class="mb-3">
+                <label class="form-label">Staff</label>
+                <select class="form-select" @bind="courseToEdit.StaffId">
+                    <option value="">Select Staff</option>
+                    @if (staffUsers != null)
                     {
-                        var pageIndex = i;
-                        <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                                @onclick="() => GoToPage(pageIndex)">
-                            @pageIndex
-                        </button>
-                    }
-                </div>
-            }
-            
-                   
-            @if (showEditForm)
-            {
-                <div class="card p-3 my-4 edit-form-card">
-                    <h5>@(isNewCourse ? "Add New Course" : "Edit Course: " + courseToEdit.CourseName)</h5>
-
-                    @* Validation Message Display *@
-                    @if (!string.IsNullOrEmpty(validationMessage))
-                    {
-                        <div class="alert alert-danger" role="alert">
-                            @validationMessage
-                        </div>
-                    }
-
-                    <div class="mb-3">
-                        <label class="form-label">Course Name</label>
-                        <input class="form-control" @bind="courseToEdit.CourseName" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Course Type</label>
-                        <select class="form-select" @bind="courseToEdit.CourseType">                           
-                            <option value="Online">Online</option>
-                            <option value="Hybrid">Hybrid</option>
-                            <option value="Offline">Offline</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Topic</label>
-                        @* Conditional rendering for Topic input/select *@
-                        @if (showNewTopicInput)
+                        @foreach (var staff in staffUsers)
                         {
-                            <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name" />
-                            <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New Topic</button>
+                            <option value="@staff.UserId">@staff.Username</option>
                         }
-                        else
-                        {
-                            <select class="form-select" @bind="courseToEdit.TopicId">
-                                <option value="">Select Topic</option>
-                                @if (topics != null)
-                                {
-                                    @foreach (var topic in topics)
-                                    {
-                                        <option value="@topic.TopicId">@topic.TopicName</option>
-                                    }
-                                }
-                            </select>
-                            <div class="d-flex justify-content-between mt-2">
-                                <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
-                                @* Delete Topic button (visible if a topic is selected) *@
-                                @if (!string.IsNullOrWhiteSpace(courseToEdit.TopicId))
-                                {
-                                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTopic(courseToEdit.TopicId)">Delete Selected Topic</button>
-                                }
-                            </div>
-                        }
-                    </div>
+                    }
+                </select>
+            </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Staff</label>
-                        <select class="form-select" @bind="courseToEdit.StaffId">
-                            <option value="">Select Staff</option>
-                            @if (staffUsers != null)
-                            {
-                                @foreach (var staff in staffUsers)
-                                {
-                                    <option value="@staff.UserId">@staff.Username</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div>
-                        <button class="btn btn-success me-2" @onclick="SaveCourse">Save</button>
-                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-                    </div>
-                </div>
-            }
-                
+            <div>
+                <button class="btn btn-success me-2" @onclick="SaveCourse">Save</button>
+                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+            </div>
         </div>
- 
-      
+    }
+
+</div>
+
+
 
 @code {
-    private List<DUPSS.API.Models.Objects.Course>? courses;
-    private List<DUPSS.API.Models.Objects.CourseTopic>? topics;
-    private List<DUPSS.API.Models.Objects.User>? staffUsers; // To hold users with 'Staff' role
-    private List<DUPSS.API.Models.Objects.Role>? roles;
+    private List<Course>? courses;
+    private List<CourseTopic>? topics;
+    private List<User>? staffUsers; // To hold users with 'Staff' role
+    private List<Role>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -266,7 +271,7 @@
     private enum SortDirection { Ascending, Descending }
 
     // For Add/Edit Form
-    private DUPSS.API.Models.Objects.Course courseToEdit = new()
+    private Course courseToEdit = new Course
     {
         CourseId = "",
         CourseName = "",
@@ -282,12 +287,12 @@
     // Removed: showEditTopicInput, editingTopicId, editedTopicName
 
     // FIXED: Initialize filteredCourses to an empty list to prevent null reference errors
-    private List<DUPSS.API.Models.Objects.Course> filteredCourses = new List<DUPSS.API.Models.Objects.Course>();
+    private List<Course> filteredCourses = new List<Course>();
 
-    private IEnumerable<DUPSS.API.Models.Objects.Course> PaginatedCourses =>
+    private IEnumerable<Course> PaginatedCourses =>
         filteredCourses?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.API.Models.Objects.Course>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<Course>();
 
     private int TotalPages => (int)Math.Ceiling((filteredCourses?.Count ?? 0) / (double)itemsPerPage);
 
@@ -321,12 +326,12 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
-            courses = new List<DUPSS.API.Models.Objects.Course>();
+            courses = new List<Course>();
             // Ensure filteredCourses is also initialized in case of error
-            filteredCourses = new List<DUPSS.API.Models.Objects.Course>();
-            topics = new List<DUPSS.API.Models.Objects.CourseTopic>();
-            staffUsers = new List<DUPSS.API.Models.Objects.User>();
-            roles = new List<DUPSS.API.Models.Objects.Role>();
+            filteredCourses = new List<Course>();
+            topics = new List<CourseTopic>();
+            staffUsers = new List<User>();
+            roles = new List<Role>();
             hasError = true;
         }
     }
@@ -336,16 +341,16 @@
     {
         if (courses == null)
         {
-            filteredCourses = new List<DUPSS.API.Models.Objects.Course>(); // Ensure it's not null even if courses is null
+            filteredCourses = new List<Course>(); // Ensure it's not null even if courses is null
             return;
         }
 
-        IEnumerable<DUPSS.API.Models.Objects.Course> query = courses;
+        IEnumerable<Course> query = courses;
 
         // Apply Search Term (Course Name, Topic Name, Staff Name, Course ID)
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            string lowerSearchTerm = searchTerm.ToLower();
+            var lowerSearchTerm = searchTerm.ToLower();
             query = query.Where(c =>
                 (c.CourseName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
                 (c.Topic?.TopicName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
@@ -371,23 +376,23 @@
         {
             case "CourseName":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.CourseName, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(c => c.CourseName, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.CourseName, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.CourseName, StringComparer.OrdinalIgnoreCase);
                 break;
             case "TopicName":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.Topic?.TopicName, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(c => c.Topic?.TopicName, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Topic?.TopicName, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Topic?.TopicName, StringComparer.OrdinalIgnoreCase);
                 break;
             case "StaffName":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase);
                 break;
             case "CourseId": // Sorting by CourseId
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.CourseId) :
-                        query.OrderByDescending(c => c.CourseId);
+                    query.OrderBy(c => c.CourseId) :
+                    query.OrderByDescending(c => c.CourseId);
                 break;
             default:
                 query = query.OrderBy(c => c.CourseId);
@@ -412,21 +417,20 @@
 
     private void ToggleSortDirection()
     {
-        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        sortDirection = sortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
         FilterAndSortCourses(); // Re-apply filter and sort with new direction
     }
 
     // Helper method to generate the next sequential CourseId
     private string GenerateNextCourseId()
     {
-        int maxIdNum = 0;
+        var maxIdNum = 0;
         if (courses != null && courses.Any())
         {
             // Find the maximum numeric part from existing CourseIds
             maxIdNum = courses
-                .Select(c =>
-                {
-                    if (c.CourseId != null && c.CourseId.StartsWith("C") && int.TryParse(c.CourseId.Substring(1), out int num))
+                .Select(c => {
+                    if (c.CourseId != null && c.CourseId.StartsWith("C") && int.TryParse(c.CourseId.Substring(1), out var num))
                     {
                         return num;
                     }
@@ -437,19 +441,18 @@
         }
 
         // Increment and format
-        return $"C{(maxIdNum + 1):D4}"; // D4 formats to 4 digits, e.g., 1 -> 0001
+        return $"C{maxIdNum + 1:D4}"; // D4 formats to 4 digits, e.g., 1 -> 0001
     }
 
     // NEW: Helper method to generate the next sequential TopicId (TP0000 format)
     private string GenerateNextTopicId()
     {
-        int maxIdNum = 0;
+        var maxIdNum = 0;
         if (topics != null && topics.Any())
         {
             maxIdNum = topics
-                .Select(t =>
-                {
-                    if (t.TopicId != null && t.TopicId.StartsWith("TP") && int.TryParse(t.TopicId.Substring(2), out int num))
+                .Select(t => {
+                    if (t.TopicId != null && t.TopicId.StartsWith("TP") && int.TryParse(t.TopicId.Substring(2), out var num))
                     {
                         return num;
                     }
@@ -458,7 +461,7 @@
                 .DefaultIfEmpty(0)
                 .Max();
         }
-        return $"TP{(maxIdNum + 1):D4}"; // D4 formats to 4 digits, e.g., 1 -> 0001
+        return $"TP{maxIdNum + 1:D4}"; // D4 formats to 4 digits, e.g., 1 -> 0001
     }
 
     private void AddCourse()
@@ -468,7 +471,7 @@
         // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name
         // Removed: editedTopicName = string.Empty;
-        courseToEdit = new DUPSS.API.Models.Objects.Course
+        courseToEdit = new Course
         {
             CourseId = GenerateNextCourseId(),
             CourseName = "",
@@ -490,7 +493,7 @@
         var course = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (course != null)
         {
-            courseToEdit = new DUPSS.API.Models.Objects.Course
+            courseToEdit = new Course
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
@@ -551,7 +554,7 @@
             return;
         }
 
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete topic '{topic.TopicName}' (ID: {topicIdToDelete})?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete topic '{topic.TopicName}' (ID: {topicIdToDelete})?");
         if (confirmed)
         {
             try
@@ -613,8 +616,8 @@
             try
             {
                 // Generate new topic ID
-                string newTopicId = GenerateNextTopicId();
-                var newTopic = new DUPSS.API.Models.Objects.CourseTopic { TopicId = newTopicId, TopicName = newTopicName };
+                var newTopicId = GenerateNextTopicId();
+                var newTopic = new CourseTopic { TopicId = newTopicId, TopicName = newTopicName };
                 await CourseTopicApiService.CreateAsync(newTopic);
                 courseToEdit.TopicId = newTopic.TopicId; // Set the new topic as selected for the course
                 // Re-fetch topics to update dropdown for next time, and clear the new topic input state
@@ -680,7 +683,7 @@
         // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name on cancel
         // Removed: editedTopicName = string.Empty;
-        courseToEdit = new DUPSS.API.Models.Objects.Course
+        courseToEdit = new Course
         {
             CourseId = "",
             CourseName = "",
@@ -700,7 +703,7 @@
             return;
         }
 
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete course '{courseToDelete.CourseName}' (ID: {courseId})?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete course '{courseToDelete.CourseName}' (ID: {courseId})?");
         if (confirmed)
         {
             try
@@ -719,9 +722,9 @@
                 }
             }
             catch (Exception ex)
-                {
-                    Console.WriteLine($"Error deleting course: {ex.Message}");
-                }
+            {
+                Console.WriteLine($"Error deleting course: {ex.Message}");
             }
         }
     }
+}

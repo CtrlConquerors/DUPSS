@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DUPSS.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    [ApiController, Route("api/[controller]")]
     public class CampaignsController : ControllerBase
     {
         private readonly CampaignDAO _campaignDAO;

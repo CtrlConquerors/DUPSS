@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DUPSS.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    [ApiController, Route("api/[controller]")]
     public class AssessmentsController : ControllerBase
     {
         private readonly AssessmentDAO _assessmentDAO;

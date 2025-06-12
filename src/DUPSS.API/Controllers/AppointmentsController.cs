@@ -6,8 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DUPSS.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    [ApiController, Route("api/[controller]")]
     public class AppointmentsController : ControllerBase
     {
         private readonly AppointmentDAO _appointmentDAO;

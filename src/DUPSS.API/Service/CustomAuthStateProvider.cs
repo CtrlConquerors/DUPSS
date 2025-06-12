@@ -56,10 +56,10 @@ namespace DUPSS.API.Service
             }
 
             var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
-            new Claim(ClaimTypes.Email, session.User.Email!)
-        };
+            {
+                new Claim(ClaimTypes.NameIdentifier, session.User.Id!),
+                new Claim(ClaimTypes.Email, session.User.Email!)
+            };
 
             await using var context = await _contextFactory.CreateDbContextAsync();
             var user = await context.User.FirstOrDefaultAsync(u => u.UserId == session.User.Id);

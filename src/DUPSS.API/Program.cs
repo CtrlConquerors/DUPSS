@@ -21,8 +21,7 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
 
 // Add services to the container
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents(options =>
-    {
+    .AddInteractiveServerComponents(options => {
         options.DetailedErrors = true;
     });
 
@@ -34,12 +33,10 @@ var supabaseKey = builder.Configuration["Supabase:AnonKey"]!;
 builder.Services.AddSingleton<Client>(sp => new Client(supabaseUrl, supabaseKey));
 
 // Add authentication services
-builder.Services.AddAuthentication(options =>
-{
+builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
+}).AddJwtBearer(options => {
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
@@ -74,20 +71,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddCors(options =>
-{
+builder.Services.AddCors(options => {
     options.AddPolicy("AllowBlazor", builder =>
         builder.WithOrigins("https://localhost:7084")
-               .AllowAnyMethod()
-               .AllowAnyHeader()
-               .AllowCredentials());
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 var app = builder.Build();
 
 try
 {
-    var supabase = app.Services.GetRequiredService<Supabase.Client>();
+    var supabase = app.Services.GetRequiredService<Client>();
     await supabase.InitializeAsync();
     Console.WriteLine("Supabase client initialized successfully.");
 }

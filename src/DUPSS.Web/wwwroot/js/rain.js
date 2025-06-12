@@ -7,6 +7,7 @@
         canvas.width = canvas.parentElement.offsetWidth;
         canvas.height = 120; // Adjust height as needed
     }
+
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 

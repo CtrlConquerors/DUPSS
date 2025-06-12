@@ -7,8 +7,7 @@ using Supabase;
 
 namespace DUPSS.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    [ApiController, Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly Client _supabaseClient;

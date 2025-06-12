@@ -3,222 +3,224 @@
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
 @inject UserApiService UserApiService
-@inject RoleApiService RoleApiService  
+@inject RoleApiService RoleApiService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
-        <div class="campaign-management-container">
-            <div class="header-section">
-                <h1 class="page-title">Campaign Management</h1>
-                <div class="actions">
-                    <button class="add-campaign-button" @onclick="AddCampaign">
-                        <i class="bi bi-plus-circle"></i> ADD CAMPAIGN
-                    </button>
-                </div>
-            </div>
+<div class="campaign-management-container">
+    <div class="header-section">
+        <h1 class="page-title">Campaign Management</h1>
+        <div class="actions">
+            <button class="add-campaign-button" @onclick="AddCampaign">
+                <i class="bi bi-plus-circle"></i> ADD CAMPAIGN
+            </button>
+        </div>
+    </div>
 
-            <div class="filter-sort-section">
-                <div class="search-input-container">
-                    <input type="text" class="form-control" placeholder="Search by ID, Title, Description, Staff"
-                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCampaigns" />
-                </div>
+    <div class="filter-sort-section">
+        <div class="search-input-container">
+            <input type="text" class="form-control" placeholder="Search by ID, Title, Description, Staff"
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCampaigns"/>
+        </div>
 
-                <div class="filter-dropdown-container">
-                    <select class="form-select" @onchange="OnStaffFilterChanged">
-                        <option value="">All Staff</option>
-                        @if (staffUsers != null)
-                        {
-                            @foreach (var staff in staffUsers)
-                            {
-                                <option value="@staff.UserId">@staff.Username</option>
-                            }
-                        }
-                    </select>
-                </div>
+        <div class="filter-dropdown-container">
+            <select class="form-select" @onchange="OnStaffFilterChanged">
+                <option value="">All Staff</option>
+                @if (staffUsers != null)
+                {
+                    @foreach (var staff in staffUsers)
+                    {
+                        <option value="@staff.UserId">@staff.Username</option>
+                    }
+                }
+            </select>
+        </div>
 
-                <div class="filter-dropdown-container">
-                    <select class="form-select" @onchange="OnStatusFilterChanged">
-                        <option value="">All Statuses</option>
-                        <option value="Active">Active</option>
-                        <option value="Planned">Planned</option>
-                        <option value="Completed">Completed</option>
-                    </select>
-                </div>
+        <div class="filter-dropdown-container">
+            <select class="form-select" @onchange="OnStatusFilterChanged">
+                <option value="">All Statuses</option>
+                <option value="Active">Active</option>
+                <option value="Planned">Planned</option>
+                <option value="Completed">Completed</option>
+            </select>
+        </div>
 
-                <div class="sort-controls">
-                    <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCampaigns">
-                        <option value="CampaignId">Sort by Campaign ID</option>
-                        <option value="Title">Sort by Title</option>
-                        <option value="StartDate">Sort by Start Date</option>
-                        <option value="EndDate">Sort by End Date</option>
-                        <option value="Duration">Sort by Duration</option> @* ADDED: Sort by Duration option *@
-                        <option value="Status">Sort by Status</option>
-                        <option value="StaffName">Sort by Staff Name</option>
-                    </select>
-                    <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                        @if (sortDirection == SortDirection.Ascending)
-                        {
-                            <i class="bi bi-sort-alpha-down"></i>
-                        }
-                        else
-                        {
-                            <i class="bi bi-sort-alpha-down-alt"></i>
-                        }
-                    </button>
-                </div>
-            </div>
+        <div class="sort-controls">
+            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCampaigns">
+                <option value="CampaignId">Sort by Campaign ID</option>
+                <option value="Title">Sort by Title</option>
+                <option value="StartDate">Sort by Start Date</option>
+                <option value="EndDate">Sort by End Date</option>
+                <option value="Duration">Sort by Duration</option> @* ADDED: Sort by Duration option *@
+                <option value="Status">Sort by Status</option>
+                <option value="StaffName">Sort by Staff Name</option>
+            </select>
+            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                @if (sortDirection == SortDirection.Ascending)
+                {
+                    <i class="bi bi-sort-alpha-down"></i>
+                }
+                else
+                {
+                    <i class="bi bi-sort-alpha-down-alt"></i>
+                }
+            </button>
+        </div>
+    </div>
 
-            @if (campaigns == null || staffUsers == null || roles == null)
-            {
-                <div class="loading-indicator">Loading campaigns and related data...</div>
-            }
-            else if (hasError)
-            {
-                <div class="error-message">Error loading data. Please try again later.</div>
-            }
-            else if (!filteredCampaigns.Any())
-            {
-                <div class="no-data-message">No campaigns found matching your criteria.</div>
-            }
-            else
-            {
-                <div class="table-container">
-                    <table class="campaign-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Campaign ID</th>
-                                <th>Title</th>
-                                <th>Description</th>
-                                <th>Start Date</th>
-                                <th>End Date</th>
-                                <th>Duration</th> @* NEW: Duration Column Header *@
-                                <th>Status</th>
-                                <th>Staff Name</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @{
-                                int index = (currentPage - 1) * itemsPerPage + 1;
-                            }
-                            @foreach (var campaign in PaginatedCampaigns)
-                            {
-                                <tr>
-                                    <td>@index</td>
-                                    <td>@campaign.CampaignId</td>
-                                    <td>@campaign.Title</td>
-                                    <td>@campaign.Description</td>
-                                    <td>@campaign.StartDate.ToString("yyyy-MM-dd")</td>
-                                    <td>@campaign.EndDate?.ToString("yyyy-MM-dd")</td>
-                                    @* Use campaign.Duration.TotalDays if you want fractional days, otherwise .Days *@
-                                    <td>@(campaign.Duration.HasValue ? $"{campaign.Duration.Value.Days} days" : "-")</td>
-                                    <td>
+    @if (campaigns == null || staffUsers == null || roles == null)
+    {
+        <div class="loading-indicator">Loading campaigns and related data...</div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">Error loading data. Please try again later.</div>
+    }
+    else if (!filteredCampaigns.Any())
+    {
+        <div class="no-data-message">No campaigns found matching your criteria.</div>
+    }
+    else
+    {
+        <div class="table-container">
+            <table class="campaign-table">
+                <thead>
+                <tr>
+                    <th>No</th>
+                    <th>Campaign ID</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Duration</th> @* NEW: Duration Column Header *@
+                    <th>Status</th>
+                    <th>Staff Name</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @{
+                    var index = (currentPage - 1) * itemsPerPage + 1;
+                }
+                @foreach (var campaign in PaginatedCampaigns)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@campaign.CampaignId</td>
+                        <td>@campaign.Title</td>
+                        <td>@campaign.Description</td>
+                        <td>@campaign.StartDate.ToString("yyyy-MM-dd")</td>
+                        <td>@campaign.EndDate?.ToString("yyyy-MM-dd")</td>
+                        @* Use campaign.Duration.TotalDays if you want fractional days, otherwise .Days *@
+                        <td>@(campaign.Duration.HasValue ? $"{campaign.Duration.Value.Days} days" : "-")</td>
+                        <td>
                                         <span class="status-badge @GetStatusClass(campaign.Status)">
                                             @campaign.Status
                                         </span>
-                                    </td>
-                                    <td>@campaign.Staff?.Username</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-primary me-2" @onclick="() => EditCampaign(campaign.CampaignId)">
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteCampaign(campaign.CampaignId)">
-                                                <i class="bi bi-trash3-fill"></i>
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                index++;
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                        </td>
+                        <td>@campaign.Staff?.Username</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary me-2"
+                                        @onclick="() => EditCampaign(campaign.CampaignId)">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger"
+                                        @onclick="() => DeleteCampaign(campaign.CampaignId)">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
+                </tbody>
+            </table>
+        </div>
 
-                <div class="d-flex justify-content-center mt-3">
-                    @for (int i = 1; i <= TotalPages; i++)
-                    {
-                        var pageIndex = i;
-                        <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                                @onclick="() => GoToPage(pageIndex)">
-                            @pageIndex
-                        </button>
-                    }
-                </div>
-            }
-
-            @if (showEditForm)
+        <div class="d-flex justify-content-center mt-3">
+            @for (var i = 1; i <= TotalPages; i++)
             {
-                <div class="card p-3 my-4 edit-form-card">
-                    <h5>@(isNewCampaign ? "Add New Campaign" : "Edit Campaign: " + campaignToEdit.Title)</h5>
-
-                    @if (!string.IsNullOrEmpty(validationMessage))
-                    {
-                        <div class="alert alert-danger" role="alert">
-                            @validationMessage
-                        </div>
-                    }
-
-                    <div class="mb-3">
-                        <label class="form-label">Title</label>
-                        <input class="form-control" @bind="campaignToEdit.Title" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" @bind="campaignToEdit.Description" rows="3"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" class="form-control" @bind="campaignToEdit.StartDate" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">End Date</label>
-                        <input type="date" class="form-control" @bind="campaignToEdit.EndDate" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" @bind="campaignToEdit.Status">
-                            <option value="">Select Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Planned">Planned</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Staff</label>
-                        <select class="form-select" @bind="campaignToEdit.StaffId">
-                            <option value="">Select Staff</option>
-                            @if (staffUsers != null)
-                            {
-                                @foreach (var staff in staffUsers)
-                                {
-                                    <option value="@staff.UserId">@staff.Username</option>
-                                }
-                            }
-                        </select>
-                    </div>
-
-                    <div>
-                        <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
-                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-                    </div>
-                </div>
+                var pageIndex = i;
+                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                        @onclick="() => GoToPage(pageIndex)">
+                    @pageIndex
+                </button>
             }
         </div>
-        <p>You are not authorized to access this page.</p>
+    }
+
+    @if (showEditForm)
+    {
+        <div class="card p-3 my-4 edit-form-card">
+            <h5>@(isNewCampaign ? "Add New Campaign" : "Edit Campaign: " + campaignToEdit.Title)</h5>
+
+            @if (!string.IsNullOrEmpty(validationMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @validationMessage
+                </div>
+            }
+
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <input class="form-control" @bind="campaignToEdit.Title"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" @bind="campaignToEdit.Description" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-control" @bind="campaignToEdit.StartDate"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-control" @bind="campaignToEdit.EndDate"/>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" @bind="campaignToEdit.Status">
+                    <option value="">Select Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Planned">Planned</option>
+                    <option value="Completed">Completed</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Staff</label>
+                <select class="form-select" @bind="campaignToEdit.StaffId">
+                    <option value="">Select Staff</option>
+                    @if (staffUsers != null)
+                    {
+                        @foreach (var staff in staffUsers)
+                        {
+                            <option value="@staff.UserId">@staff.Username</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div>
+                <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
+                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+            </div>
+        </div>
+    }
+</div>
+<p>You are not authorized to access this page.</p>
 
 
 @code {
     private List<Campaign>? campaigns;
     // Initializing to empty list here to prevent NullReferenceException during early rendering.
     // The finally block in OnInitializedAsync will ensure it's always populated.
-    private List<Campaign> filteredCampaigns = new();
+    private List<Campaign> filteredCampaigns = new List<Campaign>();
     private List<User>? staffUsers;
     private List<Role>? roles;
     private bool hasError = false;
@@ -236,13 +238,13 @@
     private enum SortDirection { Ascending, Descending }
 
     // For Add/Edit Form
-    private Campaign campaignToEdit = new()
+    private Campaign campaignToEdit = new Campaign
     {
         CampaignId = "",
         Title = "",
         Description = null, // Set to null as it's nullable
         StartDate = DateOnly.FromDateTime(DateTime.Today), // Initialize with DateOnly
-        EndDate = null,   // Initialize as null for nullable DateOnly
+        EndDate = null, // Initialize as null for nullable DateOnly
         Status = "",
         StaffId = ""
     };
@@ -328,7 +330,7 @@
         // Apply Search Term (CampaignId, Title, Description, Staff Name)
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            string lowerSearchTerm = searchTerm.ToLower();
+            var lowerSearchTerm = searchTerm.ToLower();
             query = query.Where(c =>
                 (c.CampaignId?.ToLower().Contains(lowerSearchTerm) ?? false) ||
                 (c.Title?.ToLower().Contains(lowerSearchTerm) ?? false) ||
@@ -354,39 +356,39 @@
         {
             case "CampaignId":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.CampaignId) :
-                        query.OrderByDescending(c => c.CampaignId);
+                    query.OrderBy(c => c.CampaignId) :
+                    query.OrderByDescending(c => c.CampaignId);
                 break;
             case "Title":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.Title, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(c => c.Title, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Title, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Title, StringComparer.OrdinalIgnoreCase);
                 break;
             case "StartDate":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.StartDate) :
-                        query.OrderByDescending(c => c.StartDate);
+                    query.OrderBy(c => c.StartDate) :
+                    query.OrderByDescending(c => c.StartDate);
                 break;
             case "EndDate":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.EndDate) :
-                        query.OrderByDescending(c => c.EndDate);
+                    query.OrderBy(c => c.EndDate) :
+                    query.OrderByDescending(c => c.EndDate);
                 break;
             case "Duration": // NEW: Sort by Duration
                 // Handle nullable TimeSpan. OrderBy will put nulls at the end for ascending, beginning for descending.
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.Duration) :
-                        query.OrderByDescending(c => c.Duration);
+                    query.OrderBy(c => c.Duration) :
+                    query.OrderByDescending(c => c.Duration);
                 break;
             case "Status":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.Status, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(c => c.Status, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Status, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Status, StringComparer.OrdinalIgnoreCase);
                 break;
             case "StaffName":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase);
                 break;
             default:
                 query = query.OrderBy(c => c.CampaignId);
@@ -411,20 +413,19 @@
 
     private void ToggleSortDirection()
     {
-        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        sortDirection = sortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
         FilterAndSortCampaigns(); // Re-apply filter and sort with new direction
     }
 
     // Helper method to generate the next sequential CampaignId
     private string GenerateNextCampaignId()
     {
-        int maxIdNum = 0;
+        var maxIdNum = 0;
         if (campaigns != null && campaigns.Any())
         {
             maxIdNum = campaigns
-                .Select(c =>
-                {
-                    if (c.CampaignId != null && c.CampaignId.StartsWith("CAM") && int.TryParse(c.CampaignId.Substring(3), out int num))
+                .Select(c => {
+                    if (c.CampaignId != null && c.CampaignId.StartsWith("CAM") && int.TryParse(c.CampaignId.Substring(3), out var num))
                     {
                         return num;
                     }
@@ -433,7 +434,7 @@
                 .DefaultIfEmpty(0)
                 .Max();
         }
-        return $"CAM{(maxIdNum + 1):D4}"; // Changed D3 to D4 for CAM0001, CAM0010, CAM0100, CAM1000 format
+        return $"CAM{maxIdNum + 1:D4}"; // Changed D3 to D4 for CAM0001, CAM0010, CAM0100, CAM1000 format
     }
 
     private void AddCampaign()
@@ -445,7 +446,7 @@
             Title = "",
             Description = null, // Set to null as it's nullable
             StartDate = DateOnly.FromDateTime(DateTime.Today), // Initialize with DateOnly
-            EndDate = null,   // Initialize as null for nullable DateOnly
+            EndDate = null, // Initialize as null for nullable DateOnly
             Status = "",
             StaffId = ""
         };
@@ -486,7 +487,7 @@
         // Description is nullable, so no validation needed for emptiness.
 
         // Validate StartDate
-        if (campaignToEdit.StartDate == default(DateOnly))
+        if (campaignToEdit.StartDate == default)
         {
             validationMessage = "Please select a Start Date.";
             return;
@@ -580,7 +581,7 @@
             return;
         }
 
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete campaign '{campaignToDelete.Title}' (ID: {campaignId})?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete campaign '{campaignToDelete.Title}' (ID: {campaignId})?");
         if (confirmed)
         {
             try
@@ -624,7 +625,7 @@
             "Active" => "status-active",
             "Completed" => "status-completed",
             "Planned" => "status-planned",
-            _ => "",
+            _ => ""
         };
     }
 }

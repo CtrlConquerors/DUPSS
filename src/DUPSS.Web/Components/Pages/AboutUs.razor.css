@@ -40,17 +40,17 @@ h1 {
     font-weight: 700;
 }
 
-    h1::after {
-        content: '';
-        position: absolute;
-        left: 50%;
-        bottom: 0;
-        transform: translateX(-50%);
-        width: 90px; /* Giảm nhẹ chiều rộng đường gạch dưới */
-        height: 4px; /* Giảm nhẹ độ dày */
-        background-color: #007bff;
-        border-radius: 3px;
-    }
+h1::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    transform: translateX(-50%);
+    width: 90px; /* Giảm nhẹ chiều rộng đường gạch dưới */
+    height: 4px; /* Giảm nhẹ độ dày */
+    background-color: #007bff;
+    border-radius: 3px;
+}
 
 h2 {
     font-family: 'Open Sans', sans-serif;
@@ -78,37 +78,37 @@ ul {
     margin-bottom: 20px; /* Giảm nhẹ margin-bottom */
 }
 
-    ul li {
-        font-size: 0.95em; /* Giảm kích thước chữ cho mỗi item danh sách */
-        margin-bottom: 10px; /* Giảm nhẹ khoảng cách giữa các item */
-        position: relative;
-        padding-left: 30px; /* Giảm nhẹ padding-left */
-        color: #555;
-        background-color: #fcfcfc;
-        padding: 8px 12px 8px 30px; /* Giảm padding tổng thể cho list item */
-        border-radius: 8px;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s ease-in-out;
-    }
+ul li {
+    font-size: 0.95em; /* Giảm kích thước chữ cho mỗi item danh sách */
+    margin-bottom: 10px; /* Giảm nhẹ khoảng cách giữa các item */
+    position: relative;
+    padding-left: 30px; /* Giảm nhẹ padding-left */
+    color: #555;
+    background-color: #fcfcfc;
+    padding: 8px 12px 8px 30px; /* Giảm padding tổng thể cho list item */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out;
+}
 
-        ul li:hover {
-            transform: translateX(5px);
-        }
+ul li:hover {
+    transform: translateX(5px);
+}
 
-        ul li::before {
-            content: '★';
-            color: #ffc107;
-            font-weight: bold;
-            position: absolute;
-            left: 8px; /* Điều chỉnh vị trí biểu tượng */
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.1em; /* Giảm kích thước biểu tượng */
-        }
+ul li::before {
+    content: '★';
+    color: #ffc107;
+    font-weight: bold;
+    position: absolute;
+    left: 8px; /* Điều chỉnh vị trí biểu tượng */
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1em; /* Giảm kích thước biểu tượng */
+}
 
-        ul li strong {
-            color: #004d99;
-        }
+ul li strong {
+    color: #004d99;
+}
 
 /* Section as Grid Items Styling */
 /* Your existing about-section styles */
@@ -125,10 +125,10 @@ ul {
     margin-right: auto;
 }
 
-    .about-section:hover {
-        transform: translateY(-7px);
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-    }
+.about-section:hover {
+    transform: translateY(-7px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
 
 /* Typewriter Effect */
 .typewriter-container {
@@ -140,7 +140,8 @@ ul {
     font-size: 1rem;
     line-height: 1.6;
     color: #333;
-    Match your existing text color margin: 0;
+    Match your existing text color
+    margin: 0;
 }
 
 
@@ -311,9 +312,9 @@ ul {
         margin-bottom: 8px;
     }
 
-        ul li::before {
-            font-size: 1em;
-            left: 5px;
-            padding-left: 20px;
-        }
+    ul li::before {
+        font-size: 1em;
+        left: 5px;
+        padding-left: 20px;
+    }
 }

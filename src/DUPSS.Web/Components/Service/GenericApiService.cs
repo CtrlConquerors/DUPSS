@@ -17,10 +17,7 @@
             return result ?? new List<T>();
         }
 
-        public async Task<T?> GetByIdAsync(string id)
-        {
-            return await _httpClient.GetFromJsonAsync<T>($"{_endpoint}/GetById/{id}");
-        }
+        public async Task<T?> GetByIdAsync(string id) => await _httpClient.GetFromJsonAsync<T>($"{_endpoint}/GetById/{id}");
 
         public async Task<T?> CreateAsync(T entity)
         {

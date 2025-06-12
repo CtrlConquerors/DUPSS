@@ -19,7 +19,7 @@
     <div class="filter-sort-section">
         <div class="search-input-container">
             <input type="text" class="form-control" placeholder="Search by Blog Title, Staff, ID"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortBlogs" />
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortBlogs"/>
         </div>
 
         <div class="filter-dropdown-container">
@@ -72,56 +72,56 @@
         <div class="table-container">
             <table class="blog-table">
                 <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Blog ID</th>
-                        <th>Title</th>
-                        <th>Status</th>
-                        <th>Staff Name</th>
-                        <th>Action</th>
-                    </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Blog ID</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Staff Name</th>
+                    <th>Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @{
-                        int index = (currentPage - 1) * itemsPerPage + 1;
-                    }
-                    @foreach (var blog in PaginatedBlogs)
-                    {
-                        <tr>
-                            <td>@index</td>
-                            <td>@blog.BlogId</td>
-                            <td>@blog.Title</td>
-                            <td>
-                                @if (blog.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
-                                {
-                                    <span class="published-indicator" title="Published Blog"></span>
-                                }
-                                else if (blog.Status?.Equals("Draft", StringComparison.OrdinalIgnoreCase) == true)
-                                {
-                                    <span class="draft-indicator" title="Draft Blog"></span>
-                                }
-                                @blog.Status
-                            </td>
-                            <td>@blog.Staff?.Username</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-primary me-2" @onclick="() => EditBlog(blog.BlogId)">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.BlogId)">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        index++;
-                    }
+                @{
+                    var index = (currentPage - 1) * itemsPerPage + 1;
+                }
+                @foreach (var blog in PaginatedBlogs)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@blog.BlogId</td>
+                        <td>@blog.Title</td>
+                        <td>
+                            @if (blog.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                <span class="published-indicator" title="Published Blog"></span>
+                            }
+                            else if (blog.Status?.Equals("Draft", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                <span class="draft-indicator" title="Draft Blog"></span>
+                            }
+                            @blog.Status
+                        </td>
+                        <td>@blog.Staff?.Username</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary me-2" @onclick="() => EditBlog(blog.BlogId)">
+                                    <i class="bi bi-three-dots-vertical"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.BlogId)">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
                 </tbody>
             </table>
         </div>
 
         <div class="d-flex justify-content-center mt-3">
-            @for (int i = 1; i <= TotalPages; i++)
+            @for (var i = 1; i <= TotalPages; i++)
             {
                 var pageIndex = i;
                 <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
@@ -146,7 +146,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Blog Title</label>
-                <input class="form-control" @bind="blogToEdit.Title" />
+                <input class="form-control" @bind="blogToEdit.Title"/>
             </div>
 
             <div class="mb-3">
@@ -185,9 +185,9 @@
 </div>
 
 @code {
-    private List<DUPSS.API.Models.Objects.Blog>? blogs;
-    private List<DUPSS.API.Models.Objects.User>? staffUsers;
-    private List<DUPSS.API.Models.Objects.Role>? roles;
+    private List<Blog>? blogs;
+    private List<User>? staffUsers;
+    private List<Role>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -200,7 +200,7 @@
 
     private enum SortDirection { Ascending, Descending }
 
-    private DUPSS.API.Models.Objects.Blog blogToEdit = new()
+    private Blog blogToEdit = new Blog
     {
         BlogId = "",
         Title = "",
@@ -211,12 +211,12 @@
     private bool showEditForm = false;
     private bool isNewBlog = false;
 
-    private List<DUPSS.API.Models.Objects.Blog> filteredBlogs = new List<DUPSS.API.Models.Objects.Blog>();
+    private List<Blog> filteredBlogs = new List<Blog>();
 
-    private IEnumerable<DUPSS.API.Models.Objects.Blog> PaginatedBlogs =>
+    private IEnumerable<Blog> PaginatedBlogs =>
         filteredBlogs?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.API.Models.Objects.Blog>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<Blog>();
 
     private int TotalPages => (int)Math.Ceiling((filteredBlogs?.Count ?? 0) / (double)itemsPerPage);
 
@@ -249,8 +249,8 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
-            blogs = new List<DUPSS.API.Models.Objects.Blog>();
-            filteredBlogs = new List<DUPSS.API.Models.Objects.Blog>();
+            blogs = new List<Blog>();
+            filteredBlogs = new List<Blog>();
             staffUsers = new List<User>();
             roles = new List<Role>();
             hasError = true;
@@ -261,15 +261,15 @@
     {
         if (blogs == null)
         {
-            filteredBlogs = new List<DUPSS.API.Models.Objects.Blog>();
+            filteredBlogs = new List<Blog>();
             return;
         }
 
-        IEnumerable<DUPSS.API.Models.Objects.Blog> query = blogs;
+        IEnumerable<Blog> query = blogs;
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            string lowerSearchTerm = searchTerm.ToLower();
+            var lowerSearchTerm = searchTerm.ToLower();
             query = query.Where(b =>
                 (b.Title?.ToLower().Contains(lowerSearchTerm) ?? false) ||
                 (b.Staff?.Username?.ToLower().Contains(lowerSearchTerm) ?? false) ||
@@ -286,23 +286,23 @@
         {
             case "Title":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(b => b.Title, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(b => b.Title, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(b => b.Title, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(b => b.Title, StringComparer.OrdinalIgnoreCase);
                 break;
             case "StaffName":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase);
                 break;
             case "Status":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(b => b.Status, StringComparer.OrdinalIgnoreCase) :
-                        query.OrderByDescending(b => b.Status, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(b => b.Status, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(b => b.Status, StringComparer.OrdinalIgnoreCase);
                 break;
             case "BlogId":
                 query = sortDirection == SortDirection.Ascending ?
-                        query.OrderBy(b => b.BlogId) :
-                        query.OrderByDescending(b => b.BlogId);
+                    query.OrderBy(b => b.BlogId) :
+                    query.OrderByDescending(b => b.BlogId);
                 break;
             default:
                 query = query.OrderBy(b => b.BlogId);
@@ -321,19 +321,18 @@
 
     private void ToggleSortDirection()
     {
-        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        sortDirection = sortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
         FilterAndSortBlogs();
     }
 
     private string GenerateNextBlogId()
     {
-        int maxIdNum = 0;
+        var maxIdNum = 0;
         if (blogs != null && blogs.Any())
         {
             maxIdNum = blogs
-                .Select(b =>
-                {
-                    if (b.BlogId != null && b.BlogId.StartsWith("B") && int.TryParse(b.BlogId.Substring(1), out int num))
+                .Select(b => {
+                    if (b.BlogId != null && b.BlogId.StartsWith("B") && int.TryParse(b.BlogId.Substring(1), out var num))
                     {
                         return num;
                     }
@@ -342,13 +341,13 @@
                 .DefaultIfEmpty(0)
                 .Max();
         }
-        return $"B{(maxIdNum + 1):D4}";
+        return $"B{maxIdNum + 1:D4}";
     }
 
     private void AddBlog()
     {
         validationMessage = string.Empty;
-        blogToEdit = new DUPSS.API.Models.Objects.Blog
+        blogToEdit = new Blog
         {
             BlogId = GenerateNextBlogId(),
             Title = "",
@@ -366,7 +365,7 @@
         var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
         if (blog != null)
         {
-            blogToEdit = new DUPSS.API.Models.Objects.Blog
+            blogToEdit = new Blog
             {
                 BlogId = blog.BlogId,
                 Title = blog.Title,
@@ -428,7 +427,7 @@
     private void CancelEdit()
     {
         validationMessage = string.Empty;
-        blogToEdit = new DUPSS.API.Models.Objects.Blog
+        blogToEdit = new Blog
         {
             BlogId = "",
             Title = "",
@@ -448,7 +447,7 @@
             return;
         }
 
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete blog '{blogToDelete.Title}' (ID: {blogId})?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete blog '{blogToDelete.Title}' (ID: {blogId})?");
         if (confirmed)
         {
             try

@@ -116,48 +116,116 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='white' class='bi bi-list-nested' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M4.5 11.5A.5.5 0 0 1 5 11h10a.5.5 0 0 1 0 1H5a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 3 7h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5zm-2-4A.5.5 0 0 1 1 3h10a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z'/%3E%3C/svg%3E");
 }
 
-/* --- NavMenu Search Bar Styling --- */
-.navbar .nav-search-form {
-    display: flex;
-    align-items: center;
-    width: 450px;
-    margin-left: 16px;
-    margin-right: 16px;
+/* --- Search Bar Styles --- */
+.search-bar,
+.search-bar input,
+.search-btn,
+.search-btn:before,
+.search-btn:after {
+    transition: all 0.25s ease-out;
 }
 
-    .navbar .nav-search-form .form-control {
-        border-radius: 20px 0 0 20px;
-        border: 1px solid lightgrey;
-        box-shadow: none;
-        font-size: 1rem;
-        padding: 0.5rem 1rem;
-        transition: border-color 0.2s;
-        background: #f8f9fa;
-        margin-top: -7px;
+.search-bar {
+    margin: auto;
+    padding: 1.5em;
+    justify-content: center;
+    max-width: 30em;
+    display: flex;
+}
+
+    .search-bar input {
+        background: transparent;
+        border-radius: 1.5em;
+        box-shadow: 0 0 0 0.4em #171717 inset;
+        padding: 0.75em;
+        width: 3em;
+        height: 3em;
+        transform: translate(0.5em,0.5em) scale(0.5);
+        transform-origin: 100% 0;
+        transition: all 0.25s ease-out;
     }
 
-        .navbar .nav-search-form .form-control:focus {
-            border-color: #1e68ff;
-            outline: none;
+        .search-bar input:focus,
+        .search-bar input:valid {
+            width: 28em;
             background: #fff;
+            border-radius: 0.375em 0 0 0.375em;
+            box-shadow: 0 0 0 0.1em #d9d9d9 inset;
+            transform: scale(1);
         }
 
-    .navbar .nav-search-form .btn {
-        border-radius: 0 20px 20px 0;
-        border: 1px solid lightgrey;
-        border-left: none;
-        background: lightgrey;
-        color: #fff;
-        padding: 0.5rem 1rem;
-        transition: background 0.2s, color 0.2s;
-        margin-top: -7px;
+.search-btn {
+    background: #171717;
+    border-radius: 0 0.75em 0.75em 0 / 0 1.5em 1.5em 0;
+    padding: 0.75em;
+    width: 3em;
+    height: 3em;
+    position: relative;
+    transform: translate(0.25em,0.25em) rotate(45deg) scale(0.25,0.125);
+    transform-origin: 0 50%;
+    transition: all 0.25s ease-out;
+    cursor: pointer;
+}
+
+    .search-btn span {
+        display: inline-block;
+        overflow: hidden;
+        width: 1px;
+        height: 1px;
     }
 
-        .navbar .nav-search-form .btn:hover,
-        .navbar .nav-search-form .btn:focus {
-            background: grey;
-            color: #fff;
-        }
+    .search-btn:before,
+    .search-btn:after {
+        content: "";
+        display: block;
+        opacity: 0;
+        position: absolute;
+    }
+
+    .search-btn:before {
+        border-radius: 50%;
+        box-shadow: 0 0 0 0.2em #f1f1f1 inset;
+        top: 0.75em;
+        left: 0.75em;
+        width: 1.2em;
+        height: 1.2em;
+    }
+
+    .search-btn:after {
+        background: #f1f1f1;
+        border-radius: 0 0.25em 0.25em 0;
+        top: 51%;
+        left: 51%;
+        width: 0.75em;
+        height: 0.25em;
+        transform: translate(0.2em,0) rotate(45deg);
+        transform-origin: 0 50%;
+    }
+
+.search-bar input:focus + .search-btn,
+.search-bar input:valid + .search-btn {
+    background: #2762f3;
+    border-radius: 0 0.375em 0.375em 0;
+    transform: scale(1);
+}
+
+    .search-bar input:focus + .search-btn:before,
+    .search-bar input:focus + .search-btn:after,
+    .search-bar input:valid + .search-btn:before,
+    .search-bar input:valid + .search-btn:after {
+        opacity: 1;
+    }
+
+    .search-bar input:focus + .search-btn:hover,
+    .search-bar input:valid + .search-btn:hover,
+    .search-bar input:valid:not(:focus) + .search-btn:focus {
+        background: #0c48db;
+    }
+
+    .search-bar input:focus + .search-btn:active,
+    .search-bar input:valid + .search-btn:active {
+        transform: translateY(1px);
+    }
 .nav-item {
     font-size: 0.9rem;
     padding-bottom: 0.5rem;

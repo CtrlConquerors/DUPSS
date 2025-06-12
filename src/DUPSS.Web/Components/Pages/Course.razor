@@ -40,7 +40,7 @@
                     <div class="card-content">
                         <span class="course-category">@(course.Topic?.TopicName?.Trim() ?? "General")</span>
                         <h3 class="course-name">@course.CourseName</h3>
-                        <p class="course-type">Type: @course.CourseType</p>
+                        <p class="course-type">Type: <span class="online-indicator" title="Online Course"></span>@course.CourseType</p>
                     </div>
                 </div>
             }

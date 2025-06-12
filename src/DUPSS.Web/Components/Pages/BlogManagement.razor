@@ -1,0 +1,475 @@
+﻿@page "/BlogManagement"
+@using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Service
+@inject NavigationManager NavigationManager
+@inject BlogApiService BlogApiService
+@inject UserApiService UserApiService
+@inject RoleApiService RoleApiService
+@inject IJSRuntime JS
+
+<div class="blog-management-container">
+    <div class="header-section">
+        <h1 class="page-title">Blog Management</h1>
+        <div class="actions">
+            <button class="add-blog-button" @onclick="AddBlog">
+                <i class="bi bi-plus-circle"></i> ADD BLOG
+            </button>
+        </div>
+    </div>
+    <div class="filter-sort-section">
+        <div class="search-input-container">
+            <input type="text" class="form-control" placeholder="Search by Blog Title, Staff, ID"
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortBlogs" />
+        </div>
+
+        <div class="filter-dropdown-container">
+            <select class="form-select" @onchange="OnStaffFilterChanged">
+                <option value="">All Staff</option>
+                @if (staffUsers != null)
+                {
+                    @foreach (var staff in staffUsers)
+                    {
+                        <option value="@staff.UserId">@staff.Username</option>
+                    }
+                }
+            </select>
+        </div>
+
+        <div class="sort-controls">
+            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortBlogs">
+                <option value="BlogId">Sort: Blog ID</option>
+                <option value="Title">Sort: Title</option>
+                <option value="StaffName">Sort: Staff Name</option>
+                <option value="Status">Sort: Status</option>
+            </select>
+            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                @if (sortDirection == SortDirection.Ascending)
+                {
+                    <i class="bi bi-sort-alpha-down"></i>
+                }
+                else
+                {
+                    <i class="bi bi-sort-alpha-down-alt"></i>
+                }
+            </button>
+        </div>
+    </div>
+
+    @if (blogs == null || staffUsers == null || roles == null)
+    {
+        <div class="loading-indicator">Loading blogs and related data...</div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">Error loading data. Please try again later.</div>
+    }
+    else if (!filteredBlogs.Any())
+    {
+        <div class="no-data-message">No blogs found matching your criteria.</div>
+    }
+    else
+    {
+        <div class="table-container">
+            <table class="blog-table">
+                <thead>
+                    <tr>
+                        <th>No</th>
+                        <th>Blog ID</th>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Staff Name</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        int index = (currentPage - 1) * itemsPerPage + 1;
+                    }
+                    @foreach (var blog in PaginatedBlogs)
+                    {
+                        <tr>
+                            <td>@index</td>
+                            <td>@blog.BlogId</td>
+                            <td>@blog.Title</td>
+                            <td>
+                                @if (blog.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                                {
+                                    <span class="published-indicator" title="Published Blog"></span>
+                                }
+                                else if (blog.Status?.Equals("Draft", StringComparison.OrdinalIgnoreCase) == true)
+                                {
+                                    <span class="draft-indicator" title="Draft Blog"></span>
+                                }
+                                @blog.Status
+                            </td>
+                            <td>@blog.Staff?.Username</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-primary me-2" @onclick="() => EditBlog(blog.BlogId)">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.BlogId)">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        index++;
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-center mt-3">
+            @for (int i = 1; i <= TotalPages; i++)
+            {
+                var pageIndex = i;
+                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                        @onclick="() => GoToPage(pageIndex)">
+                    @pageIndex
+                </button>
+            }
+        </div>
+    }
+
+    @if (showEditForm)
+    {
+        <div class="card p-3 my-4 edit-form-card">
+            <h5>@(isNewBlog ? "Add New Blog" : "Edit Blog: " + blogToEdit.Title)</h5>
+
+            @if (!string.IsNullOrEmpty(validationMessage))
+            {
+                <div class="alert alert-danger" role="alert">
+                    @validationMessage
+                </div>
+            }
+
+            <div class="mb-3">
+                <label class="form-label">Blog Title</label>
+                <input class="form-control" @bind="blogToEdit.Title" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Content</label>
+                <textarea class="form-control" @bind="blogToEdit.Content" rows="5"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Status</label>
+                <select class="form-select" @bind="blogToEdit.Status">
+                    <option value="Draft">Draft</option>
+                    <option value="Published">Published</option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Staff</label>
+                <select class="form-select" @bind="blogToEdit.StaffId">
+                    <option value="">Select Staff</option>
+                    @if (staffUsers != null)
+                    {
+                        @foreach (var staff in staffUsers)
+                        {
+                            <option value="@staff.UserId">@staff.Username</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div>
+                <button class="btn btn-success me-2" @onclick="SaveBlog">Save</button>
+                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<DUPSS.API.Models.Objects.Blog>? blogs;
+    private List<DUPSS.API.Models.Objects.User>? staffUsers;
+    private List<DUPSS.API.Models.Objects.Role>? roles;
+    private bool hasError = false;
+    private int currentPage = 1;
+    private int itemsPerPage = 8;
+    private string validationMessage = string.Empty;
+
+    private string searchTerm = string.Empty;
+    private string selectedStaffId = string.Empty;
+    private string sortBy = "BlogId";
+    private SortDirection sortDirection = SortDirection.Ascending;
+
+    private enum SortDirection { Ascending, Descending }
+
+    private DUPSS.API.Models.Objects.Blog blogToEdit = new()
+    {
+        BlogId = "",
+        Title = "",
+        Content = "",
+        Status = "Draft",
+        StaffId = ""
+    };
+    private bool showEditForm = false;
+    private bool isNewBlog = false;
+
+    private List<DUPSS.API.Models.Objects.Blog> filteredBlogs = new List<DUPSS.API.Models.Objects.Blog>();
+
+    private IEnumerable<DUPSS.API.Models.Objects.Blog> PaginatedBlogs =>
+        filteredBlogs?
+            .Skip((currentPage - 1) * itemsPerPage)
+            .Take(itemsPerPage) ?? Enumerable.Empty<DUPSS.API.Models.Objects.Blog>();
+
+    private int TotalPages => (int)Math.Ceiling((filteredBlogs?.Count ?? 0) / (double)itemsPerPage);
+
+    private void GoToPage(int page)
+    {
+        if (page < 1) page = 1;
+        if (page > TotalPages) page = TotalPages;
+
+        if (currentPage != page)
+        {
+            currentPage = page;
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            blogs = await BlogApiService.GetAllAsync();
+            roles = await RoleApiService.GetAllAsync();
+            var allUsers = await UserApiService.GetAllAsync();
+
+            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
+            staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
+
+            FilterAndSortBlogs();
+            hasError = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching data: {ex.Message}");
+            blogs = new List<DUPSS.API.Models.Objects.Blog>();
+            filteredBlogs = new List<DUPSS.API.Models.Objects.Blog>();
+            staffUsers = new List<User>();
+            roles = new List<Role>();
+            hasError = true;
+        }
+    }
+
+    private void FilterAndSortBlogs()
+    {
+        if (blogs == null)
+        {
+            filteredBlogs = new List<DUPSS.API.Models.Objects.Blog>();
+            return;
+        }
+
+        IEnumerable<DUPSS.API.Models.Objects.Blog> query = blogs;
+
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            string lowerSearchTerm = searchTerm.ToLower();
+            query = query.Where(b =>
+                (b.Title?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (b.Staff?.Username?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (b.BlogId?.ToLower().Contains(lowerSearchTerm) ?? false)
+            );
+        }
+
+        if (!string.IsNullOrWhiteSpace(selectedStaffId))
+        {
+            query = query.Where(b => b.StaffId == selectedStaffId);
+        }
+
+        switch (sortBy)
+        {
+            case "Title":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(b => b.Title, StringComparer.OrdinalIgnoreCase) :
+                        query.OrderByDescending(b => b.Title, StringComparer.OrdinalIgnoreCase);
+                break;
+            case "StaffName":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
+                        query.OrderByDescending(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase);
+                break;
+            case "Status":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(b => b.Status, StringComparer.OrdinalIgnoreCase) :
+                        query.OrderByDescending(b => b.Status, StringComparer.OrdinalIgnoreCase);
+                break;
+            case "BlogId":
+                query = sortDirection == SortDirection.Ascending ?
+                        query.OrderBy(b => b.BlogId) :
+                        query.OrderByDescending(b => b.BlogId);
+                break;
+            default:
+                query = query.OrderBy(b => b.BlogId);
+                break;
+        }
+
+        filteredBlogs = query.ToList();
+        currentPage = 1;
+    }
+
+    private void OnStaffFilterChanged(ChangeEventArgs e)
+    {
+        selectedStaffId = e.Value?.ToString() ?? string.Empty;
+        FilterAndSortBlogs();
+    }
+
+    private void ToggleSortDirection()
+    {
+        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        FilterAndSortBlogs();
+    }
+
+    private string GenerateNextBlogId()
+    {
+        int maxIdNum = 0;
+        if (blogs != null && blogs.Any())
+        {
+            maxIdNum = blogs
+                .Select(b =>
+                {
+                    if (b.BlogId != null && b.BlogId.StartsWith("B") && int.TryParse(b.BlogId.Substring(1), out int num))
+                    {
+                        return num;
+                    }
+                    return 0;
+                })
+                .DefaultIfEmpty(0)
+                .Max();
+        }
+        return $"B{(maxIdNum + 1):D4}";
+    }
+
+    private void AddBlog()
+    {
+        validationMessage = string.Empty;
+        blogToEdit = new DUPSS.API.Models.Objects.Blog
+        {
+            BlogId = GenerateNextBlogId(),
+            Title = "",
+            Content = "",
+            Status = "Draft",
+            StaffId = ""
+        };
+        isNewBlog = true;
+        showEditForm = true;
+    }
+
+    private void EditBlog(string blogId)
+    {
+        validationMessage = string.Empty;
+        var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
+        if (blog != null)
+        {
+            blogToEdit = new DUPSS.API.Models.Objects.Blog
+            {
+                BlogId = blog.BlogId,
+                Title = blog.Title,
+                Content = blog.Content,
+                Status = blog.Status,
+                StaffId = blog.StaffId,
+                Staff = blog.Staff
+            };
+            isNewBlog = false;
+            showEditForm = true;
+        }
+    }
+
+    private async Task SaveBlog()
+    {
+        if (string.IsNullOrWhiteSpace(blogToEdit.Title))
+        {
+            validationMessage = "Blog Title cannot be empty.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(blogToEdit.Content))
+        {
+            validationMessage = "Blog Content cannot be empty.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(blogToEdit.StaffId))
+        {
+            validationMessage = "Please select a Staff.";
+            return;
+        }
+
+        validationMessage = string.Empty;
+
+        try
+        {
+            if (isNewBlog)
+            {
+                await BlogApiService.CreateAsync(blogToEdit);
+                Console.WriteLine($"Blog '{blogToEdit.Title}' created with ID: {blogToEdit.BlogId}");
+            }
+            else
+            {
+                await BlogApiService.UpdateAsync(blogToEdit);
+                Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
+            }
+
+            blogs = await BlogApiService.GetAllAsync();
+            FilterAndSortBlogs();
+            showEditForm = false;
+            GoToPage(1);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving blog: {ex.Message}");
+            validationMessage = $"Error saving blog: {ex.Message}";
+        }
+    }
+
+    private void CancelEdit()
+    {
+        validationMessage = string.Empty;
+        blogToEdit = new DUPSS.API.Models.Objects.Blog
+        {
+            BlogId = "",
+            Title = "",
+            Content = "",
+            Status = "Draft",
+            StaffId = ""
+        };
+        showEditForm = false;
+    }
+
+    private async Task DeleteBlog(string blogId)
+    {
+        var blogToDelete = blogs?.FirstOrDefault(b => b.BlogId == blogId);
+        if (blogToDelete == null)
+        {
+            Console.WriteLine($"Blog with ID {blogId} not found for deletion.");
+            return;
+        }
+
+        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete blog '{blogToDelete.Title}' (ID: {blogId})?");
+        if (confirmed)
+        {
+            try
+            {
+                var success = await BlogApiService.DeleteAsync(blogId);
+                if (success)
+                {
+                    Console.WriteLine($"Blog '{blogToDelete.Title}' (ID: {blogId}) deleted successfully.");
+                    blogs = await BlogApiService.GetAllAsync();
+                    FilterAndSortBlogs();
+                    GoToPage(1);
+                }
+                else
+                {
+                    Console.WriteLine($"Failed to delete blog '{blogToDelete.Title}'.");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error deleting blog: {ex.Message}");
+            }
+        }
+    }
+}

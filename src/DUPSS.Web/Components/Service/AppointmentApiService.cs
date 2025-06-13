@@ -3,7 +3,7 @@ namespace DUPSS.Web.Components.Service
 {
     public class AppointmentApiService : GenericApiService<Appointment>
     {
-        public AppointmentApiService(HttpClient httpClient) 
+        public AppointmentApiService(HttpClient httpClient)
             : base(httpClient, "api/Appointments")
         {
         }

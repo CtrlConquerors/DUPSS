@@ -17,7 +17,7 @@
     <div class="filter-sort-section">
         <div class="search-input-container">
             <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-            @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers"/>
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers"/>
         </div>
         <div class="filter-dropdown-container">
             <select class="form-select" @onchange="OnRoleFilterChanged">
@@ -62,40 +62,40 @@
         <div class="table-container">
             <table class="user-table">
                 <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Phone Number</th>
-                        <th>Date of Birth</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                    </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Date of Birth</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @{
-                        var index = (currentPage - 1) * itemsPerPage + 1;
-                    }
-                    @foreach (var user in PaginatedUsers)
-                    {
-                        <tr>
-                            <td>@index</td>
-                            <td>@user.Username</td>
-                            <td>@user.Email</td>
-                            <td>@user.PhoneNumber</td>
-                            <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
-                            <td>@user.Role?.RoleName</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i
+                @{
+                    var index = (currentPage - 1) * itemsPerPage + 1;
+                }
+                @foreach (var user in PaginatedUsers)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@user.Username</td>
+                        <td>@user.Email</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
+                        <td>@user.Role?.RoleName</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i
                                         class="bi bi-three-dots-vertical"></i></button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i
                                         class="bi bi-trash3-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        index++;
-                    }
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
                 </tbody>
             </table>
         </div>
@@ -104,7 +104,7 @@
             {
                 var pageIndex = i;
                 <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                @onclick="() => GoToPage(pageIndex)">
+                        @onclick="() => GoToPage(pageIndex)">
                     @pageIndex
                 </button>
             }

@@ -13,7 +13,7 @@ else
 {
     <p>Is Authenticated: @user.Identity.IsAuthenticated</p>
     <p>Name: @user.Identity.Name</p>
-    <p>Role: @user.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
+    <p>Role: @user.FindFirst(ClaimTypes.Role)?.Value</p>
     <p>Claims:</p>
     <ul>
         @foreach (var claim in user.Claims)

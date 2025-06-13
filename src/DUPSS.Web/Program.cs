@@ -5,29 +5,29 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents(options =>
-    {
+    .AddInteractiveServerComponents(options => {
         options.DetailedErrors = true;
     });
 
-builder.Services.AddHttpClient<CourseApiService>(client =>
-{
+builder.Services.AddHttpClient<CourseApiService>(client => {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
-builder.Services.AddHttpClient<CourseTopicApiService>(client =>
-{
+builder.Services.AddHttpClient<CourseTopicApiService>(client => {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
-builder.Services.AddHttpClient<RoleApiService>(client =>
-{
+builder.Services.AddHttpClient<RoleApiService>(client => {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
-builder.Services.AddHttpClient<UserApiService>(client =>
-{
+builder.Services.AddHttpClient<UserApiService>(client => {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
-builder.Services.AddHttpClient<CampaignApiService>(client =>
-{
+builder.Services.AddHttpClient<CampaignApiService>(client => {
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
+builder.Services.AddHttpClient<BlogApiService>(client => {
+    client.BaseAddress = new Uri("https://localhost:7288/");
+});
+builder.Services.AddHttpClient<AppointmentApiService>(client => {
     client.BaseAddress = new Uri("https://localhost:7288/");
 });
 
@@ -49,7 +49,7 @@ catch (Exception ex)
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error", true);
     app.UseHsts();
 }
 

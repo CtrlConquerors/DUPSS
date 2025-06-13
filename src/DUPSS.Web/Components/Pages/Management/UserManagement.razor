@@ -1,4 +1,4 @@
-﻿@page "/UserManagement"
+﻿@page "/Management/User"
 @using DUPSS.API.Models.Common
 @using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
@@ -17,7 +17,7 @@
     <div class="filter-sort-section">
         <div class="search-input-container">
             <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers"/>
         </div>
         <div class="filter-dropdown-container">
             <select class="form-select" @onchange="OnRoleFilterChanged">
@@ -47,50 +47,7 @@
         </div>
     </div>
 
-    @if (showCreateForm)
-    {
-        <div class="edit-form-card">
-            <h5>Create New User</h5>
-            <div class="mb-3">
-                <label class="form-label">Username <span class="text-danger">*</span></label>
-                <input class="form-control" @bind="newUser.Username" />
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Email <span class="text-danger">*</span></label>
-                <input class="form-control" type="email" @bind="newUser.Email" />
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Password <span class="text-danger">*</span></label>
-                <input class="form-control" type="password" @bind="newUserPassword" />
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Phone Number</label>
-                <input class="form-control" @bind="newUser.PhoneNumber" />
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Date of Birth</label>
-                <input type="date" class="form-control" @bind="newUser.DoB" />
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Role <span class="text-danger">*</span></label>
-                <select class="form-select" @bind="newUser.RoleId">
-                    <option value="">Select Role</option>
-                    @foreach (var role in availableRoleIds)
-                    {
-                        <option value="@role">@role</option>
-                    }
-                </select>
-            </div>
-            <div>
-                <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
-                <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
-            </div>
-            @if (!string.IsNullOrEmpty(message))
-            {
-                <div class="alert alert-info mt-3">@message</div>
-            }
-        </div>
-    }
+
 
     @if (users == null)
     {
@@ -105,43 +62,45 @@
         <div class="table-container">
             <table class="user-table">
                 <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Phone Number</th>
-                        <th>Date of Birth</th>
-                        <th>Role</th>
-                        <th>Action</th>
-                    </tr>
+                <tr>
+                    <th>No</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Phone Number</th>
+                    <th>Date of Birth</th>
+                    <th>Role</th>
+                    <th>Action</th>
+                </tr>
                 </thead>
                 <tbody>
-                    @{
-                        int index = (currentPage - 1) * itemsPerPage + 1;
-                    }
-                    @foreach (var user in PaginatedUsers)
-                    {
-                        <tr>
-                            <td>@index</td>
-                            <td>@user.Username</td>
-                            <td>@user.Email</td>
-                            <td>@user.PhoneNumber</td>
-                            <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
-                            <td>@user.Role?.RoleName</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i class="bi bi-three-dots-vertical"></i></button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i class="bi bi-trash3-fill"></i></button>
-                                </div>
-                            </td>
-                        </tr>
-                        index++;
-                    }
+                @{
+                    var index = (currentPage - 1) * itemsPerPage + 1;
+                }
+                @foreach (var user in PaginatedUsers)
+                {
+                    <tr>
+                        <td>@index</td>
+                        <td>@user.Username</td>
+                        <td>@user.Email</td>
+                        <td>@user.PhoneNumber</td>
+                        <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
+                        <td>@user.Role?.RoleName</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn btn-sm btn-primary me-2" @onclick="() => EditUser(user.UserId)"><i
+                                        class="bi bi-three-dots-vertical"></i></button>
+                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)"><i
+                                        class="bi bi-trash3-fill"></i></button>
+                            </div>
+                        </td>
+                    </tr>
+                    index++;
+                }
                 </tbody>
             </table>
         </div>
         <div class="d-flex justify-content-center mt-3">
-            @for (int i = 1; i <= TotalPages; i++)
+            @for (var i = 1; i <= TotalPages; i++)
             {
                 var pageIndex = i;
                 <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
@@ -151,25 +110,70 @@
             }
         </div>
 
+        @if (showCreateForm)
+        {
+            <div class="edit-form-card">
+                <h5>Create New User</h5>
+                <div class="mb-3">
+                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                    <input class="form-control" @bind="newUser.Username"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                    <input class="form-control" type="email" @bind="newUser.Email"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                    <input class="form-control" type="password" @bind="newUserPassword"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone Number</label>
+                    <input class="form-control" @bind="newUser.PhoneNumber"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Date of Birth</label>
+                    <input type="date" class="form-control" @bind="newUser.DoB"/>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                    <select class="form-select" @bind="newUser.RoleId">
+                        <option value="">Select Role</option>
+                        @foreach (var role in availableRoleIds)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
+                    <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                </div>
+                @if (!string.IsNullOrEmpty(message))
+                {
+                    <div class="alert alert-info mt-3">@message</div>
+                }
+            </div>
+        }
+
         @if (editingUserId != null && editingUser != null)
         {
             <div class="edit-form-card">
                 <h5>Edit User: @editingUser.Username</h5>
                 <div class="mb-3">
                     <label class="form-label">Username <span class="text-danger">*</span></label>
-                    <input class="form-control" @bind="editingUser.Username" />
+                    <input class="form-control" @bind="editingUser.Username"/>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Email <span class="text-danger">*</span></label>
-                    <input class="form-control" type="email" @bind="editingUser.Email" />
+                    <input class="form-control" type="email" @bind="editingUser.Email"/>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Phone Number</label>
-                    <input class="form-control" @bind="editingUser.PhoneNumber" />
+                    <input class="form-control" @bind="editingUser.PhoneNumber"/>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Date of Birth</label>
-                    <input type="date" class="form-control" @bind="editingUser.DoB" />
+                    <input type="date" class="form-control" @bind="editingUser.DoB"/>
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Role <span class="text-danger">*</span></label>
@@ -208,11 +212,11 @@
     private User? editingUser;
     private int currentPage = 1;
     private int itemsPerPage = 10;
-    private List<string> availableRoles = new() { "Staff", "Member", "Admin", "Manager", "Consultant" };
-    private List<string> availableRoleIds = new() { "ST", "ME", "AD", "MA", "CO" };
+    private List<string> availableRoles = new List<string> { "Staff", "Member", "Admin", "Manager", "Consultant" };
+    private List<string> availableRoleIds = new List<string> { "ST", "ME", "AD", "MA", "CO" };
     private string selectedRole = "";
     private bool showCreateForm;
-    private User newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
+    private User newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
     private string newUserPassword = "";
 
     private string sortBy = "Username"; // Default sort column is CourseId
@@ -228,18 +232,18 @@
         {
             case "Username":
                 query = sortDirection == SortDirection.Ascending ?
-                query.OrderBy(c => c.Username, StringComparer.OrdinalIgnoreCase) :
-                query.OrderByDescending(c => c.Username, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Username, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Username, StringComparer.OrdinalIgnoreCase);
                 break;
             case "Email":
                 query = sortDirection == SortDirection.Ascending ?
-                query.OrderBy(c => c.Email, StringComparer.OrdinalIgnoreCase) :
-                query.OrderByDescending(c => c.Email, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.Email, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Email, StringComparer.OrdinalIgnoreCase);
                 break;
             case "RoleId":
                 query = sortDirection == SortDirection.Ascending ?
-                query.OrderBy(c => c.RoleId, StringComparer.OrdinalIgnoreCase) :
-                query.OrderByDescending(c => c.RoleId, StringComparer.OrdinalIgnoreCase);
+                    query.OrderBy(c => c.RoleId, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.RoleId, StringComparer.OrdinalIgnoreCase);
                 break;
         }
         filteredUsers = query.ToList();
@@ -247,9 +251,9 @@
     }
 
     private IEnumerable<User> PaginatedUsers =>
-    filteredUsers?
-    .Skip((currentPage - 1) * itemsPerPage)
-    .Take(itemsPerPage) ?? Enumerable.Empty<User>();
+        filteredUsers?
+            .Skip((currentPage - 1) * itemsPerPage)
+            .Take(itemsPerPage) ?? Enumerable.Empty<User>();
 
     private int TotalPages => (int)Math.Ceiling((filteredUsers?.Count ?? 0) / (double)itemsPerPage);
 
@@ -277,12 +281,12 @@
             return;
 
         filteredUsers = users.Where(user =>
-        (string.IsNullOrWhiteSpace(searchTerm) ||
-        (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
-        (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
-        (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
-        &&
-        (string.IsNullOrWhiteSpace(selectedRole) || (user.Role?.RoleName == selectedRole))
+            (string.IsNullOrWhiteSpace(searchTerm) ||
+            (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false))
+            &&
+            (string.IsNullOrWhiteSpace(selectedRole) || user.Role?.RoleName == selectedRole)
         ).ToList();
 
 
@@ -291,7 +295,7 @@
     }
     private void ToggleSortDirection()
     {
-        sortDirection = (sortDirection == SortDirection.Ascending) ? SortDirection.Descending : SortDirection.Ascending;
+        sortDirection = sortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
         SortUsers();
     }
 
@@ -306,6 +310,8 @@
         showCreateForm = true;
         newUser = new User { UserId = "", Username = "", Email = "", RoleId = "" };
         newUserPassword = "";
+        editingUserId = null;
+        editingUser = null;
         message = null;
     }
 
@@ -371,6 +377,7 @@
             };
             message = null;
         }
+        showCreateForm = false;
     }
 
     private async Task SaveEdit()
@@ -416,7 +423,7 @@
             return;
         }
 
-        bool confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete user '{user.Username}'?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete user '{user.Username}'?");
         if (confirmed)
         {
             try

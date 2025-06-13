@@ -9,8 +9,7 @@ using Supabase;
 
 namespace DUPSS.API.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
+    [ApiController, Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
         private readonly UserDAO _userDAO;

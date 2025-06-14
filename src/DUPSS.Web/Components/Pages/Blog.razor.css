@@ -2,27 +2,29 @@
     margin: 0;
     padding: 0;
 }
+
 .blog-bg-override ::deep .navbar,
 .blog-bg-override ::deep .navbar a {
     color: #222 !important; /* Or your preferred color */
 }
+
 .blog-bg-override {
     position: relative;
     width: 99.3vw;
     margin-left: -7px;
     margin-right: -7px;
-    margin-top:-42px;
+    margin-top: -42px;
     max-width: none;
     left: 50%;
     right: 50%;
     transform: translateX(-50%);
     height: 500px;
-    background: url('/images/blog4.gif') no-repeat center ;
-    background-size:cover;
+    background: url('/images/blog4.gif') no-repeat center;
+    background-size: cover;
     image-rendering: auto;
     display: flex;
     justify-content: flex-start;
-    align-items:stretch ;
+    align-items: stretch;
     color: white;
     overflow: hidden;
     margin-bottom: 30px;
@@ -43,15 +45,15 @@
 
 }
 
-    .blog-header h1 {
-        background: transparent; 
-        color: black;
-        padding: 0.5em 2em;
-        border-radius: 1.5em;
-        font-size: 7rem;
-        font-weight: bold;
-        pointer-events: auto;
-    }
+.blog-header h1 {
+    background: transparent;
+    color: black;
+    padding: 0.5em 2em;
+    border-radius: 1.5em;
+    font-size: 7rem;
+    font-weight: bold;
+    pointer-events: auto;
+}
 
 .blog-content {
     position: relative;

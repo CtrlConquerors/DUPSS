@@ -3,9 +3,14 @@ using DUPSS.API.Models.AccessLayer.DAOs;
 using DUPSS.API.Models.Common;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Supabase;
+using Microsoft.EntityFrameworkCore.Internal;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace DUPSS.API.Controllers
 {
@@ -13,10 +18,55 @@ namespace DUPSS.API.Controllers
     public class UsersController : ControllerBase
     {
         private readonly UserDAO _userDAO;
+        private readonly IConfiguration _configuration;
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UsersController(IDbContextFactory<AppDbContext> contextFactory, Client supabaseClient, IConfiguration configuration, HttpClient httpClient)
+        public UsersController(IDbContextFactory<AppDbContext> contextFactory, IConfiguration configuration)
         {
-            _userDAO = new UserDAO(contextFactory, supabaseClient, configuration, httpClient);
+            _userDAO = new UserDAO(contextFactory);
+            _configuration = configuration;
+            _contextFactory = contextFactory;
+        }
+
+        [HttpPost("Login")]
+        public async Task<ActionResult> Login([FromBody] Models.Common.LoginRequest request)
+        {
+            try
+            {
+                await using var context = await _contextFactory.CreateDbContextAsync();
+                var user = await context.User
+                    .Include(u => u.Role)
+                    .FirstOrDefaultAsync(u => u.Email == request.Email);
+
+                if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                    return Unauthorized("Invalid email or password.");
+
+                // Generate JWT
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId),
+                    new Claim(ClaimTypes.Email, user.Email),
+                    new Claim(ClaimTypes.Role, user.RoleId ?? "ME")
+                };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                var token = new JwtSecurityToken(
+                issuer: _configuration["Jwt:Issuer"],
+                audience: _configuration["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(1),
+                signingCredentials: creds);
+
+                return Ok(new
+                {
+                    Token = new JwtSecurityTokenHandler().WriteToken(token)
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
 
         [HttpGet("GetAll")]
@@ -62,6 +112,7 @@ namespace DUPSS.API.Controllers
         {
             try
             {
+                Console.WriteLine($"Creating user with username: {request.User.Username}, email: {request.User.Email}");
                 var createdUser = await _userDAO.CreateAsync(request.User, request.Password);
                 return CreatedAtAction(nameof(GetById), new { userId = createdUser.UserId }, createdUser);
             }
@@ -112,7 +163,5 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
     }
-
 }

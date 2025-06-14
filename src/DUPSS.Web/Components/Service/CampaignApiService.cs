@@ -4,10 +4,14 @@ namespace DUPSS.Web.Components.Service
 {
     public class CampaignApiService : GenericApiService<Campaign>
     {
-        public CampaignApiService(HttpClient httpClient)
-            : base(httpClient, "api/Campaigns")
-        {
+        private readonly HttpClient _httpClient;
+        private readonly AuthService _authService;
 
+        public CampaignApiService(HttpClient httpClient, AuthService authService)
+            : base(httpClient, "api/Campaigns", authService)
+        {
+            _httpClient = httpClient;
+            _authService = authService;
         }
     }
 }

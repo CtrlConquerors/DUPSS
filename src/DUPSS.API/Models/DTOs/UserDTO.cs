@@ -9,6 +9,5 @@
         public required string Email { get; set; }
         public required string RoleId { get; set; }
         public RoleDTO? Role { get; set; }
-        // Exclude navigation properties like MemberAppointments, Courses, etc., to avoid cycles
     }
 }

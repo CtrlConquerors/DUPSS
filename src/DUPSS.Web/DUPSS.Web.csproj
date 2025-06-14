@@ -15,4 +15,9 @@
         <ProjectReference Include="..\DUPSS.API\DUPSS.API.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.6"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.0"/>
+    </ItemGroup>
+
 </Project>

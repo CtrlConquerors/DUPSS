@@ -9,5 +9,8 @@
         public required string Email { get; set; }
         public required string RoleId { get; set; }
         public RoleDTO? Role { get; set; }
+        
+        //test
+        public string Password { get; set; } = string.Empty;
     }
 }

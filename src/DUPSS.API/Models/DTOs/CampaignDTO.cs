@@ -11,5 +11,7 @@
         public required string Status { get; set; }
         public TimeSpan? Duration { get; set; } // NotMapped property included
         public UserDTO? Staff { get; set; }
+
+        public string? ImageUrl { get; set; }
     }
 }

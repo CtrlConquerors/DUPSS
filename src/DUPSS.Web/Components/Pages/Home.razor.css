@@ -388,18 +388,6 @@ body {
     }
 }
 
-/* --- Main Footer Styling --- */
-.main-footer {
-    background-color: #3766ff;
-    color: #f0f2f5;
-    padding: 40px 0;
-    margin-top: 60px;
-    margin-bottom: -30px;
-    font-family: 'Open Sans', sans-serif;
-    border-radius: 50px;
-    position: relative;
-    overflow: hidden;
-}
 
 .main-footer .footer-content-wrapper {
     display: flex;

@@ -1,0 +1,123 @@
+﻿<footer class="main-footer mt-10">
+    <canvas id="rainCanvas" class="rain-canvas"></canvas>
+
+    <div class=" footer-content-wrapper ">
+        <div class="footer-section footer-logo-section col-1">
+            <img src="images/logo.png" alt="Logo" class="footer-logo" />
+            <p class="footer-copyright">Copyright © ALPHA</p>
+        </div>
+
+        <div class="footer-section footer-info-section text-center col-2">
+            <h5 class="footer-heading">OUR INFORMATION</h5>
+            <p>Address: Phuoc Hiep</p>
+            <p>Contact number: 090 538 4233</p>
+            <p>Email: abcd@fgmail.com</p>
+        </div>
+
+        @* <div class="footer-section footer-subscribe-section col-10">
+            <div class="subscribe-box">
+                <h4 class="subscribe-heading">Stay up to date</h4>
+                <p class="subscribe-text">Get Started</p>
+                <div class="input-group subscribe-input-group">
+                    <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
+                    <button class="btn btn-primary" type="button">Register now</button>
+                </div>
+                <small class="subscribe-note">*You can unsubscribe anytime</small>
+            </div>
+
+            <div class="footer-section footer-info-section text-center col-2">
+                <h5 class="footer-heading">OUR INFORMATION</h5>
+                <p>Address: Phuoc Hiep</p>
+                <p>Contact number: 090 538 4233</p>
+                <p>Email: abcd@fgmail.com</p>
+            </div>
+
+            @* <div class="footer-section footer-subscribe-section col-10">
+                <div class="subscribe-box">
+                    <h4 class="subscribe-heading">Stay up to date</h4>
+                    <p class="subscribe-text">Get Started</p>
+                    <div class="input-group subscribe-input-group">
+                        <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
+                        <button class="btn btn-primary" type="button">Register now</button>
+                    </div>
+                    <small class="subscribe-note">*You can unsubscribe anytime</small>
+                </div>
+            </div> *@
+    </div>
+    <div class="right"></div>
+
+
+</footer>
+
+@* ---raining effect--- *@
+<script>
+    (function () {
+        function startRain() {
+            const canvas = document.getElementById('rainCanvas');
+            if (!canvas) return;
+
+            // Set fixed height for the canvas
+            canvas.width = canvas.offsetWidth || canvas.parentElement.offsetWidth;
+            canvas.height = 120;
+
+            const ctx = canvas.getContext('2d');
+            const raindropCount = Math.floor(canvas.width / 7);
+            let raindrops = [];
+
+            function createRaindrop() {
+                return {
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * -canvas.height,
+                    length: 10 + Math.random() * 15,
+                    speed: 2 + Math.random() * 4,
+                    opacity: 0.2 + Math.random() * 0.4
+                };
+            }
+
+            function initRaindrops() {
+                raindrops = [];
+                for (let i = 0; i < raindropCount; i++) {
+                    raindrops.push(createRaindrop());
+                }
+            }
+
+            function drawRain() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.strokeStyle = 'rgba(173,216,230,0.6)';
+                ctx.lineWidth = 1.2;
+
+                for (let drop of raindrops) {
+                    ctx.globalAlpha = drop.opacity;
+                    ctx.beginPath();
+                    ctx.moveTo(drop.x, drop.y);
+                    ctx.lineTo(drop.x, drop.y + drop.length);
+                    ctx.stroke();
+
+                    drop.y += drop.speed;
+                    if (drop.y > canvas.height) {
+                        Object.assign(drop, createRaindrop());
+                        drop.y = 0;
+                    }
+                }
+                ctx.globalAlpha = 1.0;
+                requestAnimationFrame(drawRain);
+            }
+
+            initRaindrops();
+            drawRain();
+
+            window.addEventListener('resize', () => {
+                canvas.width = canvas.offsetWidth || canvas.parentElement.offsetWidth;
+                canvas.height = 120;
+                initRaindrops();
+            });
+        }
+
+        // Use a small delay to ensure Blazor has rendered the DOM
+        setTimeout(startRain, 500);
+    })();
+</script>
+
+@code {
+
+}

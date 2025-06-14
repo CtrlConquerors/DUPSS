@@ -19,6 +19,8 @@ namespace DUPSS.API.Models.Objects
         public required string Status { get; set; }
         public User? Staff { get; set; }
 
+        public string? ImageUrl { get; set; }
+
         // New NotMapped property for Duration
         [NotMapped]
         public TimeSpan? Duration { get; set; }

@@ -55,6 +55,12 @@
     font-size: 1.2rem;
 }
 
+/* Example selector, adjust as needed for your nav menu */
+.navbar, .nav-menu, nav {
+    background: transparent;
+    z-index: 10;
+    position: relative;
+}
 .nav-item ::deep .nav-link:hover {
     background-color: #f0f0f0;
     color: #1e68ff;

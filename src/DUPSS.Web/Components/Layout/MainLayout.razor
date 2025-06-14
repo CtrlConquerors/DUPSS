@@ -1,7 +1,20 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
+@inject NavigationManager NavigationManager
 
-<NavMenu/> @* Đưa navbar lên đầu trang *@
+@{
+    var currentPath = new Uri(NavigationManager.Uri).AbsolutePath.TrimEnd('/');
+}
+
+@if (NavigationManager != null && !string.Equals(currentPath, "/Blog", StringComparison.OrdinalIgnoreCase))
+{
+    <NavMenu />
+}
+else if (NavigationManager == null)
+{
+    <div style="color:red">NavigationManager is null!</div>
+}
+@* Đưa navbar lên đầu trang *@
 
 <div class="container mt-4">
     <article class="content px-4">

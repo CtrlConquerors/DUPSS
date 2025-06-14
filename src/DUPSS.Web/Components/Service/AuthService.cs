@@ -28,15 +28,15 @@ namespace DUPSS.Web.Components.Service
             if (response.IsSuccessStatusCode)
             {
                 var result = await response.Content.ReadFromJsonAsync<LoginResponse>();
-                _authStateProvider.SetToken(result.Token);
+                await _authStateProvider.SetTokenAsync(result.Token);
                 return true;
             }
             return false;
         }
 
-        public void Logout()
+        public async Task LogoutAsync()
         {
-            _authStateProvider.ClearToken();
+            await _authStateProvider.ClearTokenAsync();
         }
 
         public string? GetToken()

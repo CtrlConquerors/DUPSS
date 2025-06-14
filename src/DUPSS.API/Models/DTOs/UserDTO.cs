@@ -11,5 +11,8 @@
         public required string RoleId { get; set; }
         public string? PasswordHash => null; // PasswordHash is not exposed in DTOs
         public RoleDTO? Role { get; set; }
+        
+        //test
+        public string Password { get; set; } = string.Empty;
     }
 }

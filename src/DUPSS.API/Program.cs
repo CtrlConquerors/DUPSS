@@ -4,6 +4,7 @@ using DUPSS.API.Models.AccessLayer.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -62,6 +63,7 @@ builder.Services.AddCors(options => {
 });
 
 var app = builder.Build();
+
 
 app.UseCors("AllowBlazor");
 app.MapOpenApi();

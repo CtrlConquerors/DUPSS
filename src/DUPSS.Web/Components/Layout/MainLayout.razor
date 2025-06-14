@@ -2,6 +2,10 @@
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 
+<HeadContent>
+    <link href="css/footer.css" rel="stylesheet" />
+</HeadContent>
+
 @{
     var currentPath = new Uri(NavigationManager.Uri).AbsolutePath.TrimEnd('/');
 }

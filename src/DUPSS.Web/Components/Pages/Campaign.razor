@@ -1,0 +1,118 @@
+﻿@page "/Campaign"
+@using DUPSS.API.Models.AccessLayer.Interfaces
+@using DUPSS.Web.Components.Service
+@inject NavigationManager NavigationManager
+@inject CampaignApiService CampaignApiService
+@inject IJSRuntime JSRuntime
+
+<div class="campaign-page-container">
+    <h1 class="page-title">Ongoing Awareness Campaigns</h1>
+    <p class="page-subtitle">The sky was cloudless and of a deep dark blue the spectacle before us was indeed.</p>
+
+    @if (campaign == null)
+    {
+        <div class="loading-indicator">
+            <p>Loading campaign...</p>
+            <div class="spinner"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <p>Oops! Something went wrong while loading campaign. Please try again later.</p>
+        </div>
+    }
+    else if (!campaign.Any())
+    {
+        <div class="no-campaign-message">
+            <p>No campaign available at the moment. Please check back later!</p>
+        </div>
+    }
+    else
+    {
+        <div class="campaign-grid">
+            @foreach (var campaign in showAllCampaign ? campaign : campaign.Take(DefaultCampaignDisplayLimit))
+            {
+                <div class="campaign-card">
+                    <div class="card-image">
+                        <img src="@(campaign.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Campaign+Image")"
+                             alt="Campaign Image" />
+                    </div>
+                    <div class="card-content">
+
+                        <h3 class="campaign-name">@campaign.Title</h3>
+                        <p class="campaign-type">Status: @campaign.Status</p>
+                        <p>@campaign.Description</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        @if (campaign.Count > DefaultCampaignDisplayLimit && !showAllCampaign)
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllCampaign" disabled="@(!_isHydrated)">
+                    @(_isHydrated ? "Explore More" : "Loading...")
+                </button>
+            </div>
+        }
+
+        @if (showAllCampaign)
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllCampaign">Show Less</button>
+            </div>
+        }
+    }
+</div>
+
+<Footer />
+
+@code {
+    private List<DUPSS.API.Models.Objects.Campaign>? campaign;
+    private bool hasError = false;
+    private bool showAllCampaign = false;
+    private const int DefaultCampaignDisplayLimit = 1;
+    private bool _isHydrated = false;
+
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            campaign = await CampaignApiService.GetAllAsync();
+            Console.WriteLine($"Loaded {campaign?.Count} campaign.");
+            hasError = false;
+            Console.WriteLine($"Campaigns loaded: {campaign?.Count ?? 0}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading campaign: {ex.Message}");
+            hasError = true;
+        }
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isHydrated = true;
+            Console.WriteLine("[Hydration] isHydrated: true");
+            StateHasChanged(); // Trigger re-render to enable Explore button
+            await Task.CompletedTask;
+        }
+    }
+
+    private async Task ToggleShowAllCampaign()
+    {
+        showAllCampaign = !showAllCampaign;
+        Console.WriteLine($"ToggleShowAllCampaign called. showAllCampaign is now: {showAllCampaign}");
+
+        if (!showAllCampaign)
+        {
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+    }
+}

@@ -23,6 +23,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 CampaignId = campaign.CampaignId,
                 StaffId = campaign.StaffId,
                 Title = campaign.Title,
+                ImageUrl = $"images/{campaign.CampaignId}.jpg",
                 Description = campaign.Description,
                 StartDate = campaign.StartDate,
                 EndDate = campaign.EndDate,

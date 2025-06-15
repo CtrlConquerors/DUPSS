@@ -1,0 +1,232 @@
+﻿/* coursedetailpage.razor.css */
+
+/* Main container for the entire page */
+.course-detail-container {
+    background-color: #f7f7f7; /* Light background similar to the image */
+    font-family: 'Inter', sans-serif;
+    color: #333; /* Darker text for readability */
+    padding: 40px 20px; /* Increased padding */
+    min-height: 100vh; /* Ensure it takes full viewport height */
+    display: flex;
+    justify-content: center; /* Center the overall content */
+    align-items: flex-start; /* Align content to the top */
+}
+
+/* New grid layout for main content + image */
+.course-layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Two columns: left (content) wider, right (image) narrower */
+    gap: 40px; /* Space between columns */
+    max-width: 1200px; /* Max width for the entire grid */
+    width: 100%;
+    background-color: #fff; /* White background for the content area */
+    padding: 30px; /* Padding for the entire content grid */
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.course-content-column {
+    /* Contains all the text content, buttons, sections */
+    /* No specific styling needed here beyond inherited */
+}
+
+.course-image-column {
+    display: flex;
+    justify-content: center; /* Center the image horizontally */
+    align-items: center; /* Center the image vertically */
+    padding-left: 20px; /* Add some space from the left column */
+}
+
+.course-decorative-image {
+    max-width: 100%;
+    height: auto;
+    opacity: 0.2; /* Make it subtle/faded */
+    object-fit: contain; /* Ensure the whole image is visible */
+    border-radius: 8px; /* Maintain rounded corners */
+}
+
+/* Page Title */
+.course-detail-title {
+    font-size: 2.8rem; /* Larger font size for the main title */
+    font-weight: 700;
+    margin-bottom: 15px; /* Space below title */
+    line-height: 1.2; /* Tighter line height for large titles */
+}
+
+/* Subtitle/Description below the title */
+.course-detail-subtitle {
+    font-size: 1.1rem; /* Slightly larger text for subtitle */
+    color: #666; /* Medium grey for less emphasis than title */
+    margin-bottom: 25px; /* More space below subtitle */
+    line-height: 1.6; /* Better readability for paragraphs */
+}
+
+/* Instructor Info (small inline version) */
+.instructor-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 30px; /* Space above the enroll button */
+    font-size: 1rem;
+    color: #555;
+}
+
+.instructor-avatar-small {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%; /* Circular avatar */
+    margin-right: 10px;
+    object-fit: cover; /* Ensure image covers the area */
+    border: 1px solid #ddd; /* Subtle border */
+}
+
+.instructor-text {
+    font-weight: 400; /* Normal weight for "Instructor:" */
+}
+
+.instructor-name-link {
+    color: #007bff; /* Blue for the clickable name */
+    font-weight: 600; /* Bold for the name */
+    text-decoration: none; /* No underline by default */
+    cursor: pointer;
+}
+
+    .instructor-name-link:hover {
+        text-decoration: underline; /* Underline on hover */
+    }
+
+/* Enroll Button */
+.enroll-button {
+    background-color: #007bff; /* Primary blue button */
+    color: white;
+    border: none;
+    padding: 15px 30px; /* Generous padding */
+    border-radius: 5px; /* Slightly rounded corners */
+    font-size: 1.1rem; /* Larger font size */
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25); /* Subtle shadow */
+    display: block; /* Make it a block element to take full width if needed, or allow centering */
+    margin-bottom: 20px; /* Space below button */
+    width: fit-content; /* Adjust width to content */
+}
+
+    .enroll-button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35); /* Enhanced shadow on hover */
+    }
+
+/* Access Info */
+.access-info {
+    font-size: 0.95rem;
+    color: #888; /* Lighter grey for less important text */
+    margin-bottom: 40px; /* Space before sections */
+}
+
+/* Section Titles (Overview, About the Consultant) */
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #eee; /* Subtle underline */
+    padding-bottom: 10px;
+}
+
+/* Instructor Card (larger version for "About the Consultant" section) */
+.instructor-card {
+    display: flex;
+    align-items: flex-start; /* Align text to top of image */
+    background-color: #fcfcfc; /* Very light background for the card */
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow for inner card */
+    margin-top: 20px;
+}
+
+.instructor-avatar-large {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-right: 25px;
+    object-fit: cover;
+    border: 3px solid #007bff; /* Primary color border */
+    flex-shrink: 0; /* Prevent avatar from shrinking */
+}
+
+.instructor-name-big {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-top: 0;
+    margin-bottom: 5px;
+}
+
+.instructor-title {
+    font-size: 1.1rem;
+    color: #007bff; /* Primary color for role */
+    font-weight: 500;
+    margin-bottom: 10px;
+}
+
+.instructor-description {
+    font-size: 1rem;
+    color: #666;
+    line-height: 1.5;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .course-layout-grid {
+        grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
+        gap: 20px;
+    }
+
+    .course-image-column {
+        padding-left: 0; /* Remove left padding when stacked */
+        order: -1; /* Place image column above content column on mobile */
+    }
+
+    .course-detail-content {
+        padding: 20px;
+    }
+
+    .course-detail-title {
+        font-size: 2.2rem;
+    }
+
+    .course-detail-subtitle {
+        font-size: 1rem;
+    }
+
+    .instructor-card {
+        flex-direction: column; /* Stack avatar and text vertically */
+        align-items: center;
+        text-align: center;
+    }
+
+    .instructor-avatar-large {
+        margin-right: 0;
+        margin-bottom: 15px; /* Space between avatar and text when stacked */
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .course-detail-container {
+        padding: 20px 10px;
+    }
+
+    .course-detail-title {
+        font-size: 1.8rem;
+    }
+
+    .enroll-button {
+        padding: 12px 20px;
+        font-size: 1rem;
+    }
+}

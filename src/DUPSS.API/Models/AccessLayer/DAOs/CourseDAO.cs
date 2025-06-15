@@ -25,6 +25,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 CourseName = course.CourseName,
                 CourseType = course.CourseType,
                 StaffId = course.StaffId,
+                Description = course.Description, // NEW: Include Description
+                ConsultantId = course.ConsultantId, // NEW: Include ConsultantId
                 ImageUrl = $"images/{course.CourseId}.jpg",
                 CreatedDate = course.CreatedDate,
                 Status = course.Status,
@@ -36,6 +38,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
         public async Task<CourseDTO?> GetByIdAsync(string courseId)
         {
             return await _context.Course
+                .Include(c => c.Topic) // Eagerly load Topic
+                .Include(c => c.Staff) // Eagerly load Staff
+                .Include(c => c.Consultant) // NEW: Eagerly load Consultant
                 .Where(c => c.CourseId == courseId)
                 .Select(c => new CourseDTO
                 {
@@ -44,6 +49,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     CourseName = c.CourseName,
                     CourseType = c.CourseType,
                     StaffId = c.StaffId,
+                    Description = c.Description, // NEW: Include Description
+                    ConsultantId = c.ConsultantId, // NEW: Include ConsultantId
                     ImageUrl = $"images/{c.CourseId}.jpg",
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
@@ -62,6 +69,15 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = c.Staff.PhoneNumber,
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
+                    } : null,
+                    Consultant = c.Consultant != null ? new UserDTO // NEW: Include Consultant DTO
+                    {
+                        UserId = c.Consultant.UserId,
+                        Username = c.Consultant.Username,
+                        DoB = c.Consultant.DoB,
+                        PhoneNumber = c.Consultant.PhoneNumber,
+                        Email = c.Consultant.Email,
+                        RoleId = c.Consultant.RoleId
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -70,6 +86,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
         public async Task<List<CourseDTO>> GetAllAsync()
         {
             return await _context.Course
+                .Include(c => c.Topic) // Eagerly load Topic
+                .Include(c => c.Staff) // Eagerly load Staff
+                .Include(c => c.Consultant) // NEW: Eagerly load Consultant
                 .Select(c => new CourseDTO
                 {
                     CourseId = c.CourseId,
@@ -77,6 +96,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     CourseName = c.CourseName,
                     CourseType = c.CourseType,
                     StaffId = c.StaffId,
+                    Description = c.Description, // NEW: Include Description
+                    ConsultantId = c.ConsultantId, // NEW: Include ConsultantId
                     ImageUrl = $"images/{c.CourseId}.jpg",
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
@@ -95,6 +116,15 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = c.Staff.PhoneNumber,
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
+                    } : null,
+                    Consultant = c.Consultant != null ? new UserDTO // NEW: Include Consultant DTO
+                    {
+                        UserId = c.Consultant.UserId,
+                        Username = c.Consultant.Username,
+                        DoB = c.Consultant.DoB,
+                        PhoneNumber = c.Consultant.PhoneNumber,
+                        Email = c.Consultant.Email,
+                        RoleId = c.Consultant.RoleId
                     } : null
                 })
                 .ToListAsync();
@@ -110,6 +140,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingCourse.CourseType = course.CourseType;
             existingCourse.TopicId = course.TopicId;
             existingCourse.StaffId = course.StaffId;
+            existingCourse.Description = course.Description; // NEW: Update Description
+            existingCourse.ConsultantId = course.ConsultantId; // NEW: Update ConsultantId
 
             await _context.SaveChangesAsync();
             return new CourseDTO
@@ -119,6 +151,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 CourseName = existingCourse.CourseName,
                 CourseType = existingCourse.CourseType,
                 StaffId = existingCourse.StaffId,
+                Description = existingCourse.Description, // NEW: Include updated Description
+                ConsultantId = existingCourse.ConsultantId, // NEW: Include updated ConsultantId
                 ImageUrl = $"images/{existingCourse.CourseId}.jpg",
                 CreatedDate = existingCourse.CreatedDate,
                 Status = existingCourse.Status,
@@ -139,3 +173,4 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
         }
     }
 }
+

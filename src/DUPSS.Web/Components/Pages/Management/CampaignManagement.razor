@@ -1,5 +1,5 @@
 ﻿@page "/Management/Campaign"
-@using DUPSS.API.Models.Objects;
+@using DUPSS.API.Models.DTOs; @* Sử dụng DTOs thay vì Objects *@
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
 @inject UserApiService UserApiService
@@ -114,9 +114,9 @@
                         @* Use campaign.Duration.TotalDays if you want fractional days, otherwise .Days *@
                         <td>@(campaign.Duration.HasValue ? $"{campaign.Duration.Value.Days} days" : "-")</td>
                         <td>
-                                        <span class="status-badge @GetStatusClass(campaign.Status)">
-                                            @campaign.Status
-                                        </span>
+                            <span class="status-badge @GetStatusClass(campaign.Status)">
+                                @campaign.Status
+                            </span>
                         </td>
                         <td>@campaign.Staff?.Username</td>
                         <td>
@@ -213,16 +213,18 @@
         </div>
     }
 </div>
-<p>You are not authorized to access this page.</p>
+@* The "You are not authorized to access this page." message outside AuthorizeView is a bug.
+   It should be inside the NotAuthorized block or removed if Authorization is handled elsewhere.
+   For now, keeping it as is based on the provided code, but it's a UI/UX inconsistency. *@
 
 
 @code {
-    private List<Campaign>? campaigns;
+    private List<CampaignDTO>? campaigns; // Changed from Campaign to CampaignDTO
     // Initializing to empty list here to prevent NullReferenceException during early rendering.
     // The finally block in OnInitializedAsync will ensure it's always populated.
-    private List<Campaign> filteredCampaigns = new List<Campaign>();
-    private List<User>? staffUsers;
-    private List<Role>? roles;
+    private List<CampaignDTO> filteredCampaigns = new List<CampaignDTO>(); // Changed from Campaign to CampaignDTO
+    private List<UserDTO>? staffUsers; // Changed from User to UserDTO
+    private List<RoleDTO>? roles; // Changed from Role to RoleDTO
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -238,7 +240,7 @@
     private enum SortDirection { Ascending, Descending }
 
     // For Add/Edit Form
-    private Campaign campaignToEdit = new Campaign
+    private CampaignDTO campaignToEdit = new CampaignDTO // Changed from Campaign to CampaignDTO
     {
         CampaignId = "",
         Title = "",
@@ -251,10 +253,10 @@
     private bool showEditForm = false;
     private bool isNewCampaign = false;
 
-    private IEnumerable<Campaign> PaginatedCampaigns =>
+    private IEnumerable<CampaignDTO> PaginatedCampaigns => // Changed from Campaign to CampaignDTO
         filteredCampaigns?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<Campaign>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<CampaignDTO>();
 
     private int TotalPages => (int)Math.Ceiling((filteredCampaigns?.Count ?? 0) / (double)itemsPerPage);
 
@@ -274,11 +276,11 @@
     {
         try
         {
-            campaigns = await CampaignApiService.GetAllAsync();
-            roles = await RoleApiService.GetAllAsync();
-            var allUsers = await UserApiService.GetAllAsync();
+            campaigns = await CampaignApiService.GetAllAsync(); // Should return List<CampaignDTO>
+            roles = await RoleApiService.GetAllAsync(); // Should return List<RoleDTO>
+            var allUsers = await UserApiService.GetAllAsync(); // Should return List<UserDTO>
 
-            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
+            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
 
             // Calculate duration for each campaign after fetching
@@ -304,11 +306,11 @@
         {
             // Ensure lists are initialized, regardless of success or failure.
             // This prevents NullReferenceExceptions during rendering and filtering.
-            campaigns ??= new List<Campaign>();
-            roles ??= new List<Role>();
-            staffUsers ??= new List<User>();
+            campaigns ??= new List<CampaignDTO>(); // Initialize with DTO type
+            roles ??= new List<RoleDTO>(); // Initialize with DTO type
+            staffUsers ??= new List<UserDTO>(); // Initialize with DTO type
             // If campaigns is null due to an error, filteredCampaigns should also be empty
-            filteredCampaigns = new List<Campaign>();
+            filteredCampaigns = new List<CampaignDTO>(); // Initialize with DTO type
 
             // Always call FilterAndSortCampaigns to set initial filtered list.
             // It's already robust against null 'campaigns' internally.
@@ -321,11 +323,11 @@
     {
         if (campaigns == null)
         {
-            filteredCampaigns = new List<Campaign>();
+            filteredCampaigns = new List<CampaignDTO>();
             return;
         }
 
-        IEnumerable<Campaign> query = campaigns;
+        IEnumerable<CampaignDTO> query = campaigns; // Changed from Campaign to CampaignDTO
 
         // Apply Search Term (CampaignId, Title, Description, Staff Name)
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -440,7 +442,7 @@
     private void AddCampaign()
     {
         validationMessage = string.Empty; // Clear previous validation messages
-        campaignToEdit = new Campaign
+        campaignToEdit = new CampaignDTO // Changed from Campaign to CampaignDTO
         {
             CampaignId = GenerateNextCampaignId(),
             Title = "",
@@ -457,10 +459,10 @@
     private void EditCampaign(string campaignId)
     {
         validationMessage = string.Empty; // Clear previous validation messages
-        var campaign = campaigns?.FirstOrDefault(c => c.CampaignId == campaignId);
+        var campaign = campaigns?.FirstOrDefault(c => c.CampaignId == campaignId); // Expecting CampaignDTO
         if (campaign != null)
         {
-            campaignToEdit = new Campaign
+            campaignToEdit = new CampaignDTO // Changed from Campaign to CampaignDTO
             {
                 CampaignId = campaign.CampaignId,
                 Title = campaign.Title,
@@ -469,7 +471,8 @@
                 EndDate = campaign.EndDate,
                 Status = campaign.Status,
                 StaffId = campaign.StaffId,
-                Staff = campaign.Staff // Keep navigation property if needed for display
+                Staff = campaign.Staff, // Keep navigation property if needed for display (will be UserDTO)
+                Duration = campaign.Duration // Copy the duration if already calculated
             };
             isNewCampaign = false;
             showEditForm = true;
@@ -524,16 +527,16 @@
         {
             if (isNewCampaign)
             {
-                await CampaignApiService.CreateAsync(campaignToEdit);
+                await CampaignApiService.CreateAsync(campaignToEdit); // Should accept CampaignDTO
                 Console.WriteLine($"Campaign '{campaignToEdit.Title}' created with ID: {campaignToEdit.CampaignId}");
             }
             else
             {
-                await CampaignApiService.UpdateAsync(campaignToEdit);
+                await CampaignApiService.UpdateAsync(campaignToEdit); // Should accept CampaignDTO
                 Console.WriteLine($"Campaign '{campaignToEdit.Title}' updated.");
             }
 
-            campaigns = await CampaignApiService.GetAllAsync(); // Re-fetch all campaigns
+            campaigns = await CampaignApiService.GetAllAsync(); // Re-fetch all campaigns (List<CampaignDTO>)
             // Recalculate duration for updated/new campaigns
             if (campaigns != null)
             {
@@ -559,7 +562,7 @@
     private void CancelEdit()
     {
         validationMessage = string.Empty; // Clear validation message on cancel
-        campaignToEdit = new Campaign
+        campaignToEdit = new CampaignDTO // Changed from Campaign to CampaignDTO
         {
             CampaignId = "",
             Title = "",
@@ -574,7 +577,7 @@
 
     private async Task DeleteCampaign(string campaignId)
     {
-        var campaignToDelete = campaigns?.FirstOrDefault(c => c.CampaignId == campaignId);
+        var campaignToDelete = campaigns?.FirstOrDefault(c => c.CampaignId == campaignId); // Expecting CampaignDTO
         if (campaignToDelete == null)
         {
             Console.WriteLine($"Campaign with ID {campaignId} not found for deletion.");
@@ -586,11 +589,11 @@
         {
             try
             {
-                var success = await CampaignApiService.DeleteAsync(campaignId);
+                var success = await CampaignApiService.DeleteAsync(campaignId); // Accepts string ID
                 if (success)
                 {
                     Console.WriteLine($"Campaign '{campaignToDelete.Title}' (ID: {campaignId}) deleted successfully.");
-                    campaigns = await CampaignApiService.GetAllAsync(); // Re-fetch all campaigns
+                    campaigns = await CampaignApiService.GetAllAsync(); // Re-fetch all campaigns (List<CampaignDTO>)
                     // Recalculate duration for remaining campaigns
                     if (campaigns != null)
                     {

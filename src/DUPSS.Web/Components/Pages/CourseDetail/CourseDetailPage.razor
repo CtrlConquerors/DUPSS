@@ -1,0 +1,158 @@
+﻿@page "/CourseDetailPage/{CourseId}"
+@page "/CourseDetailPage"
+
+@using DUPSS.API.Models.DTOs
+@using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Service
+
+
+<div class="course-detail-container">
+    @if (coursePageData == null)
+    {
+        <div class="loading-indicator">
+            <p>Loading course information...</p>
+            <div class="spinner"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <p>Oops! Something went wrong while loading the course. Please try again later.</p>
+        </div>
+    }
+    else if (coursePageData.Course == null)
+    {
+        <div class="no-course-message">
+            <p>No course found with the given ID.</p>
+        </div>
+    }
+    else
+    {
+        <div class="course-layout-grid">
+            @* New grid container for main content and image *@
+            <div class="course-content-column">
+                @* Left column for all text content *@
+                <h1 class="course-detail-title">@coursePageData.Course.CourseName</h1>
+                <p class="course-detail-subtitle">
+                    @(coursePageData.Course.Description ?? "A detailed description for this course will be added soon.")
+                </p>
+
+                <div class="instructor-info">
+                    <img src="@(coursePageData.Instructor.ImageUrl ?? "https://placehold.co/40x40/95a5a6/ffffff?text=C")" alt="Consultant Avatar" class="instructor-avatar-small" />
+                    <span class="instructor-text">Instructor: <span class="instructor-name-link">@coursePageData.Instructor.Name</span></span>
+                </div>
+
+                <button class="enroll-button" @onclick="EnrollNow">
+                    Enroll
+                </button>
+
+                @* Removed the "Access provided by FPT University" line as requested *@
+
+                @* Removed the "Course Overview" section as requested *@
+
+                <section class="instructor-bio mt-5">
+                    <h2 class="section-title">About the Consultant</h2>
+                    <div class="instructor-card">
+                        <img src="@(coursePageData.Instructor.ImageUrl ?? "https://placehold.co/120x120/95a5a6/ffffff?text=Consultant")"
+                             alt="Consultant Avatar" class="instructor-avatar-large" />
+                        <div>
+                            <h3 class="instructor-name-big">@coursePageData.Instructor.Name</h3>
+                            <p class="instructor-title">@coursePageData.Course.Consultant?.Role?.RoleName ?? "Expert"</p>
+                            <p class="instructor-description">@coursePageData.Instructor.Bio</p>
+                        </div>
+                    </div>
+                </section>
+            </div> @* End of course-content-column *@
+
+            <div class="course-image-column">
+                @* Right column for the course picture *@
+                <img src="@(coursePageData.Course.ImageUrl ?? "https://placehold.co/400x300/F0F0F0/000000?text=Course+Image")"
+                     alt="Course Decorative Image" class="course-decorative-image" />
+            </div>
+        </div> @* End of course-layout-grid *@
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string CourseId { get; set; }
+
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject]
+    private CourseApiService CourseApiService { get; set; } = default!;
+    [Inject]
+    private IJSRuntime JSRuntime { get; set; } = default!;
+
+    private CoursePageData? coursePageData;
+    private bool hasError = false;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (string.IsNullOrWhiteSpace(CourseId))
+        {
+            hasError = false;
+            coursePageData = new CoursePageData { Course = null };
+            return;
+        }
+
+        try
+        {
+            var fetchedCourse = await CourseApiService.GetByIdAsync(CourseId);
+
+            if (fetchedCourse != null)
+            {
+                coursePageData = new CoursePageData
+                {
+                    Course = fetchedCourse,
+                    Description = fetchedCourse.Description ?? "A detailed description for this course will be added soon.",
+                    Instructor = new InstructorInfo
+                    {
+                        Name = fetchedCourse.Consultant?.Username ?? "Unknown Consultant",
+                        Bio = "This consultant provides expert guidance and support.",
+                        ImageUrl = "https://placehold.co/120x120/95a5a6/ffffff?text=Consultant"
+                    }
+                };
+                hasError = false;
+            }
+            else
+            {
+                hasError = false;
+                coursePageData = new CoursePageData { Course = null };
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading course details: {ex.Message}");
+            hasError = true;
+            coursePageData = null;
+        }
+    }
+
+    private async Task EnrollNow()
+    {
+        if (coursePageData?.Course == null)
+        {
+            await JSRuntime.InvokeVoidAsync("showCustomMessageBox", "Error", "Cannot enroll. Invalid course information.");
+            return;
+        }
+
+        string simulatedMemberId = "ME0001";
+        await JSRuntime.InvokeVoidAsync("showCustomMessageBox", "Enrollment Success", $"You have successfully enrolled in '{coursePageData.Course.CourseName}' (Simulated for user {simulatedMemberId})!");
+        Console.WriteLine($"Simulated enrollment in course {coursePageData.Course.CourseId} for member {simulatedMemberId}");
+    }
+
+    public class CoursePageData
+    {
+        public CourseDTO? Course { get; set; }
+        public string Description { get; set; } = string.Empty;
+        public InstructorInfo Instructor { get; set; } = new InstructorInfo();
+    }
+
+    public class InstructorInfo
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Bio { get; set; } = string.Empty;
+        public string ImageUrl { get; set; } = string.Empty;
+    }
+}

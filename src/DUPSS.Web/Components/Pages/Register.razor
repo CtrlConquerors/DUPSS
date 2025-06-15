@@ -1,6 +1,6 @@
 ﻿@page "/register"
 @using DUPSS.API.Models.Common
-@using DUPSS.API.Models.Objects
+@using DUPSS.API.Models.DTOs @* Sử dụng DTOs thay vì Objects *@
 @using DUPSS.Web.Components.Service
 @inject UserApiService UserApiService
 @inject RoleApiService RoleApiService
@@ -9,33 +9,33 @@
 <div class="register-container">
     <div class="register-card">
         <div class="register-header">
-            <img src="images/logo.png" alt="ALPHA Logo" class="register-logo"/>
+            <img src="images/logo.png" alt="ALPHA Logo" class="register-logo" />
             <h2>ALPHA Sign Up</h2>
         </div>
         <form class="register-form" @onsubmit="HandleRegister">
             <div class="form-group">
                 <label for="username">Username <span class="text-danger">*</span></label>
                 <input id="username" type="text" class="form-control" @bind="newUser.Username"
-                       placeholder="Enter your username" required/>
+                       placeholder="Enter your username" required />
             </div>
             <div class="form-group">
                 <label for="email">Email <span class="text-danger">*</span></label>
                 <input id="email" type="email" class="form-control" @bind="newUser.Email" placeholder="Enter your email"
-                       required/>
+                       required />
             </div>
             <div class="form-group">
                 <label for="password">Password <span class="text-danger">*</span></label>
                 <input id="password" type="password" class="form-control" @bind="password"
-                       placeholder="Enter your password" required/>
+                       placeholder="Enter your password" required />
             </div>
             <div class="form-group">
                 <label for="phoneNumber">Phone Number</label>
                 <input id="phoneNumber" type="tel" class="form-control" @bind="newUser.PhoneNumber"
-                       placeholder="Enter your phone number"/>
+                       placeholder="Enter your phone number" />
             </div>
             <div class="form-group">
                 <label for="dob">Date of Birth</label>
-                <input id="dob" type="date" class="form-control" @bind="newUser.DoB"/>
+                <input id="dob" type="date" class="form-control" @bind="newUser.DoB" />
             </div>
             <div class="form-group">
                 <label for="role">Role <span class="text-danger">*</span></label>
@@ -62,16 +62,17 @@
 </div>
 
 @code {
-    private User newUser = new() { UserId = "", Username = "", Email = "", RoleId = "", PasswordHash = "Placeholer" };
+    // Khởi tạo newUser mà không cố gắng gán cho PasswordHash
+    private UserDTO newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
     private string password = string.Empty;
-    private List<Role> availableRoles = new();
+    private List<RoleDTO> availableRoles = new();
     private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            availableRoles = await RoleApiService.GetAllAsync() ?? new List<Role>();
+            availableRoles = await RoleApiService.GetAllAsync() ?? new List<RoleDTO>();
         }
         catch (Exception ex)
         {
@@ -91,14 +92,15 @@
 
         try
         {
-            newUser.PasswordHash = "placeholder";
+            // Đã loại bỏ: newUser.PasswordHash = "placeholder"; // Dòng này gây lỗi CS0200
 
             Console.WriteLine($"Registering user: {newUser.Username}, Email: {newUser.Email}, RoleId: {newUser.RoleId}");
-            Console.WriteLine($"Password: {password}");
+            Console.WriteLine($"Password (plain text for debug, not sent as hash): {password}");
+
             var createdUser = await UserApiService.CreateAsync(new CreateUserRequest
             {
-                User = newUser,
-                Password = password
+                User = newUser, // newUser là UserDTO, không cần PasswordHash ở đây
+                Password = password // Mật khẩu dạng plain text được gửi riêng
             });
 
             if (createdUser != null)

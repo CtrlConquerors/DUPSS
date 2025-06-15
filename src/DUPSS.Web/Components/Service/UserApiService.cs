@@ -1,10 +1,11 @@
 ﻿using DUPSS.API.Models.Common;
 using DUPSS.API.Models.DTOs;
-using DUPSS.API.Models.Objects;
+using DUPSS.API.Models.Objects; // Vẫn cần nếu 'User' được tham chiếu cho các mục đích khác, mặc dù DTO được ưu tiên cho giao tiếp API.
 
 namespace DUPSS.Web.Components.Service
 {
-    public class UserApiService : GenericApiService<User>
+    // Thay đổi kiểu chung từ User thành UserDTO để nhất quán với phản hồi của Controller
+    public class UserApiService : GenericApiService<UserDTO>
     {
         private readonly HttpClient _httpClient;
         private readonly AuthService _authService;
@@ -16,6 +17,7 @@ namespace DUPSS.Web.Components.Service
             _authService = authService;
         }
 
+        // Kiểu trả về được thay đổi thành UserDTO? để khớp với việc sử dụng DTO cho việc tạo
         public async Task<UserDTO?> CreateAsync(CreateUserRequest user)
         {
             var token = _authService.GetToken();
@@ -46,7 +48,9 @@ namespace DUPSS.Web.Components.Service
             return null;
         }
 
-        public async Task<User?> UpdateAsync(User entity)
+        // Cập nhật tham số và kiểu trả về thành UserDTO? để nhất quán.
+        // Điều này giả định điểm cuối Update của UsersController chấp nhận UserDTO và trả về UserDTO.
+        public async Task<UserDTO?> UpdateAsync(UserDTO entity) // Thay đổi kiểu tham số thành UserDTO
         {
             var token = _authService.GetToken();
             if (!string.IsNullOrEmpty(token))
@@ -59,46 +63,11 @@ namespace DUPSS.Web.Components.Service
                 _httpClient.DefaultRequestHeaders.Authorization = null;
             }
 
-            var user = new User
-            {
-                UserId = entity.UserId,
-                Username = entity.Username,
-                DoB = entity.DoB,
-                PhoneNumber = entity.PhoneNumber,
-                Email = entity.Email,
-                RoleId = entity.RoleId,
-                PasswordHash = entity.PasswordHash, // Preserve original PasswordHash
-                Role = new Role
-                {
-                    RoleId = entity.Role?.RoleId ?? "ME",
-                    RoleName = entity.Role?.RoleName ?? "Member"
-                }
-            };
-
-            var response = await _httpClient.PutAsJsonAsync("api/Users/Update", user);
+            // Không cần ánh xạ thủ công ở đây nếu 'entity' đã là một UserDTO
+            var response = await _httpClient.PutAsJsonAsync("api/Users/Update", entity); // Gửi trực tiếp DTO
             if (response.IsSuccessStatusCode)
             {
-                var updatedUserDto = await response.Content.ReadFromJsonAsync<UserDTO>();
-                if (updatedUserDto != null)
-                {
-                    return new User
-                    {
-                        UserId = updatedUserDto.UserId,
-                        Username = updatedUserDto.Username,
-                        DoB = updatedUserDto.DoB,
-                        PhoneNumber = updatedUserDto.PhoneNumber,
-                        Email = updatedUserDto.Email,
-                        RoleId = updatedUserDto.RoleId,
-                        PasswordHash = entity.PasswordHash, // Preserve original PasswordHash
-                        Role = updatedUserDto.Role != null
-                            ? new Role
-                            {
-                                RoleId = updatedUserDto.Role.RoleId,
-                                RoleName = updatedUserDto.Role.RoleName
-                            }
-                            : null
-                    };
-                }
+                return await response.Content.ReadFromJsonAsync<UserDTO>(); // Mong đợi UserDTO trả về
             }
             else
             {
@@ -112,43 +81,15 @@ namespace DUPSS.Web.Components.Service
             return null;
         }
 
-        public new async Task<List<User>> GetAllAsync()
+        // Phương thức GetAllAsync này giờ đây trực tiếp trả về List<UserDTO> từ GenericApiService's GetAllAsync
+        // vì kiểu chung của UserApiService giờ là UserDTO.
+        // Việc ánh xạ thủ công từ UserDTO sang User đã được loại bỏ, đơn giản hóa mã.
+        public new async Task<List<UserDTO>> GetAllAsync()
         {
-            List<User> users = new List<User>();
-            var response = await _httpClient.GetAsync("api/Users/GetAll");
-            if (response.IsSuccessStatusCode)
-            {
-                var userDtos = await response.Content.ReadFromJsonAsync<List<UserDTO>>() ?? new List<UserDTO>();
-                foreach (var userDto in userDtos)
-                {
-                    users.Add(new User
-                    {
-                        UserId = userDto.UserId,
-                        Email = userDto.Email,
-                        Username = userDto.Username,
-                        DoB = userDto.DoB,
-                        PhoneNumber = userDto.PhoneNumber,
-                        RoleId = userDto.RoleId,
-                        PasswordHash = "Placeholder",
-                        Role = new Role
-                        {
-                            RoleId = userDto.Role?.RoleId ?? "ME",
-                            RoleName = userDto.Role?.RoleName ?? "Member"
-                        }
-                    });
-                }
-                return users;
-            }
-            else
-            {
-                Console.WriteLine($"Failed to fetch users. Status code: {response.StatusCode}");
-                if (response.Content != null)
-                {
-                    var errorContent = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error content: {errorContent}");
-                }
-                return users;
-            }
+            // GenericApiService<UserDTO> cơ sở giờ đây xử lý điều này một cách chính xác.
+            // Bạn có thể đơn giản gọi phương thức cơ sở hoặc giữ cấu trúc này nếu bạn cần logic tùy chỉnh sau này.
+            // Hiện tại, chúng ta sẽ đơn giản hóa bằng cách tận dụng GenericApiService.
+            return await base.GetAllAsync();
         }
     }
 }

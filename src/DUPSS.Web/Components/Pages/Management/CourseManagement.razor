@@ -27,7 +27,7 @@
     </div>
     <div class="filter-sort-section">
         <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by Course Name, Topic, Staff, Consultant,..."
+            <input type="text" class="form-control" placeholder="Search by Course Name, Topic, Staff, Consultant, ID, Description"
                    @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCourses"/>
         </div>
 
@@ -293,9 +293,9 @@
     // Changed the type to CourseDTO to match the CourseApiService return type
     private List<CourseDTO>? courses;
     private List<CourseTopic>? topics;
-    private List<User>? staffUsers; // To hold users with 'Staff' role
-    private List<User>? consultantUsers; // NEW: To hold users with 'Consultant' role
-    private List<Role>? roles;
+    private List<UserDTO>? staffUsers; // Changed to UserDTO to match UserApiService return type
+    private List<UserDTO>? consultantUsers; // Changed to UserDTO to match UserApiService return type
+    private List<RoleDTO>? roles; // Changed to RoleDTO to match RoleApiService return type
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -317,7 +317,7 @@
     {
         CourseId = "",
         CourseName = "",
-        CourseType = "",
+        CourseType = "Online", // Default to online
         TopicId = "",
         StaffId = "",
         Description = "", // Initialize description
@@ -366,8 +366,8 @@
             var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
 
-            // NEW: Filter for Consultant users (assuming RoleId starts with "CS")
-            var consultantRoleIds = roles?.Where(r => r.RoleId.StartsWith("CS", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
+            // NEW: Filter for Consultant users (assuming RoleId starts with "CS" or "CO" from your database)
+            var consultantRoleIds = roles?.Where(r => r.RoleId.StartsWith("CS", StringComparison.OrdinalIgnoreCase) || r.RoleId.StartsWith("CO", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             consultantUsers = allUsers?.Where(u => consultantRoleIds != null && consultantRoleIds.Contains(u.RoleId)).ToList();
 
             FilterAndSortCourses(); // Apply initial filter and sort
@@ -379,10 +379,10 @@
             // Change types to CourseDTO
             courses = new List<CourseDTO>();
             filteredCourses = new List<CourseDTO>();
-            topics = new List<CourseTopic>();
-            staffUsers = new List<User>();
-            consultantUsers = new List<User>(); // NEW: Initialize consultantUsers on error
-            roles = new List<Role>();
+            topics = new List<CourseTopic>(); // CourseTopic does not have a DTO in project structure, so keep as is
+            staffUsers = new List<UserDTO>(); // Initialize with correct DTO types on error as well
+            consultantUsers = new List<UserDTO>(); // Initialize consultantUsers on error with DTO type
+            roles = new List<RoleDTO>(); // Initialize roles on error with DTO type
             hasError = true;
         }
     }
@@ -775,7 +775,7 @@
         {
             CourseId = "",
             CourseName = "",
-            CourseType = "",
+            CourseType = "Online", // Reset to default "Online"
             TopicId = "",
             StaffId = "",
             Description = "", // Clear description on cancel
@@ -794,7 +794,8 @@
             return;
         }
 
-        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete course '{courseToDelete.CourseName}' (ID: {courseId})?");
+        // Add confirmation dialog
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete course '{courseToDelete.CourseName}' (ID: {courseToDelete.CourseId})?");
         if (confirmed)
         {
             try
@@ -802,15 +803,16 @@
                 var success = await CourseApiService.DeleteAsync(courseId);
                 if (success)
                 {
-                    Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseId}) deleted successfully.");
+                    Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseToDelete.CourseId}) deleted successfully.");
                     validationMessage = string.Empty; // Clear message on success
 
-                    // Re-fetch courses to update UI (courses is now CourseDTO)
+                    // Re-fetch courses to update UI
                     courses = await CourseApiService.GetAllAsync();
                     FilterAndSortCourses(); // Re-apply filters and sort
+                    GoToPage(1); // Go back to the first page
 
                     // Close edit form if the deleted course was being edited
-                    if (courseToEdit.CourseId == courseId)
+                    if (showEditForm && courseToEdit.CourseId == courseId)
                     {
                         CancelEdit(); // This will reset courseToEdit and hide the form
                     }

@@ -1,5 +1,6 @@
 ﻿@page "/Management/Blog"
-@using DUPSS.API.Models.Objects
+@using DUPSS.API.Models.DTOs @* Thêm dòng này để sử dụng DTOs *@
+@using DUPSS.API.Models.Objects @* Vẫn cần cho các đối tượng miền nếu vẫn được sử dụng trực tiếp ở đâu đó, nhưng khuyến nghị dùng DTO *@
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject BlogApiService BlogApiService
@@ -185,9 +186,9 @@
 </div>
 
 @code {
-    private List<Blog>? blogs;
-    private List<User>? staffUsers;
-    private List<Role>? roles;
+    private List<BlogDTO>? blogs; // Changed from Blog to BlogDTO
+    private List<UserDTO>? staffUsers; // Changed from User to UserDTO
+    private List<RoleDTO>? roles; // Changed from Role to RoleDTO
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
@@ -200,7 +201,7 @@
 
     private enum SortDirection { Ascending, Descending }
 
-    private Blog blogToEdit = new Blog
+    private BlogDTO blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
     {
         BlogId = "",
         Title = "",
@@ -211,12 +212,12 @@
     private bool showEditForm = false;
     private bool isNewBlog = false;
 
-    private List<Blog> filteredBlogs = new List<Blog>();
+    private List<BlogDTO> filteredBlogs = new List<BlogDTO>(); // Changed from Blog to BlogDTO
 
-    private IEnumerable<Blog> PaginatedBlogs =>
+    private IEnumerable<BlogDTO> PaginatedBlogs => // Changed from Blog to BlogDTO
         filteredBlogs?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<Blog>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<BlogDTO>();
 
     private int TotalPages => (int)Math.Ceiling((filteredBlogs?.Count ?? 0) / (double)itemsPerPage);
 
@@ -236,11 +237,11 @@
     {
         try
         {
-            blogs = await BlogApiService.GetAllAsync();
-            roles = await RoleApiService.GetAllAsync();
-            var allUsers = await UserApiService.GetAllAsync();
+            blogs = await BlogApiService.GetAllAsync(); // BlogApiService.GetAllAsync() should return List<BlogDTO>
+            roles = await RoleApiService.GetAllAsync(); // RoleApiService.GetAllAsync() should return List<RoleDTO>
+            var allUsers = await UserApiService.GetAllAsync(); // UserApiService.GetAllAsync() should return List<UserDTO>
 
-            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
+            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList(); // Use StringComparison for robustness
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
 
             FilterAndSortBlogs();
@@ -249,10 +250,10 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
-            blogs = new List<Blog>();
-            filteredBlogs = new List<Blog>();
-            staffUsers = new List<User>();
-            roles = new List<Role>();
+            blogs = new List<BlogDTO>(); // Initialize with DTO type on error
+            filteredBlogs = new List<BlogDTO>(); // Initialize with DTO type on error
+            staffUsers = new List<UserDTO>(); // Initialize with DTO type on error
+            roles = new List<RoleDTO>(); // Initialize with DTO type on error
             hasError = true;
         }
     }
@@ -261,11 +262,11 @@
     {
         if (blogs == null)
         {
-            filteredBlogs = new List<Blog>();
+            filteredBlogs = new List<BlogDTO>();
             return;
         }
 
-        IEnumerable<Blog> query = blogs;
+        IEnumerable<BlogDTO> query = blogs; // Changed from Blog to BlogDTO
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -347,7 +348,7 @@
     private void AddBlog()
     {
         validationMessage = string.Empty;
-        blogToEdit = new Blog
+        blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
         {
             BlogId = GenerateNextBlogId(),
             Title = "",
@@ -362,17 +363,17 @@
     private void EditBlog(string blogId)
     {
         validationMessage = string.Empty;
-        var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
+        var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId); // Expecting BlogDTO
         if (blog != null)
         {
-            blogToEdit = new Blog
+            blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
             {
                 BlogId = blog.BlogId,
                 Title = blog.Title,
                 Content = blog.Content,
                 Status = blog.Status,
                 StaffId = blog.StaffId,
-                Staff = blog.Staff
+                Staff = blog.Staff // Staff should be UserDTO here
             };
             isNewBlog = false;
             showEditForm = true;
@@ -403,16 +404,16 @@
         {
             if (isNewBlog)
             {
-                await BlogApiService.CreateAsync(blogToEdit);
+                await BlogApiService.CreateAsync(blogToEdit); // BlogApiService.CreateAsync should accept BlogDTO
                 Console.WriteLine($"Blog '{blogToEdit.Title}' created with ID: {blogToEdit.BlogId}");
             }
             else
             {
-                await BlogApiService.UpdateAsync(blogToEdit);
+                await BlogApiService.UpdateAsync(blogToEdit); // BlogApiService.UpdateAsync should accept BlogDTO
                 Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
             }
 
-            blogs = await BlogApiService.GetAllAsync();
+            blogs = await BlogApiService.GetAllAsync(); // Refresh with List<BlogDTO>
             FilterAndSortBlogs();
             showEditForm = false;
             GoToPage(1);
@@ -427,7 +428,7 @@
     private void CancelEdit()
     {
         validationMessage = string.Empty;
-        blogToEdit = new Blog
+        blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
         {
             BlogId = "",
             Title = "",
@@ -440,7 +441,7 @@
 
     private async Task DeleteBlog(string blogId)
     {
-        var blogToDelete = blogs?.FirstOrDefault(b => b.BlogId == blogId);
+        var blogToDelete = blogs?.FirstOrDefault(b => b.BlogId == blogId); // Expecting BlogDTO
         if (blogToDelete == null)
         {
             Console.WriteLine($"Blog with ID {blogId} not found for deletion.");
@@ -452,11 +453,11 @@
         {
             try
             {
-                var success = await BlogApiService.DeleteAsync(blogId);
+                var success = await BlogApiService.DeleteAsync(blogId); // BlogApiService.DeleteAsync takes string ID
                 if (success)
                 {
                     Console.WriteLine($"Blog '{blogToDelete.Title}' (ID: {blogId}) deleted successfully.");
-                    blogs = await BlogApiService.GetAllAsync();
+                    blogs = await BlogApiService.GetAllAsync(); // Refresh with List<BlogDTO>
                     FilterAndSortBlogs();
                     GoToPage(1);
                 }

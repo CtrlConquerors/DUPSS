@@ -1,54 +1,57 @@
 ﻿@page "/Campaign"
-@using DUPSS.API.Models.AccessLayer.Interfaces
+@using DUPSS.API.Models.DTOs @* Đảm bảo DTOs được sử dụng *@
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CampaignApiService CampaignApiService
 @inject IJSRuntime JSRuntime
+@* Removed using DUPSS.API.Models.AccessLayer.Interfaces as it's not directly needed here *@
+@* Removed using DUPSS.API.Models.Objects as DTOs are preferred for UI *@
 
 <div class="campaign-page-container">
     <h1 class="page-title">Ongoing Awareness Campaigns</h1>
     <p class="page-subtitle">The sky was cloudless and of a deep dark blue the spectacle before us was indeed.</p>
 
-    @if (campaign == null)
+    @if (campaigns == null) @* Changed from campaign to campaigns *@
     {
         <div class="loading-indicator">
-            <p>Loading campaign...</p>
+            <p>Loading campaigns...</p> @* Changed text to plural *@
             <div class="spinner"></div>
         </div>
     }
     else if (hasError)
     {
         <div class="error-message">
-            <p>Oops! Something went wrong while loading campaign. Please try again later.</p>
+            <p>Oops! Something went wrong while loading campaigns. Please try again later.</p> @* Changed text to plural *@
         </div>
     }
-    else if (!campaign.Any())
+    else if (!campaigns.Any())
+ @* Changed from campaign.Any() to campaigns.Any() *@
     {
         <div class="no-campaign-message">
-            <p>No campaign available at the moment. Please check back later!</p>
+            <p>No campaigns available at the moment. Please check back later!</p> @* Changed text to plural *@
         </div>
     }
     else
     {
         <div class="campaign-grid">
-            @foreach (var campaign in showAllCampaign ? campaign : campaign.Take(DefaultCampaignDisplayLimit))
+            @foreach (var campaignItem in showAllCampaign ? campaigns : campaigns.Take(DefaultCampaignDisplayLimit)) @* Changed loop variable to campaignItem, and list to campaigns *@
             {
                 <div class="campaign-card">
                     <div class="card-image">
-                        <img src="@(campaign.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Campaign+Image")"
+                        <img src="@(campaignItem.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Campaign+Image")"
                              alt="Campaign Image" />
                     </div>
                     <div class="card-content">
 
-                        <h3 class="campaign-name">@campaign.Title</h3>
-                        <p class="campaign-type">Status: @campaign.Status</p>
-                        <p>@campaign.Description</p>
+                        <h3 class="campaign-name">@campaignItem.Title</h3>
+                        <p class="campaign-type">Status: @campaignItem.Status</p>
+                        <p>@campaignItem.Description</p>
                     </div>
                 </div>
             }
         </div>
 
-        @if (campaign.Count > DefaultCampaignDisplayLimit && !showAllCampaign)
+        @if (campaigns.Count > DefaultCampaignDisplayLimit && !showAllCampaign) @* Changed from campaign.Count to campaigns.Count *@
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCampaign" disabled="@(!_isHydrated)">
@@ -69,30 +72,30 @@
 <Footer />
 
 @code {
-    private List<DUPSS.API.Models.Objects.Campaign>? campaign;
+    // Changed type to List<CampaignDTO> and variable name to 'campaigns' (plural)
+    private List<CampaignDTO>? campaigns;
     private bool hasError = false;
     private bool showAllCampaign = false;
     private const int DefaultCampaignDisplayLimit = 1;
     private bool _isHydrated = false;
 
-
-
     protected override async Task OnInitializedAsync()
     {
         try
         {
-            campaign = await CampaignApiService.GetAllAsync();
-            Console.WriteLine($"Loaded {campaign?.Count} campaign.");
+            // Now correctly assigns List<CampaignDTO> to 'campaigns'
+            campaigns = await CampaignApiService.GetAllAsync();
+            Console.WriteLine($"Loaded {campaigns?.Count} campaigns."); // Changed text and variable
             hasError = false;
-            Console.WriteLine($"Campaigns loaded: {campaign?.Count ?? 0}");
+            Console.WriteLine($"Campaigns loaded: {campaigns?.Count ?? 0}"); // Changed text and variable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading campaign: {ex.Message}");
+            Console.WriteLine($"Error loading campaigns: {ex.Message}"); // Changed text
             hasError = true;
+            campaigns = new List<CampaignDTO>(); // Initialize to empty DTO list on error
         }
     }
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

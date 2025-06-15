@@ -1,8 +1,8 @@
 ﻿using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.DAOs;
 using DUPSS.API.Models.Common;
-using DUPSS.API.Models.DTOs;
-using DUPSS.API.Models.Objects;
+using DUPSS.API.Models.DTOs; // Đảm bảo namespace này được bao gồm
+using DUPSS.API.Models.Objects; // Đảm bảo namespace này được bao gồm cho User domain model
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,19 +11,20 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using DUPSS.API.Models.AccessLayer.Interfaces; // Thêm dòng này cho IUserDAO
 
 namespace DUPSS.API.Controllers
 {
     [ApiController, Route("api/[controller]")]
     public class UsersController : ControllerBase
     {
-        private readonly UserDAO _userDAO;
+        private readonly IUserDAO _userDAO; // Sử dụng interface cho DAO
         private readonly IConfiguration _configuration;
         private readonly IDbContextFactory<AppDbContext> _contextFactory;
 
-        public UsersController(IDbContextFactory<AppDbContext> contextFactory, IConfiguration configuration)
+        public UsersController(IUserDAO userDAO, IConfiguration configuration, IDbContextFactory<AppDbContext> contextFactory) // Inject interface
         {
-            _userDAO = new UserDAO(contextFactory);
+            _userDAO = userDAO;
             _configuration = configuration;
             _contextFactory = contextFactory;
         }
@@ -52,11 +53,11 @@ namespace DUPSS.API.Controllers
                 var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
                 var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                 var token = new JwtSecurityToken(
-                issuer: _configuration["Jwt:Issuer"],
-                audience: _configuration["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.Now.AddHours(1),
-                signingCredentials: creds);
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddHours(1),
+                    signingCredentials: creds);
 
                 return Ok(new
                 {
@@ -74,6 +75,7 @@ namespace DUPSS.API.Controllers
         {
             try
             {
+                // userDAO.GetAllAsync() đã trả về List<UserDTO>
                 var users = await _userDAO.GetAllAsync();
                 return Ok(users);
             }
@@ -92,6 +94,7 @@ namespace DUPSS.API.Controllers
         {
             try
             {
+                // userDAO.GetByIdAsync() đã trả về UserDTO
                 var user = await _userDAO.GetByIdAsync(userId);
                 if (user == null)
                     return NotFound($"User with ID {userId} not found.");
@@ -113,7 +116,21 @@ namespace DUPSS.API.Controllers
             try
             {
                 Console.WriteLine($"Creating user with username: {request.User.Username}, email: {request.User.Email}");
-                var createdUser = await _userDAO.CreateAsync(request.User, request.Password);
+
+                // Ánh xạ UserDTO từ request thành User domain model cho DAO
+                var userDomainModel = new User
+                {
+                    UserId = request.User.UserId,
+                    Username = request.User.Username,
+                    Email = request.User.Email,
+                    PhoneNumber = request.User.PhoneNumber,
+                    DoB = request.User.DoB,
+                    RoleId = request.User.RoleId,
+                    PasswordHash = request.User.PasswordHash // Hoặc để DAO xử lý hash
+                };
+
+                // Gọi DAO với User domain model
+                var createdUser = await _userDAO.CreateAsync(userDomainModel, request.Password);
                 return CreatedAtAction(nameof(GetById), new { userId = createdUser.UserId }, createdUser);
             }
             catch (Npgsql.NpgsqlException ex)
@@ -127,11 +144,24 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<UserDTO>> Update([FromBody] User user)
+        public async Task<ActionResult<UserDTO>> Update([FromBody] UserDTO userDto)
         {
             try
             {
-                var updatedUser = await _userDAO.UpdateAsync(user);
+                // Ánh xạ UserDTO từ request thành User domain model cho DAO
+                var userDomainModel = new User
+                {
+                    UserId = userDto.UserId,
+                    Username = userDto.Username,
+                    Email = userDto.Email,
+                    PhoneNumber = userDto.PhoneNumber,
+                    DoB = userDto.DoB,
+                    RoleId = userDto.RoleId,
+                    PasswordHash = userDto.PasswordHash // Giữ nguyên hash hiện có, không cập nhật password qua đây
+                };
+
+                // Gọi DAO với User domain model
+                var updatedUser = await _userDAO.UpdateAsync(userDomainModel);
                 return Ok(updatedUser);
             }
             catch (Npgsql.NpgsqlException ex)

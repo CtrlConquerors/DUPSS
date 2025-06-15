@@ -1,19 +1,27 @@
-/*.navmenu-default-bg {
-    background-color: rgba(0,0,0,0.4);
+.navbar.navmenu-default-bg {
+    background-color: transparent;
 }
 
-.navmenu-course-bg {
-    background-color: #1e68ff;
+.navbar.navmenu-course-bg {
+    background-color: white;
 }
 
 .navmenu-campaign-bg {
     background-color: #ff9800;
 }
 
+.navmenu-blog-bg {
+    background-color: transparent;
+}
+
+.navbar.navmenu-login-bg {
+    display: none !important;
+}
+
 .navmenu-management-bg {
     background-color: #4caf50;
 }
-*/
+
 
 .navbar-toggler {
     appearance: none;
@@ -57,7 +65,7 @@
 
 /* Example selector, adjust as needed for your nav menu */
 .navbar, .nav-menu, nav {
-    background: transparent;
+/*    background: transparent;*/
     z-index: 10;
     position: relative;
 }

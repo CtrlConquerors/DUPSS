@@ -5,7 +5,7 @@
 
 .blog-bg-override ::deep .navbar,
 .blog-bg-override ::deep .navbar a {
-    color: #222 !important; /* Or your preferred color */
+    color: #222 !important; 
 }
 
 .blog-bg-override {

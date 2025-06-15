@@ -64,6 +64,10 @@ builder.Services.AddCors(options => {
             .AllowCredentials());
 });
 
+builder.Services.AddScoped(sp => new HttpClient
+{
+    BaseAddress = new Uri("https://localhost:7084/")
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline

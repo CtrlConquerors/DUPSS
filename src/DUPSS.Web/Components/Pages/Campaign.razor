@@ -31,18 +31,17 @@
     else
     {
         <div class="campaign-grid">
-            @foreach (var campaign in showAllCampaign ? campaign : campaign.Take(DefaultCampaignDisplayLimit))
+            @foreach (var item in showAllCampaign ? campaign : campaign.Take(DefaultCampaignDisplayLimit))
             {
-                <div class="campaign-card">
+                <div class="campaign-card clickable" @onclick="() => NavigateToDetail(item.CampaignId)">
                     <div class="card-image">
-                        <img src="@(campaign.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Campaign+Image")"
+                        <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Campaign+Image")"
                              alt="Campaign Image" />
                     </div>
                     <div class="card-content">
-
-                        <h3 class="campaign-name">@campaign.Title</h3>
-                        <p class="campaign-type">Status: @campaign.Status</p>
-                        <p>@campaign.Description</p>
+                        <h3 class="campaign-name">@item.Title</h3>
+                        <p class="campaign-type">Status: @item.Status</p>
+                        <p>@item.Description</p>
                     </div>
                 </div>
             }
@@ -72,7 +71,7 @@
     private List<DUPSS.API.Models.Objects.Campaign>? campaign;
     private bool hasError = false;
     private bool showAllCampaign = false;
-    private const int DefaultCampaignDisplayLimit = 1;
+    private const int DefaultCampaignDisplayLimit = 3;
     private bool _isHydrated = false;
 
 
@@ -114,5 +113,10 @@
         {
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
+    }
+    private void NavigateToDetail(string campaignId)
+    {
+        NavigationManager.NavigateTo($"/Campaign/Detail/{campaignId}", forceLoad: true);
+
     }
 }

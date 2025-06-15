@@ -1,4 +1,5 @@
-﻿using DUPSS.API.Models.Objects;
+﻿using DUPSS.API.Models.DTOs;
+using DUPSS.API.Models.Objects;
 
 namespace DUPSS.Web.Components.Service
 {
@@ -13,5 +14,11 @@ namespace DUPSS.Web.Components.Service
             _httpClient = httpClient;
             _authService = authService;
         }
+
+        public async Task<CampaignDTO?> GetByIdAsync(string campaignId)
+        {
+            return await _httpClient.GetFromJsonAsync<CampaignDTO>($"api/Campaigns/GetById/{campaignId}");
+        }
+
     }
 }

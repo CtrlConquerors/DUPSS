@@ -54,8 +54,11 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = c.Staff.PhoneNumber,
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
-                    } : null
+
+                    } : null,
+                    ImageUrl = $"/images/{c.CampaignId}.jpg"
                 })
+
                 .FirstOrDefaultAsync();
         }
 
@@ -80,7 +83,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = c.Staff.PhoneNumber,
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
-                    } : null
+                    } : null,
+                    ImageUrl = $"/images/{c.CampaignId}.jpg"
                 })
                 .ToListAsync();
         }

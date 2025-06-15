@@ -25,6 +25,10 @@ namespace DUPSS.API.Models.AccessLayer
             // This is crucial because ImageUrl is dynamically set in the DAO, not stored in the DB.
             modelBuilder.Entity<Course>()
                 .Ignore(c => c.ImageUrl); // <--- ADDED THIS LINE
+            
+            modelBuilder.Entity<Campaign>()
+               .Ignore(c => c.ImageUrl);
+
 
             // Role -> Users (one-to-many)
             modelBuilder.Entity<User>()
@@ -47,6 +51,7 @@ namespace DUPSS.API.Models.AccessLayer
                 .HasOne(c => c.Staff)
                 .WithMany(u => u.Campaigns)
                 .HasForeignKey(c => c.StaffId);
+
 
             // CourseTopic -> Courses (one-to-many)
             modelBuilder.Entity<Course>()

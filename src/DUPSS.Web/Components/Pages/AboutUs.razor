@@ -1,74 +1,165 @@
 ﻿@page "/aboutUs"
+@inject IJSRuntime JS
 
-<div class="about-us-container container py-5">
-    <h1 class="mb-4">About ALPHA Charity Organization</h1>
+<div class="animated-bg-shapes">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
 
-    <section class="about-section mb-5">
-        <h2>Who We Are</h2>
-        <div class="typewriter-container">
-            <p class="typewriter-text">
-                <span class="typewriter-line">Alpha is a dedicated volunteer charity organization committed to building healthier, safer communities by supporting drug use prevention and offering </span>
-                <span class="typewriter-line">care to vulnerable populations.</span>
-                <span class="typewriter-line">We believe that collective compassion and proactive efforts can bring positive change and hope to those affected by drug-related challenges.</span>
-
-            </p>
+<div class="aboutus-sticky-slides">
+    <section class="aboutus-slide slide1">
+        <div class="hero-content">
+            <h1>
+                <span id="typewriter-text"></span><span class="typewriter-caret">|</span>
+            </h1>
+            <p>Empowering communities. Transforming lives. Fighting drug abuse through compassion, education, and united action.</p>
         </div>
     </section>
+    <section class="aboutus-slide slide2">
+        <div class="about-section animated-section">
+            <h2>Who We Are</h2>
+            <p>
+                ALPHA is a volunteer-powered charity driven by hope and humanity. We uplift individuals and families affected by drug-related challenges through prevention, support, and education. Our team unites under one purpose — building healthier futures together.
+            </p>
+        </div>
 
-    <section class="about-section mb-5">
-        <h2>Our Mission and Vision</h2>
-        <p>
-            Our mission is to educate, advocate, and support individuals and families to live drug-free lives.
-            We envision a community where everyone has access to knowledge, resources, and professional help needed to
-            overcome and prevent substance abuse.
-        </p>
+        <div class="about-section split-section">
+            <div class="text">
+                <h2>Mission & Vision</h2>
+                <p>
+                    <strong>Mission:</strong> To educate, advocate, and guide people toward drug-free lives.<br>
+                    <strong>Vision:</strong> A society where every person has access to the support they need to overcome and prevent substance abuse.
+                </p>
+            </div>
+            <div class="image">
+                <img src="/images/blog1.gif" alt="Mission Vision">
+            </div>
+        </div>
+
+        <div class="about-section icon-grid">
+            <h2>What We Do</h2>
+            <div class="grid">
+                <div class="card">
+                    <i class="fa-solid fa-bullhorn"></i>
+                    <h3>Campaigns</h3>
+                    <p>We organize school and community workshops to raise awareness and knowledge about drug prevention.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-hands-helping"></i>
+                    <h3>Support</h3>
+                    <p>Professional guidance and emotional support offered to those who need someone to talk to.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-chalkboard-teacher"></i>
+                    <h3>Education</h3>
+                    <p>Interactive training programs tailored to students, parents, and leaders to drive awareness and action.</p>
+                </div>
+                <div class="card">
+                    <i class="fa-solid fa-users"></i>
+                    <h3>Community</h3>
+                    <p>Building a united network that collaborates with local organizations to create real change.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="about-section timeline">
+            <h2>Our Journey</h2>
+            <ul>
+                <li>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h4>2019</h4>
+                        <p>Founded by a group of passionate youth aiming to make a difference in drug prevention.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h4>2021</h4>
+                        <p>Reached 10,000+ students and held 100+ awareness events in schools and communities.</p>
+                    </div>
+                </li>
+                <li>
+                    <div class="dot"></div>
+                    <div class="content">
+                        <h4>2024</h4>
+                        <p>Launched nationwide peer-support networks to foster ongoing connections and care.</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+
+        <div class="about-section core-values">
+            <h2>The Meaning of "ALPHA"</h2>
+            <div class="value-list">
+                <div><strong>A</strong> - Advocating for change and health</div>
+                <div><strong>L</strong> - Love and compassion for all</div>
+                <div><strong>P</strong> - Providing support and education</div>
+                <div><strong>H</strong> - Hope for a better future</div>
+                <div><strong>A</strong> - Awakening awareness and action</div>
+            </div>
+        </div>
+
+        
     </section>
 
-    <section class="about-section mb-5">
-        <h2>What We Do</h2>
-        <ul>
-            <li>Conduct awareness campaigns and educational workshops in schools, communities, and workplaces.</li>
-            <li>Provide support services such as counseling and guidance through trained volunteers and professionals.
-            </li>
-            <li>Organize training programs tailored to different age groups: youth, parents, educators, and community
-                leaders.
-            </li>
-            <li>Facilitate community events and peer support networks to strengthen social bonds and resilience.</li>
-            <li>Collaborate with local authorities and organizations to expand our outreach and effectiveness.</li>
-        </ul>
-    </section>
-
-    <section class="about-section mb-5">
-        <h2>Our Team and Roles</h2>
-        <p>
-            Alpha’s strength lies in its diverse members, including:
-        </p>
-        <ul>
-            <li><strong>Volunteers:</strong> The heart of our organization, delivering programs and services.</li>
-            <li><strong>Consultants:</strong> Experts providing counseling and professional advice.</li>
-            <li><strong>Staff and Managers:</strong> Coordinating activities, logistics, and partnerships.</li>
-            <li><strong>Supporters and Donors:</strong> Individuals and groups who contribute resources and help sustain
-                our work.
-            </li>
-        </ul>
-    </section>
-
-    <section class="about-section">
-        <h2>Meaning of “Alpha”</h2>
-        <p>
-            Our name “Alpha” embodies the values we hold dear:
-        </p>
-        <ul>
-            <li><strong>A</strong> – Advocating for change and health</li>
-            <li><strong>L</strong> – Love and compassion for all</li>
-            <li><strong>P</strong> – Providing support and education</li>
-            <li><strong>H</strong> – Hope for a better future</li>
-            <li><strong>A</strong> – Awakening awareness and action</li>
-        </ul>
-        <p>
-            We strive every day to live up to these principles and make a lasting difference in our communities.
-        </p>
-    </section>
-
-    <Footer />
 </div>
+<div class="about-section team">
+    <h2>Meet Our Team</h2>
+    <div class="team-grid">
+        <div class="member">
+            <img src="/images/team1.jpg" alt="Volunteer">
+            <h4>Linh Tran</h4>
+            <p>Head of Volunteer Programs</p>
+        </div>
+        <div class="member">
+            <img src="/images/team2.jpg" alt="Counselor">
+            <h4>Minh Pham</h4>
+            <p>Senior Consultant</p>
+        </div>
+        <div class="member">
+            <img src="/images/team3.jpg" alt="Manager">
+            <h4>Sarah Nguyen</h4>
+            <p>Operations Manager</p>
+        </div>
+    </div>
+</div>
+
+
+<Footer />
+
+<script>
+    window.typeWriterEffect = (text, speed = 60) => {
+        const el = document.getElementById('typewriter-text');
+        if (!el) return;
+        el.textContent = '';
+        let i = 0;
+        function type() {
+            if (i < text.length) {
+                el.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            }
+        }
+        type();
+    };
+</script>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("typeWriterEffect", "We Are ALPHA");
+        }
+    }
+}

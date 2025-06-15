@@ -4,7 +4,6 @@
 @inject CampaignApiService CampaignApiService
 @inject NavigationManager NavigationManager
 
-<h1 class="page-title">Campaign Details</h1>
 
 @if (campaign == null)
 {
@@ -13,18 +12,16 @@
 else
 {
     <div class="campaign-detail-container">
-        <img src="@campaign.ImageUrl" alt="Campaign Image" class="campaign-image" />
+        <img src="@campaign.ImageUrl" alt="Campaign Image" style="max-width: 400px; margin-bottom: 20px;" />
 
         <div class="info-row"><label>Title:</label><span>@campaign.Title</span></div>
         <div class="info-row"><label>Status:</label><span>@campaign.Status</span></div>
-        <div class="info-row">
-            <label>Phase:</label>
-            <span>
-                @campaign.StartDate.ToString("dd/MM/yyyy")
-                –
-                @(campaign.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")
-            </span>
-        </div>
+        <label>Phase:</label>
+        <span>
+            @campaign.StartDate.ToString("dd/MM/yyyy")
+            –
+            @(campaign.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")
+        </span>
 
         <div class="campaign-section">
             <h3>Introduction</h3>
@@ -48,7 +45,9 @@ else
             </p>
         </div>
 
-        <button @onclick="GoBack">Back</button>
+
+
+
     </div>
 
     <Footer />

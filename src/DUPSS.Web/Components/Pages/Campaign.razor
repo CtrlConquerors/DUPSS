@@ -1,34 +1,33 @@
 @page "/Campaign"
-@using DUPSS.API.Models.DTOs @* Đảm bảo DTOs được sử dụng *@
+@using DUPSS.API.Models.AccessLayer.Interfaces
+@using DUPSS.Web.Components.Service
+@using DUPSS.API.Models.DTOs 
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CampaignApiService CampaignApiService
 @inject IJSRuntime JSRuntime
-@* Removed using DUPSS.API.Models.AccessLayer.Interfaces as it's not directly needed here *@
-@* Removed using DUPSS.API.Models.Objects as DTOs are preferred for UI *@
 
 <div class="campaign-page-container">
     <h1 class="page-title">Ongoing Awareness Campaigns</h1>
     <p class="page-subtitle">The sky was cloudless and of a deep dark blue the spectacle before us was indeed.</p>
 
-    @if (campaigns == null) @* Changed from campaign to campaigns *@
+    @if (campaign == null)
     {
         <div class="loading-indicator">
-            <p>Loading campaigns...</p> @* Changed text to plural *@
+            <p>Loading campaign...</p>
             <div class="spinner"></div>
         </div>
     }
     else if (hasError)
     {
         <div class="error-message">
-            <p>Oops! Something went wrong while loading campaigns. Please try again later.</p> @* Changed text to plural *@
+            <p>Oops! Something went wrong while loading campaign. Please try again later.</p>
         </div>
     }
-    else if (!campaigns.Any())
- @* Changed from campaign.Any() to campaigns.Any() *@
+    else if (!campaign.Any())
     {
         <div class="no-campaign-message">
-            <p>No campaigns available at the moment. Please check back later!</p> @* Changed text to plural *@
+            <p>No campaign available at the moment. Please check back later!</p>
         </div>
     }
     else
@@ -50,7 +49,7 @@
             }
         </div>
 
-        @if (campaigns.Count > DefaultCampaignDisplayLimit && !showAllCampaign) @* Changed from campaign.Count to campaigns.Count *@
+        @if (campaign.Count > DefaultCampaignDisplayLimit && !showAllCampaign)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCampaign" disabled="@(!_isHydrated)">
@@ -71,8 +70,7 @@
 <Footer />
 
 @code {
-    // Changed type to List<CampaignDTO> and variable name to 'campaigns' (plural)
-    private List<CampaignDTO>? campaigns;
+    private List<CampaignDTO>? campaign;
     private bool hasError = false;
     private bool showAllCampaign = false;
     private const int DefaultCampaignDisplayLimit = 3;
@@ -82,17 +80,14 @@
     {
         try
         {
-            // Now correctly assigns List<CampaignDTO> to 'campaigns'
-            campaigns = await CampaignApiService.GetAllAsync();
-            Console.WriteLine($"Loaded {campaigns?.Count} campaigns."); // Changed text and variable
+            campaign = await CampaignApiService.GetAllAsync(); // List<CampaignDTO>
+            Console.WriteLine($"Loaded {campaign?.Count} campaign.");
             hasError = false;
-            Console.WriteLine($"Campaigns loaded: {campaigns?.Count ?? 0}"); // Changed text and variable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading campaigns: {ex.Message}"); // Changed text
+            Console.WriteLine($"Error loading campaign: {ex.Message}");
             hasError = true;
-            campaigns = new List<CampaignDTO>(); // Initialize to empty DTO list on error
         }
     }
 
@@ -102,7 +97,7 @@
         {
             _isHydrated = true;
             Console.WriteLine("[Hydration] isHydrated: true");
-            StateHasChanged(); // Trigger re-render to enable Explore button
+            StateHasChanged(); // Re-render to enable Explore button
             await Task.CompletedTask;
         }
     }
@@ -117,9 +112,10 @@
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
     }
+
     private void NavigateToDetail(string campaignId)
     {
         NavigationManager.NavigateTo($"/Campaign/Detail/{campaignId}", forceLoad: true);
-
     }
 }
+

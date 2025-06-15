@@ -10,7 +10,6 @@ namespace DUPSS.Web.Components.Service
         private readonly AuthService _authService;
 
         public CampaignApiService(HttpClient httpClient, AuthService authService)
-            // Đường dẫn cơ sở vẫn giữ nguyên
             : base(httpClient, "api/Campaigns", authService)
         {
             _httpClient = httpClient;

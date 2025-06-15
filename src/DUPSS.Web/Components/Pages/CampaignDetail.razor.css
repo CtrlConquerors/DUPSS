@@ -25,29 +25,29 @@
     gap: 10px;
 }
 
-    .info-row label {
-        font-weight: bold;
-        min-width: 120px;
-    }
+.info-row label {
+    font-weight: bold;
+    min-width: 120px;
+}
 
-    .info-row span {
-        flex: 1;
-    }
+.info-row span {
+    flex: 1;
+}
 
 .campaign-section {
     margin-top: 32px;
 }
 
-    .campaign-section h3 {
-        font-size: 22px;
-        margin-bottom: 16px;
-        color: #333;
-    }
+.campaign-section h3 {
+    font-size: 22px;
+    margin-bottom: 16px;
+    color: #333;
+}
 
-    .campaign-section p {
-        margin-bottom: 16px;
-        text-align: justify;
-    }
+.campaign-section p {
+    margin-bottom: 16px;
+    text-align: justify;
+}
 
 button {
     margin-top: 24px;
@@ -59,6 +59,6 @@ button {
     cursor: pointer;
 }
 
-    button:hover {
-        background-color: #005f9e;
-    }
+button:hover {
+    background-color: #005f9e;
+}

@@ -1,52 +1,53 @@
 ﻿<footer class="main-footer mt-10">
     <canvas id="rainCanvas" class="rain-canvas"></canvas>
 
-    <div class=" footer-content-wrapper ">
+    <div class="footer-content-wrapper">
+        <!-- About Section -->
         <div class="footer-section footer-logo-section col-1">
             <img src="images/logo.png" alt="Logo" class="footer-logo" />
-            <p class="footer-copyright">Copyright © ALPHA</p>
+            <p class="footer-about">
+                ALPHA is dedicated to providing high-quality courses and resources to empower your learning journey. Join our community and stay ahead!
+            </p>
         </div>
 
-        <div class="footer-section footer-info-section text-center col-2">
-            <h5 class="footer-heading">OUR INFORMATION</h5>
-            <p>Address: Phuoc Hiep</p>
-            <p>Contact number: 090 538 4233</p>
-            <p>Email: abcd@fgmail.com</p>
+        <!-- Quick Links -->
+        <div class="footer-section footer-links-section col-2">
+            <h5 class="footer-heading">QUICK LINKS</h5>
+            <ul class="footer-links">
+                <li><a href="/">Home</a></li>
+                <li><a href="/Course">Courses</a></li>
+                <li><a href="/Blog">Blog</a></li>
+                <li><a href="/AboutUs">About Us</a></li>
+                <li><a href="/Login">Login</a></li>
+            </ul> 
         </div>
 
-        @* <div class="footer-section footer-subscribe-section col-10">
-            <div class="subscribe-box">
-                <h4 class="subscribe-heading">Stay up to date</h4>
-                <p class="subscribe-text">Get Started</p>
-                <div class="input-group subscribe-input-group">
-                    <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
-                    <button class="btn btn-primary" type="button">Register now</button>
-                </div>
-                <small class="subscribe-note">*You can unsubscribe anytime</small>
-            </div>
+        <!-- Contact Info -->
+        <div class="footer-section footer-info-section col-3">
+            <h5 class="footer-heading">CONTACT</h5>
+            <p><i class="bi bi-geo-alt"></i> Phuoc Hiep</p>
+            <p><i class="bi bi-telephone"></i> 090 538 4233</p>
+            <p><i class="bi bi-envelope"></i> abcd@fgmail.com</p>
+        </div>
 
-            <div class="footer-section footer-info-section text-center col-2">
-                <h5 class="footer-heading">OUR INFORMATION</h5>
-                <p>Address: Phuoc Hiep</p>
-                <p>Contact number: 090 538 4233</p>
-                <p>Email: abcd@fgmail.com</p>
+        <!-- Social Media -->
+        <div class="footer-section footer-social-section col-4">
+            <h5 class="footer-heading">FOLLOW US</h5>
+            <div class="footer-social-icons">
+                <a href="https://facebook.com" target="_blank" title="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="https://twitter.com" target="_blank" title="Twitter"><i class="bi bi-twitter"></i></a>
+                <a href="https://instagram.com" target="_blank" title="Instagram"><i class="bi bi-instagram"></i></a>
+                <a href="https://linkedin.com" target="_blank" title="LinkedIn"><i class="bi bi-linkedin"></i></a>
             </div>
-
-            @* <div class="footer-section footer-subscribe-section col-10">
-                <div class="subscribe-box">
-                    <h4 class="subscribe-heading">Stay up to date</h4>
-                    <p class="subscribe-text">Get Started</p>
-                    <div class="input-group subscribe-input-group">
-                        <input type="email" class="form-control" placeholder="Enter your email" aria-label="Enter your email" />
-                        <button class="btn btn-primary" type="button">Register now</button>
-                    </div>
-                    <small class="subscribe-note">*You can unsubscribe anytime</small>
-                </div>
-            </div> *@
+        </div>
     </div>
-    <div class="right"></div>
 
-
+    <div class="footer-bottom text-center mt-4">
+        <hr />
+        <p class="footer-copyright">
+            &copy; @DateTime.Now.Year ALPHA. All rights reserved.
+        </p>
+    </div>
 </footer>
 
 @* ---raining effect--- *@

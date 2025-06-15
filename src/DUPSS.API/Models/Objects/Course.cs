@@ -12,34 +12,46 @@ namespace DUPSS.API.Models.Objects
 
         [Key]
         public required string CourseId { get; set; }
+
         [Required]
         public required string TopicId { get; set; }
+
         [Required, MaxLength(200)]
         public required string CourseName { get; set; }
+
         [Required, MaxLength(50)]
         public required string CourseType { get; set; }
+
         [Required]
         public required string StaffId { get; set; }
+
+        // Changed from 'required string' to 'string?' to allow null values from the database
+        [MaxLength(1000)]
+        public string? Description { get; set; }
+
+        [Required]
+        public required string ConsultantId { get; set; }
 
         // Navigation properties
         public CourseTopic? Topic { get; set; }
         public User? Staff { get; set; }
+        public User? Consultant { get; set; }
         public List<CourseEnroll> Enrollments { get; set; } = new List<CourseEnroll>();
 
         // [NotMapped] properties for UI display, not stored in DB
         [NotMapped]
-        public string? ImageUrl { get; set; } // Already there, good.
+        public string? ImageUrl { get; set; }
 
         [NotMapped]
-        public DateTime CreatedDate { get; set; } // For "CREATED/ADD DATE"
+        public DateTime CreatedDate { get; set; }
 
         [NotMapped]
-        public string? Status { get; set; } // For "STATUS" (e.g., "AVAILABLE", "UNAVAILABLE")
+        public string? Status { get; set; }
 
         [NotMapped]
-        public int Inventory { get; set; } // For "INVENTORY"
+        public int Inventory { get; set; }
 
         [NotMapped]
-        public bool IsSelected { get; set; } // For table row selection checkbox
+        public bool IsSelected { get; set; }
     }
 }

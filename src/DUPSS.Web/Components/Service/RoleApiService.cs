@@ -1,4 +1,5 @@
 ﻿using DUPSS.API.Models.Objects;
+using DUPSS.API.Models.DTOs;
 
 namespace DUPSS.Web.Components.Service
 {

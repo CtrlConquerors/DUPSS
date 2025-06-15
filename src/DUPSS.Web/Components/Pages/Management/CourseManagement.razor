@@ -1,5 +1,6 @@
 ﻿@page "/Management/Course"
-@using DUPSS.API.Models.Objects
+@using DUPSS.API.Models.DTOs @* Use DTOs for consistency *@
+@using DUPSS.API.Models.Objects @* Still needed for CourseTopic, User, Role *@
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CourseApiService CourseApiService
@@ -26,7 +27,7 @@
     </div>
     <div class="filter-sort-section">
         <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by Course, Topic, Staff, ID"
+            <input type="text" class="form-control" placeholder="Search by Course Name, Topic, Staff, Consultant,..."
                    @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCourses"/>
         </div>
 
@@ -56,6 +57,19 @@
             </select>
         </div>
 
+        <div class="filter-dropdown-container">
+            <select class="form-select" @onchange="OnConsultantFilterChanged">
+                <option value="">All Consultants</option>
+                @if (consultantUsers != null)
+                {
+                    @foreach (var consultant in consultantUsers)
+                    {
+                        <option value="@consultant.UserId">@consultant.Username</option>
+                    }
+                }
+            </select>
+        </div>
+
         @* NEW: Sort controls *@
         <div class="sort-controls">
             <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
@@ -63,6 +77,7 @@
                 <option value="CourseName">Sort: Course Name</option>
                 <option value="TopicName">Sort: Topic Name</option>
                 <option value="StaffName">Sort: Staff Name</option>
+                <option value="ConsultantName">Sort: Consultant Name</option> @* NEW Sort Option *@
             </select>
             <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
                 @if (sortDirection == SortDirection.Ascending)
@@ -77,7 +92,7 @@
         </div>
     </div>
 
-    @if (courses == null || topics == null || staffUsers == null || roles == null)
+    @if (courses == null || topics == null || staffUsers == null || roles == null || consultantUsers == null)
     {
         <div class="loading-indicator">Loading courses and related data...</div>
     }
@@ -101,6 +116,8 @@
                     <th>Course Type</th>
                     <th>Topic Name</th>
                     <th>Staff Name</th>
+                    <th>Consultant Name</th> @* NEW Column Header *@
+                    <th>Description</th> @* NEW Column Header *@
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -131,6 +148,8 @@
                         </td>
                         <td>@course.Topic?.TopicName</td>
                         <td>@course.Staff?.Username</td>
+                        <td>@course.Consultant?.Username</td> @* NEW Data Cell *@
+                        <td>@(course.Description?.Length > 50 ? course.Description.Substring(0, 50) + "..." : course.Description)</td> @* NEW Data Cell (truncated) *@
                         <td>
 
                             <div class="action-buttons">
@@ -240,6 +259,27 @@
                 </select>
             </div>
 
+            @* NEW: Description input *@
+            <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" @bind="courseToEdit.Description" rows="5" placeholder="Enter detailed course description"></textarea>
+            </div>
+
+            @* NEW: Consultant dropdown *@
+            <div class="mb-3">
+                <label class="form-label">Consultant</label>
+                <select class="form-select" @bind="courseToEdit.ConsultantId">
+                    <option value="">Select Consultant</option>
+                    @if (consultantUsers != null)
+                    {
+                        @foreach (var consultant in consultantUsers)
+                        {
+                            <option value="@consultant.UserId">@consultant.Username</option>
+                        }
+                    }
+                </select>
+            </div>
+
             <div>
                 <button class="btn btn-success me-2" @onclick="SaveCourse">Save</button>
                 <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
@@ -249,12 +289,12 @@
 
 </div>
 
-
-
 @code {
-    private List<Course>? courses;
+    // Changed the type to CourseDTO to match the CourseApiService return type
+    private List<CourseDTO>? courses;
     private List<CourseTopic>? topics;
     private List<User>? staffUsers; // To hold users with 'Staff' role
+    private List<User>? consultantUsers; // NEW: To hold users with 'Consultant' role
     private List<Role>? roles;
     private bool hasError = false;
     private int currentPage = 1;
@@ -265,19 +305,23 @@
     private string searchTerm = string.Empty;
     private string selectedTopicId = string.Empty;
     private string selectedStaffId = string.Empty;
+    private string selectedConsultantId = string.Empty; // NEW Filter option
     private string sortBy = "CourseId"; // Default sort column is CourseId
     private SortDirection sortDirection = SortDirection.Ascending; // Default sort direction
 
     private enum SortDirection { Ascending, Descending }
 
     // For Add/Edit Form
-    private Course courseToEdit = new Course
+    // Changed the type from Course to CourseDTO
+    private CourseDTO courseToEdit = new CourseDTO
     {
         CourseId = "",
         CourseName = "",
         CourseType = "",
         TopicId = "",
-        StaffId = ""
+        StaffId = "",
+        Description = "", // Initialize description
+        ConsultantId = "" // Initialize consultant ID
     };
     private bool showEditForm = false;
     private bool isNewCourse = false;
@@ -286,13 +330,14 @@
 
     // Removed: showEditTopicInput, editingTopicId, editedTopicName
 
-    // FIXED: Initialize filteredCourses to an empty list to prevent null reference errors
-    private List<Course> filteredCourses = new List<Course>();
+    // Changed the type from Course to CourseDTO
+    private List<CourseDTO> filteredCourses = new List<CourseDTO>();
 
-    private IEnumerable<Course> PaginatedCourses =>
+    // Changed the type from Course to CourseDTO
+    private IEnumerable<CourseDTO> PaginatedCourses =>
         filteredCourses?
             .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<Course>();
+            .Take(itemsPerPage) ?? Enumerable.Empty<CourseDTO>();
 
     private int TotalPages => (int)Math.Ceiling((filteredCourses?.Count ?? 0) / (double)itemsPerPage);
 
@@ -317,8 +362,13 @@
             roles = await RoleApiService.GetAllAsync();
             var allUsers = await UserApiService.GetAllAsync();
 
-            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST")).Select(r => r.RoleId).ToList();
+            // Filter for Staff users (assuming RoleId starts with "ST")
+            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
+
+            // NEW: Filter for Consultant users (assuming RoleId starts with "CS")
+            var consultantRoleIds = roles?.Where(r => r.RoleId.StartsWith("CS", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
+            consultantUsers = allUsers?.Where(u => consultantRoleIds != null && consultantRoleIds.Contains(u.RoleId)).ToList();
 
             FilterAndSortCourses(); // Apply initial filter and sort
             hasError = false;
@@ -326,11 +376,12 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
-            courses = new List<Course>();
-            // Ensure filteredCourses is also initialized in case of error
-            filteredCourses = new List<Course>();
+            // Change types to CourseDTO
+            courses = new List<CourseDTO>();
+            filteredCourses = new List<CourseDTO>();
             topics = new List<CourseTopic>();
             staffUsers = new List<User>();
+            consultantUsers = new List<User>(); // NEW: Initialize consultantUsers on error
             roles = new List<Role>();
             hasError = true;
         }
@@ -341,13 +392,14 @@
     {
         if (courses == null)
         {
-            filteredCourses = new List<Course>(); // Ensure it's not null even if courses is null
+            filteredCourses = new List<CourseDTO>(); // Ensure it's not null even if courses is null
             return;
         }
 
-        IEnumerable<Course> query = courses;
+        // Change type to CourseDTO
+        IEnumerable<CourseDTO> query = courses;
 
-        // Apply Search Term (Course Name, Topic Name, Staff Name, Course ID)
+        // Apply Search Term (Course Name, Topic Name, Staff Name, Consultant Name, Course ID, Description)
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var lowerSearchTerm = searchTerm.ToLower();
@@ -355,7 +407,9 @@
                 (c.CourseName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
                 (c.Topic?.TopicName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
                 (c.Staff?.Username?.ToLower().Contains(lowerSearchTerm) ?? false) ||
-                (c.CourseId?.ToLower().Contains(lowerSearchTerm) ?? false)
+                (c.Consultant?.Username?.ToLower().Contains(lowerSearchTerm) ?? false) || // NEW: Search by Consultant Name
+                (c.CourseId?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (c.Description?.ToLower().Contains(lowerSearchTerm) ?? false) // NEW: Search by Description
             );
         }
 
@@ -370,6 +424,13 @@
         {
             query = query.Where(c => c.StaffId == selectedStaffId);
         }
+
+        // NEW: Apply Consultant Filter
+        if (!string.IsNullOrWhiteSpace(selectedConsultantId))
+        {
+            query = query.Where(c => c.ConsultantId == selectedConsultantId);
+        }
+
 
         // Apply Sorting
         switch (sortBy)
@@ -388,6 +449,11 @@
                 query = sortDirection == SortDirection.Ascending ?
                     query.OrderBy(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
                     query.OrderByDescending(c => c.Staff?.Username, StringComparer.OrdinalIgnoreCase);
+                break;
+            case "ConsultantName": // NEW: Sorting by Consultant Name
+                query = sortDirection == SortDirection.Ascending ?
+                    query.OrderBy(c => c.Consultant?.Username, StringComparer.OrdinalIgnoreCase) :
+                    query.OrderByDescending(c => c.Consultant?.Username, StringComparer.OrdinalIgnoreCase);
                 break;
             case "CourseId": // Sorting by CourseId
                 query = sortDirection == SortDirection.Ascending ?
@@ -415,6 +481,13 @@
         FilterAndSortCourses();
     }
 
+    // NEW: OnConsultantFilterChanged method
+    private void OnConsultantFilterChanged(ChangeEventArgs e)
+    {
+        selectedConsultantId = e.Value?.ToString() ?? string.Empty;
+        FilterAndSortCourses();
+    }
+
     private void ToggleSortDirection()
     {
         sortDirection = sortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
@@ -425,6 +498,7 @@
     private string GenerateNextCourseId()
     {
         var maxIdNum = 0;
+        // Changed to List<CourseDTO>
         if (courses != null && courses.Any())
         {
             // Find the maximum numeric part from existing CourseIds
@@ -468,16 +542,17 @@
     {
         validationMessage = string.Empty; // Clear previous validation messages
         showNewTopicInput = false; // Ensure new topic input is hidden by default for add
-        // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name
-        // Removed: editedTopicName = string.Empty;
-        courseToEdit = new Course
+        // Changed to CourseDTO
+        courseToEdit = new CourseDTO
         {
             CourseId = GenerateNextCourseId(),
             CourseName = "",
             CourseType = "Online",
             TopicId = "",
-            StaffId = ""
+            StaffId = "",
+            Description = "", // Default for new course
+            ConsultantId = "" // Default for new course
         };
         isNewCourse = true;
         showEditForm = true;
@@ -487,21 +562,24 @@
     {
         validationMessage = string.Empty; // Clear previous validation messages
         showNewTopicInput = false; // Ensure new topic input is always hidden for edit
-        // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name
-        // Removed: editedTopicName = string.Empty;
+        // Expecting CourseDTO from 'courses' list
         var course = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (course != null)
         {
-            courseToEdit = new Course
+            // Assign properties from CourseDTO to CourseDTO
+            courseToEdit = new CourseDTO
             {
                 CourseId = course.CourseId,
                 CourseName = course.CourseName,
                 CourseType = course.CourseType,
                 TopicId = course.TopicId,
                 StaffId = course.StaffId,
+                Description = course.Description, // Load existing description
+                ConsultantId = course.ConsultantId, // Load existing consultant ID
                 Topic = course.Topic,
-                Staff = course.Staff
+                Staff = course.Staff,
+                Consultant = course.Consultant // Load existing consultant navigation property
             };
             isNewCourse = false;
             showEditForm = true;
@@ -512,7 +590,6 @@
     private void PromptAddNewTopic()
     {
         showNewTopicInput = true;
-        // Removed: showEditTopicInput = false;
         courseToEdit.TopicId = ""; // Clear selected topic when switching to new topic input
         newTopicName = string.Empty; // Clear new topic name
         validationMessage = string.Empty; // Clear any previous validation messages
@@ -525,10 +602,6 @@
         newTopicName = string.Empty;
         validationMessage = string.Empty; // Clear any previous validation messages
     }
-
-    // Removed: EditTopic method
-    // Removed: SaveEditedTopic method
-    // Removed: CancelEditTopicInput method
 
     // NEW: Method to delete a topic
     private async Task DeleteTopic(string topicIdToDelete)
@@ -546,7 +619,7 @@
             return;
         }
 
-        // Check if any courses are associated with this topic
+        // Check if any courses are associated with this topic (now using CourseDTO)
         var coursesUsingTopic = courses?.Any(c => c.TopicId == topicIdToDelete) ?? false;
         if (coursesUsingTopic)
         {
@@ -565,7 +638,7 @@
                     Console.WriteLine($"Topic '{topic.TopicName}' (ID: {topicIdToDelete}) deleted successfully.");
                     validationMessage = string.Empty; // Clear message on success
 
-                    // Re-fetch topics and courses to update UI
+                    // Re-fetch topics and courses to update UI (courses is now CourseDTO)
                     topics = await CourseTopicApiService.GetAllAsync();
                     courses = await CourseApiService.GetAllAsync(); // Courses might have had this topic, so refresh all.
                     FilterAndSortCourses(); // Re-apply filters and sort
@@ -635,7 +708,6 @@
         else // If not adding a new topic (selecting existing)
         {
             // Only validate topic selection if not currently editing a topic
-            // Removed: !showEditTopicInput condition
             if (string.IsNullOrWhiteSpace(courseToEdit.TopicId))
             {
                 validationMessage = "Please select a Topic.";
@@ -649,21 +721,38 @@
             return;
         }
 
+        // NEW: Validate Description
+        if (string.IsNullOrWhiteSpace(courseToEdit.Description))
+        {
+            validationMessage = "Description cannot be empty.";
+            return;
+        }
+
+        // NEW: Validate Consultant
+        if (string.IsNullOrWhiteSpace(courseToEdit.ConsultantId))
+        {
+            validationMessage = "Please select a Consultant.";
+            return;
+        }
+
         validationMessage = string.Empty; // Clear message if all validations pass
 
         try
         {
             if (isNewCourse)
             {
+                // Ensure CreateAsync expects and sends a CourseDTO
                 await CourseApiService.CreateAsync(courseToEdit);
                 Console.WriteLine($"Course '{courseToEdit.CourseName}' created with ID: {courseToEdit.CourseId}");
             }
             else
             {
+                // Ensure UpdateAsync expects and sends a CourseDTO
                 await CourseApiService.UpdateAsync(courseToEdit);
                 Console.WriteLine($"Course '{courseToEdit.CourseName}' updated.");
             }
 
+            // courses is now List<CourseDTO>
             courses = await CourseApiService.GetAllAsync();
             FilterAndSortCourses(); // Re-apply all logic after save
             showEditForm = false;
@@ -680,22 +769,24 @@
     {
         validationMessage = string.Empty; // Clear validation message on cancel
         showNewTopicInput = false; // Hide new topic input on cancel
-        // Removed: showEditTopicInput = false;
         newTopicName = string.Empty; // Clear new topic name on cancel
-        // Removed: editedTopicName = string.Empty;
-        courseToEdit = new Course
+        // Changed to CourseDTO
+        courseToEdit = new CourseDTO
         {
             CourseId = "",
             CourseName = "",
             CourseType = "",
             TopicId = "",
-            StaffId = ""
+            StaffId = "",
+            Description = "", // Clear description on cancel
+            ConsultantId = "" // Clear consultant ID on cancel
         };
         showEditForm = false;
     }
 
     private async Task DeleteCourse(string courseId)
     {
+        // Now expecting CourseDTO
         var courseToDelete = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (courseToDelete == null)
         {
@@ -712,18 +803,27 @@
                 if (success)
                 {
                     Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseId}) deleted successfully.");
+                    validationMessage = string.Empty; // Clear message on success
+
+                    // Re-fetch courses to update UI (courses is now CourseDTO)
                     courses = await CourseApiService.GetAllAsync();
-                    FilterAndSortCourses(); // Re-apply all logic after delete
-                    GoToPage(1);
+                    FilterAndSortCourses(); // Re-apply filters and sort
+
+                    // Close edit form if the deleted course was being edited
+                    if (courseToEdit.CourseId == courseId)
+                    {
+                        CancelEdit(); // This will reset courseToEdit and hide the form
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"Failed to delete course '{courseToDelete.CourseName}'.");
+                    validationMessage = $"Failed to delete course '{courseToDelete.CourseName}'.";
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error deleting course: {ex.Message}");
+                validationMessage = $"Error deleting course: {ex.Message}";
             }
         }
     }

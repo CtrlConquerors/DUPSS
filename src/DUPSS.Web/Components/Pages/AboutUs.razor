@@ -138,10 +138,12 @@
 <Footer />
 
 <script>
-    window.typeWriterEffect = (text, speed = 60) => {
+    window.typeWriterEffect = (text, speed = 120) => {
         const el = document.getElementById('typewriter-text');
+        const caret = document.querySelector('.typewriter-caret');
         if (!el) return;
         el.textContent = '';
+        if (caret) caret.classList.remove('hide-caret');
         let i = 0;
         function type() {
             if (i < text.length) {
@@ -151,6 +153,12 @@
             }
         }
         type();
+        // Hide caret after x seconds
+        if (caret) {
+            setTimeout(() => {
+                caret.classList.add('hide-caret');
+            }, 3000);
+        }
     };
 </script>
 

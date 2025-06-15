@@ -7,7 +7,14 @@
 .blog-bg-override ::deep .navbar a {
     color: #222 !important; 
 }
-
+/* Adjust search bar margin only on the blog page */
+::deep .search-bar {
+    margin-left: -10px; /* or any value you need */
+    margin-right: 70px;
+}
+.navbar-nav {
+    flex-shrink: 0;
+}
 .blog-bg-override {
     position: relative;
     width: 99.3vw;

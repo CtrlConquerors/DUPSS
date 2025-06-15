@@ -112,7 +112,12 @@
     object-fit: cover; /* Cover the area, cropping if necessary */
     border-top-left-radius: 0px;
     border-top-right-radius: 0px;
+    transition: transform 0.3s ease;
 }
+
+    .card-image img:hover {
+        transform: scale(1.05);
+    }
 
 /* Card content area styling */
 .card-content {
@@ -124,19 +129,53 @@
 }
 
 /* Course category styling */
-.course-category {
-    font-size: 0.9em;
-    color: white; /* A distinct color for categories */
-    font-weight: 600;
-    margin-bottom: 5px;
-    text-transform: uppercase;
-    /* Border that wraps tightly around text */
-    display: inline-block; /* Critical for proper border wrapping */
-    border: 1px solid #007bff; /* Matching border color */
-    border-radius: 20px;
-    padding: 2px 6px; /* Space between text and border */
-    background-color: #1e68ff; /* Very light blue bg */
+@keyframes course-eclipse {
+    0% {
+        transform: translateX(110%);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: translateX(-110%);
+        opacity: 0.7;
+    }
 }
+
+.course-category {
+    position: relative; /* Needed for pseudo-element positioning */
+    overflow: hidden; /* Hide the animated bar outside the badge */
+    z-index: 1;
+    border: 1px solid #F3F0F0;
+    border-radius: 30px;
+    display: inline-block;
+    padding: 2px 5px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    font-family: 'Inter', 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+    margin-bottom: 8px;
+}
+
+    /* Animated white bar */
+    .course-category::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 60%; /* Adjust width for the bar size */
+        height: 100%;
+        background: linear-gradient(90deg, transparent 0%, white 10%, transparent 100%);
+        filter: blur(4px);
+        opacity: 0;
+        z-index: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        /* No animation by default */
+    }
+
+    .course-category:hover::before {
+        opacity: 0.5;
+        animation: course-eclipse 5s linear infinite;
+    }
 
 /* Course name styling */
 .course-name {
@@ -279,33 +318,52 @@
     color: #f0f2f5;
     padding: 40px 0;
     margin-top: 60px;
+    margin-bottom: -30px;
     font-family: 'Open Sans', sans-serif;
-    border-radius: 10px;
+    border-radius: 50px;
+    position: relative;
+    overflow: hidden;
 }
 
-.main-footer .footer-content-wrapper {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 30px;
+    .main-footer .footer-content-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 30px;
+    }
+
+    .main-footer .footer-section {
+        flex: 1;
+        min-width: 280px;
+        padding: 15px;
+        text-align: left;
+    }
+
+.rain-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 120px;
+    width: 100%;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.main-footer .footer-section {
-    flex: 1;
-    min-width: 280px;
-    padding: 15px;
-    text-align: left;
-}
+/*.main-footer .footer-content-wrapper {
+    position: relative;
+    z-index: 1 ;
+}*/
 
 /* Logo Section */
 .main-footer .footer-logo-section {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    justify-content:;
-    background-color:;
+    justify-content: center;
+    background-color: none;
     padding-top: 50px;
+    margin-left: 20px;
 }
 
 .main-footer .footer-logo {
@@ -328,13 +386,13 @@
     text-align: center;
     padding-top: 50px;
     padding-right: 9px;
-    background-color:;
+    background-color: none;
 }
 
-.main-footer .footer-info-section p {
-    margin-bottom: 8px;
-    font-size: 0.95em;
-}
+    .main-footer .footer-info-section p {
+        margin-bottom: 8px;
+        font-size: 0.95em;
+    }
 
 /* Headings in Footer */
 .main-footer .footer-heading {
@@ -347,17 +405,17 @@
     padding-bottom: 5px;
 }
 
-.main-footer .footer-heading::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
-    bottom: 0;
-    width: 60px;
-    height: 3px;
-    background-color: #ffd700;
-    border-radius: 2px;
-}
+    .main-footer .footer-heading::after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 0;
+        width: 60px;
+        height: 3px;
+        background-color: #ffd700;
+        border-radius: 2px;
+    }
 
 /* Subscribe Section */
 .main-footer .footer-subscribe-section {

@@ -3,22 +3,23 @@
 @inject AuthService AuthService
 @inject NavigationManager NavigationManager
 
+<div class="login-bg-override"></div>
 <div class="login-container">
     <div class="login-card">
         <div class="login-header">
-            <img src="images/logo.png" alt="ALPHA Logo" class="login-logo"/>
+            <img src="images/logo2.png" alt="ALPHA Logo" class="login-logo"/>
             <h2>ALPHA Login</h2>
         </div>
         <form class="login-form" @onsubmit="HandleLogin">
             <div class="form-group">
                 <label for="email">Email</label>
-                <input id="email" type="email" class="form-control" @bind="email" placeholder="Enter your email"
+                <input id="email" type="email" class="form-control" @bind="email" placeholder="EMAIL"
                        required/>
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
                 <input id="password" type="password" class="form-control" @bind="password"
-                       placeholder="Enter your password" required/>
+                       placeholder="PASSWORD" required/>
             </div>
             @if (!string.IsNullOrEmpty(errorMessage))
             {

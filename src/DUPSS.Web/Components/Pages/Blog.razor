@@ -1,91 +1,135 @@
 ﻿@page "/Blog"
-@using DUPSS.Web.Components.Layout
+@using DUPSS.API.Models.DTOs
+@using DUPSS.Web.Components.Service
+@inject NavigationManager NavigationManager
+@inject BlogApiService BlogApiService
+@inject IJSRuntime JSRuntime
 
-<div class="blog-bg-override">
-    <div class="blog-navbar navbar-expand-lg">
-        <NavMenu/>
-    </div>
-    <!-- Hero content here, e.g. headline, button, etc. -->
-    <div class="blog-header">
-        <h1>Headerrrrrrrrrrrrrrr </h1>
-    </div>
-</div>
+<div class="blog-page-container">
+    <h1 class="page-title">Ongoing Blog Posts</h1>
+    <p class="page-subtitle">Discover insights and updates from our team.</p>
 
-<div class="blog-content">
-    <h1>Blog</h1>
-    <!-- ... -->
-</div>
-
-<div class="about-us-container container py-5">
-    <h1 class="mb-4">About ALPHA Charity Organization</h1>
-
-    <section class="about-section mb-5">
-        <h2>Who We Are</h2>
-        <div class="typewriter-container">
-            <p class="typewriter-text">
-                <span class="typewriter-line">Alpha is a dedicated volunteer charity organization committed to building healthier, safer communities by supporting drug use prevention and offering </span>
-                <span class="typewriter-line">care to vulnerable populations.</span>
-                <span class="typewriter-line">We believe that collective compassion and proactive efforts can bring positive change and hope to those affected by drug-related challenges.</span>
-
-            </p>
+    @if (blogs == null)
+    {
+        <div class="loading-indicator">
+            <p>Loading blogs...</p>
+            <div class="spinner"></div>
         </div>
-    </section>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <p>Oops! Something went wrong while loading blogs. Please try again later.</p>
+            <button class="retry-button" @onclick="RetryLoadBlogs">Retry</button>
+        </div>
+    }
+    else if (!blogs.Any())
+    {
+        <div class="no-blog-message">
+            <p>No blogs available at the moment. Please check back later!</p>
+        </div>
+    }
+    else
+    {
+        <div class="blog-grid">
+            @foreach (var item in showAllBlogs ? blogs : blogs.Take(DefaultBlogDisplayLimit))
+            {
+                <div class="blog-card clickable" @onclick="() => NavigateToDetail(item.BlogId)">
+                    <div class="card-image">
+                        <img src="https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image"
+                             alt="Blog Image" />
+                    </div>
+                    <div class="card-content">
+                        <h3 class="blog-name">@item.Title</h3>
+                        <p class="blog-status">Status: @item.Status</p>
+                        <p>@(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)</p>
+                    </div>
+                </div>
+            }
+        </div>
 
-    <section class="about-section mb-5">
-        <h2>Our Mission and Vision</h2>
-        <p>
-            Our mission is to educate, advocate, and support individuals and families to live drug-free lives.
-            We envision a community where everyone has access to knowledge, resources, and professional help needed to
-            overcome and prevent substance abuse.
-        </p>
-    </section>
+        @if (blogs.Count > DefaultBlogDisplayLimit && !showAllBlogs)
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllBlogs" disabled="@(!_isHydrated)">
+                    @(_isHydrated ? "Explore More" : "Loading...")
+                </button>
+            </div>
+        }
 
-    <section class="about-section mb-5">
-        <h2>What We Do</h2>
-        <ul>
-            <li>Conduct awareness campaigns and educational workshops in schools, communities, and workplaces.</li>
-            <li>
-                Provide support services such as counseling and guidance through trained volunteers and professionals.
-            </li>
-            <li>
-                Organize training programs tailored to different age groups: youth, parents, educators, and community
-                leaders.
-            </li>
-            <li>Facilitate community events and peer support networks to strengthen social bonds and resilience.</li>
-            <li>Collaborate with local authorities and organizations to expand our outreach and effectiveness.</li>
-        </ul>
-    </section>
-
-    <section class="about-section mb-5">
-        <h2>Our Team and Roles</h2>
-        <p>
-            Alpha’s strength lies in its diverse members, including:
-        </p>
-        <ul>
-            <li><strong>Volunteers:</strong> The heart of our organization, delivering programs and services.</li>
-            <li><strong>Consultants:</strong> Experts providing counseling and professional advice.</li>
-            <li><strong>Staff and Managers:</strong> Coordinating activities, logistics, and partnerships.</li>
-            <li>
-                <strong>Supporters and Donors:</strong> Individuals and groups who contribute resources and help sustain
-                our work.
-            </li>
-        </ul>
-    </section>
-
-    <section class="about-section">
-        <h2>Meaning of “Alpha”</h2>
-        <p>
-            Our name “Alpha” embodies the values we hold dear:
-        </p>
-        <ul>
-            <li><strong>A</strong> – Advocating for change and health</li>
-            <li><strong>L</strong> – Love and compassion for all</li>
-            <li><strong>P</strong> – Providing support and education</li>
-            <li><strong>H</strong> – Hope for a better future</li>
-            <li><strong>A</strong> – Awakening awareness and action</li>
-        </ul>
-        <p>
-            We strive every day to live up to these principles and make a lasting difference in our communities.
-        </p>
-    </section>
+        @if (showAllBlogs)
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllBlogs">Show Less</button>
+            </div>
+        }
+    }
 </div>
+
+<Footer />
+
+@code {
+    private List<BlogDTO>? blogs;
+    private bool hasError = false;
+    private bool showAllBlogs = false;
+    private const int DefaultBlogDisplayLimit = 3;
+    private bool _isHydrated = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadBlogsAsync();
+    }
+
+    private async Task LoadBlogsAsync()
+    {
+        try
+        {
+            blogs = await BlogApiService.GetAllAsync();
+            Console.WriteLine($"Loaded {blogs?.Count} blogs.");
+            hasError = false;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading blogs: {ex.Message}");
+            hasError = true;
+        }
+        finally
+        {
+            StateHasChanged();
+        }
+    }
+
+    private async Task RetryLoadBlogs()
+    {
+        hasError = false;
+        await LoadBlogsAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isHydrated = true;
+            Console.WriteLine("[Hydration] isHydrated: true");
+            StateHasChanged();
+            await Task.CompletedTask;
+        }
+    }
+
+    private async Task ToggleShowAllBlogs()
+    {
+        showAllBlogs = !showAllBlogs;
+        Console.WriteLine($"ToggleShowAllBlogs called. showAllBlogs is now: {showAllBlogs}");
+
+        if (!showAllBlogs)
+        {
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+    }
+
+    private void NavigateToDetail(string blogId)
+    {
+        Console.WriteLine($"Navigating to blog detail: BlogId={blogId}");
+        NavigationManager.NavigateTo($"/Blog/Detail/{blogId}", forceLoad: true); // Removed forceLoad: true
+    }
+}

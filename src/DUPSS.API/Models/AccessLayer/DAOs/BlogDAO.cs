@@ -75,7 +75,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 .ToListAsync();
         }
 
-        public async Task<BlogDTO> UpdateAsync(Blog blog)
+        public async Task<BlogDTO> UpdateAsync(BlogDTO blog)
         {
             var existingBlog = await _context.Blog.FindAsync(blog.BlogId);
             if (existingBlog == null)

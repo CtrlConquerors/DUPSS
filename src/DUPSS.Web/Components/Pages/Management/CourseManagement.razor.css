@@ -259,6 +259,7 @@
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+
     .d-flex.justify-content-center.mt-3 .btn.active {
         background-color: #0056b3; /* Darker blue for active state */
         border-color: #0056b3;
@@ -277,6 +278,25 @@
         border-color: white;
         border-radius: 50px;
     }
+
+.btn-outline-primary {
+    background-color: white ;
+    color: black; /* Info blue */
+    border-color: #17a2b8;
+}
+
+.btn-outline-primary:hover {
+    background-color: #e9f2ff; /* Light blue on hover */
+    color: #0056b3;
+    border-color: #0056b3;
+}
+
+.d-flex.justify-content-center.mt-3 .btn.active {
+    background-color: white; /* Primary blue for active page */
+    border-color: gray;
+    color: black; /* White text for active page */
+}
+
 
 /* Inline Edit/Add Form */
 .edit-form-card {

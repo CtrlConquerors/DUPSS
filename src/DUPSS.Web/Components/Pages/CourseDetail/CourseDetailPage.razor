@@ -29,9 +29,9 @@
     else
     {
         <div class="course-layout-grid">
-            @* New grid container for main content and image *@
+       
             <div class="course-content-column">
-                @* Left column for all text content *@
+              
                 <h1 class="course-detail-title">@coursePageData.Course.CourseName</h1>
                 <p class="course-detail-subtitle">
                     @(coursePageData.Course.Description ?? "A detailed description for this course will be added soon.")
@@ -46,9 +46,7 @@
                     Enroll
                 </button>
 
-                @* Removed the "Access provided by FPT University" line as requested *@
-
-                @* Removed the "Course Overview" section as requested *@
+              
 
                 <section class="instructor-bio mt-5">
                     <h2 class="section-title">About the Consultant</h2>
@@ -62,14 +60,14 @@
                         </div>
                     </div>
                 </section>
-            </div> @* End of course-content-column *@
+            </div> 
 
             <div class="course-image-column">
-                @* Right column for the course picture *@
+              
                 <img src="@(coursePageData.Course.ImageUrl ?? "https://placehold.co/400x300/F0F0F0/000000?text=Course+Image")"
                      alt="Course Decorative Image" class="course-decorative-image" />
             </div>
-        </div> @* End of course-layout-grid *@
+        </div> 
     }
 </div>
 

@@ -1,9 +1,9 @@
 using DUPSS.API.Models.DTOs; // Thêm dòng này để sử dụng DTOs
-// using DUPSS.API.Models.Objects; // Không cần thiết nếu bạn chỉ sử dụng DTO ở đây
+
 
 namespace DUPSS.Web.Components.Service
 {
-    // Thay đổi kiểu generic từ Campaign sang CampaignDTO
+
     public class CampaignApiService : GenericApiService<CampaignDTO>
     {
         private readonly HttpClient _httpClient;

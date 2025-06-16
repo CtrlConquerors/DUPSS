@@ -1,6 +1,6 @@
 ﻿@page "/Management/Course"
-@using DUPSS.API.Models.DTOs @* Use DTOs for consistency *@
-@using DUPSS.API.Models.Objects @* Still needed for CourseTopic, User, Role *@
+@using DUPSS.API.Models.DTOs 
+@using DUPSS.API.Models.Objects 
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CourseApiService CourseApiService
@@ -10,8 +10,7 @@
 
 @inject IJSRuntime JS
 
-@* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
-@*Example below*@
+
 
 <div class="course-management-container">
     <div class="header-section">
@@ -70,7 +69,7 @@
             </select>
         </div>
 
-        @* NEW: Sort controls *@
+        @* Sort controls *@
         <div class="sort-controls">
             <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
                 <option value="CourseId">Sort: Course ID</option>
@@ -116,8 +115,8 @@
                     <th>Course Type</th>
                     <th>Topic Name</th>
                     <th>Staff Name</th>
-                    <th>Consultant Name</th> @* NEW Column Header *@
-                    <th>Description</th> @* NEW Column Header *@
+                    <th>Consultant Name</th> 
+                    <th>Description</th> 
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -188,7 +187,7 @@
         <div class="card p-3 my-4 edit-form-card">
             <h5>@(isNewCourse ? "Add New Course" : "Edit Course: " + courseToEdit.CourseName)</h5>
 
-            @* Validation Message Display *@
+            
             @if (!string.IsNullOrEmpty(validationMessage))
             {
                 <div class="alert alert-danger" role="alert">
@@ -212,7 +211,7 @@
 
             <div class="mb-3">
                 <label class="form-label">Topic</label>
-                @* Conditional rendering for Topic input/select *@
+              
                 @if (showNewTopicInput)
                 {
                     <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name"/>
@@ -234,7 +233,7 @@
                     </select>
                     <div class="d-flex justify-content-between mt-2">
                         <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
-                        @* Delete Topic button (visible if a topic is selected) *@
+                      
                         @if (!string.IsNullOrWhiteSpace(courseToEdit.TopicId))
                         {
                             <button class="btn btn-sm btn-outline-danger"
@@ -259,13 +258,13 @@
                 </select>
             </div>
 
-            @* NEW: Description input *@
+            @* Description input *@
             <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea class="form-control" @bind="courseToEdit.Description" rows="5" placeholder="Enter detailed course description"></textarea>
             </div>
 
-            @* NEW: Consultant dropdown *@
+            @* Consultant dropdown *@
             <div class="mb-3">
                 <label class="form-label">Consultant</label>
                 <select class="form-select" @bind="courseToEdit.ConsultantId">
@@ -290,22 +289,22 @@
 </div>
 
 @code {
-    // Changed the type to CourseDTO to match the CourseApiService return type
+    
     private List<CourseDTO>? courses;
     private List<CourseTopic>? topics;
-    private List<UserDTO>? staffUsers; // Changed to UserDTO to match UserApiService return type
-    private List<UserDTO>? consultantUsers; // Changed to UserDTO to match UserApiService return type
-    private List<RoleDTO>? roles; // Changed to RoleDTO to match RoleApiService return type
+    private List<UserDTO>? staffUsers; 
+    private List<UserDTO>? consultantUsers; 
+    private List<RoleDTO>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
-    private string validationMessage = string.Empty; // For validation messages
+    private string validationMessage = string.Empty;
 
     // Search, Sort, Filter state
     private string searchTerm = string.Empty;
     private string selectedTopicId = string.Empty;
     private string selectedStaffId = string.Empty;
-    private string selectedConsultantId = string.Empty; // NEW Filter option
+    private string selectedConsultantId = string.Empty;
     private string sortBy = "CourseId"; // Default sort column is CourseId
     private SortDirection sortDirection = SortDirection.Ascending; // Default sort direction
 
@@ -328,12 +327,12 @@
     private bool showNewTopicInput = false; // Controls visibility of new topic input
     private string newTopicName = string.Empty; // Binds to the new topic input field
 
-    // Removed: showEditTopicInput, editingTopicId, editedTopicName
 
-    // Changed the type from Course to CourseDTO
+
+ 
     private List<CourseDTO> filteredCourses = new List<CourseDTO>();
 
-    // Changed the type from Course to CourseDTO
+    
     private IEnumerable<CourseDTO> PaginatedCourses =>
         filteredCourses?
             .Skip((currentPage - 1) * itemsPerPage)
@@ -366,7 +365,7 @@
             var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
 
-            // NEW: Filter for Consultant users (assuming RoleId starts with "CS" or "CO" from your database)
+            // NEW: Filter for Consultant users (assuming RoleId starts with "CS" from database)
             var consultantRoleIds = roles?.Where(r => r.RoleId.StartsWith("CS", StringComparison.OrdinalIgnoreCase) || r.RoleId.StartsWith("CO", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             consultantUsers = allUsers?.Where(u => consultantRoleIds != null && consultantRoleIds.Contains(u.RoleId)).ToList();
 
@@ -379,10 +378,10 @@
             // Change types to CourseDTO
             courses = new List<CourseDTO>();
             filteredCourses = new List<CourseDTO>();
-            topics = new List<CourseTopic>(); // CourseTopic does not have a DTO in project structure, so keep as is
-            staffUsers = new List<UserDTO>(); // Initialize with correct DTO types on error as well
-            consultantUsers = new List<UserDTO>(); // Initialize consultantUsers on error with DTO type
-            roles = new List<RoleDTO>(); // Initialize roles on error with DTO type
+            topics = new List<CourseTopic>(); 
+            staffUsers = new List<UserDTO>(); 
+            consultantUsers = new List<UserDTO>(); 
+            roles = new List<RoleDTO>(); 
             hasError = true;
         }
     }
@@ -425,7 +424,7 @@
             query = query.Where(c => c.StaffId == selectedStaffId);
         }
 
-        // NEW: Apply Consultant Filter
+        // Apply Consultant Filter
         if (!string.IsNullOrWhiteSpace(selectedConsultantId))
         {
             query = query.Where(c => c.ConsultantId == selectedConsultantId);

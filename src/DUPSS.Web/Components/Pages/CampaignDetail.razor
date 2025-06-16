@@ -12,23 +12,76 @@
 else
 {
     <div class="campaign-detail-container">
-        <img src="@campaign.ImageUrl" alt="Campaign Image" style="max-width: 400px; margin-bottom: 20px;" />
-
-        <div class="info-row"><label>Title:</label><span>@campaign.Title</span></div>
-        <div class="info-row"><label>Location:</label><span>@campaign.Location</span></div>
-        <div class="info-row"><label>Status:</label><span>@campaign.Status</span></div>
-        <label>Phase:</label>
-        <span>
-            @campaign.StartDate.ToString("dd/MM/yyyy")
-            –
-            @(campaign.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")
-        </span>
+        <div class="campaign-hero-wrapper">
+            <div class="campaign-hero-image" style="background-image: url('@campaign.ImageUrl');"></div>
+            <div class="campaign-hero-title">
+                <span class="title-letters">
+                    @foreach (var c in campaign.Title)
+                    {
+                        if (c == ' ')
+                        {
+                            <span class="title-letter" style="width:0.4em;display:inline-block;">&nbsp;</span>
+                        }
+                        else
+                        {
+                            <span class="title-letter">@c</span>
+                        }
+                    }
+                </span>
+                <div class="campaign-hero-meta">
+                    <div class="info-row">
+                        <label>Status:</label>
+                        <span>@campaign.Status</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Location:</label>
+                        <span>@campaign.Location</span>
+                    </div>
+                    <div class="info-row">
+                        <label>Phase</label>
+                        <span>
+                            @campaign.StartDate.ToString("dd/MM/yyyy")
+                            –
+                            @(campaign.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        @* <div class="info-row">
+            <label>Status</label>
+            <span>@campaign.Status</span>
+        </div>
+        <div class="info-row">
+            <label>Phase</label>
+            <span>
+                @campaign.StartDate.ToString("dd/MM/yyyy")
+                –
+                @(campaign.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")
+            </span>
+        </div> *@
 
         <div class="campaign-section">
             <h3>Introduction</h3>
-            <div>@((MarkupString)campaign.Introduction.Replace("\n", "<br />"))</div>
+            <p>
+                Mental health plays a crucial role in shaping the emotional, psychological, and social well-being of young people. Despite its importance, mental health is often neglected in conversations around education and youth development. The <strong>Youth Mental Health Awareness</strong> campaign was born out of a pressing need to address this growing concern, especially as more young individuals face unprecedented pressures in an increasingly complex world.
+            </p>
+            <p>
+                Today’s youth confront a wide range of challenges — from academic stress and family dynamics to peer pressure, identity struggles, and the influence of social media. These pressures can lead to anxiety, depression, self-harm, and even suicidal thoughts if not addressed properly. Unfortunately, due to stigma and lack of proper information, many young people remain silent, feeling isolated and misunderstood.
+            </p>
+            <p>
+                This campaign aims to break the silence. Through a combination of school-based workshops, online engagement, peer mentoring programs, and partnerships with psychologists and counselors, the initiative provides both preventative education and early intervention strategies. The goal is to build a culture where young people feel comfortable expressing their emotions and are empowered to seek help when needed.
+            </p>
+            <p>
+                In addition to empowering youth, the campaign also works with parents, teachers, and community leaders to raise awareness about mental health challenges specific to adolescents. By equipping adults with the right tools and knowledge, we aim to create support systems that are understanding, non-judgmental, and effective.
+            </p>
+            <p>
+                The <strong>Youth Mental Health Awareness</strong> campaign envisions a future where mental health is treated with the same importance as physical health. We believe that no young person should suffer in silence, and that by working together — across families, schools, and communities — we can build an environment where every youth feels seen, heard, and supported.
+            </p>
+            <p>
+                With ongoing efforts, the campaign hopes to reach thousands of students across the country, changing perceptions, dismantling stigma, and fostering emotional resilience in the next generation. Mental wellness is not a luxury — it is a right, and this campaign is a step toward making that right a reality for all young people.
+            </p>
         </div>
-
 
 
 

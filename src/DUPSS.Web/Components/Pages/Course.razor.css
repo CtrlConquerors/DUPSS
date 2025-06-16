@@ -100,10 +100,10 @@
     border: none;
 }
 
-.course-card:hover {
-    transform: translateY(-5px); /* Slight lift on hover */
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
-}
+    .course-card:hover {
+        transform: translateY(-5px); /* Slight lift on hover */
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15); /* More pronounced shadow on hover */
+    }
 
 /* Course image styling */
 .card-image img {
@@ -204,33 +204,28 @@
     box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle glow */
 }
 
-/* Removed Rating section styling - these are no longer needed */
-/*
-.course-rating {
-    display: flex;
-    align-items: center;
-    margin-top: auto;
-    padding-top: 10px;
-    border-top: 1px solid #eee;
-    margin-top: 15px;
+.offline-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #6c757d; /* Grey */
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+    box-shadow: 0 0 5px rgba(108, 117, 125, 0.5); /* Grey glow */
 }
 
-.star, .star-empty {
-    color: #FFD700;
-    font-size: 1.2em;
-    margin-right: 2px;
+.hybrid-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #007bff; /* Blue */
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue glow */
 }
 
-.star-empty {
-    color: #ccc;
-}
-
-.reviews {
-    font-size: 0.85em;
-    color: #777;
-    margin-left: 5px;
-}
-*/
 
 /* Styling for the single "Explore More" button at the bottom */
 .main-explore-button-container {
@@ -253,14 +248,14 @@
     min-width: 200px; /* Ensure it has a decent width */
 }
 
-.main-explore-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
+    .main-explore-button:hover {
+        background-color: #0056b3;
+        transform: translateY(-2px);
+    }
 
-.main-explore-button:active {
-    transform: translateY(0);
-}
+    .main-explore-button:active {
+        transform: translateY(0);
+    }
 
 
 /* Responsive adjustments for course grid and cards */
@@ -308,284 +303,5 @@
         padding: 12px 25px;
         font-size: 1em;
         min-width: 180px;
-    }
-}
-
-
-/* Footer Styles */
-.main-footer {
-    background-color: #3766ff;
-    color: #f0f2f5;
-    padding: 40px 0;
-    margin-top: 60px;
-    margin-bottom: -30px;
-    font-family: 'Open Sans', sans-serif;
-    border-radius: 50px;
-    position: relative;
-    overflow: hidden;
-}
-
-    .main-footer .footer-content-wrapper {
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 30px;
-    }
-
-    .main-footer .footer-section {
-        flex: 1;
-        min-width: 280px;
-        padding: 15px;
-        text-align: left;
-    }
-
-.rain-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 120px;
-    width: 100%;
-    pointer-events: none;
-    z-index: 0;
-}
-
-/*.main-footer .footer-content-wrapper {
-    position: relative;
-    z-index: 1 ;
-}*/
-
-/* Logo Section */
-.main-footer .footer-logo-section {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    justify-content: center;
-    background-color: none;
-    padding-top: 50px;
-    margin-left: 20px;
-}
-
-.main-footer .footer-logo {
-    width: 130px;
-    height: 130px;
-    background-color: #fff;
-    padding: 7px;
-    border-radius: 50%;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.main-footer .footer-copyright {
-    font-size: 0.9em;
-    opacity: 0.8;
-}
-
-/* Information Section */
-.main-footer .footer-info-section {
-    text-align: center;
-    padding-top: 50px;
-    padding-right: 9px;
-    background-color: none;
-}
-
-    .main-footer .footer-info-section p {
-        margin-bottom: 8px;
-        font-size: 0.95em;
-    }
-
-/* Headings in Footer */
-.main-footer .footer-heading {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.3em;
-    font-weight: 700;
-    margin-bottom: 20px;
-    color: #ffd700;
-    position: relative;
-    padding-bottom: 5px;
-}
-
-    .main-footer .footer-heading::after {
-        content: '';
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 0;
-        width: 60px;
-        height: 3px;
-        background-color: #ffd700;
-        border-radius: 2px;
-    }
-
-/* Subscribe Section */
-.main-footer .footer-subscribe-section {
-    /* Adjusted for consistency with main footer content wrapper */
-    display: flex;
-    justify-content: flex-end; /* Pushes content to the right for large screens */
-    align-items: flex-start;
-}
-
-.main-footer .subscribe-box {
-    background-color: #2c3e50;
-    color: #f0f2f5;
-    padding: 30px;
-    border-radius: 12px;
-    text-align: center;
-    max-width: 350px;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-}
-
-.main-footer .subscribe-heading {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.6em;
-    font-weight: 700;
-    margin-bottom: 10px;
-    color: #ffd700;
-}
-
-.main-footer .subscribe-text {
-    font-size: 0.9em;
-    opacity: 0.9;
-    margin-bottom: 20px;
-}
-
-.main-footer .subscribe-input-group {
-    margin-bottom: 10px;
-    display: flex; /* Make input and button side-by-side */
-}
-
-.main-footer .subscribe-input-group .form-control {
-    flex-grow: 1; /* Allow input to take available space */
-    border-radius: 25px 0 0 25px;
-    border: none;
-    padding: 10px 15px;
-    font-size: 0.9em;
-}
-
-.main-footer .subscribe-input-group .btn {
-    flex-shrink: 0; /* Prevent button from shrinking */
-    border-radius: 0 25px 25px 0;
-    background-color: #ffd700;
-    color: #1a237e;
-    font-weight: 600;
-    padding: 10px 20px;
-    border: none;
-    transition: background-color 0.3s ease;
-}
-
-.main-footer .subscribe-input-group .btn:hover {
-    background-color: #e6b800;
-}
-
-.main-footer .subscribe-note {
-    font-size: 0.8em;
-    opacity: 0.7;
-}
-
-/* --- Responsive Design for Footer --- */
-@media (max-width: 992px) {
-    .main-footer .footer-content-wrapper {
-        flex-direction: column;
-        align-items: center; /* Center all items when stacked */
-    }
-
-    .main-footer .footer-section {
-        min-width: unset;
-        width: 100%; /* Take full width when stacked */
-        text-align: center; /* Center text for all sections */
-        margin-bottom: 30px;
-    }
-
-    .main-footer .footer-logo-section {
-        align-items: center; /* Center logo when stacked */
-    }
-
-    .main-footer .footer-heading::after {
-        left: 50%;
-        transform: translateX(-50%); /* Ensure underline remains centered */
-    }
-
-    .main-footer .footer-subscribe-section {
-        justify-content: center; /* Center subscribe box when stacked */
-    }
-
-    .main-footer .subscribe-box {
-        max-width: 80%; /* Limit width of subscribe box on tablets */
-    }
-
-    .main-footer .subscribe-input-group {
-        width: 80%;
-        margin-left: auto;
-        margin-right: auto;
-    }
-}
-
-@media (max-width: 768px) {
-    .main-footer {
-        padding: 30px 0;
-    }
-
-    .main-footer .footer-logo {
-        width: 70px;
-        height: 70px;
-    }
-
-    .main-footer .footer-heading {
-        font-size: 1.2em;
-    }
-
-    .main-footer .subscribe-heading {
-        font-size: 1.4em;
-    }
-
-    .main-footer .subscribe-input-group {
-        width: 90%;
-    }
-}
-
-@media (max-width: 576px) {
-    .main-footer {
-        padding: 20px 0;
-    }
-
-    .main-footer .footer-logo {
-        width: 60px;
-        height: 60px;
-    }
-
-    .main-footer .footer-copyright {
-        font-size: 0.8em;
-    }
-
-    .main-footer .footer-heading {
-        font-size: 1.1em;
-        margin-bottom: 15px;
-    }
-
-    .main-footer .footer-info-section p {
-        font-size: 0.85em;
-    }
-
-    .main-footer .subscribe-box {
-        padding: 20px;
-        max-width: 95%;
-    }
-
-    .main-footer .subscribe-heading {
-        font-size: 1.2em;
-    }
-
-    .main-footer .subscribe-text {
-        font-size: 0.8em;
-    }
-
-    .main-footer .subscribe-input-group .form-control,
-    .main-footer .subscribe-input-group .btn {
-        padding: 8px 12px;
-        font-size: 0.8em;
-    }
-
-    .main-footer .subscribe-note {
-        font-size: 0.7em;
     }
 }

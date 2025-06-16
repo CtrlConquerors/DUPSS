@@ -271,7 +271,7 @@
     private bool showEditForm = false;
     private bool isNewCampaign = false;
 
-    private IEnumerable<CampaignDTO> PaginatedCampaigns => // Changed from Campaign to CampaignDTO
+    private IEnumerable<CampaignDTO> PaginatedCampaigns => 
         filteredCampaigns?
             .Skip((currentPage - 1) * itemsPerPage)
             .Take(itemsPerPage) ?? Enumerable.Empty<CampaignDTO>();

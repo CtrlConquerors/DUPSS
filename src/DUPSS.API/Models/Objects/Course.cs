@@ -41,6 +41,8 @@ namespace DUPSS.API.Models.Objects
         // [NotMapped] properties for UI display, not stored in DB
         [NotMapped]
         public string? ImageUrl { get; set; }
+        [NotMapped]
+        public string? ImageUrl2 { get; set; }
 
         [NotMapped]
         public DateTime CreatedDate { get; set; }

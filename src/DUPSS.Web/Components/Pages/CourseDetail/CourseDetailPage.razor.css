@@ -40,7 +40,6 @@
 .course-decorative-image {
     max-width: 100%;
     height: auto;
-    opacity: 0.2; /* Make it subtle/faded */
     object-fit: contain; /* Ensure the whole image is visible */
     border-radius: 8px; /* Maintain rounded corners */
 }

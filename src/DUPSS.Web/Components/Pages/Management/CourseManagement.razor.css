@@ -250,29 +250,33 @@
 
 /* Pagination buttons */
 .d-flex.justify-content-center.mt-3 .btn {
-    border-radius: 50px; /* Rounded pill shape for pagination buttons */
+    background-color: #007bff; /* Blue for active pagination button */
+    color: white;
+    border: 1px solid #007bff;
+    border-radius: 4px;
     padding: 8px 16px;
     font-weight: 600;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
+
+    .d-flex.justify-content-center.mt-3 .btn.active {
+        background-color: #0056b3; /* Darker blue for active state */
+        border-color: #0056b3;
+    }
 
 .d-flex.justify-content-center.mt-3 .btn-outline-primary {
-    background-color: transparent; /* Transparent background */
-    color: #007bff; /* Blue text */
-    border: 1px solid #007bff; /* Blue border */
+    background-color: white !important;
+    color: black;
+    border-color: white !important;
+    border-radius: 50px;
 }
 
-.d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
-    background-color: #e9f2ff; /* Light blue on hover */
-    color: #0056b3;
-    border-color: #0056b3;
-}
-
-.d-flex.justify-content-center.mt-3 .btn.active {
-    background-color: #007bff; /* Primary blue for active page */
-    border-color: #007bff;
-    color: white; /* White text for active page */
-}
+    .d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
+        background-color: #e9f2ff; /* Light blue on hover */
+        color: #0056b3;
+        border-color: white;
+        border-radius: 50px;
+    }
 
 /* Inline Edit/Add Form */
 .edit-form-card {

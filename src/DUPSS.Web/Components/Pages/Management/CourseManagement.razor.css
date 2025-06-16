@@ -1,5 +1,4 @@
-﻿/* coursemanagement.razor.css */
-
+﻿﻿ /* coursemanagement.razor.css */
 /* General page container styling */
 .course-management-container {
     padding: 30px; /* Increased padding for more space */
@@ -126,9 +125,8 @@
 .course-table {
     width: 100%;
     border-collapse: collapse; /* Collapse borders between cells */
-    table-layout: fixed; /* Use fixed layout for consistent column widths */
-    /* UPDATED: Increased min-width to accommodate full headers and longer content */
-    min-width: 1390px; /* Adjusted total min-width for larger description column to fit content better */
+    table-layout: auto;
+    min-width: 900px; /* Increased min-width to better accommodate content without squishing */
 }
 
     .course-table th,
@@ -136,34 +134,15 @@
         padding: 12px 15px; /* Adjusted padding to match user table */
         text-align: left;
         border-bottom: 1px solid #e0e0e0; /* Light horizontal border between rows */
-        overflow: hidden; /* Hide overflowed content */
-        text-overflow: ellipsis; /* Add ellipsis for overflowed text */
+        overflow: hidden; /* Still hide overflowed content by default */
         border-right: 1px solid #e0e0e0; /* Vertical column separator line */
-    }
-
-    /* UPDATED: Allow headers to wrap if content is too long */
-    .course-table th {
-        white-space: normal;
     }
 
         /* Specific styles for 'No' column */
         .course-table th:first-child,
         .course-table td:first-child {
-            width: 60px; /* Fixed width for the 'No' column */
+            width: 50px; /* Fixed width for the 'No' column */
             text-align: center; /* Center align 'No' column content */
-        }
-
-        /* Specific styles for 'Course ID' column */
-        .course-table th:nth-child(2),
-        .course-table td:nth-child(2) {
-            width: 110px; /* Fixed width for Course ID */
-        }
-
-        /* Specific styles for 'Course Name' column */
-        .course-table th:nth-child(3),
-        .course-table td:nth-child(3) {
-            width: 220px; /* Fixed width for Course Name, allowing more space and wrapping */
-            white-space: normal;
         }
 
         /* Specific styles for 'Course Type' column */
@@ -173,45 +152,29 @@
             text-align: center; /* Center align Course Type content */
         }
 
-        /* Specific styles for 'Topic Name' column */
-        .course-table th:nth-child(5),
-        .course-table td:nth-child(5) {
-            width: 150px; /* Fixed width for Topic Name */
-            white-space: normal; /* Allow text to wrap */
-        }
-
         /* Specific styles for 'Staff Name' column */
         .course-table th:nth-child(6),
         .course-table td:nth-child(6) {
-            width: 120px; /* Fixed width for Staff Name */
+            width: 120px; /* Shorter width for Staff Name */
         }
 
-        /* NEW: Specific styles for 'Consultant Name' column */
-        .course-table th:nth-child(7),
-        .course-table td:nth-child(7) {
-            width: 160px; /* Fixed width for Consultant Name, allowing full header text */
-        }
-
-        /* NEW: Specific styles for 'Description' column */
-        .course-table th:nth-child(8),
-        .course-table td:nth-child(8) {
-            width: 300px; /* UPDATED: Increased width for Description to be longer, like Course Name */
-            white-space: normal; /* Allow text to wrap for descriptions */
-            max-height: 80px; /* Limit height for description cell */
-            overflow: hidden; /* Hide overflow */
-            text-overflow: ellipsis; /* Ensure ellipsis applies if content overflows */
-            display: -webkit-box;
-            -webkit-line-clamp: 3; /* Show up to 3 lines */
-            -webkit-box-orient: vertical;
-        }
-
-
-        /* Specific styles for 'Action' column (now nth-child(9)) */
-        .course-table th:nth-child(9),
-        .course-table td:nth-child(9) {
+        /* Specific styles for 'Action' column */
+        .course-table th:last-child,
+        .course-table td:last-child {
             width: 100px; /* Shorter width for Action column */
             border-right: none; /* Remove vertical border from the last column */
         }
+
+        /* Allow Course Name and Topic Name to wrap and take available space */
+        .course-table th:nth-child(3), /* Course Name header */
+        .course-table td:nth-child(3), /* Course Name cell */
+        .course-table th:nth-child(5), /* Topic Name header */
+        .course-table td:nth-child(5) /* Topic Name cell */ {
+            white-space: normal; /* Allow text to wrap */
+            text-overflow: clip; /* Prevent ellipsis, show full text */
+            word-wrap: break-word; /* Ensure long words break */
+        }
+
 
     .course-table thead th {
         background-color: #f2f4f7; /* Light grey background for headers */
@@ -222,13 +185,9 @@
         text-align: center; /* Center align all header text */
     }
 
-        /* Specific alignment for the "Course ID", "Course Name", "Topic Name", "Staff Name", "Consultant Name", "Description" column headers */
+        /* Specific alignment for the "Course ID", "Course Name" column headers */
         .course-table thead th:nth-child(2), /* Course ID column */
-        .course-table thead th:nth-child(3), /* Course Name column */
-        .course-table thead th:nth-child(5), /* Topic Name column */
-        .course-table thead th:nth-child(6), /* Staff Name column */
-        .course-table thead th:nth-child(7), /* Consultant Name column */
-        .course-table thead th:nth-child(8) /* Description column */ {
+        .course-table thead th:nth-child(3) /* Course Name column */ {
             text-align: left; /* Keep these left-aligned */
         }
 
@@ -423,19 +382,6 @@
 }
 
 /* Responsive adjustments */
-@media (max-width: 1200px) {
-    .course-table {
-        min-width: 1000px; /* Adjust min-width for slightly smaller screens */
-    }
-}
-
-@media (max-width: 992px) {
-    .course-table {
-        min-width: 900px; /* Adjust min-width for tablets */
-    }
-}
-
-
 @media (max-width: 768px) {
     .page-title {
         font-size: 2rem;
@@ -450,36 +396,4 @@
         flex-direction: column; /* Stack header elements vertically */
         align-items: flex-start; /* Align to the start */
     }
-
-    .filter-sort-section {
-        flex-direction: column; /* Stack filters and sort vertically */
-        align-items: stretch; /* Stretch to full width */
-    }
-
-    .search-input-container,
-    .filter-dropdown-container,
-    .sort-controls {
-        width: 100%; /* Full width for filter/sort controls */
-        min-width: unset; /* Remove min-width constraints */
-    }
-
-        .sort-controls .form-select {
-            min-width: unset;
-        }
-
-    .course-table {
-        min-width: 700px; /* Further reduce min-width for better fit on very small screens */
-    }
-
-        .course-table th,
-        .course-table td {
-            padding: 10px; /* Reduce padding on small screens */
-        }
-
-            /* Adjust column widths for smaller screens if necessary, though min-width might handle most */
-            .course-table th:nth-child(8),
-            .course-table td:nth-child(8) {
-                width: 200px; /* Adjust description width */
-                -webkit-line-clamp: 2; /* Reduce lines for description */
-            }
 }

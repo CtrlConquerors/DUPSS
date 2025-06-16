@@ -28,6 +28,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 StartDate = campaign.StartDate,
                 EndDate = campaign.EndDate,
                 Status = campaign.Status,
+                Location = campaign.Location,
+                Introduction = campaign.Introduction,
                 Duration = campaign.EndDate.HasValue ? (TimeSpan?)(campaign.EndDate.Value.ToDateTime(new TimeOnly(0)) - campaign.StartDate.ToDateTime(new TimeOnly(0))) : null
             };
         }
@@ -44,6 +46,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     Description = c.Description,
                     StartDate = c.StartDate,
                     EndDate = c.EndDate,
+                    Location = c.Location,
+                    Introduction = c.Introduction,
                     Status = c.Status,
                     Duration = c.EndDate.HasValue ? (TimeSpan?)(c.EndDate.Value.ToDateTime(new TimeOnly(0)) - c.StartDate.ToDateTime(new TimeOnly(0))) : null,
                     Staff = c.Staff != null ? new UserDTO
@@ -74,6 +78,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     StartDate = c.StartDate,
                     EndDate = c.EndDate,
                     Status = c.Status,
+                    Location = c.Location,
+                    Introduction = c.Introduction,      
                     Duration = c.EndDate.HasValue ? (TimeSpan?)(c.EndDate.Value.ToDateTime(new TimeOnly(0)) - c.StartDate.ToDateTime(new TimeOnly(0))) : null,
                     Staff = c.Staff != null ? new UserDTO
                     {
@@ -89,7 +95,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 .ToListAsync();
         }
 
-        public async Task<CampaignDTO> UpdateAsync(Campaign campaign)
+        public async Task<CampaignDTO> UpdateAsync(CampaignDTO campaign)
         {
             var existingCampaign = await _context.Campaign.FindAsync(campaign.CampaignId);
             if (existingCampaign == null)
@@ -100,6 +106,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingCampaign.Description = campaign.Description;
             existingCampaign.StartDate = campaign.StartDate;
             existingCampaign.EndDate = campaign.EndDate;
+            existingCampaign.Location = campaign.Location;
+            existingCampaign.Introduction = campaign.Introduction;
             existingCampaign.Status = campaign.Status;
 
             await _context.SaveChangesAsync();
@@ -112,7 +120,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 StartDate = existingCampaign.StartDate,
                 EndDate = existingCampaign.EndDate,
                 Status = existingCampaign.Status,
-                Duration = existingCampaign.EndDate.HasValue ? (TimeSpan?)(existingCampaign.EndDate.Value.ToDateTime(new TimeOnly(0)) - existingCampaign.StartDate.ToDateTime(new TimeOnly(0))) : null
+                Duration = existingCampaign.EndDate.HasValue ? (TimeSpan?)(existingCampaign.EndDate.Value.ToDateTime(new TimeOnly(0)) - existingCampaign.StartDate.ToDateTime(new TimeOnly(0))) : null,
+                Location = existingCampaign.Location,
+                Introduction = existingCampaign.Introduction
             };
         }
 

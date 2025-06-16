@@ -17,7 +17,13 @@ namespace DUPSS.API.Models.Objects
         public DateOnly? EndDate { get; set; }
         [Required, MaxLength(50)]
         public required string Status { get; set; }
+
+        public string? Location { get; set; }
+        public string? Introduction { get; set; }
+
         public User? Staff { get; set; }
+
+        
 
         public string? ImageUrl { get; set; }
 

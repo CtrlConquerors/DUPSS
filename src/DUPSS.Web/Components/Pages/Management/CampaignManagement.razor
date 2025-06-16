@@ -94,6 +94,8 @@
                     <th>End Date</th>
                     <th>Duration</th> @* NEW: Duration Column Header *@
                     <th>Status</th>
+                    <th>Location</th>
+                    <th>Introduction</th>
                     <th>Staff Name</th>
                     <th>Action</th>
                 </tr>
@@ -118,6 +120,9 @@
                                 @campaign.Status
                             </span>
                         </td>
+                        <td>@campaign.Location</td>
+                        <td>@(campaign.Introduction?.Length > 100 ? campaign.Introduction.Substring(0, 100) + "..." : campaign.Introduction)</td>
+
                         <td>@campaign.Staff?.Username</td>
                         <td>
                             <div class="action-buttons">
@@ -193,6 +198,16 @@
             </div>
 
             <div class="mb-3">
+                <label class="form-label">Location</label>
+                <input class="form-control" @bind="campaignToEdit.Location" />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Introduction</label>
+                <textarea class="form-control" @bind="campaignToEdit.Introduction" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
                 <label class="form-label">Staff</label>
                 <select class="form-select" @bind="campaignToEdit.StaffId">
                     <option value="">Select Staff</option>
@@ -248,7 +263,10 @@
         StartDate = DateOnly.FromDateTime(DateTime.Today), // Initialize with DateOnly
         EndDate = null, // Initialize as null for nullable DateOnly
         Status = "",
+        Location = "",
+        Introduction = "",
         StaffId = ""
+
     };
     private bool showEditForm = false;
     private bool isNewCampaign = false;
@@ -450,6 +468,8 @@
             StartDate = DateOnly.FromDateTime(DateTime.Today), // Initialize with DateOnly
             EndDate = null, // Initialize as null for nullable DateOnly
             Status = "",
+            Location = "",
+            Introduction = "",
             StaffId = ""
         };
         isNewCampaign = true;
@@ -471,6 +491,8 @@
                 EndDate = campaign.EndDate,
                 Status = campaign.Status,
                 StaffId = campaign.StaffId,
+                Location = campaign.Location,
+                Introduction = campaign.Introduction,
                 Staff = campaign.Staff, // Keep navigation property if needed for display (will be UserDTO)
                 Duration = campaign.Duration // Copy the duration if already calculated
             };
@@ -513,6 +535,16 @@
         if (string.IsNullOrWhiteSpace(campaignToEdit.Status))
         {
             validationMessage = "Please select a Status.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(campaignToEdit.Location))
+        {
+            validationMessage = "Please select a Location.";
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(campaignToEdit.Introduction))
+        {
+            validationMessage = "Please write Introduction.";
             return;
         }
         if (string.IsNullOrWhiteSpace(campaignToEdit.StaffId))
@@ -568,7 +600,9 @@
             Title = "",
             Description = null,
             StartDate = DateOnly.FromDateTime(DateTime.Today),
-            EndDate = null,
+                EndDate = null,
+            Location = "",
+            Introduction= "",
             Status = "",
             StaffId = ""
         };

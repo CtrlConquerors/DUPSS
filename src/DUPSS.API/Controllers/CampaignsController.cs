@@ -73,7 +73,7 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<CampaignDTO>> Update([FromBody] Campaign campaign)
+        public async Task<ActionResult<CampaignDTO>> Update([FromBody] CampaignDTO campaign)
         {
             try
             {

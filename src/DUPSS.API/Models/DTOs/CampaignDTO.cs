@@ -9,6 +9,11 @@
         public DateOnly StartDate { get; set; }
         public DateOnly? EndDate { get; set; }
         public required string Status { get; set; }
+
+        public required string Location { get; set; }
+
+        public required string Introduction { get; set; }
+
         public TimeSpan? Duration { get; set; } // NotMapped property included
         public UserDTO? Staff { get; set; }
 

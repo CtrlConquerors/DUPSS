@@ -664,13 +664,16 @@ body {
     border-radius: 100px;
 }
 
-.new-hero-section .new-hero-container h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 3em;
-    font-weight: 700;
-    color: #1a237e;
-    margin-bottom: 40px;
-}
+    .new-hero-section .new-hero-container h1 {
+        font-family: 'Montserrat', sans-serif;
+        font-size: 1.5em;
+        font-weight: 700;
+        color: #1a237e;
+        margin: 0 auto 40px auto;
+        width: 800px;
+        max-width: 100%;
+        text-align: center;
+    }
 
 
 /* Cursor blink effect */
@@ -737,6 +740,8 @@ body {
     z-index: 2;
 }
 
+
+
 .carousel-image-slide .carousel-image {
     width: 45%;
     height: 300px;
@@ -744,11 +749,27 @@ body {
     border-radius: 10px;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease;
+    transition: transform 0.4s cubic-bezier(.4,2,.6,1), box-shadow 0.4s cubic-bezier(.4,2,.6,1);
+    will-change: transform;
 }
+    .carousel-image-slide .carousel-image:nth-child(1){
+        transform: rotate(-10deg);
+    }
 
-.carousel-image-slide .carousel-image:hover {
-    transform: scale(1.03);
-}
+    .carousel-image-slide .carousel-image:nth-child(1):hover {
+        transform: rotate(-18deg) scale(1.04);
+        box-shadow: 0 8px 32px rgba(30, 96, 255, 0.15), 0 1.5px 6px rgba(0, 0, 0, 0.08);
+        z-index: 2;
+    }
+    .carousel-image-slide .carousel-image:nth-child(2) {
+        transform: rotate(10deg);
+    }
+        /* Second image: rotate right on hover */
+        .carousel-image-slide .carousel-image:nth-child(2):hover {
+        transform: rotate(18deg) scale(1.04);
+        box-shadow: 0 8px 32px rgba(30, 96, 255, 0.15), 0 1.5px 6px rgba(0, 0, 0, 0.08);
+        z-index: 2;
+    }
 
 /* Navigation Buttons for Image Carousel */
 .carousel-control-image {

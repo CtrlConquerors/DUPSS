@@ -256,22 +256,22 @@
     transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
-.d-flex.justify-content-center.mt-3 .btn-outline-primary {
-    background-color: transparent; /* Transparent background */
-    color: #007bff; /* Blue text */
-    border: 1px solid #007bff; /* Blue border */
+.btn-outline-primary {
+    background-color: white ;
+    color: black; /* Info blue */
+    border-color: #17a2b8;
 }
 
-.d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
+.btn-outline-primary:hover {
     background-color: #e9f2ff; /* Light blue on hover */
     color: #0056b3;
     border-color: #0056b3;
 }
 
 .d-flex.justify-content-center.mt-3 .btn.active {
-    background-color: #007bff; /* Primary blue for active page */
-    border-color: #007bff;
-    color: white; /* White text for active page */
+    background-color: white; /* Primary blue for active page */
+    border-color: gray;
+    color: black; /* White text for active page */
 }
 
 /* Inline Edit/Add Form */

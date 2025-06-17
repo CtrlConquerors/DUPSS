@@ -1,6 +1,7 @@
 ﻿@page "/Blog/Detail/{BlogId}"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
+@using Markdig
 @inject BlogApiService BlogApiService
 @inject NavigationManager NavigationManager
 
@@ -60,7 +61,7 @@
 
         <div class="blog-section">
             <h3>Content</h3>
-            <div>@((MarkupString)blog.Content.Replace("\n", "<br />"))</div>
+            <div>@((MarkupString)Markdown.ToHtml(blog.Content ?? "", pipeline))</div>
         </div>
 
         <div class="navigation-buttons">
@@ -78,6 +79,7 @@
     private BlogDTO? blog;
     private bool isLoading = true;
     private bool hasError = false;
+    private readonly MarkdownPipeline pipeline = new MarkdownPipelineBuilder().UseAdvancedExtensions().Build();
 
     protected override async Task OnInitializedAsync()
     {
@@ -117,6 +119,6 @@
     private void GoBack()
     {
         Console.WriteLine("Navigating back to /Blog");
-        NavigationManager.NavigateTo("/Blog", forceLoad: true);
+        NavigationManager.NavigateTo("/Blog");
     }
 }

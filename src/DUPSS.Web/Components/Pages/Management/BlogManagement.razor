@@ -1,6 +1,6 @@
 ﻿@page "/Management/Blog"
-@using DUPSS.API.Models.DTOs @* Thêm dòng này để sử dụng DTOs *@
-@using DUPSS.API.Models.Objects @* Vẫn cần cho các đối tượng miền nếu vẫn được sử dụng trực tiếp ở đâu đó, nhưng khuyến nghị dùng DTO *@
+@using DUPSS.API.Models.DTOs
+@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject BlogApiService BlogApiService
@@ -151,8 +151,17 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Content</label>
-                <textarea class="form-control" @bind="blogToEdit.Content" rows="5"></textarea>
+                <label class="form-label">Content (Markdown)</label>
+                @if (isSimpleMDELoaded)
+                {
+                    <textarea class="form-control" id="markdownEditor" @bind="blogToEdit.Content" rows="10"></textarea>
+                }
+                else
+                {
+                    <textarea class="form-control" id="markdownEditor" @bind="blogToEdit.Content" rows="10" placeholder="SimpleMDE failed to load. Enter Markdown content here."></textarea>
+                    <p class="text-warning mt-2">Warning: Rich text editor failed to load. Using plain text input.</p>
+                }
+                <p class="mt-2">Debug Content: @blogToEdit.Content</p>
             </div>
 
             <div class="mb-3">
@@ -186,13 +195,14 @@
 </div>
 
 @code {
-    private List<BlogDTO>? blogs; // Changed from Blog to BlogDTO
-    private List<UserDTO>? staffUsers; // Changed from User to UserDTO
-    private List<RoleDTO>? roles; // Changed from Role to RoleDTO
+    private List<BlogDTO>? blogs;
+    private List<UserDTO>? staffUsers;
+    private List<RoleDTO>? roles;
     private bool hasError = false;
     private int currentPage = 1;
     private int itemsPerPage = 8;
     private string validationMessage = string.Empty;
+    private bool isSimpleMDELoaded = false;
 
     private string searchTerm = string.Empty;
     private string selectedStaffId = string.Empty;
@@ -201,7 +211,7 @@
 
     private enum SortDirection { Ascending, Descending }
 
-    private BlogDTO blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
+    private BlogDTO blogToEdit = new BlogDTO
     {
         BlogId = "",
         Title = "",
@@ -212,9 +222,9 @@
     private bool showEditForm = false;
     private bool isNewBlog = false;
 
-    private List<BlogDTO> filteredBlogs = new List<BlogDTO>(); // Changed from Blog to BlogDTO
+    private List<BlogDTO> filteredBlogs = new List<BlogDTO>();
 
-    private IEnumerable<BlogDTO> PaginatedBlogs => // Changed from Blog to BlogDTO
+    private IEnumerable<BlogDTO> PaginatedBlogs =>
         filteredBlogs?
             .Skip((currentPage - 1) * itemsPerPage)
             .Take(itemsPerPage) ?? Enumerable.Empty<BlogDTO>();
@@ -237,11 +247,11 @@
     {
         try
         {
-            blogs = await BlogApiService.GetAllAsync(); // BlogApiService.GetAllAsync() should return List<BlogDTO>
-            roles = await RoleApiService.GetAllAsync(); // RoleApiService.GetAllAsync() should return List<RoleDTO>
-            var allUsers = await UserApiService.GetAllAsync(); // UserApiService.GetAllAsync() should return List<UserDTO>
+            blogs = await BlogApiService.GetAllAsync();
+            roles = await RoleApiService.GetAllAsync();
+            var allUsers = await UserApiService.GetAllAsync();
 
-            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList(); // Use StringComparison for robustness
+            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
             staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
 
             FilterAndSortBlogs();
@@ -250,11 +260,42 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error fetching data: {ex.Message}");
-            blogs = new List<BlogDTO>(); // Initialize with DTO type on error
-            filteredBlogs = new List<BlogDTO>(); // Initialize with DTO type on error
-            staffUsers = new List<UserDTO>(); // Initialize with DTO type on error
-            roles = new List<RoleDTO>(); // Initialize with DTO type on error
+            blogs = new List<BlogDTO>();
+            filteredBlogs = new List<BlogDTO>();
+            staffUsers = new List<UserDTO>();
+            roles = new List<RoleDTO>();
             hasError = true;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (showEditForm && !isSimpleMDELoaded)
+        {
+            try
+            {
+                // Check if SimpleMDE is loaded
+                var isSimpleMDEAvailable = await JS.InvokeAsync<bool>("eval", "typeof SimpleMDE !== 'undefined'");
+                if (isSimpleMDEAvailable)
+                {
+                    await JS.InvokeVoidAsync("initializeSimpleMDE", "#markdownEditor");
+                    isSimpleMDELoaded = true;
+                    // Set initial content
+                    await JS.InvokeVoidAsync("setSimpleMDEContent", "#markdownEditor", blogToEdit.Content);
+                    StateHasChanged();
+                }
+                else
+                {
+                    Console.WriteLine("SimpleMDE not available. Falling back to plain textarea.");
+                    validationMessage = "Markdown editor failed to load. Using plain text input.";
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error initializing SimpleMDE: {ex.Message}");
+                validationMessage = "Failed to initialize Markdown editor.";
+                isSimpleMDELoaded = false;
+            }
         }
     }
 
@@ -266,7 +307,7 @@
             return;
         }
 
-        IEnumerable<BlogDTO> query = blogs; // Changed from Blog to BlogDTO
+        IEnumerable<BlogDTO> query = blogs;
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
@@ -348,7 +389,7 @@
     private void AddBlog()
     {
         validationMessage = string.Empty;
-        blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
+        blogToEdit = new BlogDTO
         {
             BlogId = GenerateNextBlogId(),
             Title = "",
@@ -358,25 +399,27 @@
         };
         isNewBlog = true;
         showEditForm = true;
+        isSimpleMDELoaded = false; // Reset to ensure re-initialization
     }
 
     private void EditBlog(string blogId)
     {
         validationMessage = string.Empty;
-        var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId); // Expecting BlogDTO
+        var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
         if (blog != null)
         {
-            blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
+            blogToEdit = new BlogDTO
             {
                 BlogId = blog.BlogId,
                 Title = blog.Title,
                 Content = blog.Content,
                 Status = blog.Status,
                 StaffId = blog.StaffId,
-                Staff = blog.Staff // Staff should be UserDTO here
+                Staff = blog.Staff
             };
             isNewBlog = false;
             showEditForm = true;
+            isSimpleMDELoaded = false; // Reset to ensure re-initialization
         }
     }
 
@@ -386,6 +429,17 @@
         {
             validationMessage = "Blog Title cannot be empty.";
             return;
+        }
+        if (isSimpleMDELoaded)
+        {
+            try
+            {
+                blogToEdit.Content = await JS.InvokeAsync<string>("getSimpleMDEContent", "#markdownEditor");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error getting SimpleMDE content: {ex.Message}");
+            }
         }
         if (string.IsNullOrWhiteSpace(blogToEdit.Content))
         {
@@ -402,18 +456,19 @@
 
         try
         {
+            Console.WriteLine($"Saving blog: ID={blogToEdit.BlogId}, Title={blogToEdit.Title}, Content={blogToEdit.Content}, Status={blogToEdit.Status}, StaffId={blogToEdit.StaffId}");
             if (isNewBlog)
             {
-                await BlogApiService.CreateAsync(blogToEdit); // BlogApiService.CreateAsync should accept BlogDTO
+                await BlogApiService.CreateAsync(blogToEdit);
                 Console.WriteLine($"Blog '{blogToEdit.Title}' created with ID: {blogToEdit.BlogId}");
             }
             else
             {
-                await BlogApiService.UpdateAsync(blogToEdit); // BlogApiService.UpdateAsync should accept BlogDTO
+                await BlogApiService.UpdateAsync(blogToEdit);
                 Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
             }
 
-            blogs = await BlogApiService.GetAllAsync(); // Refresh with List<BlogDTO>
+            blogs = await BlogApiService.GetAllAsync();
             FilterAndSortBlogs();
             showEditForm = false;
             GoToPage(1);
@@ -422,13 +477,14 @@
         {
             Console.WriteLine($"Error saving blog: {ex.Message}");
             validationMessage = $"Error saving blog: {ex.Message}";
+            StateHasChanged();
         }
     }
 
     private void CancelEdit()
     {
         validationMessage = string.Empty;
-        blogToEdit = new BlogDTO // Changed from Blog to BlogDTO
+        blogToEdit = new BlogDTO
         {
             BlogId = "",
             Title = "",
@@ -437,11 +493,12 @@
             StaffId = ""
         };
         showEditForm = false;
+        isSimpleMDELoaded = false;
     }
 
     private async Task DeleteBlog(string blogId)
     {
-        var blogToDelete = blogs?.FirstOrDefault(b => b.BlogId == blogId); // Expecting BlogDTO
+        var blogToDelete = blogs?.FirstOrDefault(b => b.BlogId == blogId);
         if (blogToDelete == null)
         {
             Console.WriteLine($"Blog with ID {blogId} not found for deletion.");
@@ -453,11 +510,11 @@
         {
             try
             {
-                var success = await BlogApiService.DeleteAsync(blogId); // BlogApiService.DeleteAsync takes string ID
+                var success = await BlogApiService.DeleteAsync(blogId);
                 if (success)
                 {
                     Console.WriteLine($"Blog '{blogToDelete.Title}' (ID: {blogId}) deleted successfully.");
-                    blogs = await BlogApiService.GetAllAsync(); // Refresh with List<BlogDTO>
+                    blogs = await BlogApiService.GetAllAsync();
                     FilterAndSortBlogs();
                     GoToPage(1);
                 }

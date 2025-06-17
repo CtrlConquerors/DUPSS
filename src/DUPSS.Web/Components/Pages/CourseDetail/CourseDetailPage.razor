@@ -47,21 +47,21 @@
                     Enroll
                 </button>
 
-                <section class="instructor-bio mt-5">
+                @* <section class="instructor-bio mt-5">
                     <h2 class="section-title">About the Consultant</h2>
                     <div class="instructor-card">
                         
                         <img src="@(coursePageData.Instructor?.ImageUrl ?? $"https://placehold.co/120x120/95a5a6/ffffff?text={(coursePageData.Instructor?.Username?.FirstOrDefault().ToString() ?? "Consultant")}")"
                              alt="Consultant Avatar" class="instructor-avatar-large" />
                         <div>
-                            <h3 class="instructor-name-big">@coursePageData.Instructor?.Username</h3>
+                            <h3 class="instructor-name-big">@coursePageData.Instructor?.Username</h3> *@
                             @* Assuming Consultant.Role.RoleName exists and is mapped to UserDTO.Role.RoleName *@
-                            <p class="instructor-title">@coursePageData.Instructor?.Role?.RoleName ?? "Expert"</p>
+                            @* <p class="instructor-title">@coursePageData.Instructor?.Role?.RoleName ?? "Expert"</p> *@
                             @* Bio is currently static, as UserDTO doesn't have a Bio property. Update User.cs and UserDTO.cs to make this dynamic. *@
                           
-                        </div>
+                @*         </div>
                     </div>
-                </section>
+                </section> *@
             </div> @* End of course-content-column *@
 
             <div class="course-image-column">

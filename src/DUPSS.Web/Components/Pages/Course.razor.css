@@ -28,6 +28,25 @@
     margin-right: auto;
 }
 
+/* NEW: Search input container styling */
+.search-input-container {
+    margin-bottom: 30px; /* Space below the search bar */
+    padding: 0 15px; /* Add some horizontal padding */
+}
+
+    .search-input-container .form-control {
+        width: 100%;
+        max-width: 500px; /* Limit width of search input */
+        margin: 0 auto; /* Center the search input */
+        display: block; /* Ensure it takes full width for centering */
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        font-size: 1rem;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+    }
+
+
 /* Loading indicator styling */
 .loading-indicator {
     text-align: center;

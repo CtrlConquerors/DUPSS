@@ -169,10 +169,6 @@
     margin-bottom: 10px;
 }
 
-.instructor-description {
-    font-size: 1rem;
-    color: #666;
-    line-height: 1.5;
 }
 
 /* Responsive adjustments */
@@ -210,9 +206,7 @@
         margin-bottom: 15px; /* Space between avatar and text when stacked */
     }
 
-    .section-title {
-        font-size: 1.5rem;
-    }
+   
 }
 
 @media (max-width: 480px) {

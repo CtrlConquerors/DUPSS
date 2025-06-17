@@ -39,7 +39,7 @@ namespace DUPSS.API.Services
             return await CreateTokenResponse(user);
         }
 
-        private async Task<TokenResponseDTO> CreateTokenResponse(User? user)
+        private async Task<TokenResponseDTO> CreateTokenResponse(User user)
         {
             return new TokenResponseDTO
             {
@@ -109,7 +109,9 @@ namespace DUPSS.API.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim(ClaimTypes.Role, user.RoleId),
+                new Claim(ClaimTypes.Name, user.Username)
 
             };
 

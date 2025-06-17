@@ -18,7 +18,7 @@ namespace DUPSS.API.Controllers
     public class AuthController(IAuthService authService) : ControllerBase
     {
 
-        [HttpPost("register")]
+        [HttpPost("Register")]
         public async Task<ActionResult<User>> Register(UserDTO request)
         {
             var user = await authService.RegisterAsync(request);
@@ -30,23 +30,25 @@ namespace DUPSS.API.Controllers
             return Ok(user);
         }
 
-        [HttpPost("login")]
+        [HttpPost("Login")]
         public async Task<ActionResult<TokenResponseDTO>> Login(LoginRequest request)
         {
             var result = await authService.LoginAsync(request);
-            if (result is null) {
+            if (result is null)
+            {
                 return BadRequest("Invalid email or password");
             }
 
             return Ok(result);
         }
 
-        [HttpPost("refresh-token")]
+        [HttpPost("Refresh")]
         public async Task<ActionResult<TokenResponseDTO>> RefreshToken(RefreshTokenRequestDTO request)
         {
             var result = await authService.RefreshTokenAsync(request);
-            if (result is null || result.AccessToken is null || result.AccessToken is null) {
-                return BadRequest("Invalid refresh token"); 
+            if (result is null || result.AccessToken is null || result.AccessToken is null)
+            {
+                return BadRequest("Invalid refresh token");
             }
             return Ok(result);
         }

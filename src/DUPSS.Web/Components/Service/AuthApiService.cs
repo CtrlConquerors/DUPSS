@@ -21,7 +21,7 @@ namespace DUPSS.Web.Components.Service
                 Password = password
             };
 
-            var response = await _httpClient.PostAsJsonAsync("api/Auth/login", request);
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/Login", request);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<TokenResponseDTO>() ?? throw new InvalidOperationException("Failed to deserialize TokenResponseDTO");
@@ -35,7 +35,7 @@ namespace DUPSS.Web.Components.Service
 
         public async Task<User> RegisterAsync(UserDTO user)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Auth/register", user);
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/Register", user);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<User>() ?? throw new InvalidOperationException("Failed to deserialize User");
@@ -49,7 +49,7 @@ namespace DUPSS.Web.Components.Service
 
         public async Task<TokenResponseDTO> RefreshTokenAsync(RefreshTokenRequestDTO request)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Auth/refresh-token", request);
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/Refresh", request);
             if (response.IsSuccessStatusCode)
             {
                 return await response.Content.ReadFromJsonAsync<TokenResponseDTO>() ?? throw new InvalidOperationException("Failed to deserialize TokenResponseDTO");

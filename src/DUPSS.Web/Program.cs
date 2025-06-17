@@ -35,26 +35,30 @@ builder.Services.AddHttpClient("ApiClient", client => {
 
 // Register API services with AuthService dependency
 builder.Services.AddScoped<CourseApiService>(sp => new CourseApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 builder.Services.AddScoped<CourseTopicApiService>(sp => new CourseTopicApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 builder.Services.AddScoped<RoleApiService>(sp => new RoleApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 builder.Services.AddScoped<UserApiService>(sp => new UserApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 builder.Services.AddScoped<CampaignApiService>(sp => new CampaignApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 builder.Services.AddScoped<BlogApiService>(sp => new BlogApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 builder.Services.AddScoped<AppointmentApiService>(sp => new AppointmentApiService(
-sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
+// NEW: Register CourseEnrollApiService
+builder.Services.AddScoped<CourseEnrollApiService>(sp => new CourseEnrollApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
+    sp.GetRequiredService<AuthService>()));
 
 builder.Services.AddCors(options => {
     options.AddPolicy("AllowApi", builder =>
@@ -64,10 +68,13 @@ builder.Services.AddCors(options => {
             .AllowCredentials());
 });
 
-builder.Services.AddScoped(sp => new HttpClient
-{
-    BaseAddress = new Uri("https://localhost:7084/")
-});
+// REMOVED: This generic HttpClient registration is likely redundant and could cause issues
+// if the named "ApiClient" is intended for all API calls.
+// builder.Services.AddScoped(sp => new HttpClient
+// {
+//     BaseAddress = new Uri("https://localhost:7084/")
+// });
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline

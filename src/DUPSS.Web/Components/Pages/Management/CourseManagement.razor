@@ -147,7 +147,7 @@
                         <td>@course.Topic?.TopicName</td>
                         <td>@course.Staff?.Username</td>
                         <td>@course.Consultant?.Username</td>
-                        <td>@course.Description</td> 
+                        <td>@(course.Description?.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)</td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn btn-sm btn-primary me-2"

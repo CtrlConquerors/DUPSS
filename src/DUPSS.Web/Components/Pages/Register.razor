@@ -3,18 +3,17 @@
 @using DUPSS.API.Models.DTOs
 @using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
-@inject UserApiService UserApiService
+@using Microsoft.AspNetCore.Components.Forms
+@inject AuthApiService AuthApiService
 @inject RoleApiService RoleApiService
-@inject AuthApiService authApiService
 @inject NavigationManager NavigationManager
 <div class="background-view"></div>
 <div class="register-container">
-    <div class="glass-card">
-        @* <div class="tabs">
-            <span class="active-tab">Sign Up</span>
-            <span><a href="/login">Login</a></span>
-        </div> *@
-
+    <div class="register-card">
+        <div class="register-header">
+            <img src="images/logo.png" alt="ALPHA Logo" class="register-logo" />
+            <h2>ALPHA Sign Up</h2>
+        </div>
         <form class="register-form" @onsubmit="HandleRegister">
             <div class="form-group">
                 <label for="username">Username <span class="text-danger">*</span></label>
@@ -91,21 +90,10 @@
     private async Task HandleRegister()
     {
         errorMessage = null;
-        if (string.IsNullOrEmpty(newUser.Username) || string.IsNullOrEmpty(newUser.Email) ||
-        string.IsNullOrEmpty(password) || string.IsNullOrEmpty(newUser.RoleId))
-        {
-            errorMessage = "Username, email, password, and role are required.";
-            return;
-        }
-
         try
         {
-            // Đã loại bỏ: newUser.PasswordHash = "placeholder"; // Dòng này gây lỗi CS0200
-
             Console.WriteLine($"Registering user: {newUser.Username}, Email: {newUser.Email}, RoleId: {newUser.RoleId}");
-            Console.WriteLine($"Password: {password}");
-
-            UserDTO usr = new UserDTO
+            var userDto = new UserDTO
             {
                 UserId = newUser.UserId,
                 Username = newUser.Username,
@@ -116,8 +104,7 @@
                 Password = password // Assuming password is hashed in the API
             };
 
-            var createdUser = await authApiService.RegisterAsync(usr);
-
+            var createdUser = await AuthApiService.RegisterAsync(userDto);
             if (createdUser != null)
             {
                 NavigationManager.NavigateTo("/login", forceLoad: false);

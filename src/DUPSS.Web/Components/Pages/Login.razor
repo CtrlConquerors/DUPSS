@@ -1,13 +1,15 @@
 ﻿@page "/login"
+@using DUPSS.API.Models.Common
 @using DUPSS.Web.Components.Service
-@inject AuthApiService authApiService
+@using Microsoft.AspNetCore.Components.Forms
+@inject JwtAuthenticationStateProvider AuthStateProvider
 @inject NavigationManager NavigationManager
 
 <div class="login-bg-override"></div>
 <div class="login-container">
     <div class="login-card">
         <div class="login-header">
-            <img src="images/logo2.png" alt="ALPHA Logo" class="login-logo"/>
+            <img src="images/logo.png" alt="ALPHA Logo" class="login-logo" />
             <h2>ALPHA Login</h2>
         </div>
         <form class="login-form" @onsubmit="HandleLogin">
@@ -45,15 +47,8 @@
         errorMessage = null;
         try
         {
-            var success = await authApiService.LoginAsync(email, password);
-            if (success != null)
-            {
-                NavigationManager.NavigateTo("/", forceLoad: false);
-            }
-            else
-            {
-                errorMessage = "Invalid email or password.";
-            }
+            await AuthStateProvider.LoginAsync(email, password);
+            NavigationManager.NavigateTo("/", forceLoad: false);
         }
         catch (Exception ex)
         {

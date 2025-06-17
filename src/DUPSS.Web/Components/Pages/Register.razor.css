@@ -1,0 +1,210 @@
+﻿.background-view {
+    min-height: 100%;
+    width: 100vw;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    background: url('/images/About1.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.register-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 60px;
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.18);
+    border-radius: 60px;
+    padding: 40px 32px 32px 32px;
+    width: 100%;
+    max-width: 1010px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+    backdrop-filter: blur(18px);
+    border: 1.5px solid rgba(255, 255, 255, 0.22);
+    color: #222;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.register-header {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.register-logo {
+    height: 60px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    box-shadow: 0 2px 12px rgba(0,123,255,0.08);
+    background: #f8faff;
+    object-fit: contain;
+}
+
+.register-header h2 {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #007bff;
+    letter-spacing: -0.5px;
+    margin-bottom: 0;
+}
+
+.register-form {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 10px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.register-form label {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+    margin-bottom: 4px;
+}
+
+.register-form input,
+.register-form select {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255,255,255,0.7);
+    border: none;
+    border-radius: 8px;
+    border-bottom: 2px solid #007bff;
+    color: #222;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s, background 0.3s;
+    margin-bottom: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+
+    .register-form input:focus,
+    .register-form select:focus {
+        border-bottom: 2.5px solid #005bea;
+        background: #fff;
+    }
+
+    .register-form input::placeholder {
+        color: #bdbdbd;
+        opacity: 1;
+    }
+
+.register-btn {
+    width: 100%;
+    padding: 14px 0;
+    margin-top: 8px;
+    border: none;
+    border-radius: 100px;
+    background: linear-gradient(90deg, #007bff 0%, #00c6fb 100%);
+    color: #fff;
+    font-weight: 700;
+    font-size: 1.13rem;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.13);
+    transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.3s;
+    cursor: pointer;
+}
+
+    .register-btn:hover, .register-btn:focus {
+        background: linear-gradient(90deg, #005bea 0%, #00c6fb 100%);
+        color: #fff;
+        transform: translateY(-2px) scale(1.03);
+        box-shadow: 0 6px 24px rgba(0,123,255,0.18);
+    }
+
+.alert-danger {
+    background: rgba(0, 123, 255, 0.10);
+    color: #005bea;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 0.98rem;
+    margin-top: 10px;
+    border: 1.5px solid #b6d0ff;
+    width: 100%;
+}
+
+.text-danger {
+    color: #005bea;
+    font-weight: 700;
+}
+
+.register-footer {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 0.98rem;
+    color: white;
+}
+
+    .register-footer a {
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+        .register-footer a:hover {
+            color: #005bea;
+            text-decoration: underline;
+        }
+
+@media (max-width: 480px) {
+    .glass-card {
+        width: 96vw;
+        padding: 24px 8px;
+    }
+
+    .register-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .register-btn {
+        font-size: 1rem;
+        padding: 12px 0;
+    }
+}
+/* Style the select box itself */
+.register-form select {
+    background: rgba(255,255,255,0.7);
+    border: none;
+    border-radius: 8px;
+    border-bottom: 2px solid #007bff;
+    color: #222;
+    font-size: 1rem;
+    padding: 12px;
+    outline: none;
+    margin-bottom: 2px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    transition: border-color 0.3s, background 0.3s;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    /* Custom blue arrow */
+    background-image: linear-gradient(45deg, transparent 49%, #007bff 51%), linear-gradient(135deg, #007bff 51%, transparent 49%);
+    background-position: calc(100% - 24px) calc(50% - 3px), calc(100% - 18px) calc(50% - 3px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+}
+
+    /* Focus state */
+    .register-form select:focus {
+        border-bottom: 2.5px solid #005bea;
+        background: #fff;
+    }
+
+    /* Remove default arrow in IE */
+    .register-form select::-ms-expand {
+        display: none;
+    }

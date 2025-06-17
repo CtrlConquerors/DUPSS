@@ -6,6 +6,11 @@
     background-color: white;
 }
 
+.navbar.navmenu-register-bg {
+    background-color: transparent;
+    color:black;
+}
+
 .navmenu-campaign-bg {
     background-color: #ff9800;
 }

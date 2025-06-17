@@ -5,41 +5,43 @@
 @inject UserApiService UserApiService
 @inject RoleApiService RoleApiService
 @inject NavigationManager NavigationManager
-
+<div class="background-view"></div>
 <div class="register-container">
-    <div class="register-card">
-        <div class="register-header">
-            <img src="images/logo.png" alt="ALPHA Logo" class="register-logo" />
-            <h2>ALPHA Sign Up</h2>
-        </div>
+    <div class="glass-card">
+        @* <div class="tabs">
+            <span class="active-tab">Sign Up</span>
+            <span><a href="/login">Login</a></span>
+        </div> *@
+
         <form class="register-form" @onsubmit="HandleRegister">
             <div class="form-group">
                 <label for="username">Username <span class="text-danger">*</span></label>
-                <input id="username" type="text" class="form-control" @bind="newUser.Username"
-                       placeholder="Enter your username" required />
+                <input id="username" type="text" @bind="newUser.Username" placeholder="Enter your username" required />
             </div>
+
             <div class="form-group">
                 <label for="email">Email <span class="text-danger">*</span></label>
-                <input id="email" type="email" class="form-control" @bind="newUser.Email" placeholder="Enter your email"
-                       required />
+                <input id="email" type="email" @bind="newUser.Email" placeholder="Enter your email" required />
             </div>
+
             <div class="form-group">
                 <label for="password">Password <span class="text-danger">*</span></label>
-                <input id="password" type="password" class="form-control" @bind="password"
-                       placeholder="Enter your password" required />
+                <input id="password" type="password" @bind="password" placeholder="Enter your password" required />
             </div>
+
             <div class="form-group">
                 <label for="phoneNumber">Phone Number</label>
-                <input id="phoneNumber" type="tel" class="form-control" @bind="newUser.PhoneNumber"
-                       placeholder="Enter your phone number" />
+                <input id="phoneNumber" type="tel" @bind="newUser.PhoneNumber" placeholder="Enter your phone number" />
             </div>
+
             <div class="form-group">
                 <label for="dob">Date of Birth</label>
-                <input id="dob" type="date" class="form-control" @bind="newUser.DoB" />
+                <input id="dob" type="date" @bind="newUser.DoB" />
             </div>
+
             <div class="form-group">
                 <label for="role">Role <span class="text-danger">*</span></label>
-                <select id="role" class="form-select" @bind="newUser.RoleId" required>
+                <select id="role" @bind="newUser.RoleId" required>
                     <option value="">Select Role</option>
                     @foreach (var role in availableRoles)
                     {
@@ -47,19 +49,23 @@
                     }
                 </select>
             </div>
+
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div class="alert alert-danger" role="alert">
                     @errorMessage
                 </div>
             }
-            <button type="submit" class="btn btn-primary register-btn">Sign Up</button>
+
+            <button type="submit" class="register-btn">Sign Up</button>
         </form>
+
         <div class="register-footer">
             <p>Already have an account? <a href="/login">Log in</a></p>
         </div>
     </div>
 </div>
+
 
 @code {
     // Khởi tạo newUser mà không cố gắng gán cho PasswordHash

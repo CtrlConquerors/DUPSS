@@ -109,7 +109,8 @@
         : currentUri?.Contains("/CourseManagement", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-course-bg"
         : currentUri?.Contains("/CampaignManagement", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-campaign-bg"
         : currentUri?.Contains("/Management", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-management-bg"
-        : currentUri?.Contains("/Blog", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-blog-bg"       
+        : currentUri?.Contains("/Blog", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-blog-bg"    
+        : currentUri?.Contains("/register", StringComparison.OrdinalIgnoreCase) == true ? "navmenu-register-bg"
         : "navmenu-default-bg";
 
     private void ToggleOverlay()

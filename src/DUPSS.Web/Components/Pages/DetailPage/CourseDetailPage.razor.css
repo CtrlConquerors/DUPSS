@@ -119,6 +119,75 @@
     box-shadow: 0 1px 6px rgba(0,123,255,0.04);
 }
 
+/* Course Meta Info (Topic, Type, Inventory) */
+.course-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    align-items: center;
+}
+
+.course-topic-badge {
+    background-color: #e9f2ff;
+    color: #007bff;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.course-type-display {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: black; /* Default text color */
+    display: flex; /* Make it a flex container to align indicator and text */
+    align-items: center; /* Vertically align items */
+    gap: 5px; /* Space between indicator and text */
+}
+
+/* NEW: Course Type Indicators */
+.online-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #28a745; /* Green color */
+    border-radius: 50%; /* Make it a circle */
+    box-shadow: 0 0 5px rgba(40, 167, 69, 0.5); /* Subtle glow */
+}
+
+.offline-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #6c757d; /* Grey */
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(108, 117, 125, 0.5); /* Grey glow */
+}
+
+.hybrid-indicator {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background-color: #007bff; /* Blue */
+    border-radius: 50%;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Blue glow */
+}
+
+
+.course-inventory {
+    font-size: 0.95rem;
+    color: #666;
+    background-color: #f0f2f5;
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
 /* Instructor Info */
 .instructor-info {
     display: flex;
@@ -190,7 +259,83 @@
         transform: translateY(-3px) scale(1.07);
     }
 
-/* Access Info */
+    .enroll-button:disabled {
+        background: #cccccc;
+        color: #888888;
+        border: 2px solid #aaaaaa;
+        cursor: not-allowed;
+        box-shadow: none;
+        transform: none;
+        filter: none;
+    }
+
+    /* Style for the "Go to Course" button */
+    .enroll-button.go-to-course-button {
+        background: linear-gradient(90deg, #28a745 0%, #34d058 100%); /* Green gradient */
+        color: white;
+        border: 2px solid #28a745;
+        box-shadow: 0 6px 32px rgba(40, 167, 69, 0.3);
+        backdrop-filter: blur(10px) saturate(180%);
+        -webkit-backdrop-filter: blur(10px) saturate(180%);
+    }
+
+        .enroll-button.go-to-course-button:hover {
+            background: linear-gradient(90deg, #218838 0%, #2fb74d 100%);
+            border: 2.5px solid #218838;
+            box-shadow: 0 12px 48px rgba(40, 167, 69, 0.4);
+        }
+
+
+/* Loading, Error, No Course Messages */
+.loading-indicator,
+.error-message,
+.no-course-message {
+    text-align: center;
+    padding: 50px;
+    font-size: 1.2rem;
+    color: #6c757d;
+    background-color: rgba(255,255,255,0.65);
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    margin-top: 20px;
+    border: 1px solid rgba(255,255,255,0.32);
+    backdrop-filter: blur(10px);
+}
+
+.error-message {
+    color: #dc3545;
+    border: 1px dashed #dc3545;
+    background-color: rgba(252, 231, 230, 0.8);
+}
+
+.no-course-message {
+    border: 1px dashed #ced4da;
+    background-color: rgba(233, 236, 239, 0.8);
+}
+
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+
+/* Access Info (Note: This class was present in original CSS, kept for consistency if HTML uses it) */
 .access-info {
     font-size: 1.05rem;
     color: #7b8aaf;
@@ -260,6 +405,40 @@
     color: #4b5563;
     line-height: 1.7;
 }
+
+/* Enrollment Messages (Success/Error/Warning) */
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.alert-danger {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
+.alert-info { /* Added for "already enrolled" message */
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+    padding: 10px 20px;
+    border-radius: 8px;
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 1200px) {

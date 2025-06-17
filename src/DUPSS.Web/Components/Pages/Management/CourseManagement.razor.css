@@ -47,15 +47,15 @@
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25); /* More prominent shadow */
 }
 
-.add-course-button:hover {
-    background-color: #0056b3; /* Darker blue on hover */
-    transform: translateY(-2px); /* Slight lift effect */
-    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35); /* Enhanced shadow on hover */
-}
+    .add-course-button:hover {
+        background-color: #0056b3; /* Darker blue on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35); /* Enhanced shadow on hover */
+    }
 
-.add-course-button i {
-    font-size: 1.2rem; /* Icon size */
-}
+    .add-course-button i {
+        font-size: 1.2rem; /* Icon size */
+    }
 
 /* Filter and Sort Section */
 .filter-sort-section {
@@ -90,10 +90,10 @@
     min-width: 250px; /* Increased min-width for the sort controls container */
 }
 
-.sort-controls .form-select {
-    flex-grow: 1; /* Allow the select to take available space */
-    min-width: 200px; /* Increased min-width for the select itself */
-}
+    .sort-controls .form-select {
+        flex-grow: 1; /* Allow the select to take available space */
+        min-width: 200px; /* Increased min-width for the select itself */
+    }
 
 .sort-direction-button {
     padding: 10px 15px;
@@ -105,10 +105,10 @@
     min-width: 50px; /* Ensure button has a minimum width */
 }
 
-/* Style for the sort direction icon inside the button */
-.sort-direction-button i {
-    font-size: 1.5rem; /* Made the icon bigger */
-}
+    /* Style for the sort direction icon inside the button */
+    .sort-direction-button i {
+        font-size: 1.5rem; /* Made the icon bigger */
+    }
 
 
 /* Table Container Styling */
@@ -129,83 +129,83 @@
     min-width: 900px; /* Increased min-width to better accommodate content without squishing */
 }
 
-.course-table th,
-.course-table td {
-    padding: 12px 15px; /* Adjusted padding to match user table */
-    text-align: left;
-    border-bottom: 1px solid #e0e0e0; /* Light horizontal border between rows */
-    overflow: hidden; /* Still hide overflowed content by default */
-    border-right: 1px solid #e0e0e0; /* Vertical column separator line */
-}
+    .course-table th,
+    .course-table td {
+        padding: 12px 15px; /* Adjusted padding to match user table */
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0; /* Light horizontal border between rows */
+        overflow: hidden; /* Still hide overflowed content by default */
+        border-right: 1px solid #e0e0e0; /* Vertical column separator line */
+    }
 
-/* Specific styles for 'No' column */
-.course-table th:first-child,
-.course-table td:first-child {
-    width: 50px; /* Fixed width for the 'No' column */
-    text-align: center; /* Center align 'No' column content */
-}
+        /* Specific styles for 'No' column */
+        .course-table th:first-child,
+        .course-table td:first-child {
+            width: 50px; /* Fixed width for the 'No' column */
+            text-align: center; /* Center align 'No' column content */
+        }
 
-/* Specific styles for 'Course Type' column */
-.course-table th:nth-child(4),
-.course-table td:nth-child(4) {
-    width: 120px; /* Shorter width for Course Type */
-    text-align: center; /* Center align Course Type content */
-}
+        /* Specific styles for 'Course Type' column */
+        .course-table th:nth-child(4),
+        .course-table td:nth-child(4) {
+            width: 120px; /* Shorter width for Course Type */
+            text-align: center; /* Center align Course Type content */
+        }
 
-/* Specific styles for 'Staff Name' column */
-.course-table th:nth-child(6),
-.course-table td:nth-child(6) {
-    width: 120px; /* Shorter width for Staff Name */
-}
+        /* Specific styles for 'Staff Name' column */
+        .course-table th:nth-child(6),
+        .course-table td:nth-child(6) {
+            width: 120px; /* Shorter width for Staff Name */
+        }
 
-/* Specific styles for 'Action' column */
-.course-table th:last-child,
-.course-table td:last-child {
-    width: 100px; /* Shorter width for Action column */
-    border-right: none; /* Remove vertical border from the last column */
-}
+        /* Specific styles for 'Action' column */
+        .course-table th:last-child,
+        .course-table td:last-child {
+            width: 100px; /* Shorter width for Action column */
+            border-right: none; /* Remove vertical border from the last column */
+        }
 
-/* Allow Course Name and Topic Name to wrap and take available space */
-.course-table th:nth-child(3), /* Course Name header */
-.course-table td:nth-child(3), /* Course Name cell */
-.course-table th:nth-child(5), /* Topic Name header */
-.course-table td:nth-child(5) /* Topic Name cell */ {
-    white-space: normal; /* Allow text to wrap */
-    text-overflow: clip; /* Prevent ellipsis, show full text */
-    word-wrap: break-word; /* Ensure long words break */
-}
+        /* Allow Course Name and Topic Name to wrap and take available space */
+        .course-table th:nth-child(3), /* Course Name header */
+        .course-table td:nth-child(3), /* Course Name cell */
+        .course-table th:nth-child(5), /* Topic Name header */
+        .course-table td:nth-child(5) /* Topic Name cell */ {
+            white-space: normal; /* Allow text to wrap */
+            text-overflow: clip; /* Prevent ellipsis, show full text */
+            word-wrap: break-word; /* Ensure long words break */
+        }
 
-/* Specific styles for 'Description' column - NEW/UPDATED */
-.course-table td:nth-child(8) {
-    word-break: break-all; /* Breaks long words at any character */
-    overflow-wrap: break-word; /* Handles general long words */
-    white-space: normal; /* Ensures normal text wrapping */
-}
-
-
-.course-table thead th {
-    background-color: #f2f4f7; /* Light grey background for headers */
-    font-weight: bold; /* Bold text for headers */
-    color: black; /* Black text for headers as in user table */
-    text-transform: none; /* No uppercase for headers */
-    font-size: 1rem; /* Standard font size for headers */
-    text-align: center; /* Center align all header text */
-}
-
-/* Specific alignment for the "Course ID", "Course Name" column headers */
-.course-table thead th:nth-child(2), /* Course ID column */
-.course-table thead th:nth-child(3) /* Course Name column */ {
-    text-align: left; /* Keep these left-aligned */
-}
+        /* Specific styles for 'Description' column - NEW/UPDATED */
+        .course-table td:nth-child(8) {
+            word-break: break-all; /* Breaks long words at any character */
+            overflow-wrap: break-word; /* Handles general long words */
+            white-space: normal; /* Ensures normal text wrapping */
+        }
 
 
-.course-table tbody tr:hover {
-    background-color: #f5f5f5; /* Subtle hover effect for rows */
-}
+    .course-table thead th {
+        background-color: #f2f4f7; /* Light grey background for headers */
+        font-weight: bold; /* Bold text for headers */
+        color: black; /* Black text for headers as in user table */
+        text-transform: none; /* No uppercase for headers */
+        font-size: 1rem; /* Standard font size for headers */
+        text-align: center; /* Center align all header text */
+    }
 
-.course-table tbody tr:last-child td {
-    border-bottom: none; /* No border for the last row */
-}
+        /* Specific alignment for the "Course ID", "Course Name" column headers */
+        .course-table thead th:nth-child(2), /* Course ID column */
+        .course-table thead th:nth-child(3) /* Course Name column */ {
+            text-align: left; /* Keep these left-aligned */
+        }
+
+
+    .course-table tbody tr:hover {
+        background-color: #f5f5f5; /* Subtle hover effect for rows */
+    }
+
+    .course-table tbody tr:last-child td {
+        border-bottom: none; /* No border for the last row */
+    }
 
 /* Action buttons in table cells */
 .action-buttons {
@@ -229,11 +229,11 @@
     font-size: 15px;
 }
 
-.btn-primary:hover {
-    background-color: #cceeff; /* Slightly darker blue on hover */
-    border-color: #80bfff;
-    transform: translateY(-1px);
-}
+    .btn-primary:hover {
+        background-color: #cceeff; /* Slightly darker blue on hover */
+        border-color: #80bfff;
+        transform: translateY(-1px);
+    }
 
 /* Updated styling for danger action buttons (e.g., Delete) */
 .btn-danger {
@@ -242,37 +242,61 @@
     color: red;
 }
 
-.btn-danger:hover {
-    background-color: #ffcccc; /* Slightly darker red on hover */
-    border-color: #ff8080;
-    transform: translateY(-1px);
-}
+    .btn-danger:hover {
+        background-color: #ffcccc; /* Slightly darker red on hover */
+        border-color: #ff8080;
+        transform: translateY(-1px);
+    }
 
 /* Pagination buttons */
 .d-flex.justify-content-center.mt-3 .btn {
-    border-radius: 50px; /* Rounded pill shape for pagination buttons */
+    background-color: #007bff; /* Blue for active pagination button */
+    color: white;
+    border: 1px solid #007bff;
+    border-radius: 4px;
     padding: 8px 16px;
     font-weight: 600;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
+
+    .d-flex.justify-content-center.mt-3 .btn.active {
+        background-color: #0056b3; /* Darker blue for active state */
+        border-color: #0056b3;
+    }
+
+.d-flex.justify-content-center.mt-3 .btn-outline-primary {
+    background-color: white !important;
+    color: black;
+    border-color: white !important;
+    border-radius: 50px;
+}
+
+    .d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
+        background-color: #e9f2ff; /* Light blue on hover */
+        color: #0056b3;
+        border-color: white;
+        border-radius: 50px;
+    }
+
 .btn-outline-primary {
-    background-color: white ;
+    background-color: white;
     color: black; /* Info blue */
     border-color: #17a2b8;
 }
 
-.btn-outline-primary:hover {
-    background-color: #e9f2ff; /* Light blue on hover */
-    color: #0056b3;
-    border-color: #0056b3;
-}
+    .btn-outline-primary:hover {
+        background-color: #e9f2ff; /* Light blue on hover */
+        color: #0056b3;
+        border-color: #0056b3;
+    }
 
 .d-flex.justify-content-center.mt-3 .btn.active {
     background-color: white; /* Primary blue for active page */
     border-color: gray;
     color: black; /* White text for active page */
 }
+
 
 /* Inline Edit/Add Form */
 .edit-form-card {
@@ -283,48 +307,48 @@
     margin-top: 30px;
 }
 
-.edit-form-card h5 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    color: #343a40;
-    margin-bottom: 20px;
-}
+    .edit-form-card h5 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #343a40;
+        margin-bottom: 20px;
+    }
 
-.edit-form-card .form-label {
-    font-weight: 500;
-    color: #495057;
-    margin-bottom: 5px;
-}
+    .edit-form-card .form-label {
+        font-weight: 500;
+        color: #495057;
+        margin-bottom: 5px;
+    }
 
-.edit-form-card .form-control,
-.edit-form-card .form-select {
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    padding: 10px 15px;
-    font-size: 1rem;
-}
+    .edit-form-card .form-control,
+    .edit-form-card .form-select {
+        border-radius: 6px;
+        border: 1px solid #ced4da;
+        padding: 10px 15px;
+        font-size: 1rem;
+    }
 
-.edit-form-card .btn-success {
-    background-color: #28a745;
-    border-color: #28a745;
-    color: white;
-}
+    .edit-form-card .btn-success {
+        background-color: #28a745;
+        border-color: #28a745;
+        color: white;
+    }
 
-.edit-form-card .btn-success:hover {
-    background-color: #218838;
-    border-color: #1e7e34;
-}
+        .edit-form-card .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
 
-.edit-form-card .btn-secondary {
-    background-color: #6c757d;
-    border-color: #6c757d;
-    color: white;
-}
+    .edit-form-card .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
 
-.edit-form-card .btn-secondary:hover {
-    background-color: #5a6268;
-    border-color: #545b62;
-}
+        .edit-form-card .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
 
 /* Course Type Indicators - IMPROVED */
 .online-indicator {
@@ -401,7 +425,7 @@
         flex-direction: column; /* Stack header elements vertically */
         align-items: flex-start; /* Align to the start */
     }
-    
+
     .filter-sort-section {
         flex-direction: column; /* Stack filters/sort vertically */
         align-items: stretch; /* Stretch items to fill width */

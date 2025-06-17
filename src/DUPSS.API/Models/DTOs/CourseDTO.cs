@@ -14,6 +14,7 @@
         public string? Description { get; set; } // UPDATED: Changed to nullable string
         public required string ConsultantId { get; set; }
         public string? ImageUrl { get; set; } // NotMapped property included
+        public string? ImageUrl2 { get; set; }
         public DateTime CreatedDate { get; set; } // NotMapped property included
         public string? Status { get; set; } // NotMapped property included
         public int Inventory { get; set; } // NotMapped property included

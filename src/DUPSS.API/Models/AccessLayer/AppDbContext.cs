@@ -25,10 +25,15 @@ namespace DUPSS.API.Models.AccessLayer
             // This is crucial because ImageUrl is dynamically set in the DAO, not stored in the DB.
             modelBuilder.Entity<Course>()
                 .Ignore(c => c.ImageUrl); // <--- ADDED THIS LINE
-            
+
+            modelBuilder.Entity<Course>()
+               .Ignore(c => c.ImageUrl2); // For consultant picture in course detail
+
             modelBuilder.Entity<Campaign>()
                .Ignore(c => c.ImageUrl);
 
+            modelBuilder.Entity<User>()
+               .Ignore(u => u.ImageUrl);
 
             // Role -> Users (one-to-many)
             modelBuilder.Entity<User>()

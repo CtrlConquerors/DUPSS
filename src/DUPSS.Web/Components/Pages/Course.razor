@@ -1,13 +1,18 @@
 ﻿@page "/Course"
-@using DUPSS.API.Models.DTOs @* Ensure DTOs are used *@
+@using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
-@inject NavigationManager NavigationManager
-@inject CourseApiService CourseApiService
-@inject IJSRuntime JSRuntime
+
+
 
 <div class="course-page-container">
     <h1 class="page-title">Our Most Popular Courses</h1>
     <p class="page-subtitle">The sky was cloudless and of a deep dark blue the spectacle before us was indeed.</p>
+
+    <div class="search-input-container">
+        @* NEW: Search input container *@
+        <input type="text" class="form-control" placeholder="Search courses by name or topic..."
+               @bind="searchTerm" @bind:event="oninput" @onkeyup="ApplySearchAndDisplay" />
+    </div>
 
     @if (courses == null)
     {
@@ -22,18 +27,19 @@
             <p>Oops! Something went wrong while loading courses. Please try again later.</p>
         </div>
     }
-    else if (!courses.Any())
+    else if (!filteredCourses.Any())
+ @* Use filteredCourses here *@
     {
         <div class="no-courses-message">
-            <p>No courses available at the moment. Please check back later!</p>
+            <p>No courses found matching your criteria. Please try a different search term or filters.</p> @* Updated message *@
         </div>
     }
     else
     {
         <div class="course-grid">
-            @foreach (var course in showAllCourses ? courses : courses.Take(DefaultCourseDisplayLimit))
+            @foreach (var course in showAllCourses ? filteredCourses : filteredCourses.Take(DefaultCourseDisplayLimit)) @* Use filteredCourses here *@
             {
-                <div class="course-card">
+                <div class="course-card clickable" @onclick="() => NavigateToDetail(course.CourseId)">
                     <div class="card-image">
                         <img src="@(course.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Course+Image")"
                              alt="Course Image" />
@@ -41,10 +47,7 @@
                     <div class="card-content">
                         <span class="course-category">@(course.Topic?.TopicName?.Trim() ?? "General")</span>
                         <h3 class="course-name">
-                            <!-- This section was modified to make the course name clickable -->
-                            <NavLink href="@($"CourseDetailPage/{course.CourseId}")">
-                                @course.CourseName
-                            </NavLink>
+                            @course.CourseName
                         </h3>
                         <p class="course-type">
                             Type:
@@ -69,16 +72,16 @@
             }
         </div>
 
-        @if (courses.Count > DefaultCourseDisplayLimit && !showAllCourses)
+        @if (filteredCourses.Count > DefaultCourseDisplayLimit && !showAllCourses) @* Use filteredCourses.Count *@
         {
             <div class="main-explore-button-container">
-                <button class="main-explore-button" @onclick="ToggleShowAllCourses" disabled="@(!_isHydrated)">
-                    @(_isHydrated ? "Explore More" : "Loading...")
+                <button class="main-explore-button" @onclick="ToggleShowAllCourses">
+                    Explore More
                 </button>
             </div>
         }
 
-        @if (showAllCourses)
+        @if (showAllCourses && filteredCourses.Any()) @* Check if there are filtered courses to show less *@
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllCourses">Show Less</button>
@@ -87,64 +90,92 @@
     }
 </div>
 
-<footer class="main-footer mt-10">
-    <div class="container footer-content-wrapper ">
-        <div class="footer-section footer-logo-section col-1">
-            <img src="images/logo.png" alt="Logo" class="footer-logo" />
-            <p class="footer-copyright">Copyright © ALPHA</p>
-        </div>
-        <div class="footer-section footer-info-section text-center col-2">
-            <h5 class="footer-heading">OUR INFORMATION</h5>
-            <p>Address: Phuoc Hiep</p>
-            <p>Contact number: 090 538 4233</p>
-            <p>Email: abcd@fgmail.com</p>
-        </div>
-    </div>
-</footer>
+@* Footer component - ensure it's defined elsewhere or removed if not used *@
+<Footer />
 
 @code {
-    // Changed the type to CourseDTO to match the CourseApiService return type
-    private List<CourseDTO>? courses;
+    private List<CourseDTO>? courses; // Stores all courses fetched initially
+    private List<CourseDTO> filteredCourses = new List<CourseDTO>(); // Stores courses after search filter
     private bool hasError = false;
+    private string searchTerm = string.Empty; // NEW: Search term property
     private bool showAllCourses = false;
-    private const int DefaultCourseDisplayLimit = 3;
-    private bool _isHydrated = false;
+    private const int DefaultCourseDisplayLimit = 3; // Number of courses to show initially
+
+    // Injections
+    [Inject]
+    private NavigationManager NavigationManager { get; set; } = default!;
+    [Inject]
+    private CourseApiService CourseApiService { get; set; } = default!;
+
+    // Removed IJSRuntime JSRuntime as it's not directly used for scrolling or popups in this component
+    // If you plan to add custom message boxes, re-add it.
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            // Fetch all courses
             courses = await CourseApiService.GetAllAsync();
             Console.WriteLine($"Loaded {courses?.Count} courses.");
             hasError = false;
-            Console.WriteLine($"Courses loaded: {courses?.Count ?? 0}");
         }
         catch (Exception ex)
         {
             Console.WriteLine($"Error loading courses: {ex.Message}");
             hasError = true;
+            courses = new List<CourseDTO>(); // Ensure 'courses' is not null even on error
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        finally
         {
-            _isHydrated = true;
-            Console.WriteLine("[Hydration] isHydrated: true");
-            StateHasChanged(); // Trigger re-render to enable Explore button
-            await Task.CompletedTask;
+            // Apply initial search/filter (which will be empty initially) and display
+            ApplySearchAndDisplay();
         }
     }
 
-    private async Task ToggleShowAllCourses()
+    /// <summary>
+    /// Applies the search filter to the main 'courses' list and updates 'filteredCourses'.
+    /// This method is called when the search term changes or on initial load.
+    /// </summary>
+    private void ApplySearchAndDisplay()
+    {
+        if (courses == null)
+        {
+            filteredCourses = new List<CourseDTO>();
+            return;
+        }
+
+        IEnumerable<CourseDTO> query = courses;
+
+        // Apply search term filter
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lowerSearchTerm = searchTerm.ToLower().Trim();
+            query = query.Where(c =>
+                (c.CourseName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (c.Topic?.TopicName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (c.Description?.ToLower().Contains(lowerSearchTerm) ?? false) || // Include description in search
+                (c.CourseId?.ToLower().Contains(lowerSearchTerm) ?? false) // Include CourseId in search
+            );
+        }
+
+        // Update the filtered list
+        filteredCourses = query.ToList();
+        // Reset showAllCourses state when filter changes, so it defaults to showing only a few
+        showAllCourses = false;
+        StateHasChanged(); // Re-render the component with the new filtered list
+    }
+
+    private void ToggleShowAllCourses()
     {
         showAllCourses = !showAllCourses;
         Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
+        // No need to call StateHasChanged() explicitly here, as the UI will react to showAllCourses changing.
+        // If you had scrolling logic like in CampaignManagement, you'd put it here.
+    }
 
-        if (!showAllCourses)
-        {
-            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
-        }
+    // Method to navigate to Course Detail page
+    private void NavigateToDetail(string courseId)
+    {
+        NavigationManager.NavigateTo($"/CourseDetailPage/{courseId}", forceLoad: true);
     }
 }

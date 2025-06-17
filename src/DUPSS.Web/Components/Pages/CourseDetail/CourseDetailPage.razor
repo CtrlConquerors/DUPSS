@@ -1,13 +1,12 @@
 ﻿@page "/CourseDetailPage/{CourseId}"
-@page "/CourseDetailPage"
+@* Removed the duplicate @page "/CourseDetailPage" as a detail page usually requires an ID *@
 
 @using DUPSS.API.Models.DTOs
-@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
 
 
 <div class="course-detail-container">
-    @if (coursePageData == null)
+    @if (coursePageData == null && !hasError)
     {
         <div class="loading-indicator">
             <p>Loading course information...</p>
@@ -18,63 +17,70 @@
     {
         <div class="error-message">
             <p>Oops! Something went wrong while loading the course. Please try again later.</p>
+            <button class="btn btn-primary mt-3" @onclick="GoBackToCourses">Back to Courses</button>
         </div>
     }
-    else if (coursePageData.Course == null)
+    else if (coursePageData?.Course == null) @* Use null-conditional operator for safety *@
     {
         <div class="no-course-message">
-            <p>No course found with the given ID.</p>
+            <p>No course found with the given ID. Please check the URL or try again.</p>
+            <button class="btn btn-primary mt-3" @onclick="GoBackToCourses">Back to Courses</button>
         </div>
     }
     else
     {
         <div class="course-layout-grid">
-       
             <div class="course-content-column">
-              
                 <h1 class="course-detail-title">@coursePageData.Course.CourseName</h1>
                 <p class="course-detail-subtitle">
                     @(coursePageData.Course.Description ?? "A detailed description for this course will be added soon.")
                 </p>
 
                 <div class="instructor-info">
-                    <img src="@(coursePageData.Instructor.ImageUrl ?? "https://placehold.co/40x40/95a5a6/ffffff?text=C")" alt="Consultant Avatar" class="instructor-avatar-small" />
-                    <span class="instructor-text">Instructor: <span class="instructor-name-link">@coursePageData.Instructor.Name</span></span>
+                    
+                    <img src="@(coursePageData.Instructor?.ImageUrl ?? $"https://placehold.co/40x40/95a5a6/ffffff?text={(coursePageData.Instructor?.Username?.FirstOrDefault().ToString() ?? "C")}")"
+                         alt="Consultant Avatar" class="instructor-avatar-small" />
+                    <span class="instructor-text">Instructor: <span class="instructor-name-link">@coursePageData.Instructor?.Username</span></span>
                 </div>
 
                 <button class="enroll-button" @onclick="EnrollNow">
                     Enroll
                 </button>
 
-              
-
                 <section class="instructor-bio mt-5">
                     <h2 class="section-title">About the Consultant</h2>
                     <div class="instructor-card">
-                        <img src="@(coursePageData.Instructor.ImageUrl ?? "https://placehold.co/120x120/95a5a6/ffffff?text=Consultant")"
+                        
+                        <img src="@(coursePageData.Instructor?.ImageUrl ?? $"https://placehold.co/120x120/95a5a6/ffffff?text={(coursePageData.Instructor?.Username?.FirstOrDefault().ToString() ?? "Consultant")}")"
                              alt="Consultant Avatar" class="instructor-avatar-large" />
                         <div>
-                            <h3 class="instructor-name-big">@coursePageData.Instructor.Name</h3>
-                            <p class="instructor-title">@coursePageData.Course.Consultant?.Role?.RoleName ?? "Expert"</p>
-                            <p class="instructor-description">@coursePageData.Instructor.Bio</p>
+                            <h3 class="instructor-name-big">@coursePageData.Instructor?.Username</h3>
+                            @* Assuming Consultant.Role.RoleName exists and is mapped to UserDTO.Role.RoleName *@
+                            <p class="instructor-title">@coursePageData.Instructor?.Role?.RoleName ?? "Expert"</p>
+                            @* Bio is currently static, as UserDTO doesn't have a Bio property. Update User.cs and UserDTO.cs to make this dynamic. *@
+                          
                         </div>
                     </div>
                 </section>
-            </div> 
+            </div> @* End of course-content-column *@
 
             <div class="course-image-column">
-              
+                @* Right column for the course picture *@
                 <img src="@(coursePageData.Course.ImageUrl ?? "https://placehold.co/400x300/F0F0F0/000000?text=Course+Image")"
                      alt="Course Decorative Image" class="course-decorative-image" />
             </div>
-        </div> 
+        </div> @* End of course-layout-grid *@
     }
 </div>
 
 @code {
     [Parameter]
-    public string CourseId { get; set; }
+    public string CourseId { get; set; } = string.Empty; // Initialize to empty string
 
+    private CoursePageData? coursePageData;
+    private bool hasError = false;
+
+    // Injections
     [Inject]
     private NavigationManager NavigationManager { get; set; } = default!;
     [Inject]
@@ -82,48 +88,47 @@
     [Inject]
     private IJSRuntime JSRuntime { get; set; } = default!;
 
-    private CoursePageData? coursePageData;
-    private bool hasError = false;
-
     protected override async Task OnParametersSetAsync()
     {
+        // Check if CourseId is valid for fetching data
         if (string.IsNullOrWhiteSpace(CourseId))
         {
             hasError = false;
-            coursePageData = new CoursePageData { Course = null };
+            coursePageData = new CoursePageData { Course = null, Instructor = null }; // Ensure Instructor is null too
             return;
         }
+
+        // Reset state before fetching to show loading indicator
+        coursePageData = null;
+        hasError = false;
 
         try
         {
             var fetchedCourse = await CourseApiService.GetByIdAsync(CourseId);
 
-            if (fetchedCourse != null)
+            if (fetchedCourse != null && fetchedCourse.Consultant != null)
             {
+                // Assign the fetched course and its consultant to the CoursePageData
                 coursePageData = new CoursePageData
                 {
                     Course = fetchedCourse,
+                    // Description here is redundant if Course.Description is used directly in UI
                     Description = fetchedCourse.Description ?? "A detailed description for this course will be added soon.",
-                    Instructor = new InstructorInfo
-                    {
-                        Name = fetchedCourse.Consultant?.Username ?? "Unknown Consultant",
-                        Bio = "This consultant provides expert guidance and support.",
-                        ImageUrl = "https://placehold.co/120x120/95a5a6/ffffff?text=Consultant"
-                    }
+                    Instructor = fetchedCourse.Consultant // Directly assign the Consultant UserDTO
                 };
-                hasError = false;
             }
             else
             {
-                hasError = false;
-                coursePageData = new CoursePageData { Course = null };
+                // Course not found or Consultant data is missing
+                Console.WriteLine($"Course with ID {CourseId} not found or Consultant data missing.");
+                coursePageData = new CoursePageData { Course = null, Instructor = null };
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading course details: {ex.Message}");
+            Console.WriteLine($"Error loading course details for ID {CourseId}: {ex.Message}");
             hasError = true;
-            coursePageData = null;
+            coursePageData = null; // Set to null to trigger error message display
         }
     }
 
@@ -140,17 +145,19 @@
         Console.WriteLine($"Simulated enrollment in course {coursePageData.Course.CourseId} for member {simulatedMemberId}");
     }
 
+    private void GoBackToCourses()
+    {
+        NavigationManager.NavigateTo("/Course");
+    }
+
     public class CoursePageData
     {
         public CourseDTO? Course { get; set; }
+        // The Description property below is redundant if you use Course.Description directly in the UI.
+        // It's kept for now to match the original structure, but consider removing it.
         public string Description { get; set; } = string.Empty;
-        public InstructorInfo Instructor { get; set; } = new InstructorInfo();
+        public UserDTO? Instructor { get; set; } // Now directly a UserDTO
     }
 
-    public class InstructorInfo
-    {
-        public string Name { get; set; } = string.Empty;
-        public string Bio { get; set; } = string.Empty;
-        public string ImageUrl { get; set; } = string.Empty;
-    }
+    
 }

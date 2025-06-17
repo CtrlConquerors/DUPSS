@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -21,6 +22,8 @@ namespace DUPSS.API.Models.Objects
         public required string PasswordHash { get; set; }
         [Required, MaxLength(255)]
         public required string RoleId { get; set; }
+        [NotMapped]
+        public string? ImageUrl { get; set; }
         public Role? Role { get; set; }
         public List<Appointment> MemberAppointments { get; set; } = new List<Appointment>();
         public List<Appointment> ConsultantAppointments { get; set; } = new List<Appointment>();

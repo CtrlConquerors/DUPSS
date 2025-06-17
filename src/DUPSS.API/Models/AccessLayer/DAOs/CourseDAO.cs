@@ -28,6 +28,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 Description = course.Description, // NEW: Include Description
                 ConsultantId = course.ConsultantId, // NEW: Include ConsultantId
                 ImageUrl = $"images/{course.CourseId}.jpg",
+                ImageUrl2 = $"images/{course.ConsultantId}.jpg",
                 CreatedDate = course.CreatedDate,
                 Status = course.Status,
                 Inventory = course.Inventory,
@@ -52,6 +53,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     Description = c.Description, // NEW: Include Description
                     ConsultantId = c.ConsultantId, // NEW: Include ConsultantId
                     ImageUrl = $"images/{c.CourseId}.jpg",
+                    ImageUrl2 = $"images/{c.ConsultantId}.jpg",
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
                     Inventory = c.Inventory,
@@ -77,6 +79,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         DoB = c.Consultant.DoB,
                         PhoneNumber = c.Consultant.PhoneNumber,
                         Email = c.Consultant.Email,
+                        ImageUrl = $"images/{c.Consultant.UserId}.jpg",
                         RoleId = c.Consultant.RoleId
                     } : null
                 })
@@ -99,6 +102,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     Description = c.Description, // NEW: Include Description
                     ConsultantId = c.ConsultantId, // NEW: Include ConsultantId
                     ImageUrl = $"images/{c.CourseId}.jpg",
+                    ImageUrl2 = $"images/{c.ConsultantId}.jpg",
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
                     Inventory = c.Inventory,
@@ -124,6 +128,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         DoB = c.Consultant.DoB,
                         PhoneNumber = c.Consultant.PhoneNumber,
                         Email = c.Consultant.Email,
+                        ImageUrl = $"images/{c.Consultant.UserId}.jpg",
                         RoleId = c.Consultant.RoleId
                     } : null
                 })
@@ -154,6 +159,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 Description = existingCourse.Description, // NEW: Include updated Description
                 ConsultantId = existingCourse.ConsultantId, // NEW: Include updated ConsultantId
                 ImageUrl = $"images/{existingCourse.CourseId}.jpg",
+                ImageUrl2 = $"images/{existingCourse.ConsultantId}.jpg",
                 CreatedDate = existingCourse.CreatedDate,
                 Status = existingCourse.Status,
                 Inventory = existingCourse.Inventory,

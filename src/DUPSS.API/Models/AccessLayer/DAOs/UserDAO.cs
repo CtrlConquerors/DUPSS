@@ -56,6 +56,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     DoB = user.DoB,
                     PhoneNumber = user.PhoneNumber,
                     Email = user.Email,
+                    ImageUrl = $"images/{user.UserId}.jpg",
                     RoleId = user.RoleId,
                     Role = new RoleDTO
                     {
@@ -82,6 +83,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     DoB = u.DoB,
                     PhoneNumber = u.PhoneNumber,
                     Email = u.Email,
+                    ImageUrl = $"images/{u.UserId}.jpg",
                     RoleId = u.RoleId,
                     Role = u.Role != null ? new RoleDTO
                     {
@@ -103,6 +105,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     DoB = u.DoB,
                     PhoneNumber = u.PhoneNumber,
                     Email = u.Email,
+                    ImageUrl = $"images/{u.UserId}.jpg",
                     RoleId = u.RoleId,
                     Role = u.Role != null ? new RoleDTO
                     {
@@ -129,7 +132,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingUser.Username = user.Username;
             existingUser.Email = user.Email;
             existingUser.PhoneNumber = user.PhoneNumber;
-            existingUser.DoB = user.DoB;
+            existingUser.DoB = user.DoB;          
             existingUser.RoleId = user.RoleId;
 
             await context.SaveChangesAsync();
@@ -140,7 +143,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 DoB = existingUser.DoB,
                 PhoneNumber = existingUser.PhoneNumber,
                 Email = existingUser.Email,
-                RoleId = existingUser.RoleId,
+                ImageUrl = $"images/{existingUser.UserId}.jpg",
+                RoleId = existingUser.UserId,
                 Role = new RoleDTO
                 {
                     RoleId = role.RoleId,

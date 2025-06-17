@@ -1,225 +1,321 @@
-﻿/* coursedetailpage.razor.css */
+﻿/* Ultra Glassmorphism Course Detail Page Styling */
 
 /* Main container for the entire page */
 .course-detail-container {
-    background-color: #f7f7f7; /* Light background similar to the image */
-    font-family: 'Inter', sans-serif;
-    color: #333; /* Darker text for readability */
-    padding: 40px 20px; /* Increased padding */
-    min-height: 100vh; /* Ensure it takes full viewport height */
+    background: linear-gradient(120deg, #e0e7ff 0%, #f7f7fa 100%);
+    font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+    color: #1a2233;
+    padding: 56px 0;
+    min-height: 100vh;
     display: flex;
-    justify-content: center; /* Center the overall content */
-    align-items: flex-start; /* Align content to the top */
+    justify-content: center;
+    align-items: flex-start;
+    position: relative;
+    overflow-x: hidden;
 }
 
-/* New grid layout for main content + image */
+    /* Decorative blurred background shapes */
+    .course-detail-container::before,
+    .course-detail-container::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        border-radius: 50%;
+        filter: blur(60px);
+        opacity: 0.25;
+        pointer-events: none;
+    }
+
+    .course-detail-container::before {
+        width: 400px;
+        height: 400px;
+        left: -120px;
+        top: 60px;
+        background: linear-gradient(135deg, #7fbcff 0%, #e0c3fc 100%);
+    }
+
+    .course-detail-container::after {
+        width: 320px;
+        height: 320px;
+        right: -100px;
+        bottom: 40px;
+        background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+    }
+
+/* Glassy grid layout */
 .course-layout-grid {
     display: grid;
-    grid-template-columns: 2fr 1fr; /* Two columns: left (content) wider, right (image) narrower */
-    gap: 40px; /* Space between columns */
-    max-width: 1200px; /* Max width for the entire grid */
+    grid-template-columns: 2fr 1fr;
+    gap: 56px;
+    max-width: 1200px;
     width: 100%;
-    background-color: #fff; /* White background for the content area */
-    padding: 30px; /* Padding for the entire content grid */
-    border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    background: rgba(255,255,255,0.65);
+    border-radius: 32px;
+    box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.18), 0 1.5px 8px 0 rgba(0,0,0,0.04);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    padding: 56px 48px;
+    border: 2px solid rgba(255,255,255,0.32);
+    position: relative;
+    z-index: 1;
 }
 
+/* Content column */
 .course-content-column {
-    /* Contains all the text content, buttons, sections */
-    /* No specific styling needed here beyond inherited */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
 }
 
+/* Image column */
 .course-image-column {
     display: flex;
-    justify-content: center; /* Center the image horizontally */
-    align-items: center; /* Center the image vertically */
-    padding-left: 20px; /* Add some space from the left column */
+    justify-content: center;
+    align-items: center;
+    padding-left: 32px;
 }
 
 .course-decorative-image {
     max-width: 100%;
-    height: auto;
-    object-fit: contain; /* Ensure the whole image is visible */
-    border-radius: 8px; /* Maintain rounded corners */
+    max-height: 440px;
+    object-fit: cover;
+    border-radius: 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.13), 0 1.5px 8px 0 rgba(0,123,255,0.10);
+    border: 2.5px solid rgba(0,123,255,0.13);
+    background: rgba(255,255,255,0.32);
+    backdrop-filter: blur(6px);
+    transition: box-shadow 0.3s, border 0.3s;
 }
+
+    .course-decorative-image:hover {
+        box-shadow: 0 16px 64px rgba(0,123,255,0.18), 0 2px 12px 0 rgba(0,0,0,0.10);
+        border: 2.5px solid #7fbcff;
+    }
 
 /* Page Title */
 .course-detail-title {
-    font-size: 2.8rem; /* Larger font size for the main title */
-    font-weight: 700;
-    margin-bottom: 15px; /* Space below title */
-    line-height: 1.2; /* Tighter line height for large titles */
+    font-size: 3rem;
+    font-weight: 900;
+    margin-bottom: 16px;
+    color: #1b263b;
+    letter-spacing: -1.5px;
+    text-shadow: 0 4px 16px rgba(0,123,255,0.10);
+    background: linear-gradient(90deg, #007bff 0%, #7fbcff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 /* Subtitle/Description below the title */
 .course-detail-subtitle {
-    font-size: 1.1rem; /* Slightly larger text for subtitle */
-    color: #666; /* Medium grey for less emphasis than title */
-    margin-bottom: 25px; /* More space below subtitle */
-    line-height: 1.6; /* Better readability for paragraphs */
+    font-size: 1.22rem;
+    color: #3b4252;
+    margin-bottom: 32px;
+    line-height: 1.8;
+    font-weight: 400;
+    background: rgba(255,255,255,0.45);
+    border-radius: 8px;
+    padding: 10px 18px;
+    box-shadow: 0 1px 6px rgba(0,123,255,0.04);
 }
 
-/* Instructor Info (small inline version) */
+/* Instructor Info */
 .instructor-info {
     display: flex;
     align-items: center;
-    margin-bottom: 30px; /* Space above the enroll button */
-    font-size: 1rem;
-    color: #555;
+    margin-bottom: 36px;
+    font-size: 1.08rem;
+    color: #495057;
+    background: rgba(255,255,255,0.45);
+    border-radius: 36px;
+    padding: 10px 22px 10px 10px;
+    box-shadow: 0 2px 12px rgba(0,123,255,0.08);
 }
 
 .instructor-avatar-small {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%; /* Circular avatar */
-    margin-right: 10px;
-    object-fit: cover; /* Ensure image covers the area */
-    border: 1px solid #ddd; /* Subtle border */
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    margin-right: 14px;
+    object-fit: cover;
+    border: 2.5px solid #b6d0ff;
+    background: #fff;
 }
 
 .instructor-text {
-    font-weight: 400; /* Normal weight for "Instructor:" */
+    font-weight: 600;
+    color: #007bff;
 }
 
 .instructor-name-link {
-    color: #007bff; /* Blue for the clickable name */
-    font-weight: 600; /* Bold for the name */
-    text-decoration: none; /* No underline by default */
+    color: #007bff;
+    font-weight: 800;
+    text-decoration: none;
+    margin-left: 6px;
     cursor: pointer;
+    transition: color 0.2s;
 }
 
     .instructor-name-link:hover {
-        text-decoration: underline; /* Underline on hover */
+        color: #0056b3;
+        text-decoration: underline;
     }
 
-/* Enroll Button */
+/* Enroll Button - Ultra Glassmorphism */
 .enroll-button {
-    background-color: #007bff; /* Primary blue button */
-    color: white;
-    border: none;
-    padding: 15px 30px; /* Generous padding */
-    border-radius: 5px; /* Slightly rounded corners */
-    font-size: 1.1rem; /* Larger font size */
-    font-weight: 600;
+    background: linear-gradient(90deg, rgba(0,123,255,0.22) 0%, rgba(127,188,255,0.18) 100%);
+    color: #0056b3;
+    border: 2px solid rgba(0,123,255,0.22);
+    padding: 18px 44px;
+    border-radius: 100px;
+    font-size: 1.18rem;
+    font-weight: 900;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25); /* Subtle shadow */
-    display: block; /* Make it a block element to take full width if needed, or allow centering */
-    margin-bottom: 20px; /* Space below button */
-    width: fit-content; /* Adjust width to content */
+    box-shadow: 0 6px 32px rgba(0, 123, 255, 0.18), 0 1.5px 8px 0 rgba(0,0,0,0.04);
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    display: block;
+    margin-bottom: 32px;
+    width: fit-content;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s, border 0.3s, backdrop-filter 0.3s, transform 0.2s;
 }
 
     .enroll-button:hover {
-        background-color: #0056b3; /* Darker blue on hover */
-        transform: translateY(-2px); /* Slight lift effect */
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35); /* Enhanced shadow on hover */
+        background: linear-gradient(90deg, rgba(255,255,255,0.32) 0%, rgba(127,188,255,0.22) 100%);
+        color: #007bff;
+        border: 2.5px solid #007bff;
+        box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.22);
+        backdrop-filter: blur(16px) saturate(220%);
+        -webkit-backdrop-filter: blur(16px) saturate(220%);
+        transform: translateY(-3px) scale(1.07);
     }
 
 /* Access Info */
 .access-info {
-    font-size: 0.95rem;
-    color: #888; /* Lighter grey for less important text */
-    margin-bottom: 40px; /* Space before sections */
+    font-size: 1.05rem;
+    color: #7b8aaf;
+    margin-bottom: 44px;
+    background: rgba(255,255,255,0.32);
+    border-radius: 10px;
+    padding: 10px 20px;
+    box-shadow: 0 1px 8px rgba(0,123,255,0.04);
 }
 
-/* Section Titles (Overview, About the Consultant) */
+/* Section Titles */
 .section-title {
-    font-size: 1.8rem;
-    font-weight: 600;
-    color: #333;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #eee; /* Subtle underline */
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #1b263b;
+    margin-bottom: 22px;
+    border-bottom: 2.5px solid #e0e7ff;
     padding-bottom: 10px;
+    letter-spacing: -0.5px;
+    background: linear-gradient(90deg, #007bff 0%, #7fbcff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* Instructor Card (larger version for "About the Consultant" section) */
+/* Instructor Card */
 .instructor-card {
     display: flex;
-    align-items: flex-start; /* Align text to top of image */
-    background-color: #fcfcfc; /* Very light background for the card */
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow for inner card */
-    margin-top: 20px;
+    align-items: flex-start;
+    background: rgba(255,255,255,0.65);
+    border-radius: 20px;
+    padding: 32px;
+    box-shadow: 0 4px 24px rgba(0, 123, 255, 0.10);
+    margin-top: 28px;
+    border: 2px solid rgba(0,123,255,0.13);
+    backdrop-filter: blur(10px);
 }
 
 .instructor-avatar-large {
-    width: 120px;
-    height: 120px;
+    width: 128px;
+    height: 128px;
     border-radius: 50%;
-    margin-right: 25px;
+    margin-right: 32px;
     object-fit: cover;
-    border: 3px solid #007bff; /* Primary color border */
-    flex-shrink: 0; /* Prevent avatar from shrinking */
+    border: 3.5px solid #007bff;
+    background: #fff;
+    flex-shrink: 0;
 }
 
 .instructor-name-big {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #333;
+    font-size: 1.55rem;
+    font-weight: 900;
+    color: #1b263b;
     margin-top: 0;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .instructor-title {
-    font-size: 1.1rem;
-    color: #007bff; /* Primary color for role */
-    font-weight: 500;
-    margin-bottom: 10px;
+    font-size: 1.12rem;
+    color: #007bff;
+    font-weight: 700;
+    margin-bottom: 12px;
 }
 
+.instructor-description {
+    font-size: 1.08rem;
+    color: #4b5563;
+    line-height: 1.7;
 }
 
 /* Responsive adjustments */
+@media (max-width: 1200px) {
+    .course-layout-grid {
+        gap: 32px;
+        padding: 32px 12px;
+    }
+}
+
 @media (max-width: 992px) {
     .course-layout-grid {
-        grid-template-columns: 1fr; /* Stack columns vertically on smaller screens */
-        gap: 20px;
+        grid-template-columns: 1fr;
+        gap: 24px;
+        padding: 24px 4px;
     }
 
     .course-image-column {
-        padding-left: 0; /* Remove left padding when stacked */
-        order: -1; /* Place image column above content column on mobile */
-    }
-
-    .course-detail-content {
-        padding: 20px;
+        padding-left: 0;
+        order: -1;
     }
 
     .course-detail-title {
-        font-size: 2.2rem;
-    }
-
-    .course-detail-subtitle {
-        font-size: 1rem;
+        font-size: 2.1rem;
     }
 
     .instructor-card {
-        flex-direction: column; /* Stack avatar and text vertically */
+        flex-direction: column;
         align-items: center;
         text-align: center;
     }
 
     .instructor-avatar-large {
         margin-right: 0;
-        margin-bottom: 15px; /* Space between avatar and text when stacked */
+        margin-bottom: 18px;
     }
 
-   
+    .section-title {
+        font-size: 1.35rem;
+    }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .course-detail-container {
-        padding: 20px 10px;
+        padding: 8px 0;
+    }
+
+    .course-layout-grid {
+        padding: 4px 0;
     }
 
     .course-detail-title {
-        font-size: 1.8rem;
+        font-size: 1.3rem;
     }
 
     .enroll-button {
-        padding: 12px 20px;
+        padding: 12px 18px;
         font-size: 1rem;
     }
 }

@@ -5,13 +5,14 @@
 }
 
 .management-3d-bar {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 32px;
     list-style: none;
     padding: 0;
-    margin: 40px 0;
-    gap: 40px;
+    margin: 48px auto 0 auto;
+    max-width: 1200px;
+    width: 100%;
 }
 
 .management-3d-bar li {

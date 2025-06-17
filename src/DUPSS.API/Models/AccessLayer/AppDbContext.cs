@@ -17,6 +17,9 @@ namespace DUPSS.API.Models.AccessLayer
         public DbSet<AssessmentResult> AssessmentResult { get; set; }
         public DbSet<Blog> Blog { get; set; }
 
+        public DbSet<CampaignRegistration> CampaignRegistrations { get; set; }
+
+
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

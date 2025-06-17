@@ -86,5 +86,30 @@ namespace DUPSS.Web.Components.Service
 
             return await base.GetAllAsync();
         }
+        public async Task<List<UserDTO>> GetConsultantsAsync()
+        {
+            var token = _authService.GetToken();
+            if (!string.IsNullOrEmpty(token))
+            {
+                _httpClient.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+            }
+            else
+            {
+                _httpClient.DefaultRequestHeaders.Authorization = null;
+            }
+
+            var response = await _httpClient.GetAsync("api/Users/consultants");
+            if (response.IsSuccessStatusCode)
+            {
+                var consultants = await response.Content.ReadFromJsonAsync<List<UserDTO>>();
+                return consultants ?? new List<UserDTO>();
+            }
+            else
+            {
+                Console.WriteLine($"Failed to fetch consultants. Status code: {response.StatusCode}");
+                return new List<UserDTO>();
+            }
+        }
     }
 }

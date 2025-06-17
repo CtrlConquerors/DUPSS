@@ -45,6 +45,8 @@ builder.Services.AddScoped<ICourseEnrollDAO, CourseEnrollDAO>();
 builder.Services.AddScoped<IAssessmentDAO, AssessmentDAO>();
 builder.Services.AddScoped<IAssessmentResultDAO, AssessmentResultDAO>();
 builder.Services.AddScoped<IBlogDAO, BlogDAO>();
+builder.Services.AddScoped<ICampaignRegistrationDAO, CampaignRegistrationDAO>();
+
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();

@@ -2,6 +2,7 @@
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace DUPSS.API.Models.AccessLayer.DAOs
 {
@@ -135,5 +136,56 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             await _context.SaveChangesAsync();
             return true;
         }
+
+        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+        public async Task<List<AppointmentDTO>> GetByMemberIdAsync(string memberId)
+        {
+            await using var context = await _contextFactory.CreateDbContextAsync();
+
+            return await context.Appointment
+                .Where(a => a.MemberId == memberId)
+                .Include(a => a.Consultant)
+                .Include(a => a.Member)
+                .Select(a => new AppointmentDTO
+                {
+                    AppointmentId = a.AppointmentId,
+                    MemberId = a.MemberId,
+                    ConsultantId = a.ConsultantId,
+                    AppointmentDate = a.AppointmentDate,
+                    Status = a.Status,
+                    Topic = a.Topic,
+                    Notes = a.Notes,
+                    Member = new UserDTO
+                    {
+                        UserId = a.Member.UserId,
+                        Username = a.Member.Username,
+                        Email = a.Member.Email,
+                        PhoneNumber = a.Member.PhoneNumber,
+                        RoleId = a.Member.RoleId,
+                        ImageUrl = $"images/{a.Member.UserId}.jpg",
+                        Role = new RoleDTO
+                        {
+                            RoleId = a.Member.Role.RoleId,
+                            RoleName = a.Member.Role.RoleName
+                        }
+                    },
+                    Consultant = new UserDTO
+                    {
+                        UserId = a.Consultant.UserId,
+                        Username = a.Consultant.Username,
+                        Email = a.Consultant.Email,
+                        PhoneNumber = a.Consultant.PhoneNumber,
+                        RoleId = a.Consultant.RoleId,
+                        ImageUrl = $"images/{a.Consultant.UserId}.jpg",
+                        Role = new RoleDTO
+                        {
+                            RoleId = a.Consultant.Role.RoleId,
+                            RoleName = a.Consultant.Role.RoleName
+                        }
+                    }
+                })
+                .ToListAsync();
+        }
+
     }
 }

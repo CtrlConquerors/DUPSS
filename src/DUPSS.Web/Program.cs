@@ -17,8 +17,10 @@ builder.Services.AddSingleton<JwtStorageService>();
 builder.Services.AddScoped<CircuitContext>();
 builder.Services.AddScoped<CircuitHandler, JwtCircuitHandler>();
 builder.Services.AddScoped<CustomJwtAuthStateProvider>();
+builder.Services.AddScoped<AppointmentApiService>();
 builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomJwtAuthStateProvider>());
 builder.Services.AddScoped<AuthService>(sp =>
+
     new AuthService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
     sp.GetRequiredService<CustomJwtAuthStateProvider>(),

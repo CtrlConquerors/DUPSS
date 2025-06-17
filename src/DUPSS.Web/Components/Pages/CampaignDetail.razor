@@ -3,6 +3,9 @@
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
 @inject NavigationManager NavigationManager
+@inject HttpClient Http
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthProvider
 
 
 
@@ -109,6 +112,7 @@ else
 @code {
     [Parameter]
     public string CampaignId { get; set; } = string.Empty;
+    private string? UserId;
 
     private CampaignDTO? campaign;
 
@@ -117,6 +121,14 @@ else
         try
         {
             campaign = await CampaignApiService.GetByIdAsync(CampaignId);
+
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                UserId = user.FindFirst("sub")?.Value ?? user.FindFirst("UserId")?.Value;
+            }
         }
         catch (Exception ex)
         {
@@ -124,13 +136,36 @@ else
         }
     }
 
-    private void GoBack()
+  
+
+    private async Task HandleRegister()
     {
-        NavigationManager.NavigateTo("/Campaign");
-    }
-    private void HandleRegister()
-    {
-        //todo
+        if (string.IsNullOrEmpty(UserId))
+        {
+            NavigationManager.NavigateTo("/login");
+            return;
+        }
+
+        var registration = new
+        {
+            UserId = UserId,
+            CampaignId = CampaignId,
+        };
+
+        var response = await Http.PostAsJsonAsync("api/CampaignRegistration", registration);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await JS.InvokeVoidAsync("alert", "You have successfully registered for the campaign!");
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            await JS.InvokeVoidAsync("alert", "You have already registered for this campaign.");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Failed to register. Please try again.");
+        }
     }
 
 }

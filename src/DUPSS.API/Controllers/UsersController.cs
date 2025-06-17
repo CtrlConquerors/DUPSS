@@ -193,5 +193,26 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("consultants")]
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetConsultants()
+        {
+            try
+            {
+                var allUsers = await _userDAO.GetAllAsync();
+                var consultants = allUsers
+                    .Where(u => u.Role != null && u.Role.RoleName == "Consultant")
+                    .ToList();
+
+                return Ok(consultants);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

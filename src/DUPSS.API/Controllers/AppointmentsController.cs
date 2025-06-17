@@ -109,5 +109,19 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+        [HttpGet("by-member/{memberId}")]
+        public async Task<ActionResult<IEnumerable<AppointmentDTO>>> GetByMemberId(string memberId)
+        {
+            try
+            {
+                var appointments = await _appointmentDAO.GetByMemberIdAsync(memberId);
+                return Ok(appointments);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
     }
 }

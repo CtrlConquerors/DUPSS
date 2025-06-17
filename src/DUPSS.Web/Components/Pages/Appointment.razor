@@ -1,7 +1,56 @@
-﻿@page "/Appointment"
+﻿    @page "/Appointment"
+    @using DUPSS.API.Models.DTOs
+    @using DUPSS.Web.Components.Service
+    @inject HttpClient Http
+    @inject AuthenticationStateProvider AuthProvider
+    @inject IJSRuntime JS
+    @inject UserApiService UserService
+    @inject AppointmentApiService AppointmentService
 
-<h3>Appointment</h3>
+<h3>Lịch hẹn của tôi</h3>
+
+<NavLink href="/BookAppointment" Match="NavLinkMatch.All">Đặt lịch hẹn</NavLink>
+
+@if (appointments == null)
+{
+    <p>Đang tải dữ liệu...</p>
+}
+else if (!appointments.Any())
+{
+    <p>Chưa có lịch hẹn nào.</p>
+}
+else
+{
+    
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Ngày hẹn</th>
+                <th>Tư vấn viên</th>
+                <th>Ghi chú</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appt in appointments)
+            {
+                <tr>
+                    <td>@appt.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                    <td>@appt.Consultant?.Username</td>
+                    <td>@appt.Notes</td>
+                    <td>@appt.Status</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code {
+    private List<AppointmentDTO>? appointments;
 
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = await AppointmentService.GetCurrentUserIdAsync();
+        appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
+    }
 }

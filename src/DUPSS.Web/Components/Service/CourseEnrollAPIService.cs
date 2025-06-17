@@ -1,9 +1,9 @@
 ﻿using DUPSS.API.Models.DTOs;
+using System; // Added for Console.WriteLine and Exception
+using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Json;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System; // Added for Console.WriteLine and Exception
 
 namespace DUPSS.Web.Components.Service
 {
@@ -11,26 +11,24 @@ namespace DUPSS.Web.Components.Service
     public class CourseEnrollApiService : GenericApiService<CourseEnrollDTO>
     {
         private readonly HttpClient _httpClient;
-        private readonly AuthService _authService; // Need AuthService for custom method's authorization header
         private const string BaseUrl = "api/CourseEnrolls"; // This should match your API controller's route
 
-        public CourseEnrollApiService(HttpClient httpClient, AuthService authService)
-            : base(httpClient, BaseUrl, authService) // Pass dependencies to the base class
+        public CourseEnrollApiService(HttpClient httpClient)
+            : base(httpClient, BaseUrl) // Pass dependencies to the base class
         {
             _httpClient = httpClient;
-            _authService = authService;
         }
 
         // All standard CRUD methods (GetAllAsync, GetByIdAsync, CreateAsync, UpdateAsync, DeleteAsync)
         // are now inherited from GenericApiService<T> and do not need to be duplicated here.
 
-       
+
         public async Task<List<CourseEnrollDTO>?> GetEnrollmentsByMemberAndCourse(string memberId, string courseId)
         {
             try
             {
                 // Ensure authorization header is set for this custom call as well
-                await AddAuthorizationHeader();
+                //await AddAuthorizationHeader();
 
                 // Construct the query string for memberId and courseId
                 var response = await _httpClient.GetAsync($"{BaseUrl}/GetByMemberAndCourse?memberId={memberId}&courseId={courseId}");
@@ -51,18 +49,18 @@ namespace DUPSS.Web.Components.Service
         /// This method is duplicated from GenericApiService because custom methods in derived
         /// services need access to set headers if they make direct HttpClient calls.
         /// </summary>
-        private async Task AddAuthorizationHeader()
-        {
-            var token = _authService.GetToken();
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = null;
-            }
-        }
+        //private async Task AddAuthorizationHeader()
+        //{
+        //    var token = _authService.GetToken();
+        //    if (!string.IsNullOrEmpty(token))
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Authorization =
+        //            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+        //    }
+        //    else
+        //    {
+        //        _httpClient.DefaultRequestHeaders.Authorization = null;
+        //    }
+        //}
     }
 }

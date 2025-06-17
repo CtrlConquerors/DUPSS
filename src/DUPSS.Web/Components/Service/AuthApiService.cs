@@ -21,14 +21,23 @@ namespace DUPSS.Web.Components.Service
                 Password = password
             };
 
+            Console.WriteLine($"Sending POST to api/Auth/Login with email: {email}");
             var response = await _httpClient.PostAsJsonAsync("api/Auth/Login", request);
+            Console.WriteLine($"API response status: {response.StatusCode}");
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<TokenResponseDTO>() ?? throw new InvalidOperationException("Failed to deserialize TokenResponseDTO");
+                var result = await response.Content.ReadFromJsonAsync<TokenResponseDTO>();
+                if (result == null)
+                {
+                    Console.WriteLine("Failed to deserialize TokenResponseDTO");
+                    throw new InvalidOperationException("Failed to deserialize TokenResponseDTO");
+                }
+                return result;
             }
             else
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Login failed with status {response.StatusCode}: {errorMessage}");
                 throw new HttpRequestException($"Login failed: {errorMessage}");
             }
         }

@@ -45,9 +45,11 @@
     private async Task HandleLogin()
     {
         errorMessage = null;
+        Console.WriteLine($"Login attempt: Email={email}");
         try
         {
             await AuthStateProvider.LoginAsync(email, password);
+            Console.WriteLine("Navigating to /");
             NavigationManager.NavigateTo("/", forceLoad: false);
         }
         catch (Exception ex)

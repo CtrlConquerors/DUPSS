@@ -10,7 +10,7 @@
     var currentPath = new Uri(NavigationManager.Uri).AbsolutePath.TrimEnd('/');
 }
 
-@if (NavigationManager != null && !string.Equals(currentPath, "/Blog", StringComparison.OrdinalIgnoreCase))
+@if (NavigationManager != null)
 {
     <NavMenu/>
 }

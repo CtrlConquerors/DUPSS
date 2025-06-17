@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace DUPSS.API.Services
@@ -21,7 +22,7 @@ namespace DUPSS.API.Services
             PasswordHash = string.Empty,       // Placeholder value, will be set during registration
             RoleId = "ME"         // Assign a default role ID
         };
-        public async Task<string?> LoginAsync(LoginRequest request)
+        public async Task<TokenResponseDTO?> LoginAsync(LoginRequest request)
         {
             var userTask = context.User.FirstOrDefaultAsync(u => u.Email == request.Email);
             if (userTask is null)
@@ -35,7 +36,16 @@ namespace DUPSS.API.Services
             {
                 return null;
             }
-            return CreateToken(user);
+            return await CreateTokenResponse(user);
+        }
+
+        private async Task<TokenResponseDTO> CreateTokenResponse(User? user)
+        {
+            return new TokenResponseDTO
+            {
+                AccessToken = CreateToken(user),
+                RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
+            };
         }
 
         public async Task<User?> RegisterAsync(UserDTO request)
@@ -57,12 +67,51 @@ namespace DUPSS.API.Services
             await context.SaveChangesAsync();
             return user;
         }
+
+        public async Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO request)
+        {
+            var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
+            if (user  == null)
+            {
+                return null;
+            }
+            return await CreateTokenResponse(user);
+        }
+
+        private async Task<User?> ValidateRefreshTokenAsync(string userId, string refreshToken)
+        {
+            var user = await context.User.FindAsync(userId);
+            if(user is null|| user.refreshToken != refreshToken || user.refreshTokenExpiry < DateTime.UtcNow)
+            {
+                return null;
+            }
+            return user;
+        }
+
+        private string GenerateRefreshToken()
+        {
+            var randomNumber = new byte[32];
+            using var rng = RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+
+        private async Task<string> GenerateAndSaveRefreshTokenAsync(User user)
+        {
+            var refreshToken = GenerateRefreshToken();
+            user.refreshToken = refreshToken;
+            user.refreshTokenExpiry = DateTime.UtcNow.AddMinutes(7);
+            await context.SaveChangesAsync();
+            return refreshToken;
+        }
+
         private string CreateToken(User user)
         {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, user.Email),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
+
             };
 
             var key = new SymmetricSecurityKey(

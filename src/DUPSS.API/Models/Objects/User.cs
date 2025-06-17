@@ -22,6 +22,8 @@ namespace DUPSS.API.Models.Objects
         public required string PasswordHash { get; set; }
         [Required, MaxLength(255)]
         public required string RoleId { get; set; }
+        public string? refreshToken { get; set; }
+        public DateTime? refreshTokenExpiry { get; set; }
         [NotMapped]
         public string? ImageUrl { get; set; }
         public Role? Role { get; set; }

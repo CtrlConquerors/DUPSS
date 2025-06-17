@@ -6,7 +6,9 @@ namespace DUPSS.API.Services
 {
     public interface IAuthService
     {
-        Task<User> RegisterAsync(UserDTO request);
-        Task<string> LoginAsync(LoginRequest request);
+        Task<User?> RegisterAsync(UserDTO request);
+        Task<TokenResponseDTO?> LoginAsync(LoginRequest request);
+
+        Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO request);
     }
 }

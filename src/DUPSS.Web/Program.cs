@@ -13,21 +13,6 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddAuthenticationCore();
 builder.Services.AddAuthorizationCore();
-builder.Services.AddSingleton<JwtStorageService>();
-builder.Services.AddScoped<CircuitContext>();
-builder.Services.AddScoped<CircuitHandler, JwtCircuitHandler>();
-builder.Services.AddScoped<CustomJwtAuthStateProvider>();
-builder.Services.AddScoped<AppointmentApiService>();
-builder.Services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<CustomJwtAuthStateProvider>());
-builder.Services.AddScoped<AuthService>(sp =>
-
-    new AuthService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<CustomJwtAuthStateProvider>(),
-    sp.GetRequiredService<JwtStorageService>(),
-    sp.GetRequiredService<CircuitContext>()
-    )
-);
 builder.Services.AddHttpContextAccessor();
 
 // Configure a single named HttpClient for all API services
@@ -36,6 +21,7 @@ builder.Services.AddHttpClient("ApiClient", client => {
 });
 
 // Register API services with AuthService dependency
+builder.Services.AddScoped<AuthApiService>();
 builder.Services.AddScoped<CourseApiService>(sp => new CourseApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
     sp.GetRequiredService<AuthService>()));

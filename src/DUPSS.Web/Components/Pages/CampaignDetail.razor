@@ -5,6 +5,7 @@
 @inject NavigationManager NavigationManager
 
 
+
 @if (campaign == null)
 {
     <p>Loading campaign details...</p>
@@ -67,24 +68,34 @@ else
         </div>
     </div>
 
-    
+
 
     @if (campaign.Status == "Active" || campaign.Status == "Planned")
     {
-        <div class="register-section">
-            <button class="btn" @onclick="HandleRegister">Register to Join Campaign</button>
-        </div>
+        <AuthorizeView Roles="ME,AD,ST,MA,CO">
+        <Authorized>
+                <div class="register-section">
+                    <button class="btn" @onclick="HandleRegister">Join Campaign</button>
+                </div>
+        </Authorized>
+        <NotAuthorized>
+            <div class="not-authorized-message">
+                You need to be a member to join campaign.
+                <a href="/register">Join now</a>
+                </div>
+        </NotAuthorized>
+        </AuthorizeView>
     }
 
 
     <h4>Campaign Survey</h4>
 
     <div class="survey-buttons">
-        @if (campaign.Status == "Active" ||  campaign.Status == "Planned")
+        @if (campaign.Status == "Active" || campaign.Status == "Planned")
         {
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSfhtJRyq5c0GmCAKJRunIG9bbNelNwSIkt_IVAARJPIKjTcoA/viewform?usp=dialog" class="btn">Survey before Campaign</a>
         }
-        else if ( campaign.Status == "Completed")
+        else if (campaign.Status == "Completed")
         {
             <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJ165SU_u1cYj_QoHYLIpksk-ji26nFbCLxADWpVHr9jhfYg/viewform?usp=dialog" class="btn">Survey after Campaign</a>
         }
@@ -118,8 +129,8 @@ else
         NavigationManager.NavigateTo("/Campaign");
     }
     private void HandleRegister()
-{
-    //todo
-}
+    {
+        //todo
+    }
 
 }

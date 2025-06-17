@@ -1,6 +1,6 @@
 ﻿@page "/logout"
 @using DUPSS.Web.Components.Service
-@inject AuthService AuthService
+@* @inject AuthService AuthService *@
 @inject NavigationManager NavigationManager
 
 <div class="logout-container">
@@ -13,7 +13,7 @@
 @code {
     protected override void OnInitialized()
     {
-        AuthService.Logout();
+        // AuthService.Logout();
         NavigationManager.NavigateTo("/", forceLoad: false);
     }
 }

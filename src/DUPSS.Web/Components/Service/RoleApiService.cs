@@ -7,13 +7,11 @@ namespace DUPSS.Web.Components.Service
     public class RoleApiService : GenericApiService<RoleDTO>
     {
         private readonly HttpClient _httpClient;
-        private readonly AuthService _authService;
 
-        public RoleApiService(HttpClient httpClient, AuthService authService)
-            : base(httpClient, "api/Roles", authService)
+        public RoleApiService(HttpClient httpClient)
+            : base(httpClient, "api/Roles")
         {
             _httpClient = httpClient;
-            _authService = authService;
         }
 
        

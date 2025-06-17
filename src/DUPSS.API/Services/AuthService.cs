@@ -1,4 +1,5 @@
-﻿using DUPSS.API.Models.AccessLayer;
+﻿using BCrypt.Net;
+using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.Common;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
@@ -31,8 +32,7 @@ namespace DUPSS.API.Services
             }
 
             user = userTask.Result;
-            if (new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, request.Password)
-                == PasswordVerificationResult.Failed)
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
                 return null;
             }
@@ -55,8 +55,7 @@ namespace DUPSS.API.Services
                 return null;
             }
 
-            var hashedPassword = new PasswordHasher<User>()
-                .HashPassword(user, request.Password);
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
             user.Email = request.Email;
             user.Username = request.Username;
@@ -71,7 +70,7 @@ namespace DUPSS.API.Services
         public async Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO request)
         {
             var user = await ValidateRefreshTokenAsync(request.UserId, request.RefreshToken);
-            if (user  == null)
+            if (user == null)
             {
                 return null;
             }
@@ -81,7 +80,7 @@ namespace DUPSS.API.Services
         private async Task<User?> ValidateRefreshTokenAsync(string userId, string refreshToken)
         {
             var user = await context.User.FindAsync(userId);
-            if(user is null|| user.refreshToken != refreshToken || user.refreshTokenExpiry < DateTime.UtcNow)
+            if (user is null || user.refreshToken != refreshToken || user.refreshTokenExpiry < DateTime.UtcNow)
             {
                 return null;
             }

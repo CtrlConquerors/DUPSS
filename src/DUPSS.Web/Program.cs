@@ -7,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents(options => {
+    .AddInteractiveServerComponents(options =>
+    {
         options.DetailedErrors = true;
     });
 
@@ -16,39 +17,32 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddHttpContextAccessor();
 
 // Configure a single named HttpClient for all API services
-builder.Services.AddHttpClient("ApiClient", client => {
+builder.Services.AddHttpClient("ApiClient", client =>
+{
     client.BaseAddress = new Uri("https://localhost:7288/"); // Your API URL
 });
 
-// Register API services with AuthService dependency
-builder.Services.AddScoped<AuthApiService>();
+// Register API services without AuthService dependency
+builder.Services.AddScoped<AuthApiService>(sp => new AuthApiService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseApiService>(sp => new CourseApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseTopicApiService>(sp => new CourseTopicApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<RoleApiService>(sp => new RoleApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<UserApiService>(sp => new UserApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CampaignApiService>(sp => new CampaignApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<BlogApiService>(sp => new BlogApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<AppointmentApiService>(sp => new AppointmentApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
-// NEW: Register CourseEnrollApiService
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseEnrollApiService>(sp => new CourseEnrollApiService(
-    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient"),
-    sp.GetRequiredService<AuthService>()));
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 
-builder.Services.AddCors(options => {
+builder.Services.AddCors(options =>
+{
     options.AddPolicy("AllowApi", builder =>
         builder.WithOrigins("https://localhost:7288")
             .AllowAnyMethod()

@@ -1,9 +1,11 @@
 ﻿@page "/register"
 @using DUPSS.API.Models.Common
-@using DUPSS.API.Models.DTOs @* Sử dụng DTOs thay vì Objects *@
+@using DUPSS.API.Models.DTOs
+@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
 @inject UserApiService UserApiService
 @inject RoleApiService RoleApiService
+@inject AuthApiService authApiService
 @inject NavigationManager NavigationManager
 <div class="background-view"></div>
 <div class="register-container">
@@ -101,13 +103,20 @@
             // Đã loại bỏ: newUser.PasswordHash = "placeholder"; // Dòng này gây lỗi CS0200
 
             Console.WriteLine($"Registering user: {newUser.Username}, Email: {newUser.Email}, RoleId: {newUser.RoleId}");
-            Console.WriteLine($"Password (plain text for debug, not sent as hash): {password}");
+            Console.WriteLine($"Password: {password}");
 
-            var createdUser = await UserApiService.CreateAsync(new CreateUserRequest
+            UserDTO usr = new UserDTO
             {
-                User = newUser, // newUser là UserDTO, không cần PasswordHash ở đây
-                Password = password // Mật khẩu dạng plain text được gửi riêng
-            });
+                UserId = newUser.UserId,
+                Username = newUser.Username,
+                Email = newUser.Email,
+                PhoneNumber = newUser.PhoneNumber,
+                DoB = newUser.DoB,
+                RoleId = newUser.RoleId,
+                Password = password // Assuming password is hashed in the API
+            };
+
+            var createdUser = await authApiService.RegisterAsync(usr);
 
             if (createdUser != null)
             {

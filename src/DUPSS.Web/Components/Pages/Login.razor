@@ -1,6 +1,6 @@
 ﻿@page "/login"
 @using DUPSS.Web.Components.Service
-@inject AuthService AuthService
+@inject AuthApiService authApiService
 @inject NavigationManager NavigationManager
 
 <div class="login-bg-override"></div>
@@ -45,8 +45,8 @@
         errorMessage = null;
         try
         {
-            var success = await AuthService.LoginAsync(email, password);
-            if (success)
+            var success = await authApiService.LoginAsync(email, password);
+            if (success != null)
             {
                 NavigationManager.NavigateTo("/", forceLoad: false);
             }

@@ -8,14 +8,11 @@ namespace DUPSS.Web.Components.Service
     public class CourseApiService : GenericApiService<CourseDTO>
     {
         private readonly HttpClient _httpClient;
-        private readonly AuthService _authService;
 
-        public CourseApiService(HttpClient httpClient, AuthService authService)
-            // The base path remains the same
-            : base(httpClient, "api/Courses", authService)
+        public CourseApiService(HttpClient httpClient)
+            : base(httpClient, "api/Courses")
         {
             _httpClient = httpClient;
-            _authService = authService;
         }
     }
 }

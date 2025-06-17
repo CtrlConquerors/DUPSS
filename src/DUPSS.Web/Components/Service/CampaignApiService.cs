@@ -7,13 +7,11 @@ namespace DUPSS.Web.Components.Service
     public class CampaignApiService : GenericApiService<CampaignDTO>
     {
         private readonly HttpClient _httpClient;
-        private readonly AuthService _authService;
 
-        public CampaignApiService(HttpClient httpClient, AuthService authService)
-            : base(httpClient, "api/Campaigns", authService)
+        public CampaignApiService(HttpClient httpClient)
+            : base(httpClient, "api/Campaigns")
         {
             _httpClient = httpClient;
-            _authService = authService;
         }
 
         public async Task<CampaignDTO?> GetByIdAsync(string campaignId)

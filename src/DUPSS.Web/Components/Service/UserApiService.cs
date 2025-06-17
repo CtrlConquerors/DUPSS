@@ -8,29 +8,16 @@ namespace DUPSS.Web.Components.Service
     public class UserApiService : GenericApiService<UserDTO>
     {
         private readonly HttpClient _httpClient;
-        private readonly AuthService _authService;
 
-        public UserApiService(HttpClient httpClient, AuthService authService)
-            : base(httpClient, "api/Users", authService)
+        public UserApiService(HttpClient httpClient)
+            : base(httpClient, "api/Users")
         {
             _httpClient = httpClient;
-            _authService = authService;
         }
 
        
         public async Task<UserDTO?> CreateAsync(CreateUserRequest user)
         {
-            var token = _authService.GetToken();
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = null;
-            }
-
             var response = await _httpClient.PostAsJsonAsync($"api/Users/Create", user);
             if (response.IsSuccessStatusCode)
             {
@@ -51,17 +38,21 @@ namespace DUPSS.Web.Components.Service
      
         public async Task<UserDTO?> UpdateAsync(UserDTO entity) 
         {
-            var token = _authService.GetToken();
-            if (!string.IsNullOrEmpty(token))
+            var user = new User
             {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = null;
-            }
-
+                UserId = entity.UserId,
+                Username = entity.Username,
+                DoB = entity.DoB,
+                PhoneNumber = entity.PhoneNumber,
+                Email = entity.Email,
+                RoleId = entity.RoleId,
+                PasswordHash = entity.PasswordHash, // Preserve original PasswordHash
+                Role = new Role
+                {
+                    RoleId = entity.Role?.RoleId ?? "ME",
+                    RoleName = entity.Role?.RoleName ?? "Member"
+                }
+            };
 
             var response = await _httpClient.PutAsJsonAsync("api/Users/Update", entity); 
             if (response.IsSuccessStatusCode)

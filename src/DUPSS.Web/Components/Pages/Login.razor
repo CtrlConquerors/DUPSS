@@ -50,7 +50,7 @@
         {
             await AuthStateProvider.LoginAsync(email, password);
             Console.WriteLine("Navigating to /");
-            NavigationManager.NavigateTo("/", forceLoad: false);
+            NavigationManager.NavigateTo("/", forceLoad: true);
         }
         catch (Exception ex)
         {

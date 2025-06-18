@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,6 +66,8 @@ builder.Services.AddScoped<AppointmentApiService>(sp => new AppointmentApiServic
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseEnrollApiService>(sp => new CourseEnrollApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+
+builder.Services.AddScoped<ProtectedSessionStorage>();
 
 builder.Services.AddCors(options =>
 {

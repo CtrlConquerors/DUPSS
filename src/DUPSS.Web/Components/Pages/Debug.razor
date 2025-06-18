@@ -1,34 +1,54 @@
 ﻿@page "/debug"
-@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
 @inject AuthenticationStateProvider AuthStateProvider
 
-<PageTitle>Debug Authentication State</PageTitle>
-<h3>Debug Authentication State</h3>
+<h3>User Debug Info</h3>
 
-@if (user == null)
+<button class="btn btn-secondary" @onclick="GetUserInfo">Refresh</button>
+
+@if (claims == null)
 {
-    <p>Loading authentication state...</p>
+    <p>Loading user info...</p>
+}
+else if (!claims.Any())
+{
+    <p>No user is authenticated.</p>
 }
 else
 {
-    <p>Is Authenticated: @user.Identity.IsAuthenticated</p>
-    <p>Name: @user.Identity.Name</p>
-    <p>Role: @user.FindFirst(ClaimTypes.Role)?.Value</p>
-    <p>Claims:</p>
-    <ul>
-        @foreach (var claim in user.Claims)
-        {
-            <li>@claim.Type: @claim.Value</li>
-        }
-    </ul>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Type</th>
+                <th>Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var claim in claims)
+            {
+                <tr>
+                    <td>@claim.Type</td>
+                    <td>@claim.Value</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
 
 @code {
-    private ClaimsPrincipal? user;
+    private IEnumerable<System.Security.Claims.Claim>? claims;
 
     protected override async Task OnInitializedAsync()
     {
+        await GetUserInfo();
+    }
+
+    private async Task GetUserInfo()
+    {
         var authState = await AuthStateProvider.GetAuthenticationStateAsync();
-        user = authState.User;
+        var user = authState.User;
+        claims = user.Identity != null && user.Identity.IsAuthenticated ? user.Claims : Enumerable.Empty<System.Security.Claims.Claim>();
+        StateHasChanged();
     }
 }
+

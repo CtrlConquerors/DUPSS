@@ -2,6 +2,7 @@
 using DUPSS.API.Models.Objects;
 using Microsoft.EntityFrameworkCore;
 
+
 namespace DUPSS.API.Models.AccessLayer.DAOs
 {
     public class CampaignRegistrationDAO : ICampaignRegistrationDAO
@@ -33,7 +34,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
         {
             return await _context.CampaignRegistrations
                                  .Include(r => r.Campaign)
-                                 .Where(r => r.UserId == userId)
+                                 .Where(r => r.MemberId == userId)
                                  .ToListAsync();
         }
 
@@ -64,7 +65,16 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
         public async Task<bool> ExistsAsync(string userId, string campaignId)
         {
             return await _context.CampaignRegistrations
-                                 .AnyAsync(r => r.UserId == userId && r.CampaignId == campaignId);
+                                 .AnyAsync(r => r.MemberId == userId && r.CampaignId == campaignId);
         }
+        public async Task<List<CampaignRegistration>> GetByUserIdWithCampaignAsync(string userId)
+        {
+            return await _context.CampaignRegistrations
+                .Include(r => r.Campaign)
+                .Where(r => r.MemberId == userId)
+                .ToListAsync();
+        }
+
+
     }
 }

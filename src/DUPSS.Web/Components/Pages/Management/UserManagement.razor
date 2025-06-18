@@ -7,6 +7,10 @@
 @inject UserApiService UserApiService
 @inject IJSRuntime JS
 @inject NavigationManager NavigationManager
+@inject CampaignApiService CampaignApiService
+@inject HttpClient Http
+
+
 @using Microsoft.AspNetCore.Components.Authorization
 
 <AuthorizeView Roles="AD,MA,ST">
@@ -23,7 +27,7 @@
             <div class="filter-sort-section">
                 <div class="search-input-container">
                     <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                    @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
                 </div>
                 <div class="filter-dropdown-container">
                     <select class="form-select" @onchange="OnRoleFilterChanged">
@@ -92,12 +96,17 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn btn-sm btn-primary me-2"
-                                                    @onclick="() => EditUser(user.UserId)">
+                                            @onclick="() => EditUser(user.UserId)">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
                                             <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">
                                                 <i class="bi bi-trash3-fill"></i>
                                             </button>
+                                            <button class="btn btn-sm btn-info" @onclick="@(() => ViewCampaignHistory(user.UserId))">
+                                                Campaign History
+                                            </button>
+
+
                                         </div>
                                     </td>
                                 </tr>
@@ -111,7 +120,7 @@
                     {
                         var pageIndex = i;
                         <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                                @onclick="() => GoToPage(pageIndex)">
+                        @onclick="() => GoToPage(pageIndex)">
                             @pageIndex
                         </button>
                     }
@@ -202,6 +211,46 @@
                         }
                     </div>
                 }
+                @if (showCampaignHistory)
+                {
+                    <div class="mt-4">
+                        <h5>Campaign History:</h5>
+
+                        @if (userCampaigns != null && userCampaigns.Any())
+                        {
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Campaign Name</th>
+                                        <th>Name</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var campaign in userCampaigns)
+                                    {
+                                        <tr>
+                                            <td>@campaign.Title</td>
+                                            <td>@campaign.StartDate.ToString("dd/MM/yyyy") - @campaign.EndDate?.ToString("dd/MM/yyyy")</td>
+                                            <td>@campaign.Status.ToString()</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                This user haven't registered in any campaigns'.
+                            </div>
+                        }
+
+                        <button class="btn btn-secondary mt-2" @onclick="() => showCampaignHistory = false">Close</button>
+                    </div>
+                }
+
+
+
             }
 
             @if (!string.IsNullOrEmpty(message) && editingUserId == null && !showCreateForm)
@@ -424,6 +473,7 @@
             };
             message = null;
         }
+        showCampaignHistory = false;
         showCreateForm = false;
     }
 
@@ -496,4 +546,42 @@
         currentPage = 1;
         StateHasChanged();
     }
+
+    private List<CampaignDTO> userCampaigns = new();
+    private bool showCampaignHistory = false;
+
+    private async Task ViewCampaignHistory(string userId)
+    {
+        try
+        {
+            userCampaigns = await CampaignApiService.GetCampaignsByUserIdAsync(userId);
+        }
+        catch (HttpRequestException ex)
+        {
+  
+            if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                userCampaigns = new(); 
+            }
+            else
+            {
+                message = $"Không thể tải lịch sử chiến dịch: {ex.Message}";
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Đã xảy ra lỗi: {ex.Message}";
+            return;
+        }
+
+        showCampaignHistory = true; 
+
+        showCreateForm = false;
+        showCreateForm = false;
+    }
+
+
+
+
 }

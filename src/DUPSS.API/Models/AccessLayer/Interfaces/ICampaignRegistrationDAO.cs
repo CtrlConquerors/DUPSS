@@ -11,5 +11,8 @@ namespace DUPSS.API.Models.AccessLayer.Interfaces
         Task AddAsync(CampaignRegistration registration);
         Task DeleteAsync(string registrationId);
         Task<bool> ExistsAsync(string userId, string campaignId);
+
+        Task<List<CampaignRegistration>> GetByUserIdWithCampaignAsync(string userId);
+
     }
 }

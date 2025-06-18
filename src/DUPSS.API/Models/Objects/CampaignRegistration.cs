@@ -5,15 +5,15 @@ namespace DUPSS.API.Models.Objects
     public class CampaignRegistration
     {
         [Key]
-        public required string RegistrationId { get; set; }
+        public string RegistrationId { get; set; } = Guid.NewGuid().ToString();
 
         [Required]
-        public required string UserId { get; set; }
+        public required string MemberId { get; set; }
 
         [Required]
         public required string CampaignId { get; set; }
 
-        [Required]
+
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
 
         public User? User { get; set; }

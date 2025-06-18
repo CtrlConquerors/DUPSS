@@ -25,7 +25,7 @@ namespace DUPSS.API.Controllers
             var result = registrations.Select(r => new CampaignRegistrationDTO
             {
                 RegistrationId = r.RegistrationId,
-                UserId = r.UserId,
+                MemberId = r.MemberId,
                 CampaignId = r.CampaignId,
                 RegisteredAt = r.RegisteredAt
             });
@@ -41,7 +41,7 @@ namespace DUPSS.API.Controllers
             var result = registrations.Select(r => new CampaignRegistrationDTO
             {
                 RegistrationId = r.RegistrationId,
-                UserId = r.UserId,
+                MemberId = r.MemberId,
                 CampaignId = r.CampaignId,
                 RegisteredAt = r.RegisteredAt
             });
@@ -57,7 +57,7 @@ namespace DUPSS.API.Controllers
             var result = registrations.Select(r => new CampaignRegistrationDTO
             {
                 RegistrationId = r.RegistrationId,
-                UserId = r.UserId,
+                MemberId = r.MemberId,
                 CampaignId = r.CampaignId,
                 RegisteredAt = r.RegisteredAt
             });
@@ -70,7 +70,7 @@ namespace DUPSS.API.Controllers
         public async Task<ActionResult> Register([FromBody] CampaignRegistration registration)
         {
             // Kiểm tra trùng
-            if (await _dao.ExistsAsync(registration.UserId, registration.CampaignId))
+            if (await _dao.ExistsAsync(registration.MemberId, registration.CampaignId))
             {
                 return Conflict("User already registered for this campaign.");
             }
@@ -80,7 +80,7 @@ namespace DUPSS.API.Controllers
 
             await _dao.AddAsync(registration);
 
-            return CreatedAtAction(nameof(GetByUserId), new { userId = registration.UserId }, registration);
+            return CreatedAtAction(nameof(GetByUserId), new { userId = registration.MemberId }, registration);
         }
 
         // DELETE: api/CampaignRegistration/{id}
@@ -94,5 +94,55 @@ namespace DUPSS.API.Controllers
             await _dao.DeleteAsync(id);
             return NoContent();
         }
+        [HttpGet("user/{userId}/campaigns")]
+        public async Task<ActionResult<IEnumerable<CampaignDTO>>> GetCampaignsByUserId(string userId)
+        {
+            try
+            {
+                var registrations = await _dao.GetByUserIdWithCampaignAsync(userId);
+                if (registrations == null || !registrations.Any())
+                {
+                    return NotFound($"No campaign registrations found for user ID: {userId}");
+                }
+
+                var result = registrations
+                    .Where(r => r.Campaign != null)
+                    .Select(r => new CampaignDTO
+                    {
+                        CampaignId = r.Campaign.CampaignId,
+                        Title = r.Campaign.Title,
+                        Description = r.Campaign.Description,
+                        StartDate = r.Campaign.StartDate,
+                        EndDate = r.Campaign.EndDate,
+                        Status = r.Campaign.Status,
+                        StaffId = r.Campaign.StaffId,
+                        Location = r.Campaign.Location,
+                        Introduction = r.Campaign.Introduction,
+                        Staff = r.Campaign.Staff != null ? new UserDTO
+                        {
+                            UserId = r.Campaign.Staff.UserId,
+                            Username = r.Campaign.Staff.Username,
+                            Email = r.Campaign.Staff.Email,
+                            PhoneNumber = r.Campaign.Staff.PhoneNumber,
+                            DoB = r.Campaign.Staff.DoB,
+                            RoleId = r.Campaign.Staff.RoleId,
+                            Role = r.Campaign.Staff.Role != null ? new RoleDTO
+                            {
+                                RoleId = r.Campaign.Staff.Role.RoleId,
+                                RoleName = r.Campaign.Staff.Role.RoleName
+                            } : null
+                        } : null
+                    }).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

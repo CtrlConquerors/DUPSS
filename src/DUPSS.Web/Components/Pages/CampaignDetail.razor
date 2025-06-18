@@ -1,9 +1,10 @@
 ﻿@page "/Campaign/Detail/{CampaignId}"
 @using DUPSS.API.Models.DTOs
+@using System.Security.Claims
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
 @inject NavigationManager NavigationManager
-@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthProvider
 
@@ -112,7 +113,7 @@ else
 @code {
     [Parameter]
     public string CampaignId { get; set; } = string.Empty;
-    private string? UserId;
+    private string? MemberId;
 
     private CampaignDTO? campaign;
 
@@ -127,7 +128,9 @@ else
 
             if (user.Identity?.IsAuthenticated == true)
             {
-                UserId = user.FindFirst("sub")?.Value ?? user.FindFirst("UserId")?.Value;
+                MemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? user.FindFirst("sub")?.Value
+                        ?? user.FindFirst("MemberId")?.Value;
             }
         }
         catch (Exception ex)
@@ -136,23 +139,41 @@ else
         }
     }
 
-  
-
     private async Task HandleRegister()
     {
-        if (string.IsNullOrEmpty(UserId))
+        if (string.IsNullOrEmpty(MemberId))
         {
-            NavigationManager.NavigateTo("/login");
-            return;
+            var authState = await AuthProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                MemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? user.FindFirst("sub")?.Value
+                        ?? user.FindFirst("MemberId")?.Value;
+            }
+
+            if (string.IsNullOrEmpty(MemberId))
+            {
+                await JS.InvokeVoidAsync("alert", "Failed to retrieve Member ID. Please login again.");
+                NavigationManager.NavigateTo("/login");
+                return;
+            }
         }
 
         var registration = new
         {
-            UserId = UserId,
+            MemberId = MemberId,
             CampaignId = CampaignId,
+            RegisteredAt = DateTime.UtcNow
         };
 
-        var response = await Http.PostAsJsonAsync("api/CampaignRegistration", registration);
+        var registrationJson = System.Text.Json.JsonSerializer.Serialize(registration);
+        Console.WriteLine("🧪 Registration object: " + registrationJson);
+        await JS.InvokeVoidAsync("console.log", "🧪 Registration object", registrationJson);
+
+        var response = await HttpClientFactory.CreateClient("ApiClient")
+            .PostAsJsonAsync("api/CampaignRegistration", registration);
 
         if (response.IsSuccessStatusCode)
         {
@@ -164,8 +185,11 @@ else
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Failed to register. Please try again.");
+            var content = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"❌ Registration failed: {response.StatusCode} - {content}");
+            await JS.InvokeVoidAsync("console.log", "❌ Registration failed content", content);
+
+            await JS.InvokeVoidAsync("alert", $"Failed to register. Server said: {response.StatusCode}");
         }
     }
-
 }

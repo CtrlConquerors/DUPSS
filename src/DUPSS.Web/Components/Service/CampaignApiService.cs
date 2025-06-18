@@ -18,6 +18,13 @@ namespace DUPSS.Web.Components.Service
         {
             return await _httpClient.GetFromJsonAsync<CampaignDTO>($"api/Campaigns/GetById/{campaignId}");
         }
+        public async Task<List<CampaignDTO>> GetCampaignsByUserIdAsync(string userId)
+        {
+            var url = $"api/CampaignRegistration/user/{userId}/campaigns";
+  
 
+            var result = await _httpClient.GetFromJsonAsync<List<CampaignDTO>>(url);
+            return result ?? new List<CampaignDTO>();
+        }
     }
 }

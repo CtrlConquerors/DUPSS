@@ -137,55 +137,57 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             return true;
         }
 
-        private readonly IDbContextFactory<AppDbContext> _contextFactory;
+    
         public async Task<List<AppointmentDTO>> GetByMemberIdAsync(string memberId)
         {
-            await using var context = await _contextFactory.CreateDbContextAsync();
-
-            return await context.Appointment
-                .Where(a => a.MemberId == memberId)
+            var appointments = await _context.Appointment
                 .Include(a => a.Consultant)
                 .Include(a => a.Member)
-                .Select(a => new AppointmentDTO
-                {
-                    AppointmentId = a.AppointmentId,
-                    MemberId = a.MemberId,
-                    ConsultantId = a.ConsultantId,
-                    AppointmentDate = a.AppointmentDate,
-                    Status = a.Status,
-                    Topic = a.Topic,
-                    Notes = a.Notes,
-                    Member = new UserDTO
-                    {
-                        UserId = a.Member.UserId,
-                        Username = a.Member.Username,
-                        Email = a.Member.Email,
-                        PhoneNumber = a.Member.PhoneNumber,
-                        RoleId = a.Member.RoleId,
-                        ImageUrl = $"images/{a.Member.UserId}.jpg",
-                        Role = new RoleDTO
-                        {
-                            RoleId = a.Member.Role.RoleId,
-                            RoleName = a.Member.Role.RoleName
-                        }
-                    },
-                    Consultant = new UserDTO
-                    {
-                        UserId = a.Consultant.UserId,
-                        Username = a.Consultant.Username,
-                        Email = a.Consultant.Email,
-                        PhoneNumber = a.Consultant.PhoneNumber,
-                        RoleId = a.Consultant.RoleId,
-                        ImageUrl = $"images/{a.Consultant.UserId}.jpg",
-                        Role = new RoleDTO
-                        {
-                            RoleId = a.Consultant.Role.RoleId,
-                            RoleName = a.Consultant.Role.RoleName
-                        }
-                    }
-                })
+                .Where(a => a.MemberId == memberId)
                 .ToListAsync();
+
+            return appointments.Select(a => new AppointmentDTO
+            {
+                AppointmentId = a.AppointmentId,
+                MemberId = a.MemberId,
+                ConsultantId = a.ConsultantId,
+                AppointmentDate = a.AppointmentDate,
+                Status = a.Status,
+                Topic = a.Topic,
+                Notes = a.Notes,
+                Member = a.Member != null ? new UserDTO
+                {
+                    UserId = a.Member.UserId,
+                    Username = a.Member.Username,
+                    DoB = a.Member.DoB,
+                    PhoneNumber = a.Member.PhoneNumber,
+                    Email = a.Member.Email,
+                    ImageUrl = $"images/{a.Member.UserId}.jpg",
+                    RoleId = a.Member.RoleId,
+                    Role = a.Member.Role != null ? new RoleDTO
+                    {
+                        RoleId = a.Member.Role.RoleId,
+                        RoleName = a.Member.Role.RoleName
+                    } : null
+                } : null,
+                Consultant = a.Consultant != null ? new UserDTO
+                {
+                    UserId = a.Consultant.UserId,
+                    Username = a.Consultant.Username,
+                    DoB = a.Consultant.DoB,
+                    PhoneNumber = a.Consultant.PhoneNumber,
+                    Email = a.Consultant.Email,
+                    ImageUrl = $"images/{a.Consultant.UserId}.jpg",
+                    RoleId = a.Consultant.RoleId,
+                    Role = a.Consultant.Role != null ? new RoleDTO
+                    {
+                        RoleId = a.Consultant.Role.RoleId,
+                        RoleName = a.Consultant.Role.RoleName
+                    } : null
+                } : null
+            }).ToList();
         }
+
 
     }
 }

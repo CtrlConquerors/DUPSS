@@ -110,6 +110,19 @@ namespace DUPSS.API.Models.AccessLayer
                 .WithMany(bt => bt.Blogs)
                 .HasForeignKey(b => b.BlogTopicId);
 
+            modelBuilder.Entity<CampaignRegistration>()
+                .HasOne(r => r.User)
+                .WithMany()
+                .HasForeignKey(r => r.MemberId);
+
+            modelBuilder.Entity<CampaignRegistration>()
+                .HasOne(r => r.Campaign)
+                .WithMany()
+                .HasForeignKey(r => r.CampaignId);
+
+
+
+
             // Configure indexes (optional, as schema already defines them)
             modelBuilder.Entity<User>().HasIndex(u => u.RoleId);
             modelBuilder.Entity<Appointment>().HasIndex(a => a.MemberId);

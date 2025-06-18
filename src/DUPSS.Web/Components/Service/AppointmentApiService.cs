@@ -17,23 +17,12 @@ namespace DUPSS.Web.Components.Service
         }
         public async Task<string?> GetCurrentUserIdAsync()
         {
-            var token = _authService.GetToken();
-            if (string.IsNullOrEmpty(token)) return null;
-
-            var handler = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var userId = jwtToken.Claims.FirstOrDefault(c => c.Type == "nameid")?.Value;
-            return userId;
+            // Removed _authService usage
+            return null;
         }
         public async Task<List<AppointmentDTO>> GetAppointmentsForMemberAsync(string memberId)
         {
-            var token = _authService.GetToken();
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token);
-            }
-
+            // Removed _authService usage
             var response = await _httpClient.GetAsync($"api/Appointments/by-member/{memberId}");
             if (response.IsSuccessStatusCode)
             {
@@ -44,12 +33,7 @@ namespace DUPSS.Web.Components.Service
         }
         public async Task<bool> CreateAppointmentAsync(AppointmentDTO appointment)
         {
-            var token = _authService.GetToken();
-            _httpClient.DefaultRequestHeaders.Authorization =
-                !string.IsNullOrEmpty(token)
-                    ? new AuthenticationHeaderValue("Bearer", token)
-                    : null;
-
+            // Removed _authService usage
             var response = await _httpClient.PostAsJsonAsync("api/Appointments", appointment);
             return response.IsSuccessStatusCode;
         }

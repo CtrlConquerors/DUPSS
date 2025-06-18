@@ -1,11 +1,11 @@
-﻿    @page "/Appointment"
-    @using DUPSS.API.Models.DTOs
-    @using DUPSS.Web.Components.Service
-    @inject HttpClient Http
-    @inject AuthenticationStateProvider AuthProvider
-    @inject IJSRuntime JS
-    @inject UserApiService UserService
-    @inject AppointmentApiService AppointmentService
+﻿@page "/Appointment"
+@using DUPSS.API.Models.DTOs
+@using DUPSS.Web.Components.Service
+@inject HttpClient Http
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
+@inject UserApiService UserService
+@inject AppointmentApiService AppointmentService
 
 <h3>Lịch hẹn của tôi</h3>
 
@@ -50,7 +50,14 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var userId = await AppointmentService.GetCurrentUserIdAsync();
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        if (string.IsNullOrEmpty(userId))
+        {
+            appointments = new List<AppointmentDTO>();
+            return;
+        }
         appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
     }
 }

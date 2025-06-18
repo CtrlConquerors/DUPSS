@@ -79,17 +79,6 @@ namespace DUPSS.Web.Components.Service
         }
         public async Task<List<UserDTO>> GetConsultantsAsync()
         {
-            var token = _authService.GetToken();
-            if (!string.IsNullOrEmpty(token))
-            {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
-            }
-            else
-            {
-                _httpClient.DefaultRequestHeaders.Authorization = null;
-            }
-
             var response = await _httpClient.GetAsync("api/Users/consultants");
             if (response.IsSuccessStatusCode)
             {

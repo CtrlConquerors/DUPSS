@@ -158,6 +158,7 @@
     justify-content: center;
     max-width: 30em;
     display: flex;
+    margin-left:-50px;
 }
 
 .search-bar input {

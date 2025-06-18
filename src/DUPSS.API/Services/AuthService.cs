@@ -116,12 +116,12 @@ namespace DUPSS.API.Services
             };
 
             var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(configuration.GetValue<string>("Appsettings:Token")!));
+                Encoding.UTF8.GetBytes(configuration.GetValue<string>("Auth:Token")!));
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512);
 
             var tokenDescriptor = new JwtSecurityToken(
-                issuer: configuration.GetValue<string>("Appsettings:Issuer"),
-                audience: configuration.GetValue<string>("Appsettings:Audience"),
+                issuer: configuration.GetValue<string>("Auth:Issuer"),
+                audience: configuration.GetValue<string>("Auth:Audience"),
                 claims: claims,
                 expires: DateTime.Now.AddMinutes(30),
                 signingCredentials: creds

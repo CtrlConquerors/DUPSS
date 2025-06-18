@@ -3,9 +3,9 @@ using DUPSS.Web.Components.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.Circuits;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,10 +28,10 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["Appsettings:Issuer"],
-        ValidAudience = builder.Configuration["Appsettings:Audience"],
+        ValidIssuer = builder.Configuration["Auth:Issuer"],
+        ValidAudience = builder.Configuration["Auth:Audience"],
         IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Appsettings:Token"]!))
+            Encoding.UTF8.GetBytes(builder.Configuration["Auth:Token"]!))
     };
 });
 

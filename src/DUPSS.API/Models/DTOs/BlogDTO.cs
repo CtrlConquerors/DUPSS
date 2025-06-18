@@ -7,6 +7,8 @@
         public required string Title { get; set; }
         public required string Content { get; set; }
         public required string Status { get; set; }
+        public required string BlogTopicId { get; set; }
         public UserDTO? Staff { get; set; }
+        public BlogTopicDTO? BlogTopic { get; set; }
     }
 }

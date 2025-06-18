@@ -49,7 +49,8 @@ builder.Services.AddHttpClient("ApiClient", client =>
 });
 
 // Register API services without AuthService dependency
-builder.Services.AddScoped<AuthApiService>(sp => new AuthApiService(sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<AuthApiService>(sp => new AuthApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseApiService>(sp => new CourseApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseTopicApiService>(sp => new CourseTopicApiService(
@@ -61,6 +62,8 @@ builder.Services.AddScoped<UserApiService>(sp => new UserApiService(
 builder.Services.AddScoped<CampaignApiService>(sp => new CampaignApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<BlogApiService>(sp => new BlogApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<BlogTopicApiService>(sp => new BlogTopicApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<AppointmentApiService>(sp => new AppointmentApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));

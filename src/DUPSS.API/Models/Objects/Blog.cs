@@ -14,6 +14,9 @@ namespace DUPSS.API.Models.Objects
         public required string Content { get; set; }
         [Required, MaxLength(50)]
         public required string Status { get; set; }
+        [Required]
+        public required string BlogTopicId { get; set; }
         public User? Staff { get; set; }
+        public BlogTopic? BlogTopic { get; set; }
     }
 }

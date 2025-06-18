@@ -24,7 +24,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 StaffId = blog.StaffId,
                 Title = blog.Title,
                 Content = blog.Content,
-                Status = blog.Status
+                Status = blog.Status,
+                BlogTopicId = blog.BlogTopicId,
             };
         }
 
@@ -39,6 +40,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     Title = b.Title,
                     Content = b.Content,
                     Status = b.Status,
+                    BlogTopicId = b.BlogTopicId,
                     Staff = b.Staff != null ? new UserDTO
                     {
                         UserId = b.Staff.UserId,
@@ -47,6 +49,11 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = b.Staff.PhoneNumber,
                         Email = b.Staff.Email,
                         RoleId = b.Staff.RoleId
+                    } : null,
+                    BlogTopic = b.BlogTopic != null ? new BlogTopicDTO
+                    {
+                        BlogTopicId = b.BlogTopic.BlogTopicId,
+                        BlogTopicName = b.BlogTopic.BlogTopicName,
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -62,6 +69,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     Title = b.Title,
                     Content = b.Content,
                     Status = b.Status,
+                    BlogTopicId = b.BlogTopicId,
                     Staff = b.Staff != null ? new UserDTO
                     {
                         UserId = b.Staff.UserId,
@@ -70,6 +78,11 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = b.Staff.PhoneNumber,
                         Email = b.Staff.Email,
                         RoleId = b.Staff.RoleId
+                    } : null,
+                    BlogTopic = b.BlogTopic != null ? new BlogTopicDTO
+                    {
+                        BlogTopicId = b.BlogTopic.BlogTopicId,
+                        BlogTopicName = b.BlogTopic.BlogTopicName,
                     } : null
                 })
                 .ToListAsync();
@@ -93,7 +106,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 StaffId = existingBlog.StaffId,
                 Title = existingBlog.Title,
                 Content = existingBlog.Content,
-                Status = existingBlog.Status
+                Status = existingBlog.Status,
+                BlogTopicId = existingBlog.BlogTopicId,
             };
         }
 

@@ -16,6 +16,7 @@ namespace DUPSS.API.Models.AccessLayer
         public DbSet<Assessment> Assessment { get; set; }
         public DbSet<AssessmentResult> AssessmentResult { get; set; }
         public DbSet<Blog> Blog { get; set; }
+        public DbSet<BlogTopic> BlogTopic { get; set; }
 
         public DbSet<CampaignRegistration> CampaignRegistrations { get; set; }
 
@@ -103,6 +104,12 @@ namespace DUPSS.API.Models.AccessLayer
                 .WithMany(u => u.Blogs)
                 .HasForeignKey(b => b.StaffId);
 
+            // BlogTopic -> Blogs (one-to-many)
+            modelBuilder.Entity<Blog>()
+                .HasOne(b => b.BlogTopic)
+                .WithMany(bt => bt.Blogs)
+                .HasForeignKey(b => b.BlogTopicId);
+
             // Configure indexes (optional, as schema already defines them)
             modelBuilder.Entity<User>().HasIndex(u => u.RoleId);
             modelBuilder.Entity<Appointment>().HasIndex(a => a.MemberId);
@@ -115,6 +122,7 @@ namespace DUPSS.API.Models.AccessLayer
             modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.AssessmentId);
             modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.MemberId);
             modelBuilder.Entity<Blog>().HasIndex(b => b.StaffId);
+            modelBuilder.Entity<BlogTopic>().HasIndex(bt => bt.BlogTopicId);
         }
     }
 }

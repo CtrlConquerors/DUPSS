@@ -119,6 +119,6 @@
     private void GoBack()
     {
         Console.WriteLine("Navigating back to /Blog");
-        NavigationManager.NavigateTo("/Blog");
+        NavigationManager.NavigateTo("/Blog", forceLoad: true);
     }
 }

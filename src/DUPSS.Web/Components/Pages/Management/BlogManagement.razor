@@ -1,8 +1,6 @@
 ﻿@page "/Management/Blog"
 @using DUPSS.API.Models.DTOs
-@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
-@inject NavigationManager NavigationManager
 @inject BlogApiService BlogApiService
 @inject UserApiService UserApiService
 @inject RoleApiService RoleApiService
@@ -152,16 +150,13 @@
 
             <div class="mb-3">
                 <label class="form-label">Content (Markdown)</label>
-                @if (isSimpleMDELoaded)
+                <textarea class="form-control" id="markdownEditor" rows="10"></textarea>
+                @if (!isSimpleMDELoaded)
                 {
-                    <textarea class="form-control" id="markdownEditor" @bind="blogToEdit.Content" rows="10"></textarea>
-                }
-                else
-                {
-                    <textarea class="form-control" id="markdownEditor" @bind="blogToEdit.Content" rows="10" placeholder="SimpleMDE failed to load. Enter Markdown content here."></textarea>
                     <p class="text-warning mt-2">Warning: Rich text editor failed to load. Using plain text input.</p>
+                    <textarea class="form-control" @bind="blogToEdit.Content" rows="10" placeholder="SimpleMDE failed to load. Enter Markdown content here."></textarea>
                 }
-                <p class="mt-2">Debug Content: @blogToEdit.Content</p>
+                
             </div>
 
             <div class="mb-3">
@@ -203,6 +198,7 @@
     private int itemsPerPage = 8;
     private string validationMessage = string.Empty;
     private bool isSimpleMDELoaded = false;
+    private bool shouldInitSimpleMDE = false;
 
     private string searchTerm = string.Empty;
     private string selectedStaffId = string.Empty;
@@ -270,19 +266,16 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (showEditForm && !isSimpleMDELoaded)
+        if (showEditForm && shouldInitSimpleMDE)
         {
             try
             {
-                // Check if SimpleMDE is loaded
                 var isSimpleMDEAvailable = await JS.InvokeAsync<bool>("eval", "typeof SimpleMDE !== 'undefined'");
                 if (isSimpleMDEAvailable)
                 {
                     await JS.InvokeVoidAsync("initializeSimpleMDE", "#markdownEditor");
                     isSimpleMDELoaded = true;
-                    // Set initial content
                     await JS.InvokeVoidAsync("setSimpleMDEContent", "#markdownEditor", blogToEdit.Content);
-                    StateHasChanged();
                 }
                 else
                 {
@@ -296,6 +289,8 @@
                 validationMessage = "Failed to initialize Markdown editor.";
                 isSimpleMDELoaded = false;
             }
+            shouldInitSimpleMDE = false;
+            StateHasChanged();
         }
     }
 
@@ -399,7 +394,9 @@
         };
         isNewBlog = true;
         showEditForm = true;
-        isSimpleMDELoaded = false; // Reset to ensure re-initialization
+        isSimpleMDELoaded = false;
+        shouldInitSimpleMDE = true;
+        StateHasChanged();
     }
 
     private void EditBlog(string blogId)
@@ -419,7 +416,9 @@
             };
             isNewBlog = false;
             showEditForm = true;
-            isSimpleMDELoaded = false; // Reset to ensure re-initialization
+            isSimpleMDELoaded = false;
+            shouldInitSimpleMDE = true;
+            StateHasChanged();
         }
     }
 

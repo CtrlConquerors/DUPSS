@@ -29,6 +29,15 @@
                     @errorMessage
                 </div>
             }
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="popup-overlay">
+                    <div class="popup-board">
+                        <h3>@message</h3>
+                        <p>Redirecting to home page...</p>
+                    </div>
+                </div>
+            }
             <button type="submit" class="btn btn-primary login-btn">Login</button>
         </form>
         <div class="login-footer">
@@ -41,6 +50,7 @@
     private string email = string.Empty;
     private string password = string.Empty;
     private string? errorMessage;
+    private string? message;
 
     private async Task HandleLogin()
     {
@@ -50,6 +60,10 @@
         {
             await AuthStateProvider.LoginAsync(email, password);
             Console.WriteLine("Navigating to /");
+            message = "Login Successfully";
+            StateHasChanged();          // Force UI to update immediately
+            await Task.Yield();         // Yield control back to renderer
+            await Task.Delay(2000);
             NavigationManager.NavigateTo("/", forceLoad: true);
         }
         catch (HttpRequestException ex)

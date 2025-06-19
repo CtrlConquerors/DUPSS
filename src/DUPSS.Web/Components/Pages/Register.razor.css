@@ -217,3 +217,32 @@
     .register-form select::-ms-expand {
         display: none;
     }
+
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.popup-board {
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.25);
+    text-align: center;
+}
+
+    .popup-board h3 {
+        color: green;
+        margin-bottom: 10px;
+    }
+    .popup-board p {
+        color: green;
+    }

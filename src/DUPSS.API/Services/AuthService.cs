@@ -57,6 +57,7 @@ namespace DUPSS.API.Services
 
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
+            user.UserId = Guid.NewGuid().ToString(); // Generate a unique ID for the user
             user.Email = request.Email;
             user.Username = request.Username;
             user.PhoneNumber = request.PhoneNumber;

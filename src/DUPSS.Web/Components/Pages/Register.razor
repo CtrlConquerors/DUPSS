@@ -57,6 +57,16 @@
                     @errorMessage
                 </div>
             }
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="popup-overlay">
+                    <div class="popup-board">
+                        <h3>@message</h3>
+                        <p>Redirecting to login page...</p>
+                    </div>
+                </div>
+            }
+
 
             <button type="submit" class="register-btn">Sign Up</button>
         </form>
@@ -74,6 +84,7 @@
     private string password = string.Empty;
     private List<RoleDTO> availableRoles = new();
     private string? errorMessage;
+    private string? message;
 
     protected override async Task OnInitializedAsync()
     {
@@ -89,6 +100,7 @@
 
     private async Task HandleRegister()
     {
+        message = null;
         errorMessage = null;
         if (!IsValidEmail(newUser.Email))
         {
@@ -121,6 +133,10 @@
             var createdUser = await AuthApiService.RegisterAsync(userDto);
             if (createdUser != null)
             {
+                message = "Register Successfully";
+                StateHasChanged();          // Force UI to update immediately
+                await Task.Yield();         // Yield control back to renderer
+                await Task.Delay(2000);
                 NavigationManager.NavigateTo("/login", forceLoad: true);
             }
             else

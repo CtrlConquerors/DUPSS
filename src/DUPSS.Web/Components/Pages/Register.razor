@@ -95,6 +95,15 @@
             errorMessage = "Invalid email format.";
             return;
         }
+        if (!string.IsNullOrWhiteSpace(newUser.PhoneNumber))
+        {
+            if (!IsValidPhoneNumber(newUser.PhoneNumber))
+            {
+                errorMessage = "Invalid phone number format.";
+                return;
+            }
+        }
+
         try
         {
             Console.WriteLine($"Registering user: {newUser.Username}, Email: {newUser.Email}, RoleId: {newUser.RoleId}");
@@ -130,6 +139,15 @@
         return System.Text.RegularExpressions.Regex.IsMatch(
             email,
             @"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
+    }
+    private static bool IsValidPhoneNumber(string phoneNumber)
+    {
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            phoneNumber,
+            // @"^\+?[1-9]\d{1,14}$", Basic international phone number format
+            @"^\d{10,}$",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase
         );
     }

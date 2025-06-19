@@ -135,6 +135,15 @@
     border: 1.5px solid #b6d0ff;
     width: 100%;
 }
+/* Alert box */
+.alert.alert-danger {
+    background-color: rgba(255, 0, 0, 0.1);
+    color: white;
+    border: 1px solid red;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-top: 1rem;
+}
 
 .text-danger {
     color: #005bea;

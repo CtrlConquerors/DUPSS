@@ -1,4 +1,6 @@
-﻿namespace DUPSS.API.Models.DTOs
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace DUPSS.API.Models.DTOs
 {
     public class UserDTO
     {

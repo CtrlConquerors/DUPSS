@@ -90,6 +90,11 @@
     private async Task HandleRegister()
     {
         errorMessage = null;
+        if (!IsValidEmail(newUser.Email))
+        {
+            errorMessage = "Invalid email format.";
+            return;
+        }
         try
         {
             Console.WriteLine($"Registering user: {newUser.Username}, Email: {newUser.Email}, RoleId: {newUser.RoleId}");
@@ -118,5 +123,14 @@
         {
             errorMessage = $"Registration failed: {ex.Message}";
         }
+    }
+
+    private static bool IsValidEmail(string email)
+    {
+        return System.Text.RegularExpressions.Regex.IsMatch(
+            email,
+            @"^[^@\s]+@[^@\s]+\.(com|net|org|edu|gov|vn)$",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
     }
 }

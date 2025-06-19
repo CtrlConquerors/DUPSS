@@ -1,0 +1,466 @@
+﻿@page "/CourseContent/{CourseId}"
+@using DUPSS.API.Models.DTOs
+@using DUPSS.Web.Components.Service
+@using System.Security.Claims   @*Needed for ClaimType*@
+@inject CourseApiService CourseApiService
+@inject CourseEnrollApiService CourseEnrollApiService // NEW: Inject CourseEnrollApiService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject AuthenticationStateProvider AuthenticationStateProvider // NEW: Inject AuthenticationStateProvider
+
+<div class="course-page-layout">
+    @if (course == null && !hasError)
+    {
+        <div class="loading-indicator-full">
+            <p>Loading course content...</p>
+            <div class="spinner"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message-full">
+            <p>Oops! Something went wrong while loading course content. Please try again later.</p>
+            <button class="btn btn-primary" @onclick="GoBackToCourses">Back to Courses</button>
+        </div>
+    }
+    else if (course == null) // Should not happen if hasError is false, but as a fallback
+    {
+        <div class="no-course-message-full">
+            <p>No course content found for this ID. It might not exist or there was a navigation issue.</p>
+            <button class="btn btn-primary" @onclick="GoBackToCourses">Back to Courses</button>
+        </div>
+    }
+    else
+    {
+        <div class="sidebar-column">
+            <div class="course-branding">
+                @* UPDATED: Changed logo to course picture with fallback *@
+                <img src="@(course.ImageUrl ?? "https://placehold.co/80x80/F0F0F0/000000?text=Course")" alt="Course Image" class="course-sidebar-image"/>
+                <h2 class="sidebar-course-title">@course.CourseName</h2>
+                @* UPDATED: Changed university name to course topic *@
+                <p class="sidebar-university-name">@(course.Topic?.TopicName ?? "General Topic")</p>
+            </div>
+
+            <div class="course-material-section">
+                <h3>Course Material</h3>
+                <div class="module-list">
+                    @foreach (var module in modules)
+                    {
+                        <div class="module-item @(module.IsComplete ? "module-complete" : "")"
+                             @onclick="() => ToggleModule(module)">
+                            <i class="bi bi-check-circle-fill"></i>
+                            <span>@module.Title</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content-column">
+            <h1 class="main-course-title">@course.CourseName</h1> @* Course Name as the main title *@
+
+            @foreach (var module in modules)
+            {
+                <div class="module-section">
+                    <div class="module-header" @onclick="() => ToggleModule(module)">
+                        <span class="module-title-text">
+                            @module.Title
+                            <i class="bi @(module.IsExpanded ? "bi-chevron-up" : "bi-chevron-down") chevron-icon"></i>
+                        </span>
+                        @if (module.IsComplete)
+                        {
+                            <span class="module-status-badge complete">
+                                <i class="bi bi-check-circle-fill"></i> Complete
+                            </span>
+                        }
+                    </div>
+
+                    @if (module.IsExpanded)
+                    {
+                        <div class="module-body">
+                            <div class="module-duration-summary">
+                                @if (module.VideosLeft.HasValue)
+                                {
+                                    <span class="duration-item">
+                                        <i class="bi bi-play-circle-fill"></i> @module.VideosLeft min of videos left
+                                    </span>
+                                }
+                                @if (module.ReadingsLeft.HasValue)
+                                {
+                                    <span class="duration-item">
+                                        <i class="bi bi-book-fill"></i> @module.ReadingsLeft min of readings left
+                                    </span>
+                                }
+                                @if (module.GradedAssessmentsLeft.HasValue)
+                                {
+                                    <span class="duration-item">
+                                        <i class="bi bi-check2-square"></i> @module.GradedAssessmentsLeft graded assessment left
+                                    </span>
+                                }
+                            </div>
+
+                            <div class="learning-objectives-toggle-container">
+                                <div class="learning-objectives-toggle" @onclick="() => ToggleLearningObjectives(module)">
+                                    <span class="toggle-text">Show Learning Objectives</span>
+                                    <i class="bi @(module.AreObjectivesExpanded ? "bi-chevron-up" : "bi-chevron-down") chevron-icon-objectives"></i>
+                                </div>
+                                @if (module.AreObjectivesExpanded)
+                                {
+                                    <ul class="learning-objectives-list">
+                                        @foreach (var obj in module.LearningObjectives)
+                                        {
+                                            <li>@obj</li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+
+                            <p class="module-description">
+                                @module.Description
+                            </p>
+
+                            <div class="lessons-list">
+                                @foreach (var lesson in module.Lessons)
+                                {
+                                    <div class="lesson-item @(lesson.IsComplete ? "lesson-complete" : "")">
+                                        <i class="bi bi-check-circle-fill lesson-check-icon"></i>
+                                        <div class="lesson-details">
+                                            <span class="lesson-title">@lesson.Title</span>
+                                            @if (!string.IsNullOrEmpty(lesson.DurationText))
+                                            {
+                                                <span class="lesson-duration">@lesson.Type @lesson.DurationText</span>
+                                            }
+                                        </div>
+                                        @if (lesson.HasButton)
+                                        {
+                                            <button class="btn btn-primary get-started-button">Get started</button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            <div class="bottom-navigation">
+                @if (currentEnrollment != null && currentEnrollment.Status != "Completed")
+                {
+                    <button class="btn btn-success complete-course-button" @onclick="CompleteCourse" disabled="@isCompletingCourse">
+                        @if (isCompletingCourse)
+                        {
+                            <span>
+                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                Completing...
+                            </span>
+                        }
+                        else
+                        {
+                            <span> 
+                                <i class="bi bi-check-lg"></i> Complete Course
+                            </span>
+                        }
+                    </button>
+                }
+                <button class="btn btn-primary" @onclick="GoBackToCourses">Back to All Courses</button>
+                @if (!string.IsNullOrEmpty(completionMessage))
+                {
+                    <div class="@completionMessageClass mt-3">@completionMessage</div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string CourseId { get; set; } = string.Empty;
+
+    private CourseDTO? course;
+    private bool hasError = false;
+
+    private List<CourseModule> modules = new List<CourseModule>();
+
+    // NEW: State for current user and their enrollment in this course
+    private string? currentLoggedInUserId;
+    private CourseEnrollDTO? currentEnrollment;
+    private bool isCompletingCourse = false;
+    private string completionMessage = string.Empty;
+    private string completionMessageClass = string.Empty;
+
+
+    public class CourseModule
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public bool IsExpanded { get; set; } = false;
+        public bool IsComplete { get; set; } = false;
+        public int? VideosLeft { get; set; }
+        public int? ReadingsLeft { get; set; }
+        public int? GradedAssessmentsLeft { get; set; }
+        public List<CourseLesson> Lessons { get; set; } = new List<CourseLesson>();
+        public List<string> LearningObjectives { get; set; } = new List<string>();
+        public bool AreObjectivesExpanded { get; set; } = false;
+    }
+
+    public class CourseLesson
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Type { get; set; } = string.Empty;
+        public string DurationText { get; set; } = string.Empty;
+        public bool IsComplete { get; set; } = false;
+        public bool HasButton { get; set; } = false;
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadCourseContent();
+    }
+
+    private async Task LoadCourseContent()
+    {
+        hasError = false;
+        course = null;
+        modules.Clear();
+        currentEnrollment = null; // Clear previous enrollment state
+        completionMessage = string.Empty;
+
+        try
+        {
+            // Get current logged-in user ID
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            currentLoggedInUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            course = await CourseApiService.GetByIdAsync(CourseId);
+
+            if (course == null)
+            {
+                hasError = true;
+                Console.WriteLine($"Course with ID {CourseId} not found.");
+            }
+            else
+            {
+                // Check if the current user is enrolled in this course
+                if (!string.IsNullOrEmpty(currentLoggedInUserId))
+                {
+                    var enrollments = await CourseEnrollApiService.GetEnrollmentsByMemberAndCourse(currentLoggedInUserId, CourseId);
+                    currentEnrollment = enrollments?.FirstOrDefault(); // Get the specific enrollment if it exists
+                }
+
+                PopulateMockModules(course.CourseId);
+                // Expand the first module by default
+                if (modules.Any())
+                {
+                    modules.First().IsExpanded = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading course content for ID {CourseId}: {ex.Message}");
+            hasError = true;
+        }
+    }
+
+    private void PopulateMockModules(string courseId)
+    {
+        if (courseId == "C0001")
+        {
+            modules.Add(new CourseModule
+            {
+                Title = "Module 1: Introduction",
+                Description = "In this module, you will be introduced to the course's program and how to stay sober. You are expected to spend 2 to 3 hours on this module's workload.",
+                IsComplete = true,
+                VideosLeft = 0,
+                ReadingsLeft = 0,
+                GradedAssessmentsLeft = 0,
+                LearningObjectives = new List<string> {
+                    "Recognize the nature of drugs.",
+                    "Understand how bad drug is.",
+                    "Conduct formative research."
+                },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Welcome to the course", Type = "Reading", DurationText = "10 min", IsComplete = true, HasButton = true },
+                    new CourseLesson { Title = "Course Syllabus", Type = "Reading", DurationText = "10 min", IsComplete = true },
+                    new CourseLesson { Title = "Help Us Learn More About You!", Type = "Reading", DurationText = "10 min", IsComplete = true }
+                }
+            });
+            modules.Add(new CourseModule
+            {
+                Title = "Module 2: Survey",
+                Description = "This module covers various user research methods and how to analyze the collected data to inform your decisions.",
+                IsComplete = false,
+                VideosLeft = 49,
+                ReadingsLeft = 30,
+                GradedAssessmentsLeft = 1,
+                LearningObjectives = new List<string> {
+                    "Define survey research and its purpose.",
+                    "Identify when surveys are an appropriate research method.",
+                    "Understand the steps involved in designing and administering a survey.",
+                    "Recognize common pitfalls in survey design and how to avoid them."
+                },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Welcome Announcement", Type = "Reading", DurationText = "10 min", IsComplete = false, HasButton = true },
+                    new CourseLesson { Title = "Course Syllabus", Type = "Reading", DurationText = "10 min", IsComplete = false },
+                    new CourseLesson { Title = "Help Us Learn More About You!", Type = "Reading", DurationText = "10 min", IsComplete = false }
+                }
+            });
+            modules.Add(new CourseModule
+            {
+                Title = "Module 3: Prototyping",
+                Description = "Mock module 3 for testing prototyping techniques.",
+                IsComplete = false,
+                VideosLeft = 20,
+                ReadingsLeft = 15,
+                GradedAssessmentsLeft = 1,
+                LearningObjectives = new List<string> {
+                    "Create low-fidelity prototypes.", "Conduct usability testing on prototypes."
+                },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Lesson 3.1: Wireframing", Type = "Video", DurationText = "12 min", IsComplete = false },
+                    new CourseLesson { Title = "Lesson 3.2: Interactive Mockups", Type = "Reading", DurationText = "8 min", IsComplete = false },
+                }
+            });
+            modules.Add(new CourseModule
+            {
+                Title = "Module 4: User Testing",
+                Description = "Mock module 4 for user testing strategies.",
+                IsComplete = false,
+                VideosLeft = 30,
+                ReadingsLeft = 10,
+                GradedAssessmentsLeft = 0,
+                LearningObjectives = new List<string> {
+                    "Plan and execute user tests.", "Analyze user test results."
+                },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Lesson 4.1: Test Scripting", Type = "Reading", DurationText = "7 min", IsComplete = false },
+                    new CourseLesson { Title = "Lesson 4.2: Conducting Sessions", Type = "Video", DurationText = "18 min", IsComplete = false },
+                }
+            });
+            modules.Add(new CourseModule
+            {
+                Title = "Module 5: Iteration and Handoff",
+                Description = "Mock module 5 for iteration and handoff processes.",
+                IsComplete = false,
+                VideosLeft = 25,
+                ReadingsLeft = 20,
+                GradedAssessmentsLeft = 1,
+                LearningObjectives = new List<string> {
+                    "Iterate designs based on feedback.", "Prepare designs for development handoff."
+                },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Lesson 5.1: Feedback Integration", Type = "Reading", DurationText = "10 min", IsComplete = false },
+                    new CourseLesson { Title = "Lesson 5.2: Developer Handoff Tools", Type = "Video", DurationText = "15 min", IsComplete = false },
+                }
+            });
+        }
+        else // Generic content for other courses
+        {
+            modules.Add(new CourseModule
+            {
+                Title = "Module 1: Foundations",
+                Description = "This module provides the foundational knowledge required for the course.",
+                IsComplete = false,
+                VideosLeft = 15,
+                ReadingsLeft = 20,
+                GradedAssessmentsLeft = 1,
+                LearningObjectives = new List<string> { "Understand basic concepts", "Identify key terminologies" },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Course Introduction", Type = "Video", DurationText = "8 min", IsComplete = false, HasButton = true },
+                    new CourseLesson { Title = "Core Reading", Type = "Reading", DurationText = "20 min", IsComplete = false }
+                }
+            });
+            modules.Add(new CourseModule
+            {
+                Title = "Module 2: Application",
+                Description = "Apply the concepts learned in Module 1 to practical scenarios.",
+                IsComplete = false,
+                VideosLeft = 12,
+                ReadingsLeft = 10,
+                GradedAssessmentsLeft = 2,
+                LearningObjectives = new List<string> { "Implement basic techniques", "Solve simple problems" },
+                Lessons = new List<CourseLesson>
+                {
+                    new CourseLesson { Title = "Practical Exercise 1", Type = "Quiz", DurationText = "10 questions", IsComplete = false },
+                    new CourseLesson { Title = "Solution Walkthrough", Type = "Video", DurationText = "12 min", IsComplete = false }
+                }
+            });
+        }
+    }
+
+    private void ToggleModule(CourseModule module)
+    {
+        module.IsExpanded = !module.IsExpanded;
+    }
+
+    private void ToggleLearningObjectives(CourseModule module)
+    {
+        module.AreObjectivesExpanded = !module.AreObjectivesExpanded;
+    }
+
+    private async Task CompleteCourse()
+    {
+        if (currentEnrollment == null || string.IsNullOrEmpty(currentLoggedInUserId))
+        {
+            await ShowCompletionMessage("Error", "You are not enrolled in this course or not logged in.", "alert-danger");
+            return;
+        }
+
+        if (currentEnrollment.Status == "Completed")
+        {
+            await ShowCompletionMessage("Info", "This course is already marked as completed.", "alert-info");
+            return;
+        }
+
+        isCompletingCourse = true;
+        completionMessage = string.Empty;
+        StateHasChanged();
+
+        try
+        {
+            // Update the enrollment DTO
+            currentEnrollment.Status = "Completed";
+            currentEnrollment.CompleteDate = DateOnly.FromDateTime(DateTime.Today);
+            Console.WriteLine("Complete Date: " + currentEnrollment.CompleteDate);
+            // Call the API to update the enrollment
+            await CourseEnrollApiService.UpdateAsync(currentEnrollment);
+
+            await ShowCompletionMessage("Success", $"Course '{course?.CourseName}' successfully marked as completed!", "alert-success");
+
+            
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error completing course: {ex.Message}");
+            await ShowCompletionMessage("Error", $"Failed to mark course as complete: {ex.Message}", "alert-danger");
+        }
+        finally
+        {
+            isCompletingCourse = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task ShowCompletionMessage(string title, string message, string cssClass)
+    {
+        completionMessage = message;
+        completionMessageClass = cssClass;
+        await JS.InvokeVoidAsync("console.log", $"{title}: {message}");
+        StateHasChanged();
+        await Task.Delay(5000); // Display message for 5 seconds
+        completionMessage = string.Empty;
+        StateHasChanged();
+    }
+
+    private void GoBackToCourses()
+    {
+        NavigationManager.NavigateTo("/Course", forceLoad: true);
+    }
+}

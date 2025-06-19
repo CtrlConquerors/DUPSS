@@ -1,22 +1,20 @@
 ﻿using DUPSS.API.Models.AccessLayer;
-using DUPSS.API.Models.AccessLayer.Interfaces; // Use the interface for injection
+using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
-using DUPSS.API.Models.Objects;
+using DUPSS.API.Models.Objects; // Ensure this namespace is included for CourseEnroll domain model
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
-using Npgsql; // For NpgsqlException
+using Npgsql;
 
 namespace DUPSS.API.Controllers
 {
     [ApiController, Route("api/[controller]")]
     public class CourseEnrollsController : ControllerBase
     {
-        // Inject the interface, not the concrete class directly, and use 'private readonly'
         private readonly ICourseEnrollDAO _courseEnrollDAO;
 
-        // Constructor now takes ICourseEnrollDAO via dependency injection
         public CourseEnrollsController(ICourseEnrollDAO courseEnrollDAO)
         {
             _courseEnrollDAO = courseEnrollDAO;
@@ -30,15 +28,13 @@ namespace DUPSS.API.Controllers
                 var enrolls = await _courseEnrollDAO.GetAllAsync();
                 return Ok(enrolls);
             }
-            catch (NpgsqlException ex) // Catch Npgsql specific exceptions
+            catch (NpgsqlException ex)
             {
-                // Log the exception for debugging purposes
                 Console.WriteLine($"Database error in GetAll: {ex.Message}");
                 return StatusCode(500, $"Database error: {ex.Message}");
             }
             catch (Exception ex)
             {
-                // Log general exceptions
                 Console.WriteLine($"Internal server error in GetAll: {ex.Message}");
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
@@ -67,12 +63,24 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<CourseEnrollDTO>> Create([FromBody] CourseEnroll courseEnroll)
+        public async Task<ActionResult<CourseEnrollDTO>> Create([FromBody] CourseEnrollDTO courseEnrollDto)
         {
             try
             {
-                var createdEnroll = await _courseEnrollDAO.CreateAsync(courseEnroll);
-                // Return 201 CreatedAtAction with the location of the newly created resource
+                // Map CourseEnrollDTO to CourseEnroll domain model
+                var courseEnrollDomainModel = new CourseEnroll
+                {
+                    EnrollId = courseEnrollDto.EnrollId, // Client-generated ID is accepted
+                    MemberId = courseEnrollDto.MemberId,
+                    CourseId = courseEnrollDto.CourseId,
+                    Status = courseEnrollDto.Status,
+                    EnrollDate = courseEnrollDto.EnrollDate,
+                    CompleteDate = courseEnrollDto.CompleteDate
+                    // Navigation properties (Member, Course) are not mapped here,
+                    // as the DAO primarily uses their IDs.
+                };
+
+                var createdEnroll = await _courseEnrollDAO.CreateAsync(courseEnrollDomainModel);
                 return CreatedAtAction(nameof(GetById), new { enrollId = createdEnroll.EnrollId }, createdEnroll);
             }
             catch (NpgsqlException ex)
@@ -88,12 +96,24 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<CourseEnrollDTO>> Update([FromBody] CourseEnroll courseEnroll)
+        public async Task<ActionResult<CourseEnrollDTO>> Update([FromBody] CourseEnrollDTO courseEnrollDto)
         {
             try
             {
-                var updatedEnroll = await _courseEnrollDAO.UpdateAsync(courseEnroll);
-                // Return 200 OK with the updated resource
+                // Map CourseEnrollDTO to CourseEnroll domain model
+                // Note: For update, you usually fetch the existing entity first,
+                // then update its scalar properties from the DTO.
+                var courseEnrollDomainModel = new CourseEnroll
+                {
+                    EnrollId = courseEnrollDto.EnrollId,
+                    MemberId = courseEnrollDto.MemberId,
+                    CourseId = courseEnrollDto.CourseId,
+                    Status = courseEnrollDto.Status,
+                    EnrollDate = courseEnrollDto.EnrollDate,
+                    CompleteDate = courseEnrollDto.CompleteDate
+                };
+
+                var updatedEnroll = await _courseEnrollDAO.UpdateAsync(courseEnrollDomainModel);
                 return Ok(updatedEnroll);
             }
             catch (NpgsqlException ex)
@@ -115,9 +135,7 @@ namespace DUPSS.API.Controllers
             {
                 var result = await _courseEnrollDAO.DeleteAsync(enrollId);
                 if (!result)
-                    // If DAO returns false, it means the entity was not found for deletion
                     return NotFound($"CourseEnroll with ID {enrollId} not found for deletion.");
-                // Return 200 OK for successful deletion
                 return Ok(result);
             }
             catch (NpgsqlException ex)
@@ -132,7 +150,6 @@ namespace DUPSS.API.Controllers
             }
         }
 
-        // Custom endpoint to check for existing enrollments by MemberId and CourseId
         [HttpGet("GetByMemberAndCourse")]
         public async Task<ActionResult<List<CourseEnrollDTO>>> GetByMemberAndCourse([FromQuery] string memberId, [FromQuery] string courseId)
         {

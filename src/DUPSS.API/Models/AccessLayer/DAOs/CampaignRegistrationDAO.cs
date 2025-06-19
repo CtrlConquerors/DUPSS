@@ -74,6 +74,12 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 .Where(r => r.MemberId == userId)
                 .ToListAsync();
         }
+        public async Task<CampaignRegistration?> GetByMemberAndCampaignAsync(string memberId, string campaignId)
+        {
+            return await _context.CampaignRegistrations
+                .FirstOrDefaultAsync(r => r.MemberId == memberId && r.CampaignId == campaignId);
+        }
+
 
 
     }

@@ -69,7 +69,7 @@ namespace DUPSS.API.Controllers
         [HttpPost]
         public async Task<ActionResult> Register([FromBody] CampaignRegistration registration)
         {
-            // Kiểm tra trùng
+
             if (await _dao.ExistsAsync(registration.MemberId, registration.CampaignId))
             {
                 return Conflict("User already registered for this campaign.");
@@ -140,6 +140,17 @@ namespace DUPSS.API.Controllers
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+        // DELETE: api/CampaignRegistration?memberId=xxx&campaignId=yyy
+        [HttpDelete]
+        public async Task<IActionResult> Unregister([FromQuery] string memberId, [FromQuery] string campaignId)
+        {
+            var existing = await _dao.GetByMemberAndCampaignAsync(memberId, campaignId);
+            if (existing == null)
+                return NotFound("Registration not found.");
+
+            await _dao.DeleteAsync(existing.RegistrationId);
+            return NoContent();
         }
 
 

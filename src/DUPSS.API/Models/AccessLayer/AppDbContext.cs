@@ -20,6 +20,9 @@ namespace DUPSS.API.Models.AccessLayer
 
         public DbSet<CampaignRegistration> CampaignRegistrations { get; set; }
 
+        public DbSet<Appointment> Appointments { get; set; } = null!;
+
+
 
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
@@ -136,6 +139,7 @@ namespace DUPSS.API.Models.AccessLayer
             modelBuilder.Entity<AssessmentResult>().HasIndex(ar => ar.MemberId);
             modelBuilder.Entity<Blog>().HasIndex(b => b.StaffId);
             modelBuilder.Entity<BlogTopic>().HasIndex(bt => bt.BlogTopicId);
+
         }
     }
 }

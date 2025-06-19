@@ -3,6 +3,7 @@
 @using System.Security.Claims
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
+@inject CampaignRegistrationApiService CampaignRegistrationApiService
 @inject NavigationManager NavigationManager
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JS
@@ -79,8 +80,11 @@ else
         <AuthorizeView Roles="ME,AD,ST,MA,CO">
         <Authorized>
                 <div class="register-section">
-                    <button class="btn" @onclick="HandleRegister">Join Campaign</button>
+                    <button class="btn" @onclick="HandleRegister">Register Campaign</button>
+                    <button class="btn" @onclick="@(() => HandleUnregister(CampaignId))">Unregister Campaign</button>
+
                 </div>
+           
         </Authorized>
         <NotAuthorized>
             <div class="not-authorized-message">
@@ -192,4 +196,20 @@ else
             await JS.InvokeVoidAsync("alert", $"Failed to register. Server said: {response.StatusCode}");
         }
     }
+    private async Task HandleUnregister(string campaignId)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn huỷ đăng ký chiến dịch này không?");
+        if (!confirmed) return;
+
+        var success = await CampaignRegistrationApiService.UnregisterAsync(MemberId, campaignId);
+        if (success)
+        {
+            await JS.InvokeVoidAsync("alert", "Huỷ đăng ký thành công.");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Huỷ đăng ký thất bại.");
+        }
+    }
+
 }

@@ -69,6 +69,9 @@ builder.Services.AddScoped<AppointmentApiService>(sp => new AppointmentApiServic
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CourseEnrollApiService>(sp => new CourseEnrollApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<CampaignRegistrationApiService>(sp => new CampaignRegistrationApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+
 
 builder.Services.AddScoped<ProtectedSessionStorage>();
 

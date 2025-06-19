@@ -565,20 +565,20 @@
             }
             else
             {
-                message = $"Không thể tải lịch sử chiến dịch: {ex.Message}";
+                message = $"Cannot load campaign history: {ex.Message}";
                 return;
             }
         }
         catch (Exception ex)
         {
-            message = $"Đã xảy ra lỗi: {ex.Message}";
+            message = $"Error occur: {ex.Message}";
             return;
         }
 
         showCampaignHistory = true; 
 
         showCreateForm = false;
-        showCreateForm = false;
+        
     }
 
 

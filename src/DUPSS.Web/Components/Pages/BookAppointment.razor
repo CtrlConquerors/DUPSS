@@ -3,15 +3,16 @@
 @using DUPSS.Web.Components.Service
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
-@inject AppointmentApiService AppointmentService
+@inject AppointmentApiService AppointmentApiService
 @inject UserApiService UserService
 @inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthProvider
 
-<h3>Đặt lịch hẹn với tư vấn viên</h3>
+<h3>Booking appointment with consultant</h3>
 
 @if (consultants == null)
 {
-    <p>Đang tải danh sách tư vấn viên...</p>
+    <p>Loading consultant...</p>
 }
 else
 {
@@ -20,9 +21,9 @@ else
         <ValidationSummary />
 
         <div class="mb-3">
-            <label class="form-label">Chọn tư vấn viên</label>
-            <select class="form-select" @bind="newAppointment.ConsultantId">
-                <option value="">-- Chọn tư vấn viên --</option>
+            <label class="form-label">Choose Consultant</label>
+            <select class="form-select" @onchange="HandleConsultantChange">
+                <option value="">-- Choose Consultant --</option>
                 @foreach (var consultant in consultants)
                 {
                     <option value="@consultant.UserId">@consultant.Username</option>
@@ -31,21 +32,21 @@ else
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Ngày hẹn</label>
+            <label class="form-label">Appointment date</label>
             <InputDate @bind-Value="newAppointment.AppointmentDate" class="form-control" />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Chủ đề</label>
+            <label class="form-label">Topic</label>
             <InputText class="form-control" @bind-Value="newAppointment.Topic" />
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Ghi chú (tuỳ chọn)</label>
+            <label class="form-label">Note ( Optional )</label>
             <InputTextArea class="form-control" @bind-Value="newAppointment.Notes" />
         </div>
 
-        <button class="btn btn-primary" type="submit">Đặt lịch</button>
+        <button class="btn btn-primary" type="submit">Booking</button>
     </EditForm>
 }
 
@@ -64,24 +65,57 @@ else
     protected override async Task OnInitializedAsync()
     {
         consultants = await UserService.GetConsultantsAsync();
-        var currentUserId = await AppointmentService.GetCurrentUserIdAsync();
-        if (!string.IsNullOrEmpty(currentUserId))
+
+        var authState = await AuthProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated == true)
         {
-            newAppointment.MemberId = currentUserId;
+            var memberId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                        ?? user.FindFirst("sub")?.Value
+                        ?? user.FindFirst("MemberId")?.Value;
+
+            if (!string.IsNullOrEmpty(memberId))
+            {
+                newAppointment.MemberId = memberId;
+            }
         }
     }
 
+
     private async Task HandleBooking()
     {
-        var success = await AppointmentService.CreateAppointmentAsync(newAppointment);
+        Console.WriteLine("📅 [DEBUG] Starting appointment booking process...");
+        Console.WriteLine($"📌 AppointmentId: {newAppointment.AppointmentId}");
+        Console.WriteLine($"👤 MemberId: {newAppointment.MemberId}");
+        Console.WriteLine($"🧑‍⚕️ ConsultantId: {newAppointment.ConsultantId}");
+        Console.WriteLine($"🗓 AppointmentDate: {newAppointment.AppointmentDate}");
+        Console.WriteLine($"🎯 Topic: {newAppointment.Topic}");
+        Console.WriteLine($"📝 Notes: {newAppointment.Notes}");
+        Console.WriteLine($"📋 Status: {newAppointment.Status}");
+
+        var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
+        Console.WriteLine($"📥 [DEBUG] Appointment creation API returned: {(success ? "Success" : "Failure")}");
+
         if (success)
         {
+            Console.WriteLine("✅ [DEBUG] Appointment created successfully. Redirecting to /Appointment...");
             Navigation.NavigateTo("/Appointment");
         }
         else
         {
-      
-            Console.WriteLine("Failed to create appointment.");
+            Console.WriteLine("❌ [ERROR] Failed to create appointment. Please check the API or input data.");
         }
     }
+
+
+
+
+
+    private void HandleConsultantChange(ChangeEventArgs e)
+    {
+        newAppointment.ConsultantId = e.Value?.ToString() ?? "";
+        Console.WriteLine($"🧑‍⚕️ [DEBUG] ConsultantId được chọn: {newAppointment.ConsultantId}");
+    }
+
+
 }

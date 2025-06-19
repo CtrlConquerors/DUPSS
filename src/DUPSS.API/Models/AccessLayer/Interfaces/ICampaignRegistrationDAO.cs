@@ -13,6 +13,7 @@ namespace DUPSS.API.Models.AccessLayer.Interfaces
         Task<bool> ExistsAsync(string userId, string campaignId);
 
         Task<List<CampaignRegistration>> GetByUserIdWithCampaignAsync(string userId);
+        Task<CampaignRegistration?> GetByMemberAndCampaignAsync(string memberId, string campaignId);
 
     }
 }

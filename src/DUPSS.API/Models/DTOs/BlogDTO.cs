@@ -10,5 +10,6 @@
         public required string BlogTopicId { get; set; }
         public UserDTO? Staff { get; set; }
         public BlogTopicDTO? BlogTopic { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

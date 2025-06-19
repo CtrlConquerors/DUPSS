@@ -36,7 +36,7 @@
             {
                 <div class="blog-card clickable" @onclick="() => NavigateToDetail(item.BlogId)">
                     <div class="card-image">
-                        <img src="https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image"
+                        <img src= "@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")"
                              alt="Blog Image" />
                     </div>
                     <div class="card-content">

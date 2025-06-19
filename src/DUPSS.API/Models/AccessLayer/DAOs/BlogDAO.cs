@@ -54,7 +54,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     {
                         BlogTopicId = b.BlogTopic.BlogTopicId,
                         BlogTopicName = b.BlogTopic.BlogTopicName,
-                    } : null
+                    } : null,
+                    ImageUrl = $"/images/{b.BlogId}.jpg"
                 })
                 .FirstOrDefaultAsync();
         }
@@ -83,7 +84,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     {
                         BlogTopicId = b.BlogTopic.BlogTopicId,
                         BlogTopicName = b.BlogTopic.BlogTopicName,
-                    } : null
+                    } : null,
+                    ImageUrl = $"/images/{b.BlogId}.jpg"
                 })
                 .ToListAsync();
         }

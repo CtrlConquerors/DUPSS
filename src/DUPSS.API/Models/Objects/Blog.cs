@@ -18,5 +18,6 @@ namespace DUPSS.API.Models.Objects
         public required string BlogTopicId { get; set; }
         public User? Staff { get; set; }
         public BlogTopic? BlogTopic { get; set; }
+        public string? ImageUrl { get; set; }
     }
 }

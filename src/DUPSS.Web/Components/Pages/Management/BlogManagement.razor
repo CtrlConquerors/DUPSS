@@ -472,7 +472,7 @@
         {
             maxIdNum = blogTopics
                 .Select(t => {
-                    if (t.BlogTopicId != null && t.BlogTopicId.StartsWith("BTP") && int.TryParse(t.BlogTopicId.Substring(2), out var num))
+                    if (t.BlogTopicId != null && t.BlogTopicId.StartsWith("BTP") && int.TryParse(t.BlogTopicId.Substring(3), out var num))
                     {
                         return num;
                     }
@@ -655,14 +655,12 @@
                 await BlogTopicApiService.CreateAsync(newTopic);
                 blogToEdit.BlogTopicId = newTopic.BlogTopicId;
                 blogTopics = await BlogTopicApiService.GetAllAsync();
-                Console.WriteLine($"New topic {newTopic.BlogTopicId}, {newTopic.BlogTopicName} created successfully.");
                 showNewTopicInput = false;
                 newTopicName = string.Empty;
             }
             catch (Exception ex)
             {
                 validationMessage = $"Error creating new topic: {ex.Message}";
-                Console.WriteLine($"Error creating new topic: {ex.Message}");
                 return;
             }
         }
@@ -690,13 +688,9 @@
                 if (response == null)
                 {
                     validationMessage = "Failed to update blog. Please try again.";
-                    Console.WriteLine($"Failed to update blog '{blogToEdit.Title}'.");
                     return;
                 }
-                else
-                {
-                    Console.WriteLine($"{response.BlogId}, {response.Title}, {response.BlogTopic?.BlogTopicName} updated successfully.");
-                }
+                
                 Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
             }
 
@@ -707,7 +701,6 @@
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error saving blog: {ex.Message}");
             validationMessage = $"Error saving blog: {ex.Message}";
         }
         StateHasChanged();

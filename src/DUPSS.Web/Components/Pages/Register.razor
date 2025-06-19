@@ -112,7 +112,7 @@
             var createdUser = await AuthApiService.RegisterAsync(userDto);
             if (createdUser != null)
             {
-                NavigationManager.NavigateTo("/login", forceLoad: false);
+                NavigationManager.NavigateTo("/login", forceLoad: true);
             }
             else
             {
@@ -129,7 +129,7 @@
     {
         return System.Text.RegularExpressions.Regex.IsMatch(
             email,
-            @"^[^@\s]+@[^@\s]+\.(com|net|org|edu|gov|vn)$",
+            @"^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase
         );
     }

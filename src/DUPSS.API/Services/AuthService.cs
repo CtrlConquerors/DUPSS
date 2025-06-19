@@ -26,7 +26,7 @@ namespace DUPSS.API.Services
         public async Task<TokenResponseDTO?> LoginAsync(LoginRequest request)
         {
             var userTask = context.User.FirstOrDefaultAsync(u => u.Email == request.Email);
-            if (userTask is null)
+            if (userTask.Result is null)
             {
                 return null;
             }

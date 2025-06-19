@@ -52,6 +52,16 @@
             Console.WriteLine("Navigating to /");
             NavigationManager.NavigateTo("/", forceLoad: true);
         }
+        catch (HttpRequestException ex)
+        {
+            // Network or API unreachable
+            errorMessage = "Unable to reach the server. Please check your network connection.";
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Custom: thrown for invalid credentials
+            errorMessage = "Invalid email or password.";
+        }
         catch (Exception ex)
         {
             errorMessage = $"Login failed: {ex.Message}";

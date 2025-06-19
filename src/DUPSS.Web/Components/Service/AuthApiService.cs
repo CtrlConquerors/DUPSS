@@ -34,6 +34,11 @@ namespace DUPSS.Web.Components.Service
                 }
                 return result;
             }
+            else if(response.StatusCode == System.Net.HttpStatusCode.BadRequest ||
+                    response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException("Invalid email or password.");
+            }
             else
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();

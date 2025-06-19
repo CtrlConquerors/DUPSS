@@ -163,7 +163,7 @@
         return System.Text.RegularExpressions.Regex.IsMatch(
             phoneNumber,
             // @"^\+?[1-9]\d{1,14}$", Basic international phone number format
-            @"^\d{10,}$",
+            @"^\d{10,20}$",
             System.Text.RegularExpressions.RegexOptions.IgnoreCase
         );
     }

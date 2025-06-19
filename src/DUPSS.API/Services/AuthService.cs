@@ -100,7 +100,7 @@ namespace DUPSS.API.Services
         {
             var refreshToken = GenerateRefreshToken();
             user.refreshToken = refreshToken;
-            user.refreshTokenExpiry = DateTime.UtcNow.AddMinutes(7);
+            user.refreshTokenExpiry = DateTime.UtcNow.AddDays(7);
             await context.SaveChangesAsync();
             return refreshToken;
         }
@@ -124,7 +124,7 @@ namespace DUPSS.API.Services
                 issuer: configuration.GetValue<string>("Auth:Issuer"),
                 audience: configuration.GetValue<string>("Auth:Audience"),
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(30),
+                expires: DateTime.Now.AddMinutes(7),   //change this to auto logout user after certain login time
                 signingCredentials: creds
                 );
 

@@ -1,8 +1,10 @@
 ﻿// using Microsoft.AspNetCore.Components.Authentication;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using Microsoft.AspNetCore.Components.Authorization;
+using System.Threading;
 
 namespace DUPSS.Web.Components.Service
 {
@@ -12,6 +14,7 @@ namespace DUPSS.Web.Components.Service
         private readonly ProtectedSessionStorage _sessionStorage;
         private const string AccessTokenKey = "accessToken";
         private string? _accessToken;
+        private System.Threading.Timer? _logoutTimer;
 
         public JwtAuthenticationStateProvider(AuthApiService authApiService, ProtectedSessionStorage sessionStorage)
         {
@@ -27,6 +30,11 @@ namespace DUPSS.Web.Components.Service
                 {
                     var result = await _sessionStorage.GetAsync<string>(AccessTokenKey);
                     _accessToken = result.Success ? result.Value : null;
+
+                    if (!string.IsNullOrEmpty(_accessToken))
+                    {
+                        SetLogoutTimer(_accessToken);
+                    }
                 }
                 catch (InvalidOperationException ex)
                 {
@@ -64,13 +72,15 @@ namespace DUPSS.Web.Components.Service
             }
             _accessToken = tokenResponse.AccessToken;
             await _sessionStorage.SetAsync(AccessTokenKey, _accessToken);
+            SetLogoutTimer(_accessToken);
             Console.WriteLine("Login successful, notifying authentication state change");
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 
-        public async void Logout()
+        public async Task Logout()
         {
             _accessToken = null;
+            _logoutTimer?.Dispose();
             await _sessionStorage.DeleteAsync(AccessTokenKey);
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
@@ -82,6 +92,26 @@ namespace DUPSS.Web.Components.Service
             var handler = new JwtSecurityTokenHandler();
             var jsonToken = handler.ReadToken(jwt) as JwtSecurityToken;
             return jsonToken?.Claims ?? Enumerable.Empty<Claim>();
+        }
+
+        private void SetLogoutTimer(string jwt)
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(jwt);
+            var expires = token.ValidTo;
+            var timeToExpire = expires - DateTime.UtcNow;
+
+            if (timeToExpire <= TimeSpan.Zero)
+            {
+                Logout();
+                return;
+            }
+
+            _logoutTimer = new Timer(_ =>
+            {
+                _logoutTimer?.Dispose();
+                Logout();
+            }, null, timeToExpire, Timeout.InfiniteTimeSpan);
         }
     }
 }

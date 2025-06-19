@@ -1,5 +1,8 @@
-﻿@page "/ManagementMenu/"
+﻿@using Microsoft.AspNetCore.Components.Authorization
 
+@page "/ManagementMenu/"
+<AuthorizeView Roles="AD,MA,ST">
+    <Authorized>
 <h3>Management</h3>
 
 
@@ -61,4 +64,8 @@
 
 </ul>
 
-  
+    </Authorized>
+    <NotAuthorized>
+        <h3>You are not authorized to view this page.</h3>
+    </NotAuthorized>
+</AuthorizeView>

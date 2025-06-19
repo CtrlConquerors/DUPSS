@@ -8,7 +8,7 @@ namespace DUPSS.API.Models.AccessLayer.Interfaces
         Task<BlogDTO> CreateAsync(Blog blog);
         Task<BlogDTO> GetByIdAsync(string blogId);
         Task<List<BlogDTO>> GetAllAsync();
-        Task<BlogDTO> UpdateAsync(BlogDTO blog);
+        Task<BlogDTO> UpdateAsync(Blog blog);
         Task<bool> DeleteAsync(string blogId);
     }
 }

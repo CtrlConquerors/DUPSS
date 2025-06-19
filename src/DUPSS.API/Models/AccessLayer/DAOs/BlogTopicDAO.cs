@@ -48,7 +48,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<BlogTopicDTO> UpdateAsync(BlogTopicDTO blogTopic)
+        public async Task<BlogTopicDTO> UpdateAsync(BlogTopic blogTopic)
         {
             var existingBlogTopic = await _context.BlogTopic.FindAsync(blogTopic.BlogTopicId);
             if (existingBlogTopic == null)

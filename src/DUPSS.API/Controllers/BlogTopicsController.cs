@@ -73,7 +73,7 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<BlogTopicDTO>> Update([FromBody] BlogTopicDTO blogTopic)
+        public async Task<ActionResult<BlogTopicDTO>> Update([FromBody] BlogTopic blogTopic)
         {
             try
             {

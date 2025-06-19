@@ -73,10 +73,19 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<BlogDTO>> Update([FromBody] BlogDTO blog)
+        public async Task<ActionResult<BlogDTO>> Update([FromBody] BlogDTO blogDto)
         {
             try
             {
+                var blog = new Blog
+                {
+                    BlogId = blogDto.BlogId,
+                    StaffId = blogDto.StaffId,
+                    Title = blogDto.Title,
+                    Content = blogDto.Content,
+                    Status = blogDto.Status,
+                    BlogTopicId = blogDto.BlogTopicId
+                };
                 var updatedBlog = await _blogDAO.UpdateAsync(blog);
                 return Ok(updatedBlog);
             }

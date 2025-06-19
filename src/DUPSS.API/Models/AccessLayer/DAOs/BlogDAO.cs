@@ -88,7 +88,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 .ToListAsync();
         }
 
-        public async Task<BlogDTO> UpdateAsync(BlogDTO blog)
+        public async Task<BlogDTO> UpdateAsync(Blog blog)
         {
             var existingBlog = await _context.Blog.FindAsync(blog.BlogId);
             if (existingBlog == null)
@@ -98,6 +98,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingBlog.Title = blog.Title;
             existingBlog.Content = blog.Content;
             existingBlog.Status = blog.Status;
+            existingBlog.BlogTopicId = blog.BlogTopicId;
 
             await _context.SaveChangesAsync();
             return new BlogDTO

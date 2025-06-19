@@ -168,6 +168,39 @@
                 <label class="form-label">Blog Title</label>
                 <input class="form-control" @bind="blogToEdit.Title"/>
             </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Topic</label>
+                @if (showNewTopicInput)
+                {
+                    <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name"/>
+                    <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New Topic</button>
+                }
+                else
+                {
+                    <select class="form-select" @bind="blogToEdit.BlogTopicId">
+                        <option value="">Select Topic</option>
+                        @if (blogTopics != null)
+                        {
+                            @foreach (var topic in blogTopics)
+                            {
+                                <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("No blog topics available.");
+                        }
+                    </select>
+                    <div class="d-flex justify-content-between mt-2">
+                        <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
+                        @if (!string.IsNullOrWhiteSpace(blogToEdit.BlogTopicId))
+                        {
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTopic(blogToEdit.BlogTopicId)">Delete Selected Topic</button>
+                        }
+                    </div>
+                }
+            </div>
 
             <div class="mb-3">
                 <label class="form-label">Content (Markdown)</label>
@@ -201,35 +234,6 @@
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Topic</label>
-                @if (showNewTopicInput)
-                {
-                    <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name"/>
-                    <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New Topic</button>
-                }
-                else
-                {
-                    <select class="form-select" @bind="blogToEdit.BlogTopicId">
-                        <option value="">Select Topic</option>
-                        @if (blogTopics != null)
-                        {
-                            @foreach (var topic in blogTopics)
-                            {
-                                <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
-                            }
-                        }
-                    </select>
-                    <div class="d-flex justify-content-between mt-2">
-                        <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
-                        @if (!string.IsNullOrWhiteSpace(blogToEdit.BlogTopicId))
-                        {
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTopic(blogToEdit.BlogTopicId)">Delete Selected Topic</button>
-                        }
-                    </div>
-                }
-            </div>
-
             <div>
                 <button class="btn btn-success me-2" @onclick="SaveBlog">Save</button>
                 <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
@@ -240,7 +244,7 @@
 
 @code {
     private List<BlogDTO>? blogs;
-    private List<BlogTopicDTO>? blogTopics;
+    private List<BlogTopic>? blogTopics;
     private List<UserDTO>? staffUsers;
     private List<RoleDTO>? roles;
     private bool hasError = false;
@@ -315,7 +319,7 @@
             Console.WriteLine($"Error fetching data: {ex.Message}");
             blogs = new List<BlogDTO>();
             filteredBlogs = new List<BlogDTO>();
-            blogTopics = new List<BlogTopicDTO>();
+            blogTopics = new List<BlogTopic>();
             staffUsers = new List<UserDTO>();
             roles = new List<RoleDTO>();
             hasError = true;
@@ -518,7 +522,11 @@
                 StaffId = blog.StaffId,
                 BlogTopicId = blog.BlogTopicId,
                 Staff = blog.Staff,
-                BlogTopic = blog.BlogTopic
+                BlogTopic = blog.BlogTopic != null ? new BlogTopicDTO
+                {
+                    BlogTopicId = blog.BlogTopic.BlogTopicId,
+                    BlogTopicName = blog.BlogTopic.BlogTopicName
+                } : null
             };
             isNewBlog = false;
             showEditForm = true;
@@ -643,10 +651,11 @@
             try
             {
                 var newTopicId = GenerateNextTopicId();
-                var newTopic = new BlogTopicDTO { BlogTopicId = newTopicId, BlogTopicName = newTopicName };
+                var newTopic = new BlogTopic { BlogTopicId = newTopicId, BlogTopicName = newTopicName };
                 await BlogTopicApiService.CreateAsync(newTopic);
                 blogToEdit.BlogTopicId = newTopic.BlogTopicId;
                 blogTopics = await BlogTopicApiService.GetAllAsync();
+                Console.WriteLine($"New topic {newTopic.BlogTopicId}, {newTopic.BlogTopicName} created successfully.");
                 showNewTopicInput = false;
                 newTopicName = string.Empty;
             }
@@ -677,7 +686,17 @@
             }
             else
             {
-                await BlogApiService.UpdateAsync(blogToEdit);
+                var response = await BlogApiService.UpdateAsync(blogToEdit);
+                if (response == null)
+                {
+                    validationMessage = "Failed to update blog. Please try again.";
+                    Console.WriteLine($"Failed to update blog '{blogToEdit.Title}'.");
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine($"{response.BlogId}, {response.Title}, {response.BlogTopic?.BlogTopicName} updated successfully.");
+                }
                 Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
             }
 
@@ -691,6 +710,7 @@
             Console.WriteLine($"Error saving blog: {ex.Message}");
             validationMessage = $"Error saving blog: {ex.Message}";
         }
+        StateHasChanged();
     }
 
     private void CancelEdit()

@@ -1,9 +1,130 @@
-﻿@page "/assessment"
+﻿@page "/assessment"  
+@using DUPSS.API.Models.AccessLayer.Interfaces  
+@using DUPSS.Web.Components.Service  
+@using DUPSS.API.Models.DTOs  
+@using DUPSS.Web.Components.Service  
+@inject NavigationManager NavigationManager  
+@inject CampaignApiService CampaignApiService  
+@inject IJSRuntime JSRuntime  
+@inject AssessmentApiService AssessmentApiService  
+<div class="assessment-page-container">
+    <h1 class="page-title">Assessment</h1>
+    <p class="page-subtitle">Discover insights and updates from our team.</p>
 
-<h3>Assessment</h3>
+    @if (assessment == null)
+    {
+        <div class="loading-indicator">
+            <p>Loading assessments...</p>
+            <div class="spinner"></div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <p>Oops! Something went wrong while loading assessments. Please try again later.</p>
+            <button class="retry-button" @onclick="RetryLoadAssessments">Retry</button>
+        </div>
+    }
+    else if (!assessment.Any())
+    {
+        <div class="no-assessment-message">
+            <p>No assessments available at the moment. Please check back later!</p>
+        </div>
+    }
+    else
+    {
+        <div class="assessment-grid">
+            @foreach (var item in showAllAssessment ? assessment : assessment.Take(DefaultAssessmentDisplayLimit))
+            {
+                <div class="blog-card clickable">
+                    <div class="card-image">
+                        @* <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")" *@
+                             alt="Blog Image" />
+                    </div>
+                    <div class="card-content">
+                        @* <h3 class="blog-name">@item.Title</h3>
+                        <p class="blog-status">Status: @item.Status</p>
+                        <p>@(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)</p> *@
+                    </div>
+                </div>
+            }
+        </div>
 
-I need help
+        @if (assessment.Count > DefaultAssessmentDisplayLimit && !showAllAssessment)
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllAssessments" disabled="@(!_isHydrated)">
+                    @(_isHydrated ? "Explore More" : "Loading...")
+                </button>
+            </div>
+        }
 
-@code {
+        @if (showAllAssessment)
+        {
+            <div class="main-explore-button-container">
+                <button class="main-explore-button" @onclick="ToggleShowAllAssessments">Show Less</button>
+            </div>
+        }
+    }
+</div>
 
+<Footer />
+
+@code {  
+    private List<AssessmentDTO>? assessment;  
+    private bool hasError = false;  
+    private bool showAllAssessment = false;  
+    private const int DefaultAssessmentDisplayLimit = 3;  
+    private bool _isHydrated = false;  
+
+    protected override async Task OnInitializedAsync()  
+    {  
+        await LoadAssessmentAsync();  
+    }  
+
+    private async Task LoadAssessmentAsync()  
+    {  
+        try  
+        {  
+            assessment = await AssessmentApiService.GetAllAsync();  
+            Console.WriteLine($"Loaded {assessment?.Count} assessments.");  
+            hasError = false;  
+        }  
+        catch (Exception ex)  
+        {  
+            Console.WriteLine($"Error loading assessments: {ex.Message}");  
+            hasError = true;  
+        }  
+        finally  
+        {  
+            StateHasChanged();  
+        }
+    }  
+    private async Task RetryLoadAssessments()
+    {
+        hasError = false;
+        await LoadAssessmentAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _isHydrated = true;
+            Console.WriteLine("[Hydration] isHydrated: true");
+            StateHasChanged();
+            await Task.CompletedTask;
+        }
+    }
+
+    private async Task ToggleShowAllAssessments()
+    {
+        showAllAssessment = !showAllAssessment;
+        Console.WriteLine($"ToggleShowAllAssessments called. showAllAssessments is now: {showAllAssessment}");
+
+        if (!showAllAssessment)
+        {
+            await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
+        }
+    }
 }

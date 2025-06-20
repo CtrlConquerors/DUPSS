@@ -70,6 +70,8 @@ builder.Services.AddScoped<CourseEnrollApiService>(sp => new CourseEnrollApiServ
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<CampaignRegistrationApiService>(sp => new CampaignRegistrationApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<AssessmentApiService>(sp => new AssessmentApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 
 
 builder.Services.AddScoped<ProtectedLocalStorage>();

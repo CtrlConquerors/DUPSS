@@ -3,13 +3,7 @@ using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using DUPSS.API.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace DUPSS.API.Controllers
 {
@@ -51,6 +45,25 @@ namespace DUPSS.API.Controllers
                 return BadRequest("Invalid refresh token");
             }
             return Ok(result);
+        }
+
+        [HttpPost("ForgotPassword")]
+        public async Task<ActionResult<ForgotPasswordResponse>> ForgotPassword(ForgotPasswordRequest request)
+        {
+            var result = await authService.ForgotPasswordAsync(request.Email);
+            if (result == null)
+                return BadRequest("User not found");
+            // Return token to frontend so you can forward to reset page
+            return Ok(result);
+        }
+
+        [HttpPost("ResetPassword")]
+        public async Task<IActionResult> ResetPassword(ResetPasswordRequest request)
+        {
+            var success = await authService.ResetPasswordAsync(request.Email, request.Token, request.NewPassword);
+            if (!success)
+                return BadRequest("Invalid or expired token.");
+            return Ok("Password has been reset.");
         }
 
 

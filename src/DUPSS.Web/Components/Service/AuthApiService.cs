@@ -74,5 +74,27 @@ namespace DUPSS.Web.Components.Service
                 throw new HttpRequestException($"Refresh token failed: {errorMessage}");
             }
         }
+        public async Task<ForgotPasswordResponse?> ForgotPasswordAsync(string email)
+        {
+            var request = new ForgotPasswordRequest { Email = email };
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/ForgotPassword", request);
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<ForgotPasswordResponse>();
+            }
+            return null;
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var request = new ResetPasswordRequest
+            {
+                Email = email,
+                Token = token,
+                NewPassword = newPassword
+            };
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/ResetPassword", request);
+            return response.IsSuccessStatusCode;
+        }
     }
 }

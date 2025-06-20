@@ -131,5 +131,33 @@ namespace DUPSS.API.Services
             return new JwtSecurityTokenHandler().WriteToken(tokenDescriptor);
 
         }
+        public async Task<ForgotPasswordResponse?> ForgotPasswordAsync(string email)
+        {
+            var user = await context.User.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null)
+                return null;
+
+            
+            var Token = GenerateRefreshToken();
+
+            user.PasswordResetToken = Token;
+            user.TokenExpiry = DateTime.UtcNow.AddMinutes(30);
+            await context.SaveChangesAsync();
+
+            return new ForgotPasswordResponse { Email = user.Email, Token = Token };
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var user = await context.User.FirstOrDefaultAsync(u => u.Email == email);
+            if (user == null || user.PasswordResetToken != token || user.TokenExpiry < DateTime.UtcNow)
+                return false;
+
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordResetToken = null;
+            user.TokenExpiry = null;
+            await context.SaveChangesAsync();
+            return true;
+        }
     }
 }

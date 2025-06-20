@@ -8,9 +8,9 @@
 @inject AppointmentApiService AppointmentService
 
 <h3>My appointment</h3>
-
-<NavLink href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
-
+<div class="appointment-lin">
+<NavLink class="appointment-link" href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
+</div>
 @if (appointments == null)
 {
     <p>Loading appointment...</p>
@@ -21,8 +21,8 @@ else if (!appointments.Any())
 }
 else
 {
-    
-    <table class="table">
+
+    <table class="appointment-table">
         <thead>
             <tr>
                 <th>Date</th>
@@ -43,6 +43,7 @@ else
             }
         </tbody>
     </table>
+
 }
 
 @code {

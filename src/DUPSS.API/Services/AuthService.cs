@@ -32,7 +32,7 @@ namespace DUPSS.API.Services
             }
 
             user = userTask.Result;
-            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.EnhancedVerify(request.Password, user.PasswordHash, HashType.SHA512))
             {
                 return null;
             }
@@ -55,7 +55,7 @@ namespace DUPSS.API.Services
                 return null;
             }
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            var hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(request.Password, HashType.SHA512);
 
             user.UserId = Guid.NewGuid().ToString(); // Generate a unique ID for the user
             user.Email = request.Email;
@@ -137,7 +137,7 @@ namespace DUPSS.API.Services
             if (user == null)
                 return null;
 
-            
+
             var Token = GenerateRefreshToken();
 
             user.PasswordResetToken = Token;
@@ -153,7 +153,7 @@ namespace DUPSS.API.Services
             if (user == null || user.PasswordResetToken != token || user.TokenExpiry < DateTime.UtcNow)
                 return false;
 
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+            user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(newPassword, HashType.SHA512);
             user.PasswordResetToken = null;
             user.TokenExpiry = null;
             await context.SaveChangesAsync();

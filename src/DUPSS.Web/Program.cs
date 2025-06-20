@@ -73,7 +73,7 @@ builder.Services.AddScoped<CampaignRegistrationApiService>(sp => new CampaignReg
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 
 
-builder.Services.AddScoped<ProtectedSessionStorage>();
+builder.Services.AddScoped<ProtectedLocalStorage>();
 
 builder.Services.AddCors(options =>
 {

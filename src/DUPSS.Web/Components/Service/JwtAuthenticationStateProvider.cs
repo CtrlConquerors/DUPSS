@@ -11,15 +11,15 @@ namespace DUPSS.Web.Components.Service
     public class JwtAuthenticationStateProvider : AuthenticationStateProvider
     {
         private readonly AuthApiService _authApiService;
-        private readonly ProtectedSessionStorage _sessionStorage;
+        private readonly ProtectedLocalStorage _localStorage;
         private const string AccessTokenKey = "accessToken";
         private string? _accessToken;
         private System.Threading.Timer? _logoutTimer;
 
-        public JwtAuthenticationStateProvider(AuthApiService authApiService, ProtectedSessionStorage sessionStorage)
+        public JwtAuthenticationStateProvider(AuthApiService authApiService, ProtectedLocalStorage localStorage)
         {
             _authApiService = authApiService;
-            _sessionStorage = sessionStorage;
+            _localStorage = localStorage;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -28,7 +28,7 @@ namespace DUPSS.Web.Components.Service
             {
                 try
                 {
-                    var result = await _sessionStorage.GetAsync<string>(AccessTokenKey);
+                    var result = await _localStorage.GetAsync<string>(AccessTokenKey);
                     _accessToken = result.Success ? result.Value : null;
 
                     if (!string.IsNullOrEmpty(_accessToken))
@@ -71,7 +71,7 @@ namespace DUPSS.Web.Components.Service
                 throw new Exception("Invalid email or password.");
             }
             _accessToken = tokenResponse.AccessToken;
-            await _sessionStorage.SetAsync(AccessTokenKey, _accessToken);
+            await _localStorage.SetAsync(AccessTokenKey, _accessToken);
             SetLogoutTimer(_accessToken);
             Console.WriteLine("Login successful, notifying authentication state change");
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
@@ -81,7 +81,7 @@ namespace DUPSS.Web.Components.Service
         {
             _accessToken = null;
             _logoutTimer?.Dispose();
-            await _sessionStorage.DeleteAsync(AccessTokenKey);
+            await _localStorage.DeleteAsync(AccessTokenKey);
             NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
 

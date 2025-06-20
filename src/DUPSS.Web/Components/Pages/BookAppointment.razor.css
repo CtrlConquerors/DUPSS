@@ -1,0 +1,161 @@
+﻿.book-appointment-container {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(to right, #eef5ff, #f8fbff);
+    padding: 60px 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+.soft-card {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 860px;
+    background: rgba(255, 255, 255, 0.32);
+    backdrop-filter: blur(14px);
+    border: 1.5px solid rgba(180, 200, 255, 0.32);
+    border-radius: 24px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.10), 0 1.5px 6px rgba(30,104,255,0.04);
+    padding: 48px;
+    position: relative;
+    z-index: 2;
+    animation: fadeIn 0.6s ease-out;
+    overflow: hidden;
+}
+
+    /* Top highlight for glass reflection */
+    .soft-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 22px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.45) 0%, rgba(255,255,255,0.12) 100%);
+        border-top-left-radius: 24px;
+        border-top-right-radius: 24px;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* Bottom faint reflection */
+    .soft-card::after {
+        content: "";
+        position: absolute;
+        bottom: 18px;
+        left: 10%;
+        right: 10%;
+        height: 10px;
+        background: linear-gradient(90deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.22) 50%, rgba(255,255,255,0.10) 100%);
+        border-radius: 100px;
+        pointer-events: none;
+        z-index: 1;
+        opacity: 0.7;
+    }
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+h3 {
+    text-align: center;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 10px;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.mb-3 {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1e40af;
+    margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+    padding: 14px 12px;
+    font-size: 1rem;
+    color: #222;
+    background-color: #f9fafb;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 12px;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: #1d4ed8;
+        background-color: #ffffff;
+        outline: none;
+    }
+
+.validation-summary {
+    color: #dc2626;
+    font-size: 0.95rem;
+    padding-top: 4px;
+    padding-bottom: 0;
+    margin: 0;
+}
+
+/* Submit button */
+.btn-primary {
+    width: 100%;
+    padding: 16px 0;
+    margin-top: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: white;
+    background-color: #2563eb;
+    border: none;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+    .btn-primary:hover {
+        background-color: #1e40af;
+        transform: scale(1.02);
+    }
+
+/* Responsive layout */
+@media (max-width: 768px) {
+    .soft-card {
+        padding: 28px 20px;
+        border-radius: 16px;
+    }
+
+    h3 {
+        font-size: 1.5rem;
+    }
+
+    .btn-primary {
+        font-size: 1rem;
+    }
+}

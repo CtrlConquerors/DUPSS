@@ -1,5 +1,5 @@
 ﻿let inactivityTimer;
-const timeoutMinutes = 5; // Inactivity duration before logout
+const timeoutMinutes = 20; // Inactivity duration before logout
 
 function resetInactivityTimer(dotnetHelper) {
     clearTimeout(inactivityTimer);

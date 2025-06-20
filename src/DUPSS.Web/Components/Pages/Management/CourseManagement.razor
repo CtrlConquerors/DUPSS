@@ -1,14 +1,15 @@
 ﻿@page "/Management/Course"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CourseApiService CourseApiService
 @inject CourseTopicApiService CourseTopicApiService
 @inject RoleApiService RoleApiService
 @inject UserApiService UserApiService
-
 @inject IJSRuntime JS
+@layout ManagementLayout
 
 @* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
 @*Example below*@

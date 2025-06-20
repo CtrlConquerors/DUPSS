@@ -1,11 +1,14 @@
 ﻿@page "/Management/Campaign"
-@using DUPSS.API.Models.DTOs; @* Sử dụng DTOs thay vì Objects *@
+@using DUPSS.API.Models.DTOs; 
+@using DUPSS.Web.Components.Layout
+@* Sử dụng DTOs thay vì Objects *@
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
 @inject UserApiService UserApiService
 @inject RoleApiService RoleApiService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
+@layout ManagementLayout
 
 <div class="campaign-management-container">
     <div class="header-section">

@@ -1,6 +1,7 @@
 ﻿@page "/Management/Blog"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject BlogApiService BlogApiService
@@ -8,6 +9,7 @@
 @inject RoleApiService RoleApiService
 @inject BlogTopicApiService BlogTopicApiService
 @inject IJSRuntime JS
+@layout ManagementLayout
 
 <div class="blog-management-container">
     <div class="header-section">

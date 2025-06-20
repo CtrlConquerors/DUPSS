@@ -1,11 +1,13 @@
 ﻿@page "/Management/CourseEnroll"
 @using DUPSS.API.Models.DTOs
+@using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
 @inject CourseEnrollApiService CourseEnrollApiService
 @inject UserApiService UserApiService
 @inject CourseApiService CourseApiService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
+@layout ManagementLayout
 
 <div class="enroll-management-container">
     <div class="header-section">

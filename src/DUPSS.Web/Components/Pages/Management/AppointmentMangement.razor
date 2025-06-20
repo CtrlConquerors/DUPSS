@@ -1,12 +1,14 @@
 ﻿@page "/Management/Appointment"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject AppointmentApiService AppointmentApiService
 @inject UserApiService UserApiService
 @inject RoleApiService RoleApiService
 @inject IJSRuntime JS
+@layout ManagementLayout
 
 <div class="appointment-management-container">
     <div class="header-section">

@@ -1,0 +1,33 @@
+﻿@page "/Management/Dashboard"
+@using DUPSS.Web.Components.Layout
+@using DUPSS.Web.Components.Service
+@inject JwtAuthenticationStateProvider authStateProvider
+@layout ManagementLayout
+
+<h1>Management Dashboard</h1>
+@if (userName == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <p>Welcome @userName to the management home page. Here you can manage various aspects of the application.</p>
+}
+
+@code {
+    private string? userName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        {
+            userName = user.Identity.Name;
+        }
+        else
+        {
+            userName = "Guest";
+        }
+    }
+}

@@ -1,7 +1,9 @@
 ﻿@page "/Management/User"
 @using DUPSS.API.Models.Common
 @using DUPSS.API.Models.DTOs
-@using DUPSS.API.Models.Objects @* Still needed for original objects if any operations still use them, but generally should be DTOs *@
+@using DUPSS.API.Models.Objects 
+@using DUPSS.Web.Components.Layout
+@* Still needed for original objects if any operations still use them, but generally should be DTOs *@
 @using DUPSS.Web.Components.Service
 @inject RoleApiService RoleApiService
 @inject UserApiService UserApiService
@@ -9,7 +11,7 @@
 @inject NavigationManager NavigationManager
 @inject CampaignApiService CampaignApiService
 @inject HttpClient Http
-
+@layout ManagementLayout
 
 @using Microsoft.AspNetCore.Components.Authorization
 

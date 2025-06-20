@@ -1,0 +1,28 @@
+﻿.sidebar {
+    width: 220px;
+    min-height: 100vh;
+    transition: width 0.2s;
+    box-shadow: 2px 0 10px rgba(0,0,0,0.04);
+}
+
+.sidebar.collapsed {
+    width: 56px;
+    overflow-x: hidden;
+}
+
+.toggle-btn {
+    width: 100%;
+    margin-bottom: 1rem;
+}
+
+.sidebar .nav-link {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sidebar.collapsed .nav-link {
+    text-align: center;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+}

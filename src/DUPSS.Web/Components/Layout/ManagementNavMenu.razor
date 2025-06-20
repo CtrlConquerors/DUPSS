@@ -1,0 +1,32 @@
+﻿@* Collapsible Side Navigation for Management *@
+<div class="d-flex">
+    <!-- Sidebar -->
+    <nav class="nav flex-column bg-light sidebar @(isCollapsed ? "collapsed" : "")">
+        <button class="btn btn-outline-secondary mb-3 toggle-btn" @onclick="ToggleSidebar">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <NavLink href="/Management/Dashboard" class="nav-link">Dashboard</NavLink>
+        <NavLink href="/Management/Blog" class="nav-link">Blog Management</NavLink>
+        <NavLink href="/Management/User" class="nav-link">User Management</NavLink>
+        <NavLink href="/Management/Campaign" class="nav-link">Campaign Management</NavLink>
+        <NavLink href="/Management/Course" class="nav-link">Course Management</NavLink>
+        <NavLink href="/Management/Appointment" class="nav-link">Appointment Management</NavLink>
+        <NavLink href="/Management/CourseEnroll" class="nav-link">Course Enroll Management</NavLink>
+        <!-- Add more links as needed -->
+    </nav>
+    <div class="flex-grow-1 p-3">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+    private bool isCollapsed = false;
+
+    private void ToggleSidebar()
+    {
+        isCollapsed = !isCollapsed;
+    }
+    
+}

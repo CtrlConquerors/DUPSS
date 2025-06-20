@@ -67,7 +67,11 @@
                                     <div class="avatar-overlay-header">
                                         <span>@context.User.Identity.Name</span>
                                     </div>
-                                    <NavLink class="avatar-overlay-btn" href="/logout" @onclick="ToggleOverlay">Logout
+                                    <NavLink class="avatar-overlay2-btn" @onclick="ToggleOverlay">
+                                        <i class="bi bi-person-circle"></i>Your Profile
+                                    </NavLink>
+                                    <NavLink class="avatar-overlay-btn" href="/logout" @onclick="ToggleOverlay">
+                                        <i class="bi bi-box-arrow-right"></i>Logout
                                     </NavLink>
                                 </div>
                             </div>

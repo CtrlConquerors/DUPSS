@@ -406,14 +406,42 @@
     transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.35s;
     pointer-events: none;
     margin-top: 20px;
+    transform: translateY(20px) scale(0.96);
+    opacity: 0;
+    filter: blur(6px);
+    transition: none;
 }
 
 .nav-item .avatar-overlay.show {
     opacity: 1;
     visibility: visible;
     pointer-events: auto;
-}
+    border-radius: 18px;
+    animation: avatarOverlayShow 0.45s cubic-bezier(0.4, 0.2, 0.2, 1);
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+    height: 50px;
 
+}
+@keyframes avatarOverlayShow {
+    0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.96);
+        filter: blur(6px);
+    }
+
+    60% {
+        opacity: 1;
+        transform: translateY(-4px) scale(1.03);
+        filter: blur(0);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+    }
+}
 .avatar-overlay-content {
     padding: 1rem;
 }
@@ -453,27 +481,95 @@
     }
 }
 
+.avatar-overlay-content {
+    padding: 1.5rem 1.25rem;
+    background: linear-gradient(135deg, #f8fafc 60%, #e3e9f7 100%);
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(30, 104, 255, 0.10), 0 1.5px 6px rgba(0,0,0,0.07);
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.2rem;
+    animation: fadeIn 0.3s cubic-bezier(0.4,0,0.2,1);
+    border: 1px solid #e0e7ef;
+}
+
 .avatar-overlay-header {
     text-align: center;
-    font-size: 30px;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #1e68ff;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #e0e7ef;
 }
+
+    .avatar-overlay-header span {
+        display: block;
+        word-break: break-all;
+    }
+
+
+
+::deep .avatar-overlay2-btn {
+    width: 100%;
+    background: #f4f7fe;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 1.08rem;
+    cursor: pointer;
+    transition: background 0.18s, color 0.18s;
+    color: #1e68ff;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 500;
+    margin-top: 0.5rem;
+    text-align: left;
+    text-decoration: none;
+    box-shadow: 0 1px 4px rgba(30,104,255,0.04);
+}
+
+    ::deep .avatar-overlay2-btn:hover {
+        background: #e0e7ef;
+        color: #1746a2;
+    }
+
+    ::deep .avatar-overlay2-btn i {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+        margin-bottom:12px;
+    }
 
 ::deep .avatar-overlay-btn {
     width: 100%;
-    background: red;
+    background: #ff4d4f;
     border: none;
-    border-radius: 6px;
-    padding: 0.5rem;
-    font-size: 1rem;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    font-size: 1.08rem;
     cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 0.5rem;
-    color: white;
-    display: block;
-    text-align: center;
+    transition: background 0.18s, color 0.18s;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    font-weight: 500;
+    margin-top: 0.7rem;
+    text-align: left;
     text-decoration: none;
+    box-shadow: 0 1px 4px rgba(255,77,79,0.08);
 }
 
-::deep .avatar-overlay-btn:hover {
-    background: #e0e0e0;
+    ::deep .avatar-overlay-btn:hover {
+        background: #d9363e;
+        color: #fff;
+    }
+::deep .avatar-overlay-btn i {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 12px;
 }

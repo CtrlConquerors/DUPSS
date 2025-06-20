@@ -124,7 +124,7 @@ namespace DUPSS.API.Services
                 issuer: configuration.GetValue<string>("Auth:Issuer"),
                 audience: configuration.GetValue<string>("Auth:Audience"),
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(7),   //change this to auto logout user after certain login time
+                expires: DateTime.Now.AddMinutes(15),   //change this to auto logout user after certain login time
                 signingCredentials: creds
                 );
 

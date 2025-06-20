@@ -1,6 +1,10 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using DUPSS.Web.Components.Service
+@using Microsoft.AspNetCore.Components.Authorization
 @inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
+@inject JwtAuthenticationStateProvider AuthProvider
+@implements IAsyncDisposable
 
 <HeadContent>
     <link href="css/footer.css" rel="stylesheet" />
@@ -33,4 +37,29 @@ else if (NavigationManager == null)
     <span class="dismiss">🗙</span>
 </div>
 <script src="_framework/blazor.server.js"></script>
-@* <script src="_framework/blazor.webassembly.js"></script> *@
+<script src="js/inactivity.js"></script>
+@code {
+    private DotNetObjectReference<MainLayout>? objRef;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            objRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("monitorUserActivity", objRef);
+        }
+    }
+
+    [JSInvokable]
+    public async Task OnUserInactive()
+    {
+        Console.WriteLine("User has been inactive. Logging out...");
+        await AuthProvider.Logout();
+        NavigationManager.NavigateTo("/", forceLoad: true);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        objRef?.Dispose();
+    }
+}

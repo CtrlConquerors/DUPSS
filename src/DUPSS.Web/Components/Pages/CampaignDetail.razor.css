@@ -230,20 +230,6 @@
         text-align: justify;
     }
 
-button {
-    margin-top: 24px;
-    padding: 10px 16px;
-    background-color: #007acc;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-    button:hover {
-        background-color: #005f9e;
-    }
-
 /* Animate entry */
 @keyframes fadein {
     from {
@@ -289,5 +275,69 @@ button {
     color: #2c3e50;
     display: flex;
     align-items: center;
-    gap:
+    gap: 0.5rem;
+}
+
+/* Buttons */
+.fancy-btn {
+    display: inline-block;
+    padding: 0.8rem 1.6rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6e8efb, #a777e3);
+    color: white;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+    text-decoration: none;
+    text-align: center;
+}
+
+    .fancy-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Different button types */
+    .fancy-btn.register {
+        background: linear-gradient(135deg, #00c9ff, #92fe9d);
+    }
+
+    .fancy-btn.unregister {
+        background: linear-gradient(135deg, #f85032, #e73827);
+    }
+
+    .fancy-btn.survey {
+        background: linear-gradient(135deg, #ffecd2, #fcb69f);
+        color: #333;
+    }
+
+/* CTA Link */
+.link-cta {
+    display: inline-block;
+    margin-top: 0.5rem;
+    font-weight: bold;
+    color: #007BFF;
+    text-decoration: underline;
+    transition: color 0.2s ease-in-out;
+}
+
+    .link-cta:hover {
+        color: #0056b3;
+    }
+
+/* Button Container */
+.action-buttons, .survey-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Responsive design */
+@media (min-width: 600px) {
+    .action-buttons, .survey-buttons {
+        flex-direction: row;
+    }
 }

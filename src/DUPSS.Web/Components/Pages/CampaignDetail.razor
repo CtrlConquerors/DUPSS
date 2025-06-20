@@ -74,40 +74,44 @@ else
     </div>
 
 
-
     @if (campaign.Status == "Active" || campaign.Status == "Planned")
     {
         <AuthorizeView Roles="ME,AD,ST,MA,CO">
-        <Authorized>
-                <div class="register-section">
-                    <button class="btn" @onclick="HandleRegister">Register Campaign</button>
-                    <button class="btn" @onclick="@(() => HandleUnregister(CampaignId))">Unregister Campaign</button>
-
+            <Authorized>
+                <div class="campaign-card animate-fadein">
+                    <h3 class="card-title">🎯 Campaign Actions</h3>
+                    <div class="action-buttons">
+                        <button class="fancy-btn register" @onclick="HandleRegister">🚀 Join Campaign</button>
+                        <button class="fancy-btn unregister" @onclick="@(() => HandleUnregister(CampaignId))">❌ Leave Campaign</button>
+                    </div>
                 </div>
-           
-        </Authorized>
-        <NotAuthorized>
-            <div class="not-authorized-message">
-                You need to be a member to join campaign.
-                <a href="/register">Join now</a>
+            </Authorized>
+            <NotAuthorized>
+                <div class="campaign-card warning-card animate-fadein">
+                    <h3 class="card-title">🔒 Access Restricted</h3>
+                    <p>You need to be a member to join this campaign.</p>
+                    <a href="/register" class="link-cta">✨ Become a Member</a>
                 </div>
-        </NotAuthorized>
+            </NotAuthorized>
         </AuthorizeView>
     }
 
-
-    <h4>Campaign Survey</h4>
-
-    <div class="survey-buttons">
-        @if (campaign.Status == "Active" || campaign.Status == "Planned")
-        {
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSfhtJRyq5c0GmCAKJRunIG9bbNelNwSIkt_IVAARJPIKjTcoA/viewform?usp=dialog" class="btn">Survey before Campaign</a>
-        }
-        else if (campaign.Status == "Completed")
-        {
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJ165SU_u1cYj_QoHYLIpksk-ji26nFbCLxADWpVHr9jhfYg/viewform?usp=dialog" class="btn">Survey after Campaign</a>
-        }
+    <div class="campaign-card animate-fadein">
+        <h3 class="card-title">📝 Campaign Survey</h3>
+        <div class="survey-buttons">
+            @if (campaign.Status == "Active" || campaign.Status == "Planned")
+            {
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSfhtJRyq5c0GmCAKJRunIG9bbNelNwSIkt_IVAARJPIKjTcoA/viewform?usp=dialog"
+                   class="fancy-btn survey">🧠 Pre-Campaign Survey</a>
+            }
+            else if (campaign.Status == "Completed")
+            {
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLSeJ165SU_u1cYj_QoHYLIpksk-ji26nFbCLxADWpVHr9jhfYg/viewform?usp=dialog"
+                   class="fancy-btn survey">📊 Post-Campaign Survey</a>
+            }
+        </div>
     </div>
+
 
 
 

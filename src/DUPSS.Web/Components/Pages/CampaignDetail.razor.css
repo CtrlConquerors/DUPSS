@@ -27,7 +27,7 @@
     object-fit: cover;
     display: block;
     border-radius: 0 0 24px 24px;
-    background: no-repeat bottom;
+    background: no-repeat center;
     background-size: cover;
 }
 
@@ -243,3 +243,50 @@ button {
     button:hover {
         background-color: #005f9e;
     }
+
+/* Animate entry */
+@keyframes fadein {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadein {
+    animation: fadein 0.8s ease-in-out;
+}
+
+/* Neumorphic Card */
+.campaign-card {
+    background: #f9f9f9;
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 10px 10px 30px #d1d9e6, -10px -10px 30px #ffffff;
+    margin: 2rem 0;
+    transition: transform 0.3s ease;
+}
+
+    .campaign-card:hover {
+        transform: scale(1.02);
+    }
+
+.warning-card {
+    background: #fff8e1;
+    border-left: 6px solid #ffc107;
+    box-shadow: none;
+}
+
+/* Titles */
+.card-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap:

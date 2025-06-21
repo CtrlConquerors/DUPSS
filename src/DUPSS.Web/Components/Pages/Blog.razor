@@ -1,13 +1,20 @@
 ﻿@page "/Blog"
 @using DUPSS.API.Models.DTOs
+@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject BlogApiService BlogApiService
+@inject BlogTopicApiService BlogTopicApiService
 @inject IJSRuntime JSRuntime
 
 <div class="blog-page-container">
     <h1 class="page-title">Ongoing Blog Posts</h1>
     <p class="page-subtitle">Discover insights and updates from our team.</p>
+
+    <div class="search-input-container">
+        <input type="text" class="form-control" placeholder="Search blogs by title, topic, or content..."
+               @bind="searchTerm" @bind:event="oninput" @onkeyup="ApplySearchAndDisplay" />
+    </div>
 
     @if (blogs == null)
     {
@@ -23,16 +30,16 @@
             <button class="retry-button" @onclick="RetryLoadBlogs">Retry</button>
         </div>
     }
-    else if (!blogs.Any())
+    else if (!filteredBlogs.Any())
     {
         <div class="no-blog-message">
-            <p>No blogs available at the moment. Please check back later!</p>
+            <p>No blogs found matching your criteria. Please try a different search term or filters.</p>
         </div>
     }
     else
     {
         <div class="blog-grid">
-            @foreach (var item in showAllBlogs ? blogs : blogs.Take(DefaultBlogDisplayLimit))
+            @foreach (var item in showAllBlogs ? filteredBlogs : filteredBlogs.Take(DefaultBlogDisplayLimit))
             {
                 <div class="blog-card clickable" @onclick="() => NavigateToDetail(item.BlogId)">
                     <div class="card-image">
@@ -41,14 +48,14 @@
                     </div>
                     <div class="card-content">
                         <h3 class="blog-name">@item.Title</h3>
-                        <p class="blog-status">Status: @item.Status</p>
+                        <p class="blog-status">Topic: @(item.BlogTopic?.BlogTopicName ?? "-")</p>
                         <p>@(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)</p>
                     </div>
                 </div>
             }
         </div>
 
-        @if (blogs.Count > DefaultBlogDisplayLimit && !showAllBlogs)
+        @if (filteredBlogs.Count > DefaultBlogDisplayLimit && !showAllBlogs)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllBlogs" disabled="@(!_isHydrated)">
@@ -57,7 +64,7 @@
             </div>
         }
 
-        @if (showAllBlogs)
+        @if (showAllBlogs && filteredBlogs.Any())
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllBlogs">Show Less</button>
@@ -70,21 +77,24 @@
 
 @code {
     private List<BlogDTO>? blogs;
+    private List<BlogDTO> filteredBlogs = new List<BlogDTO>();
     private bool hasError = false;
     private bool showAllBlogs = false;
     private const int DefaultBlogDisplayLimit = 3;
     private bool _isHydrated = false;
+    private string searchTerm = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await LoadBlogsAsync();
+        ApplySearchAndDisplay();
     }
 
     private async Task LoadBlogsAsync()
     {
         try
         {
-            blogs = await BlogApiService.GetAllAsync();
+            blogs = (await BlogApiService.GetAllAsync())?.Where(b => b.Status == "Published").ToList();
             Console.WriteLine($"Loaded {blogs?.Count} blogs.");
             hasError = false;
         }
@@ -95,8 +105,32 @@
         }
         finally
         {
+            ApplySearchAndDisplay();
             StateHasChanged();
         }
+    }
+
+    private void ApplySearchAndDisplay()
+    {
+        if (blogs == null)
+        {
+            filteredBlogs = new List<BlogDTO>();
+            return;
+        }
+        IEnumerable<BlogDTO> query = blogs;
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var lowerSearchTerm = searchTerm.ToLower().Trim();
+            query = query.Where(b =>
+                (b.Title?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (b.BlogTopic?.BlogTopicName?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (b.Content?.ToLower().Contains(lowerSearchTerm) ?? false) ||
+                (b.BlogId?.ToLower().Contains(lowerSearchTerm) ?? false)
+            );
+        }
+        filteredBlogs = query.ToList();
+        showAllBlogs = false;
+        StateHasChanged();
     }
 
     private async Task RetryLoadBlogs()
@@ -120,7 +154,6 @@
     {
         showAllBlogs = !showAllBlogs;
         Console.WriteLine($"ToggleShowAllBlogs called. showAllBlogs is now: {showAllBlogs}");
-
         if (!showAllBlogs)
         {
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
@@ -130,6 +163,6 @@
     private void NavigateToDetail(string blogId)
     {
         Console.WriteLine($"Navigating to blog detail: BlogId={blogId}");
-        NavigationManager.NavigateTo($"/Blog/Detail/{blogId}", forceLoad: true); // Removed forceLoad: true
+        NavigationManager.NavigateTo($"/Blog/Detail/{blogId}", forceLoad: true);
     }
 }

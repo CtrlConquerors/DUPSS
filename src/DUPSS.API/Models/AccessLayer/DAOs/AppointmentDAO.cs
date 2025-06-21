@@ -17,8 +17,28 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
 
         public async Task<AppointmentDTO> CreateAsync(Appointment appointment)
         {
-            _context.Appointment.Add(appointment);
+            var lastAppointment = await _context.Appointments
+                .OrderByDescending(a => a.AppointmentId)
+                .FirstOrDefaultAsync();
+
+            int nextNumber = 1;
+            if (lastAppointment != null && lastAppointment.AppointmentId.StartsWith("AP"))
+            {
+                var lastId = lastAppointment.AppointmentId;
+                if (int.TryParse(lastId[2..], out int lastNum))
+                {
+                    nextNumber = lastNum + 1;
+                }
+            }
+
+            appointment.AppointmentId = $"AP{nextNumber:D4}";
+
+            // ✅ Chuyển sang UTC trước khi lưu
+            appointment.AppointmentDate = appointment.AppointmentDate.ToUniversalTime();
+
+            _context.Appointments.Add(appointment);
             await _context.SaveChangesAsync();
+
             return new AppointmentDTO
             {
                 AppointmentId = appointment.AppointmentId,
@@ -30,6 +50,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 Notes = appointment.Notes
             };
         }
+
+
+
 
         public async Task<AppointmentDTO?> GetByIdAsync(string appointmentId)
         {
@@ -187,6 +210,80 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 } : null
             }).ToList();
         }
+
+        public async Task<List<AppointmentDTO>> GetByConsultantIdAsync(string consultantId)
+        {
+            var appointments = await _context.Appointment
+                .Include(a => a.Consultant)
+                .Include(a => a.Member)
+                .Where(a => a.ConsultantId == consultantId)
+                .ToListAsync();
+
+            return appointments.Select(a => new AppointmentDTO
+            {
+                AppointmentId = a.AppointmentId,
+                MemberId = a.MemberId,
+                ConsultantId = a.ConsultantId,
+                AppointmentDate = a.AppointmentDate,
+                Status = a.Status,
+                Topic = a.Topic,
+                Notes = a.Notes,
+
+                Member = a.Member != null ? new UserDTO
+                {
+                    UserId = a.Member.UserId,
+                    Username = a.Member.Username,
+                    DoB = a.Member.DoB,
+                    PhoneNumber = a.Member.PhoneNumber,
+                    Email = a.Member.Email,
+                    ImageUrl = $"images/{a.Member.UserId}.jpg",
+                    RoleId = a.Member.RoleId,
+                    Role = a.Member.Role != null ? new RoleDTO
+                    {
+                        RoleId = a.Member.Role.RoleId,
+                        RoleName = a.Member.Role.RoleName
+                    } : null
+                } : null,
+
+                Consultant = a.Consultant != null ? new UserDTO
+                {
+                    UserId = a.Consultant.UserId,
+                    Username = a.Consultant.Username,
+                    DoB = a.Consultant.DoB,
+                    PhoneNumber = a.Consultant.PhoneNumber,
+                    Email = a.Consultant.Email,
+                    ImageUrl = $"images/{a.Consultant.UserId}.jpg",
+                    RoleId = a.Consultant.RoleId,
+                    Role = a.Consultant.Role != null ? new RoleDTO
+                    {
+                        RoleId = a.Consultant.Role.RoleId,
+                        RoleName = a.Consultant.Role.RoleName
+                    } : null
+                } : null
+
+            }).ToList();
+        }
+
+        public async Task<bool> UpdateStatusAsync(string appointmentId, string newStatus)
+        {
+            // Tìm lịch hẹn theo ID
+            var appointment = await _context.Appointment.FirstOrDefaultAsync(a => a.AppointmentId == appointmentId);
+
+            if (appointment == null)
+            {
+                return false; // Không tìm thấy
+            }
+
+            // Cập nhật trạng thái mới
+            appointment.Status = newStatus;
+
+            // Lưu thay đổi
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+
 
 
     }

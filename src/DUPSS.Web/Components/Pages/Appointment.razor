@@ -8,9 +8,9 @@
 @inject AppointmentApiService AppointmentService
 
 <h3>My appointment</h3>
-<div class="appointment-lin">
-<NavLink class="appointment-link" href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
-</div>
+
+<NavLink href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
+
 @if (appointments == null)
 {
     <p>Loading appointment...</p>
@@ -21,34 +21,40 @@ else if (!appointments.Any())
 }
 else
 {
-
-    <table class="appointment-table">
+    
+    <table class="table">
         <thead>
             <tr>
                 <th>Date</th>
                 <th>Consultant</th>
                 <th>Note</th>
                 <th>Status</th>
+                <th>Action</th>
             </tr>
         </thead>
         <tbody>
             @foreach (var appt in appointments)
             {
                 <tr>
-                    <td>@appt.AppointmentDate.ToString("dd/MM/yyyy")</td>
+                    <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+
                     <td>@appt.Consultant?.Username</td>
                     <td>@appt.Notes</td>
                     <td>@appt.Status</td>
+                    <td>
+                        <button class="btn btn-danger" @onclick="@(() => HandleUnregister(appt.AppointmentId))">❌ Huỷ hẹn</button>
+                    </td>
+
                 </tr>
             }
         </tbody>
     </table>
-
 }
 
 @code {
     private List<AppointmentDTO>? appointments;
-
+    
+    
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
@@ -61,4 +67,32 @@ else
         }
         appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
     }
+    private async Task HandleUnregister(string appointmentId)
+    {
+        Console.WriteLine($"[DEBUG] AppointmentId to cancel: {appointmentId}");
+
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn huỷ lịch hẹn này không?");
+        Console.WriteLine($"[DEBUG] Confirm result: {confirmed}");
+        if (!confirmed) return;
+
+        var success = await AppointmentService.CancelAppointmentAsync(appointmentId);
+        Console.WriteLine($"[DEBUG] CancelAppointmentAsync returned: {success}");
+
+        if (success)
+        {
+            // Log số lượng lịch hẹn trước và sau khi xoá
+            Console.WriteLine($"[DEBUG] Appointments before removal: {appointments.Count}");
+            appointments = appointments.Where(a => a.AppointmentId != appointmentId).ToList();
+            Console.WriteLine($"[DEBUG] Appointments after removal: {appointments.Count}");
+
+            await JS.InvokeVoidAsync("alert", "Huỷ lịch hẹn thành công.");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Huỷ lịch hẹn thất bại.");
+        }
+    }
+
+
+
 }

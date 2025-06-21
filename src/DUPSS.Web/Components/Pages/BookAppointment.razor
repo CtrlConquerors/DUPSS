@@ -2,11 +2,11 @@
 @using DUPSS.API.Models.AccessLayer.Interfaces
 @using DUPSS.Web.Components.Service
 @using DUPSS.API.Models.DTOs
-@using DUPSS.Web.Components.Service
 @inject AppointmentApiService AppointmentApiService
 @inject UserApiService UserService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
 
 <h3>Booking appointment with consultant</h3>
 
@@ -26,15 +26,18 @@ else
                 <option value="">-- Choose Consultant --</option>
                 @foreach (var consultant in consultants)
                 {
-                    <option value="@consultant.UserId">@consultant.Username</option>
+                    <option value="@consultant.UserId" selected="@((consultant.UserId == newAppointment.ConsultantId) ? "selected" : null)">
+                        @consultant.Username (@consultant.Username)
+                    </option>
                 }
             </select>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Appointment date</label>
-            <InputDate @bind-Value="newAppointment.AppointmentDate" class="form-control" />
+            <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
         </div>
+
 
         <div class="mb-3">
             <label class="form-label">Topic</label>
@@ -54,10 +57,10 @@ else
     private List<UserDTO>? consultants;
     private AppointmentDTO newAppointment = new()
         {
-            AppointmentId = Guid.NewGuid().ToString(),
+            AppointmentId = "",
             MemberId = "",
             ConsultantId = "",
-            AppointmentDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            AppointmentDate = DateTime.Today.AddDays(1),
             Status = "Pending",
             Topic = ""
         };
@@ -79,43 +82,63 @@ else
                 newAppointment.MemberId = memberId;
             }
         }
+        else
+        {
+  
+            Navigation.NavigateTo("/login", true);
+        }
     }
-
 
     private async Task HandleBooking()
     {
-        Console.WriteLine("📅 [DEBUG] Starting appointment booking process...");
-        Console.WriteLine($"📌 AppointmentId: {newAppointment.AppointmentId}");
-        Console.WriteLine($"👤 MemberId: {newAppointment.MemberId}");
-        Console.WriteLine($"🧑‍⚕️ ConsultantId: {newAppointment.ConsultantId}");
-        Console.WriteLine($"🗓 AppointmentDate: {newAppointment.AppointmentDate}");
-        Console.WriteLine($"🎯 Topic: {newAppointment.Topic}");
-        Console.WriteLine($"📝 Notes: {newAppointment.Notes}");
-        Console.WriteLine($"📋 Status: {newAppointment.Status}");
+  
+
+
+
+        if (string.IsNullOrEmpty(newAppointment.ConsultantId))
+        {
+  
+            await JS.InvokeVoidAsync("alert", "Vui lòng chọn tư vấn viên.");
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(newAppointment.Topic))
+        {
+      
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập chủ đề.");
+            return;
+        }
+
+
+        await JS.InvokeVoidAsync("alert", $"[DEBUG] Raw (from input): {newAppointment.AppointmentDate}");
+
+
+
+
+
 
         var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
-        Console.WriteLine($"📥 [DEBUG] Appointment creation API returned: {(success ? "Success" : "Failure")}");
+
+
 
         if (success)
         {
-            Console.WriteLine("✅ [DEBUG] Appointment created successfully. Redirecting to /Appointment...");
-            Navigation.NavigateTo("/Appointment");
+            await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thành công!");
+            Navigation.NavigateTo("/Appointment", forceLoad: true);
         }
         else
         {
-            Console.WriteLine("❌ [ERROR] Failed to create appointment. Please check the API or input data.");
+            await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thất bại. Vui lòng thử lại.");
         }
     }
-
-
-
 
 
     private void HandleConsultantChange(ChangeEventArgs e)
     {
-        newAppointment.ConsultantId = e.Value?.ToString() ?? "";
-        Console.WriteLine($"🧑‍⚕️ [DEBUG] ConsultantId được chọn: {newAppointment.ConsultantId}");
+        var selectedValue = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedValue))
+        {
+            newAppointment.ConsultantId = selectedValue;
+        }
     }
-
-
 }

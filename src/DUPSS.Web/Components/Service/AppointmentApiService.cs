@@ -4,6 +4,7 @@
 
 using DUPSS.API.Models.DTOs;
 using System.Net.Http.Json;
+using static System.Net.WebRequestMethods;
 
 namespace DUPSS.Web.Components.Service
 {
@@ -27,10 +28,37 @@ namespace DUPSS.Web.Components.Service
             return new List<AppointmentDTO>();
         }
 
-        public async Task<bool> CreateAppointmentAsync(AppointmentDTO appointment)
+        public async Task<bool> CreateAppointmentAsync(AppointmentDTO dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/Appointments/Create", appointment);
+            var response = await _httpClient.PostAsJsonAsync("api/appointments", dto);
             return response.IsSuccessStatusCode;
         }
+        public async Task<bool> CancelAppointmentAsync(string appointmentId)
+        {
+            var response = await _httpClient.DeleteAsync($"api/Appointments/Delete/{appointmentId}");
+            return response.IsSuccessStatusCode;
+        }
+
+
+        public async Task<List<AppointmentDTO>> GetAppointmentsForConsultantAsync(string consultantId)
+        {
+            var response = await _httpClient.GetAsync($"api/Appointments/by-consultant/{consultantId}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<AppointmentDTO>>() ?? new();
+            }
+
+            Console.WriteLine($"[DEBUG] Failed to get appointments for consultant {consultantId}");
+            return new List<AppointmentDTO>();
+        }
+
+        public async Task<bool> UpdateAppointmentStatusAsync(string appointmentId, string status)
+        {
+            var response = await _httpClient.PutAsJsonAsync($"api/appointments/{appointmentId}/status", status);
+            return response.IsSuccessStatusCode;
+        }
+
+
+
     }
 }

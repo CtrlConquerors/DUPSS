@@ -1,15 +1,12 @@
 ﻿@page "/assessment"  
-@using DUPSS.API.Models.AccessLayer.Interfaces  
 @using DUPSS.Web.Components.Service  
-@using DUPSS.API.Models.DTOs  
-@using DUPSS.Web.Components.Service  
+@using DUPSS.API.Models.DTOs   
 @inject NavigationManager NavigationManager  
 @inject CampaignApiService CampaignApiService  
 @inject IJSRuntime JSRuntime  
 @inject AssessmentApiService AssessmentApiService  
 <div class="assessment-page-container">
     <h1 class="page-title">Assessment</h1>
-    <p class="page-subtitle">Discover insights and updates from our team.</p>
 
     @if (assessment == null)
     {
@@ -36,15 +33,16 @@
         <div class="assessment-grid">
             @foreach (var item in showAllAssessment ? assessment : assessment.Take(DefaultAssessmentDisplayLimit))
             {
-                <div class="blog-card clickable">
-                    <div class="card-image">
-                        @* <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")" *@
-                             alt="Blog Image" />
-                    </div>
+                <div class="assessment-card clickable">
+                    @* <div class="card-image">
+                        <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")"
+                             alt="Assessment Image" />
+                    </div> *@
                     <div class="card-content">
-                        @* <h3 class="blog-name">@item.Title</h3>
-                        <p class="blog-status">Status: @item.Status</p>
-                        <p>@(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)</p> *@
+                        <h3 class="assessment-type">@item.AssessmentType</h3>
+                        <p>@(item.Description != null && item.Description.Length > 100 
+                            ? item.Description.Substring(0, 100) + "..." 
+                            : item.Description ?? "No description available")</p>
                     </div>
                 </div>
             }

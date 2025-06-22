@@ -22,20 +22,30 @@ else
 
         <div class="mb-3">
             <label class="form-label">Choose Consultant</label>
-            <select class="form-select" @onchange="HandleConsultantChange">
-                <option value="">-- Choose Consultant --</option>
+            @* <select class="form-select" @onchange="HandleConsultantChange"> *@
+            @*     <option value="">-- Choose Consultant --</option> *@
+            @*     @foreach (var consultant in consultants) *@
+            @*     { *@
+            @*         <option value="@consultant.UserId" selected="@((consultant.UserId == newAppointment.ConsultantId) ? "selected" : null)"> *@
+            @*             @consultant.Username (@consultant.Username) *@
+            @*         </option> *@
+            @*     } *@
+            @* </select> *@
+            <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange">
+                <option value="" disabled selected>-- Choose Consultant --</option>
                 @foreach (var consultant in consultants)
                 {
                     <option value="@consultant.UserId" selected="@((consultant.UserId == newAppointment.ConsultantId) ? "selected" : null)">
                         @consultant.Username (@consultant.Username)
                     </option>
                 }
-            </select>
+            </InputSelect>
         </div>
 
         <div class="mb-3">
             <label class="form-label">Appointment date</label>
-            <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
+            @* <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" /> *@
+            <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="newAppointment.AppointmentDate"/>
         </div>
 
 

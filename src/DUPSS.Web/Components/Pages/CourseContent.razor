@@ -1,7 +1,7 @@
 ﻿@page "/CourseContent/{CourseId}"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
-@using System.Security.Claims   @*Needed for ClaimType*@
+@using System.Security.Claims @* Needed for ClaimType *@
 @inject CourseApiService CourseApiService
 @inject CourseEnrollApiService CourseEnrollApiService // NEW: Inject CourseEnrollApiService
 @inject NavigationManager NavigationManager
@@ -37,8 +37,7 @@
                 @* UPDATED: Changed logo to course picture with fallback *@
                 <img src="@(course.ImageUrl ?? "https://placehold.co/80x80/F0F0F0/000000?text=Course")" alt="Course Image" class="course-sidebar-image"/>
                 <h2 class="sidebar-course-title">@course.CourseName</h2>
-                @* UPDATED: Changed university name to course topic *@
-                <p class="sidebar-university-name">@(course.Topic?.TopicName ?? "General Topic")</p>
+                <p class="sidebar-course-topic">@(course.Topic?.TopicName ?? "General Topic")</p>
             </div>
 
             <div class="course-material-section">
@@ -57,7 +56,7 @@
         </div>
 
         <div class="main-content-column">
-            <h1 class="main-course-title">@course.CourseName</h1> @* Course Name as the main title *@
+            <h1 class="main-course-title">@course.CourseName</h1> 
 
             @foreach (var module in modules)
             {
@@ -78,27 +77,6 @@
                     @if (module.IsExpanded)
                     {
                         <div class="module-body">
-                            <div class="module-duration-summary">
-                                @if (module.VideosLeft.HasValue)
-                                {
-                                    <span class="duration-item">
-                                        <i class="bi bi-play-circle-fill"></i> @module.VideosLeft min of videos left
-                                    </span>
-                                }
-                                @if (module.ReadingsLeft.HasValue)
-                                {
-                                    <span class="duration-item">
-                                        <i class="bi bi-book-fill"></i> @module.ReadingsLeft min of readings left
-                                    </span>
-                                }
-                                @if (module.GradedAssessmentsLeft.HasValue)
-                                {
-                                    <span class="duration-item">
-                                        <i class="bi bi-check2-square"></i> @module.GradedAssessmentsLeft graded assessment left
-                                    </span>
-                                }
-                            </div>
-
                             <div class="learning-objectives-toggle-container">
                                 <div class="learning-objectives-toggle" @onclick="() => ToggleLearningObjectives(module)">
                                     <span class="toggle-text">Show Learning Objectives</span>
@@ -122,7 +100,8 @@
                             <div class="lessons-list">
                                 @foreach (var lesson in module.Lessons)
                                 {
-                                    <div class="lesson-item @(lesson.IsComplete ? "lesson-complete" : "")">
+                                    <div class="lesson-item @(lesson.IsComplete ? "lesson-complete" : "")"
+                                         @onclick="() => ToggleLessonContent(lesson)"> @* Added onclick to lesson item *@
                                         <i class="bi bi-check-circle-fill lesson-check-icon"></i>
                                         <div class="lesson-details">
                                             <span class="lesson-title">@lesson.Title</span>
@@ -131,11 +110,22 @@
                                                 <span class="lesson-duration">@lesson.Type @lesson.DurationText</span>
                                             }
                                         </div>
-                                        @if (lesson.HasButton)
-                                        {
-                                            <button class="btn btn-primary get-started-button">Get started</button>
-                                        }
                                     </div>
+                                    
+                                    @* NEW: Display lesson content if it's a reading and expanded *@
+                                    @if (lesson.Type == "Reading" && !string.IsNullOrEmpty(lesson.Content) && lesson.IsContentExpanded)
+                                    {
+                                        <div class="lesson-content-display">
+                                            <p>@lesson.Content</p>
+                                        </div>
+                                    }
+                                    @* NEW: Display video player if it's a video and expanded *@
+                                    else if (lesson.Type == "Video" && !string.IsNullOrEmpty(lesson.VideoUrl) && lesson.IsContentExpanded)
+                                    {
+                                        <div class="lesson-video-display">
+                                            <iframe class="embed-responsive-item" src="@lesson.VideoUrl" allowfullscreen></iframe>
+                                        </div>
+                                    }
                                 }
                             </div>
                         </div>
@@ -180,7 +170,7 @@
 
     private List<CourseModule> modules = new List<CourseModule>();
 
-    // NEW: State for current user and their enrollment in this course
+    // State for current user and their enrollment in this course
     private string? currentLoggedInUserId;
     private CourseEnrollDTO? currentEnrollment;
     private bool isCompletingCourse = false;
@@ -194,9 +184,6 @@
         public string Description { get; set; } = string.Empty;
         public bool IsExpanded { get; set; } = false;
         public bool IsComplete { get; set; } = false;
-        public int? VideosLeft { get; set; }
-        public int? ReadingsLeft { get; set; }
-        public int? GradedAssessmentsLeft { get; set; }
         public List<CourseLesson> Lessons { get; set; } = new List<CourseLesson>();
         public List<string> LearningObjectives { get; set; } = new List<string>();
         public bool AreObjectivesExpanded { get; set; } = false;
@@ -208,7 +195,12 @@
         public string Type { get; set; } = string.Empty;
         public string DurationText { get; set; } = string.Empty;
         public bool IsComplete { get; set; } = false;
-        public bool HasButton { get; set; } = false;
+        // Property to hold the content of the reading material
+        public string? Content { get; set; }
+        // Property to control the visibility of the content for readings and videos
+        public bool IsContentExpanded { get; set; } = false;
+        // NEW: Property to hold the video embed URL
+        public string? VideoUrl { get; set; }
     }
 
     protected override async Task OnParametersSetAsync()
@@ -269,11 +261,8 @@
             modules.Add(new CourseModule
             {
                 Title = "Module 1: Introduction",
-                Description = "In this module, you will be introduced to the course's program and how to stay sober. You are expected to spend 2 to 3 hours on this module's workload.",
-                IsComplete = true,
-                VideosLeft = 0,
-                ReadingsLeft = 0,
-                GradedAssessmentsLeft = 0,
+                Description = "In this module, you will be introduced to the course's program and how to stay sober.",
+                IsComplete = false,
                 LearningObjectives = new List<string> {
                     "Recognize the nature of drugs.",
                     "Understand how bad drug is.",
@@ -281,81 +270,76 @@
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Welcome to the course", Type = "Reading", DurationText = "10 min", IsComplete = true, HasButton = true },
-                    new CourseLesson { Title = "Course Syllabus", Type = "Reading", DurationText = "10 min", IsComplete = true },
-                    new CourseLesson { Title = "Help Us Learn More About You!", Type = "Reading", DurationText = "10 min", IsComplete = true }
+                    new CourseLesson { Title = "Welcome to the course", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "Welcome to the exciting world of drug rehabilitation! This course is designed to guide you through a journey of recovery and self-discovery. We believe in your potential to overcome challenges and build a fulfilling life free from addiction. Throughout the modules, you will find resources, insights, and exercises to support your path to sobriety. Remember, you are not alone in this journey, and support is always available." },
+                    new CourseLesson { Title = "Course Syllabus", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "The course syllabus provides a detailed overview of the curriculum, learning objectives, and assessment methods. It outlines the topics covered in each module, recommended readings, and important dates. Familiarizing yourself with the syllabus will help you plan your studies effectively and stay on track with your progress. If you have any questions, feel free to reach out to your instructor or support team." },
+                    new CourseLesson { Title = "Help Us Learn More About You!", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "To provide you with the best possible learning experience, we encourage you to share more about yourself. Your insights and experiences can help us tailor the content to better meet your needs. Please take a moment to complete the brief survey, which will allow us to understand your background, learning preferences, and any specific areas where you might need additional support. Your responses are confidential and will only be used to enhance your learning journey." }
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 2: Survey",
-                Description = "This module covers various user research methods and how to analyze the collected data to inform your decisions.",
+                Title = "Module 2: Building Healthy Social Connections",
+                Description = "This module explores the dynamics of social interactions, offering insights into fostering meaningful relationships and navigating social environments without the need for substances.",
                 IsComplete = false,
-                VideosLeft = 49,
-                ReadingsLeft = 30,
-                GradedAssessmentsLeft = 1,
                 LearningObjectives = new List<string> {
-                    "Define survey research and its purpose.",
-                    "Identify when surveys are an appropriate research method.",
-                    "Understand the steps involved in designing and administering a survey.",
-                    "Recognize common pitfalls in survey design and how to avoid them."
+                      "Recognize the impact of past substance use on social dynamics.",
+                    "Identify healthy vs. unhealthy social relationships.",
+                    "Develop strategies for setting boundaries in social settings.",
+                    "Explore the benefits of a supportive sober community."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Welcome Announcement", Type = "Reading", DurationText = "10 min", IsComplete = false, HasButton = true },
-                    new CourseLesson { Title = "Course Syllabus", Type = "Reading", DurationText = "10 min", IsComplete = false },
-                    new CourseLesson { Title = "Help Us Learn More About You!", Type = "Reading", DurationText = "10 min", IsComplete = false }
+                    new CourseLesson { Title = "Understanding Social Dynamics & Triggers", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "In this lesson, we delve into the fundamental aspects of social dynamics and how they can be impacted by a history of substance use. You will learn to identify common social triggers that might lead to cravings or discomfort, and begin to understand how to approach these situations with a sober mindset. This foundational knowledge is crucial for building resilient social connections." },
+                    new CourseLesson { Title = "Cultivating Positive Relationships", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson focuses on practical strategies for building and maintaining positive, supportive relationships that align with your sober lifestyle. We'll explore techniques for clear communication, active listening, and setting healthy boundaries to ensure your social circle contributes positively to your recovery journey. Learn how to identify and nurture connections that uplift you." },
+                    new CourseLesson { Title = "Navigating Social Events Soberly", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson provides actionable advice for attending social gatherings and events without feeling pressured to use substances. You'll learn coping mechanisms for uncomfortable situations, how to politely decline offers, and strategies for finding enjoyment in social settings purely on your own terms. Prepare to confidently embrace sober social fun!" }
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 3: Prototyping",
-                Description = "Mock module 3 for testing prototyping techniques.",
+                Title = "Module 3: Practicing New Social Skills",
+                Description = "This module focuses on practical application, guiding you through exercises and real-world scenarios to build confidence and competence in sober social interactions.",
                 IsComplete = false,
-                VideosLeft = 20,
-                ReadingsLeft = 15,
-                GradedAssessmentsLeft = 1,
                 LearningObjectives = new List<string> {
-                    "Create low-fidelity prototypes.", "Conduct usability testing on prototypes."
+                   "Practice effective communication in sober social settings.",
+                    "Learn techniques for declining substances gracefully.",
+                    "Develop coping mechanisms for social anxiety without relying on substances."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Lesson 3.1: Wireframing", Type = "Video", DurationText = "12 min", IsComplete = false },
-                    new CourseLesson { Title = "Lesson 3.2: Interactive Mockups", Type = "Reading", DurationText = "8 min", IsComplete = false },
+                 
+                    new CourseLesson { Title = "Lesson 3.1: Communicating Confidently", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/9ifImJbiLVQ?si=l_ymGYEtPLcwfUN5" }, 
+                    new CourseLesson { Title = "Lesson 3.2: Role-Playing Social Situations", Type = "Reading", DurationText = "8 min", IsComplete = false, Content = "In this lesson, you'll engage in various role-playing exercises designed to simulate real-life social scenarios. This hands-on approach will help you practice responding to peer pressure, initiating conversations, and handling awkward moments, all while maintaining your sobriety. The goal is to build muscle memory for positive social interactions, making it easier to navigate social events with confidence and ease." },
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 4: User Testing",
-                Description = "Mock module 4 for user testing strategies.",
+                Title = "Module 4:  Evaluating Your Social Progress",
+                Description = "This module focuses on evaluating your progress in navigating social situations without substances. You'll learn to track your successes, identify challenges, and adjust your strategies for continued growth.",
                 IsComplete = false,
-                VideosLeft = 30,
-                ReadingsLeft = 10,
-                GradedAssessmentsLeft = 0,
                 LearningObjectives = new List<string> {
-                    "Plan and execute user tests.", "Analyze user test results."
+                    "Assess personal growth in sober social interactions.",
+                    "Identify triggers and high-risk social situations.",
+                    "Develop strategies for continuous self-assessment and improvement."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Lesson 4.1: Test Scripting", Type = "Reading", DurationText = "7 min", IsComplete = false },
-                    new CourseLesson { Title = "Lesson 4.2: Conducting Sessions", Type = "Video", DurationText = "18 min", IsComplete = false },
+                    new CourseLesson { Title = "Lesson 4.1: Setting Social Goals", Type = "Reading", DurationText = "7 min", IsComplete = false, Content = "This lesson delves into the importance of setting clear and achievable social goals in your sober journey. You'll learn how to define what 'fun' and 'social' mean to you without substances, create actionable steps, and develop a roadmap for expanding your sober social circle." },
+                    new CourseLesson { Title = "Lesson 4.2: Reflecting on Social Encounters", Type = "Video", DurationText = "18 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/0SHJdYREATE?si=F3ap7W_Ct1OjUi10" },
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 5: Iteration and Handoff",
-                Description = "Mock module 5 for iteration and handoff processes.",
+                Title = "Module 5: Sustaining Your Sober & Social Life",
+                Description = "This module provides strategies and resources to help you maintain your sober and social lifestyle long-term. You'll learn about building lasting support systems and discovering new ways to have fun without substances.",
                 IsComplete = false,
-                VideosLeft = 25,
-                ReadingsLeft = 20,
-                GradedAssessmentsLeft = 1,
                 LearningObjectives = new List<string> {
-                    "Iterate designs based on feedback.", "Prepare designs for development handoff."
+                   "Build and maintain a strong sober support network.",
+                    "Discover new, enjoyable sober activities and hobbies.",
+                    "Plan for long-term sobriety and social well-being."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Lesson 5.1: Feedback Integration", Type = "Reading", DurationText = "10 min", IsComplete = false },
-                    new CourseLesson { Title = "Lesson 5.2: Developer Handoff Tools", Type = "Video", DurationText = "15 min", IsComplete = false },
+                    new CourseLesson { Title = "Lesson 5.1: Building a Support Network", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson will guide you through the process of building and nurturing a strong sober support network. You'll learn how to identify individuals who genuinely support your recovery, communicate your boundaries effectively, and leverage these connections to enhance your social well-being." },
+                    new CourseLesson { Title = "Lesson 5.2: Finding Sober Activities & Hobbies", Type = "Video", DurationText = "15 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/NajbiHbKaJw?si=2RUEgyP4Nqa09Xv" }, 
                 }
             });
         }
@@ -366,14 +350,11 @@
                 Title = "Module 1: Foundations",
                 Description = "This module provides the foundational knowledge required for the course.",
                 IsComplete = false,
-                VideosLeft = 15,
-                ReadingsLeft = 20,
-                GradedAssessmentsLeft = 1,
                 LearningObjectives = new List<string> { "Understand basic concepts", "Identify key terminologies" },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Course Introduction", Type = "Video", DurationText = "8 min", IsComplete = false, HasButton = true },
-                    new CourseLesson { Title = "Core Reading", Type = "Reading", DurationText = "20 min", IsComplete = false }
+                    new CourseLesson { Title = "Course Introduction", Type = "Video", DurationText = "8 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/u7T2r4C173M?si=kLSLR5MbMrJ4dJUZ" },
+                    new CourseLesson { Title = "Core Reading", Type = "Reading", DurationText = "20 min", IsComplete = false, Content = "This core reading delves into the fundamental principles of the subject matter. It's designed to give you a solid understanding of the essential concepts that will be built upon in subsequent modules. Take your time to absorb the information and feel free to revisit sections as needed. A strong foundation here will greatly benefit your learning journey." }
                 }
             });
             modules.Add(new CourseModule
@@ -381,14 +362,11 @@
                 Title = "Module 2: Application",
                 Description = "Apply the concepts learned in Module 1 to practical scenarios.",
                 IsComplete = false,
-                VideosLeft = 12,
-                ReadingsLeft = 10,
-                GradedAssessmentsLeft = 2,
                 LearningObjectives = new List<string> { "Implement basic techniques", "Solve simple problems" },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Practical Exercise 1", Type = "Quiz", DurationText = "10 questions", IsComplete = false },
-                    new CourseLesson { Title = "Solution Walkthrough", Type = "Video", DurationText = "12 min", IsComplete = false }
+                    
+                    new CourseLesson { Title = "Solution Walkthrough", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/NO5-tFfuZAA?si=DxhtLKtwx6CxQQxt" }
                 }
             });
         }
@@ -402,6 +380,18 @@
     private void ToggleLearningObjectives(CourseModule module)
     {
         module.AreObjectivesExpanded = !module.AreObjectivesExpanded;
+    }
+
+    // Method to toggle the visibility of lesson content for "Reading" types and video players for "Video" types
+    private void ToggleLessonContent(CourseLesson lesson)
+    {
+        // Only toggle if it's a Reading with content or a Video with a URL
+        if ((lesson.Type == "Reading" && !string.IsNullOrEmpty(lesson.Content)) ||
+            (lesson.Type == "Video" && !string.IsNullOrEmpty(lesson.VideoUrl)))
+        {
+            lesson.IsContentExpanded = !lesson.IsContentExpanded;
+            StateHasChanged(); // Important to re-render the UI for content visibility changes
+        }
     }
 
     private async Task CompleteCourse()
@@ -431,10 +421,21 @@
             // Call the API to update the enrollment
             await CourseEnrollApiService.UpdateAsync(currentEnrollment);
 
+            // NEW: Mark all modules and lessons as complete in the UI
+            foreach (var module in modules)
+            {
+                module.IsComplete = true;
+                // Optionally collapse objectives and modules after completion
+                module.AreObjectivesExpanded = false;
+                module.IsExpanded = false; // Collapse modules if desired after completion
+                foreach (var lesson in module.Lessons)
+                {
+                    lesson.IsComplete = true;
+                    lesson.IsContentExpanded = false; // Collapse reading/video content on course completion
+                }
+            }
+
             await ShowCompletionMessage("Success", $"Course '{course?.CourseName}' successfully marked as completed!", "alert-success");
-
-            
-
         }
         catch (Exception ex)
         {
@@ -444,7 +445,7 @@
         finally
         {
             isCompletingCourse = false;
-            StateHasChanged();
+            StateHasChanged(); // Re-render the UI to reflect completion status
         }
     }
 

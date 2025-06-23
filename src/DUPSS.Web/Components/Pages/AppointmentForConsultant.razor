@@ -17,6 +17,23 @@ else if (!appointments.Any())
 }
 else
 {
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
     <table class="table">
         <thead>
             <tr>
@@ -24,7 +41,7 @@ else
                 <th>Member</th>
                 <th>Topic</th>
                 <th>Note</th>
-                <th>Status</th>
+                <th>Status</th>         
                 <th>Action</th>
             </tr>
         </thead>
@@ -35,17 +52,25 @@ else
                     <td>@appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@appt.Member?.Username</td>
                     <td>@appt.Topic</td>
-                    <td>@appt.Notes</td>
+                    <td>
+                        <InputTextArea class="form-control" @bind-Value="appt.Notes" />
+                        <button class="btn btn-sm btn-outline-primary mt-1"
+                                @onclick="@(() => SaveNotes(appt))">
+                            💾 Save Notes
+                        </button>
+                    </td>
+
                     <td>@appt.Status</td>
                     <td>
                         @if (appt.Status == "Pending")
                         {
                             <button class="btn btn-success btn-sm me-1" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Accepted"))">✅ Accept</button>
                             <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Declined"))">❌ Decline</button>
+                            
                         }
                         else
                         {
-                            <span class="text-muted">No action</span>
+                            <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Finished"))"> Finished </button>
                         }
                     </td>
                 </tr>
@@ -89,5 +114,23 @@ else
         {
             await JS.InvokeVoidAsync("alert", $"Failed to update appointment status.");
         }
+
     }
+    private async Task SaveNotes(AppointmentDTO appt)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Gửi ghi chú này đến người dùng?");
+        if (!confirmed) return;
+
+        var success = await AppointmentService.UpdateAppointmentNotesAsync(appt.AppointmentId, appt.Notes);
+
+        if (success)
+        {
+            await JS.InvokeVoidAsync("alert", "Ghi chú đã được lưu.");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Lưu ghi chú thất bại.");
+        }
+    }
+
 }

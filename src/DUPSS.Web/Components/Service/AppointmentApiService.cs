@@ -58,6 +58,21 @@ namespace DUPSS.Web.Components.Service
             return response.IsSuccessStatusCode;
         }
 
+        public async Task<bool> RescheduleAppointmentAsync(string appointmentId, DateTime newDateUtc)
+        {
+            var response = await _httpClient.PutAsJsonAsync(
+                $"api/appointments/{appointmentId}/reschedule",
+                new { AppointmentDate = newDateUtc });
+
+            return response.IsSuccessStatusCode;
+        }
+        public async Task<bool> UpdateAppointmentNotesAsync(string appointmentId, string notes)
+        {
+            var response = await _httpClient.PutAsJsonAsync($"/api/appointments/{appointmentId}/notes", notes);
+            return response.IsSuccessStatusCode;
+        }
+
+
 
 
     }

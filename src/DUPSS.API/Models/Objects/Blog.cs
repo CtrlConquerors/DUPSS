@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -18,6 +19,7 @@ namespace DUPSS.API.Models.Objects
         public required string BlogTopicId { get; set; }
         public User? Staff { get; set; }
         public BlogTopic? BlogTopic { get; set; }
+        [NotMapped]
         public string? ImageUrl { get; set; }
     }
 }

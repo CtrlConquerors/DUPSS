@@ -8,72 +8,72 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
 
-<h3>Booking appointment with consultant</h3>
+<div class="vangogh-bg">
+    <div class="vangogh-stars"></div>
+    <div class="vangogh-swirls"></div>
+    <div class="book-appointment-outer">
+        <div class="soft-card vangogh-card">
+            <h3>
+                <span class="vangogh-title">🎨 Booking appointment with consultant</span>
+            </h3>
 
-@if (consultants == null)
-{
-    <p>Loading consultant...</p>
-}
-else
-{
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    @if (!canBook)
-    {
-        <div class="alert alert-warning">
-            Bạn đã có @MaxActiveAppointments lịch hẹn chưa hoàn thành. Vui lòng huỷ hoặc hoàn tất các lịch cũ trước khi đặt lịch mới.
+            @if (consultants == null)
+            {
+                <div class="vangogh-loader">
+                    <span>Loading consultant...</span>
+                </div>
+            }
+            else
+            {
+                @if (!canBook)
+                {
+                    <div class="alert alert-warning vangogh-alert">
+                        <span class="vangogh-alert-icon">⚠️</span>
+                        Bạn đã có @MaxActiveAppointments lịch hẹn chưa hoàn thành. Vui lòng huỷ hoặc hoàn tất các lịch cũ trước khi đặt lịch mới.
+                    </div>
+                }
+                else
+                {
+                    <div class="vangogh-form-container">
+                        <EditForm Model="newAppointment" OnValidSubmit="HandleBooking" class="edit-form">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="vangogh-validation" />
+
+                            <div class="mb-3">
+                                <label class="form-label">Choose Consultant</label>
+                                <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange">
+                                    <option value="">-- Choose Consultant --</option>
+                                    @foreach (var consultant in consultants)
+                                    {
+                                        <option value="@consultant.UserId">
+                                            @consultant.Username (@consultant.Username)
+                                        </option>
+                                    }
+                                </InputSelect>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Appointment date</label>
+                                <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Topic</label>
+                                <InputText class="form-control" @bind-Value="newAppointment.Topic" />
+                            </div>
+
+                            <div class="vangogh-btn-row">
+                                <button class="btn btn-primary vangogh-btn" type="submit">
+                                    <span class="vangogh-btn-text">Book Now</span> <span class="vangogh-btn-brush">🖌️</span>
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                }
+            }
         </div>
-    }
-    else
-    {
-        <EditForm Model="newAppointment" OnValidSubmit="HandleBooking">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-
-            <div class="mb-3">
-                <label class="form-label">Choose Consultant</label>
-                <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange">
-                    <option value="">-- Choose Consultant --</option>
-                    @foreach (var consultant in consultants)
-                    {
-                        <option value="@consultant.UserId">
-                            @consultant.Username (@consultant.Username)
-                        </option>
-                    }
-                </InputSelect>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Appointment date</label>
-                <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Topic</label>
-                <InputText class="form-control" @bind-Value="newAppointment.Topic" />
-            </div>
-          
-
-            <button class="btn btn-primary" type="submit">Booking</button>
-        </EditForm>
-
-    }
-}
+    </div>
+</div>
 
 @code {
     private List<UserDTO>? consultants;

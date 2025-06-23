@@ -1,6 +1,4 @@
-﻿/* Animated, fixed sidebar for ManagementNavMenu - Classic Icon Alignment */
-
-/* Sidebar base styles */
+﻿/* === Sidebar Base === */
 .sidebar {
     position: fixed;
     top: 0;
@@ -10,8 +8,8 @@
     min-width: 60px;
     color: #fff;
     box-shadow: 2px 0 16px rgba(30, 96, 255, 0.08), 0 1.5px 6px rgba(0,0,0,0.04);
-    padding-top: 32px;
-    transition: width 0.55s cubic-bezier(.77,0,.18,1), background 0.4s cubic-bezier(.77,0,.18,1), box-shadow 0.4s cubic-bezier(.77,0,.18,1);
+    padding-top: 16px;
+    transition: width 0.55s cubic-bezier(.77,0,.18,1), background 0.4s, box-shadow 0.4s;
     border-top-right-radius: 24px;
     border-bottom-right-radius: 24px;
     display: flex;
@@ -19,6 +17,7 @@
     align-items: stretch;
     z-index: 1000;
     animation: sidebar-fadein 0.7s cubic-bezier(.77,0,.18,1);
+    overflow: hidden;
 }
 
 @keyframes sidebar-fadein {
@@ -36,10 +35,10 @@
 .sidebar.collapsed {
     width: 60px;
     overflow-x: hidden;
-    padding-top: 16px;
-    transition: width 0.55s cubic-bezier(.77,0,.18,1), background 0.4s cubic-bezier(.77,0,.18,1), box-shadow 0.4s cubic-bezier(.77,0,.18,1);
+    padding-top: 12px;
 }
 
+/* === Main Content Shift === */
 .management-layout main {
     margin-left: 300px;
     transition: margin-left 0.55s cubic-bezier(.77,0,.18,1);
@@ -48,58 +47,43 @@
     .sidebar.collapsed ~ .flex-grow-1,
     .management-layout main.collapsed {
         margin-left: 60px !important;
-        transition: margin-left 0.55s cubic-bezier(.77,0,.18,1);
     }
 
-/* Smooth toggle button appearance in sidebar */
+/* === Toggle Button Wrapper === */
+.sidebar-toggle-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0;
+    width: 100%;
+    transition: all 0.5s cubic-bezier(.77,0,.18,1);
+}
 
-/* Add this to your existing .toggle-btn styles */
+/* === Toggle Button Style === */
 .toggle-btn {
-    opacity: 1;
-    transform: scale(1);
-    transition:
-        opacity 0.4s cubic-bezier(.77,0,.18,1),
-        transform 0.4s cubic-bezier(.77,0,.18,1),
-        background 0.3s cubic-bezier(.77,0,.18,1),
-        color 0.3s cubic-bezier(.77,0,.18,1),
-        box-shadow 0.3s cubic-bezier(.77,0,.18,1);
-     border: none !important;
-     outline: none;
-}
-
-/* When sidebar is collapsed, hide the button smoothly */
-.sidebar.collapsed .toggle-btn {
-    opacity: 0;
-    
-    transform: scale(1.7);
-    transition:
-        opacity 0.3s cubic-bezier(.77,0,.18,1),
-        transform 0.3s cubic-bezier(.77,0,.18,1);
-}
-
-/* Optional: add a slight delay to the button when expanding for extra smoothness */
-.sidebar:not(.collapsed) .toggle-btn {
-    transition-delay: 0.15s;
-}
-
-@keyframes btn-popin {
-    from {
-        opacity: 0;
-        transform: scale(0.8);
-    }
-
-    to {
-        opacity: 1;
-        transform: scale(1);
-    }
-}
-
-.toggle-btn:hover {
-    background: #f0f4ff;
+    width: 200px;
+    height: 44px;
+    border-radius: 12px;
+    background-color: transparent;
     color: #1e60ff;
-    box-shadow: 0 4px 16px rgba(30, 96, 255, 0.15);
+    font-size: 1.5rem;
+    border: none;
+    outline: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: transform 0.4s cubic-bezier(.77,0,.18,1), opacity 0.4s cubic-bezier(.77,0,.18,1), background 0.3s, color 0.3s, box-shadow 0.3s;
+    transform:scale(1.5);
 }
 
+    .toggle-btn:hover {
+        background: #f0f4ff;
+        color: #1e60ff;
+        box-shadow: 0 4px 16px rgba(30, 96, 255, 0.15);
+    }
+
+/* === Nav Links === */
 .sidebar .nav-link {
     color: #fff;
     font-size: 1.13rem;
@@ -107,16 +91,13 @@
     padding: 0.85rem 1.5rem;
     margin: 0.2rem 0.5rem;
     border-radius: 10px;
-    transition: background 0.28s cubic-bezier(.77,0,.18,1), color 0.28s cubic-bezier(.77,0,.18,1), transform 0.28s cubic-bezier(.77,0,.18,1), box-shadow 0.28s cubic-bezier(.77,0,.18,1), padding 0.55s cubic-bezier(.77,0,.18,1);
+    transition: background 0.28s, color 0.28s, transform 0.28s, box-shadow 0.28s, padding 0.55s;
     display: flex;
     align-items: center;
     gap: 0.9rem;
-    letter-spacing: 0.02em;
     text-decoration: none;
-    position: relative;
-    overflow: hidden;
     opacity: 0;
-    animation: navlink-fadein 0.7s cubic-bezier(.77,0,.18,1) forwards;
+    animation: navlink-fadein 0.7s forwards;
 }
 
 @keyframes navlink-fadein {
@@ -131,7 +112,6 @@
     }
 }
 
-/* Staggered animation for nav links */
 .sidebar .nav-link:nth-child(2) {
     animation-delay: 0.08s;
 }
@@ -168,12 +148,12 @@
     animation-delay: 0.72s;
 }
 
-/* --- Classic label and icon transition for sidebar --- */
+/* === Label Transition === */
 .sidebar .nav-link .nav-label {
     opacity: 1;
     width: auto;
     margin-left: 0.2rem;
-    transition: opacity 0.3s cubic-bezier(.77,0,.18,1) 0.15s, width 0.3s cubic-bezier(.77,0,.18,1) 0.15s, margin 0.3s cubic-bezier(.77,0,.18,1) 0.15s;
+    transition: opacity 0.3s, width 0.3s, margin 0.3s;
     display: inline-block;
     white-space: nowrap;
     overflow: hidden;
@@ -183,30 +163,25 @@
     opacity: 0;
     width: 0 !important;
     margin-left: 0 !important;
-    transition: opacity 0.2s cubic-bezier(.77,0,.18,1), width 0.2s cubic-bezier(.77,0,.18,1) 0.18s, margin 0.2s cubic-bezier(.77,0,.18,1) 0.18s;
 }
 
-/* Icon: classic alignment, margin-right in expanded, none in collapsed */
+/* === Icon Alignment === */
 .sidebar .nav-link i {
     opacity: 1;
     margin-right: 0.5rem;
-    margin-left: 0;
     font-size: 1.35rem;
     filter: drop-shadow(0 2px 6px rgba(30,96,255,0.12));
-    transition: opacity 0.35s cubic-bezier(.77,0,.18,1), color 0.3s cubic-bezier(.77,0,.18,1), margin 0.3s cubic-bezier(.77,0,.18,1), transform 0.35s cubic-bezier(.77,0,.18,1);
     position: relative;
     top: -4px;
+    transition: all 0.35s cubic-bezier(.77,0,.18,1);
 }
-
 
 .sidebar.collapsed .nav-link i {
     margin-right: 0 !important;
-    margin-left: 0 !important;
-    opacity: 1;
     transform: scale(1.08);
 }
 
-/* Collapsed state: icon only, perfectly centered */
+/* === Collapsed NavLink === */
 .sidebar.collapsed .nav-link {
     justify-content: center;
     align-items: center;
@@ -216,17 +191,11 @@
     margin: 0.5rem auto;
     width: 44px;
     height: 44px;
-    min-width: 44px;
-    min-height: 44px;
     gap: 0 !important;
-    position: relative;
     transition: all 0.55s cubic-bezier(.77,0,.18,1);
 }
 
-.sidebar .nav-link:not(:last-child) {
-    margin-bottom: 0.2rem;
-}
-
+/* === Hover and Active === */
 .sidebar .nav-link:hover,
 .sidebar .nav-link.active {
     background: rgba(255,255,255,0.18);
@@ -234,7 +203,6 @@
     transform: translateX(6px) scale(1.04);
     font-weight: 600;
     box-shadow: 0 2px 8px rgba(30, 104, 255, 0.08);
-    text-decoration: none;
 }
 
     .sidebar .nav-link:hover i,
@@ -247,27 +215,24 @@
     color: #3766ff;
 }
 
-/* Responsive: auto-collapse on small screens */
+/* === Responsive: Full Width on Small Screens === */
 @media (max-width: 900px) {
     .sidebar {
         position: fixed;
         width: 100vw;
-        min-width: unset;
         left: 0;
         top: 0;
         border-radius: 0 0 24px 24px;
         box-shadow: 0 2px 16px rgba(30, 96, 255, 0.08);
         padding-top: 12px;
         z-index: 1000;
-        transition: width 0.55s cubic-bezier(.77,0,.18,1);
     }
 
         .sidebar.collapsed {
             width: 60px;
-            min-width: 60px;
         }
 
     .management-layout main {
-        margin-left: 0;
+        margin-left: 0 !important;
     }
 }

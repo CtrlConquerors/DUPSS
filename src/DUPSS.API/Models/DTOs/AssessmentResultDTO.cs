@@ -9,6 +9,5 @@ namespace DUPSS.API.Models.DTOs
         public required string MemberId { get; set; }
         public int TotalScore { get; set; }
         public string? Recommendation { get; set; }
-        public string RiskLevel { get; set; } = null!;
     }
 }

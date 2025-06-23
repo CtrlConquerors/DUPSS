@@ -13,6 +13,5 @@ namespace DUPSS.API.Models.Objects
         [Required]
         public int TotalScore { get; set; }
         public string? Recommendation { get; set; }
-        public string RiskLevel { get; set; } = null!;
     }
 }

@@ -282,6 +282,24 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
 
             return true;
         }
+        public async Task<bool> RescheduleAsync(string appointmentId, DateTime newDateUtc)
+        {
+            var appt = await _context.Appointment.FindAsync(appointmentId);
+            if (appt == null) return false;
+
+            appt.AppointmentDate = newDateUtc;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+        public async Task<bool> UpdateNotesAsync(string appointmentId, string notes)
+        {
+            var appointment = await _context.Appointments.FindAsync(appointmentId);
+            if (appointment == null) return false;
+
+            appointment.Notes = notes;
+            await _context.SaveChangesAsync();
+            return true;
+        }
 
 
 

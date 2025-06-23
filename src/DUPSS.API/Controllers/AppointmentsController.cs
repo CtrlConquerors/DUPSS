@@ -187,5 +187,36 @@ namespace DUPSS.API.Controllers
             return Ok();
         }
 
+        [HttpPut("{id}/reschedule")]
+        public async Task<IActionResult> RescheduleAppointment(string id, [FromBody] RescheduleDTO dto)
+        {
+            if (dto == null || dto.AppointmentDate == default)
+                return BadRequest("Invalid date");
+
+            var success = await _appointmentDAO.RescheduleAsync(id, dto.AppointmentDate);
+            if (!success) return NotFound("Appointment not found");
+
+            return NoContent();
+        }
+
+        public class RescheduleDTO
+        {
+            public DateTime AppointmentDate { get; set; }
+        }
+        [HttpPut("{appointmentId}/notes")]
+        public async Task<IActionResult> UpdateNotes(string appointmentId, [FromBody] string notes)
+        {
+            if (string.IsNullOrWhiteSpace(appointmentId))
+                return BadRequest("Appointment ID is required.");
+
+            var success = await _appointmentDAO.UpdateNotesAsync(appointmentId, notes);
+            if (!success)
+                return NotFound("Appointment not found or update failed.");
+
+            return Ok();
+        }
+
+
+
     }
 }

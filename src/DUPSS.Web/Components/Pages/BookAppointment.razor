@@ -16,55 +16,71 @@
 }
 else
 {
-    <EditForm Model="newAppointment" OnValidSubmit="HandleBooking">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="mb-3">
-            <label class="form-label">Choose Consultant</label>
-            @* <select class="form-select" @onchange="HandleConsultantChange"> *@
-            @*     <option value="">-- Choose Consultant --</option> *@
-            @*     @foreach (var consultant in consultants) *@
-            @*     { *@
-            @*         <option value="@consultant.UserId" selected="@((consultant.UserId == newAppointment.ConsultantId) ? "selected" : null)"> *@
-            @*             @consultant.Username (@consultant.Username) *@
-            @*         </option> *@
-            @*     } *@
-            @* </select> *@
-            <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange">
-                <option value="" disabled selected>-- Choose Consultant --</option>
-                @foreach (var consultant in consultants)
-                {
-                    <option value="@consultant.UserId" selected="@((consultant.UserId == newAppointment.ConsultantId) ? "selected" : null)">
-                        @consultant.Username (@consultant.Username)
-                    </option>
-                }
-            </InputSelect>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    <h1> hihi</h1>
+    @if (!canBook)
+    {
+        <div class="alert alert-warning">
+            Bạn đã có @MaxActiveAppointments lịch hẹn chưa hoàn thành. Vui lòng huỷ hoặc hoàn tất các lịch cũ trước khi đặt lịch mới.
         </div>
+    }
+    else
+    {
+        <EditForm Model="newAppointment" OnValidSubmit="HandleBooking">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
 
-        <div class="mb-3">
-            <label class="form-label">Appointment date</label>
-            @* <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" /> *@
-            <InputDate Type="InputDateType.DateTimeLocal" class="form-control" @bind-Value="newAppointment.AppointmentDate"/>
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Choose Consultant</label>
+                <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange">
+                    <option value="">-- Choose Consultant --</option>
+                    @foreach (var consultant in consultants)
+                    {
+                        <option value="@consultant.UserId">
+                            @consultant.Username (@consultant.Username)
+                        </option>
+                    }
+                </InputSelect>
+            </div>
 
+            <div class="mb-3">
+                <label class="form-label">Appointment date</label>
+                <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
+            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Topic</label>
-            <InputText class="form-control" @bind-Value="newAppointment.Topic" />
-        </div>
+            <div class="mb-3">
+                <label class="form-label">Topic</label>
+                <InputText class="form-control" @bind-Value="newAppointment.Topic" />
+            </div>
+          
 
-        <div class="mb-3">
-            <label class="form-label">Note ( Optional )</label>
-            <InputTextArea class="form-control" @bind-Value="newAppointment.Notes" />
-        </div>
+            <button class="btn btn-primary" type="submit">Booking</button>
+        </EditForm>
 
-        <button class="btn btn-primary" type="submit">Booking</button>
-    </EditForm>
+    }
 }
 
 @code {
     private List<UserDTO>? consultants;
+    private List<AppointmentDTO> existingAppointments = new();
+    private const int MaxActiveAppointments = 3;
+    private bool canBook = true;
+
     private AppointmentDTO newAppointment = new()
         {
             AppointmentId = "",
@@ -81,6 +97,7 @@ else
 
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+
         if (user.Identity?.IsAuthenticated == true)
         {
             var memberId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
@@ -90,46 +107,38 @@ else
             if (!string.IsNullOrEmpty(memberId))
             {
                 newAppointment.MemberId = memberId;
+
+                // Lấy tất cả lịch hẹn của member
+                existingAppointments = await AppointmentApiService.GetAppointmentsForMemberAsync(memberId);
+
+                // Đếm số lịch hẹn chưa hoàn thành
+                var activeCount = existingAppointments
+                    .Count(a => a.Status == "Pending" || a.Status == "Accepted" || a.Status == "Confirmed");
+
+                canBook = activeCount < MaxActiveAppointments;
             }
         }
         else
         {
-  
             Navigation.NavigateTo("/login", true);
         }
     }
 
     private async Task HandleBooking()
     {
-  
-
-
-
         if (string.IsNullOrEmpty(newAppointment.ConsultantId))
         {
-  
             await JS.InvokeVoidAsync("alert", "Vui lòng chọn tư vấn viên.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(newAppointment.Topic))
         {
-      
             await JS.InvokeVoidAsync("alert", "Vui lòng nhập chủ đề.");
             return;
         }
 
-
-        await JS.InvokeVoidAsync("alert", $"[DEBUG] Raw (from input): {newAppointment.AppointmentDate}");
-
-
-
-
-
-
         var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
-
-
 
         if (success)
         {
@@ -141,7 +150,6 @@ else
             await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thất bại. Vui lòng thử lại.");
         }
     }
-
 
     private void HandleConsultantChange(ChangeEventArgs e)
     {

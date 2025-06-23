@@ -10,6 +10,7 @@
     .management-layout main {
         display: flex;
         min-height: 100vh;
+        min-width:100vh;
     }
 
 /* Sidebar Styles */
@@ -129,11 +130,12 @@
 /* Main Content Area */
 .flex-grow-1 {
     background: #f7faff;
-    border-radius: 32px;
-    margin: 32px 32px 32px 0;
+    border-radius: 0 !important;
+    margin: 0 !important;
     padding: 32px 40px;
-    min-height: 80vh;
-    box-shadow: 0 4px 32px rgba(30, 96, 255, 0.07);
+    min-height: 100px;
+    width:100px;
+    box-shadow: none;
     position: relative;
     z-index: 1;
     animation: fadein 0.7s;

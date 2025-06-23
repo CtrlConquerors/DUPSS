@@ -96,11 +96,7 @@
     padding-right: 24px;
 }
 
-.collapse.navbar-collapse {
-    height: 550px;
-    display: flex;
-    align-items: center;
-}
+
 
 .navbar-nav {
     height: 100%;

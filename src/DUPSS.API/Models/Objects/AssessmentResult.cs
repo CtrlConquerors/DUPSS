@@ -10,9 +10,7 @@ namespace DUPSS.API.Models.Objects
         public required string AssessmentId { get; set; }
         [Required]
         public required string MemberId { get; set; }
-        [Required]
-        public int TotalScore { get; set; }
+        public int? TotalScore { get; set; }
         public string? Recommendation { get; set; }
-        public string RiskLevel { get; set; } = null!;
     }
 }

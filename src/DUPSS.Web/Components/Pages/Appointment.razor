@@ -9,7 +9,9 @@
 
 <h3>My appointment</h3>
 
-<NavLink href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
+<div class="appointment-link">
+    <NavLink class="appointment-link" href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
+</div>
 
 @if (appointments == null)
 {
@@ -49,7 +51,7 @@ else
         </div>
     </div>
 
-    <table class="table">
+    <table class="appointment-table">
         <thead>
             <tr>
                 <th>Id</th>

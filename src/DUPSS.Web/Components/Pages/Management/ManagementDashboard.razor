@@ -3,6 +3,7 @@
 @using DUPSS.Web.Components.Service
 @inject JwtAuthenticationStateProvider authStateProvider
 @inject AppointmentApiService AppointmentApiService
+@inject CampaignApiService CampaignApiService
 @layout ManagementLayout
 @inject IJSRuntime JS
 
@@ -190,6 +191,7 @@ else
     private int finishedAppointments7d;
     private int declinedAppointments7d;
     private int totalAllAppointments;
+    private int totalCampaigns;
     private List<int> appointmentsPerDay = new();
 
     private class DashboardCard
@@ -220,7 +222,14 @@ else
         // Fetch all appointments
         var allAppointments = await AppointmentApiService.GetAllAsync();
         totalAllAppointments = allAppointments.Count;
+        totalCampaigns = await CampaignApiService.GetCountAsync();
 
+        // Update the Campaigns card value
+        var campaignCard = dashboardCards.FirstOrDefault(c => c.Title == "Campaigns");
+        if (campaignCard != null)
+        {
+            campaignCard.Value = totalCampaigns.ToString();
+        }
         // Filter for last 7 days
         var fromDate = DateTime.UtcNow.Date.AddDays(-6);
         var toDate = DateTime.UtcNow.Date.AddDays(1);

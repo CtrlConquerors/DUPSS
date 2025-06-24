@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -33,9 +34,13 @@ namespace DUPSS.API.Models.Objects
         public required string ConsultantId { get; set; }
 
         // Navigation properties
+        [JsonIgnore]
         public CourseTopic? Topic { get; set; }
+        [JsonIgnore]
         public User? Staff { get; set; }
+        [JsonIgnore]
         public User? Consultant { get; set; }
+        [JsonIgnore]
         public List<CourseEnroll> Enrollments { get; set; } = new List<CourseEnroll>();
 
         // [NotMapped] properties for UI display, not stored in DB

@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema; // Make sure this is included for [NotMapped]
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization; // Make sure this is included for [NotMapped]
 
 namespace DUPSS.API.Models.Objects
 {
@@ -21,9 +22,10 @@ namespace DUPSS.API.Models.Objects
         public string? Location { get; set; }
         public string? Introduction { get; set; }
 
+        [JsonIgnore]
         public User? Staff { get; set; }
 
-        
+
 
         public string? ImageUrl { get; set; }
 

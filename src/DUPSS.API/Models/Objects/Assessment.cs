@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -9,6 +10,7 @@ namespace DUPSS.API.Models.Objects
         [Required, MaxLength(100)]
         public required string AssessmentType { get; set; }
         public string? Description { get; set; }
+        [JsonIgnore]
         public List<AssessmentResult> Results { get; set; } = new List<AssessmentResult>();
     }
 }

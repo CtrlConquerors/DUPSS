@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -17,7 +18,9 @@ namespace DUPSS.API.Models.Objects
         [MaxLength(100)]
         public required string Topic { get; set; }
         public string? Notes { get; set; }
+        [JsonIgnore]
         public User? Member { get; set; }
+        [JsonIgnore]
         public User? Consultant { get; set; }
     }
 }

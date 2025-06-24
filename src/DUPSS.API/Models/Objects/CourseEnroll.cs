@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -15,7 +16,9 @@ namespace DUPSS.API.Models.Objects
         [Required]
         public DateOnly EnrollDate { get; set; }
         public DateOnly? CompleteDate { get; set; }
+        [JsonIgnore]
         public User? Member { get; set; }
+        [JsonIgnore]
         public Course? Course { get; set; }
     }
 }

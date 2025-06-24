@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -13,7 +14,9 @@ namespace DUPSS.API.Models.Objects
         [Required]
         public int Score { get; set; }
         public string? Recommendation { get; set; }
+        [JsonIgnore]
         public Assessment? Assessment { get; set; }
+        [JsonIgnore]
         public User? Member { get; set; }
     }
 }

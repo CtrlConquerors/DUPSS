@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -15,8 +16,9 @@ namespace DUPSS.API.Models.Objects
 
 
         public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
-
+        [JsonIgnore]
         public User? User { get; set; }
+        [JsonIgnore]
         public Campaign? Campaign { get; set; }
     }
 }

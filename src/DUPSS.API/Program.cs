@@ -53,6 +53,7 @@ var app = builder.Build();
 
 app.UseCors("AllowBlazor");
 app.MapOpenApi();
+app.MapScalarApiReference();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseHttpsRedirection();

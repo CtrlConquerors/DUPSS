@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.Objects
 {
@@ -17,7 +18,9 @@ namespace DUPSS.API.Models.Objects
         public required string Status { get; set; }
         [Required]
         public required string BlogTopicId { get; set; }
+        [JsonIgnore]
         public User? Staff { get; set; }
+        [JsonIgnore]
         public BlogTopic? BlogTopic { get; set; }
         [NotMapped]
         public string? ImageUrl { get; set; }

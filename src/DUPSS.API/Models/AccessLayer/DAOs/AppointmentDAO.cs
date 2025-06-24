@@ -51,7 +51,10 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             };
         }
 
-
+        public async Task<int> CountAsync()
+        {
+            return await _context.Appointment.CountAsync();
+        }
 
 
         public async Task<AppointmentDTO?> GetByIdAsync(string appointmentId)

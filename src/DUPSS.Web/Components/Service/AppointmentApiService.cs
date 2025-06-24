@@ -72,7 +72,11 @@ namespace DUPSS.Web.Components.Service
             return response.IsSuccessStatusCode;
         }
 
-
+        public async Task<int> GetCountAsync()
+        {
+            var result = await _httpClient.GetFromJsonAsync<int>("api/Appointments/Count");
+            return result;
+        }
 
 
     }

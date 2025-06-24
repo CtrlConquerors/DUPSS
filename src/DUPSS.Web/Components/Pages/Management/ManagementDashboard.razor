@@ -2,7 +2,9 @@
 @using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
 @inject JwtAuthenticationStateProvider authStateProvider
+@inject AppointmentApiService AppointmentApiService
 @layout ManagementLayout
+@inject IJSRuntime JS
 
 <h1>Management Dashboard</h1>
 @if (userName == null)
@@ -15,51 +17,23 @@ else
 }
 
 <div class="dashboard-main-grid">
-    <!-- Stats Cards -->
-    <div class="dashboard-cards">
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-blue"><i class="fas fa-users"></i></div>
-            <div>
-                <div class="dashboard-card-title">Users</div>
-                <div class="dashboard-card-value">1,234</div>
+    <div id="dashboard-cards" class="dashboard-cards">
+        @for (int i = 0; i < dashboardCards.Count; i++)
+        {
+            var card = dashboardCards[i];
+            <div class="dashboard-card"
+                 data-index="@i"
+                 draggable="true">
+                <div class="dashboard-card-icon @card.IconBg">
+                    <i class="@card.BootstrapIcon"></i>
+                </div>
+                <div class="dashboard-card-content">
+                    <div class="dashboard-card-title">@card.Title</div>
+                    <div class="dashboard-card-value">@card.Value</div>
+                </div>
             </div>
-        </div>
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-green"><i class="fas fa-calendar-check"></i></div>
-            <div>
-                <div class="dashboard-card-title">Appointments</div>
-                <div class="dashboard-card-value">87</div>
-            </div>
-        </div>
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-yellow"><i class="fas fa-bullhorn"></i></div>
-            <div>
-                <div class="dashboard-card-title">Campaigns</div>
-                <div class="dashboard-card-value">12</div>
-            </div>
-        </div>
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-purple"><i class="fas fa-bell"></i></div>
-            <div>
-                <div class="dashboard-card-title">Notifications</div>
-                <div class="dashboard-card-value">5</div>
-            </div>
-        </div>
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-green"><i class="fas fa-book"></i></div>
-            <div>
-                <div class="dashboard-card-title">Courses</div>
-                <div class="dashboard-card-value">8</div>
-            </div>
-        </div>
-        <div class="dashboard-card">
-            <div class="dashboard-card-icon bg-blue"><i class="fas fa-user-graduate"></i></div>
-            <div>
-                <div class="dashboard-card-title">Enrollments</div>
-                <div class="dashboard-card-value">142</div>
-            </div>
-        </div>
-        <!-- User Growth Mini Chart -->
+        }
+        <!-- User Growth Mini Chart (not draggable for simplicity) -->
         <div class="dashboard-card" style="flex-direction:column; align-items:flex-start;">
             <div style="display:flex;align-items:center;width:100%;">
                 <div class="dashboard-card-icon bg-purple"><i class="fas fa-chart-line"></i></div>
@@ -85,21 +59,44 @@ else
                 <span>Appointments Trend</span>
                 <span class="dashboard-chart-period">Last 7 days</span>
             </div>
-            <div class="dashboard-chart-placeholder">
+            <div class="dashboard-chart-placeholder" style="flex-direction:column;align-items:flex-start;">
                 <svg width="100%" height="60" viewBox="0 0 220 60">
-                    <polyline fill="none"
-                              stroke="#3766ff"
-                              stroke-width="4"
-                              points="0,40 30,30 60,35 90,20 120,25 150,10 180,18 210,8"
-                              style="filter: drop-shadow(0 2px 6px #3766ff33);" />
+                    @if (appointmentsPerDay.Count == 7)
+                    {
+                        var max = appointmentsPerDay.Max();
+                        var points = string.Join(" ",
+                        appointmentsPerDay.Select((v, i) =>
+                        $"{i * 36},{60 - (max == 0 ? 0 : (v * 50 / (max == 0 ? 1 : max)) + 5)}"
+                        )
+                        );
+                        <polyline fill="none"
+                                  stroke="#3766ff"
+                                  stroke-width="4"
+                                  points="@points"
+                                  style="filter: drop-shadow(0 2px 6px #3766ff33);" />
+                    }
                 </svg>
+                <div class="dashboard-appointment-stats">
+                    <span class="stat-label">Total: <b>@totalAppointments7d</b></span>
+                    <span class="stat-label stat-green">Completed: <b>@completedAppointments7d</b></span>
+                    <span class="stat-label stat-blue">Scheduled: <b>@scheduledAppointments7d</b></span>
+                    <span class="stat-label stat-red">Cancelled: <b>@cancelledAppointments7d</b></span>
+                </div>
             </div>
         </div>
         <div class="dashboard-quick-actions">
-            <button class="dashboard-action-btn bg-blue"><i class="fas fa-user-plus"></i> Add User</button>
-            <button class="dashboard-action-btn bg-green"><i class="fas fa-calendar-plus"></i> New Appointment</button>
-            <button class="dashboard-action-btn bg-yellow"><i class="fas fa-bullhorn"></i> New Campaign</button>
-            <button class="dashboard-action-btn bg-purple"><i class="fas fa-book"></i> New Course</button>
+            <a href="/Management/User" class="dashboard-action-btn bg-blue">
+                <i class="fas fa-user-plus"></i> Add User
+            </a>
+            <a href="/Management/Appointment" class="dashboard-action-btn bg-green">
+                <i class="fas fa-calendar-plus"></i> New Appointment
+            </a>
+            <a href="/Management/Campaign" class="dashboard-action-btn bg-yellow">
+                <i class="fas fa-bullhorn"></i> New Campaign
+            </a>
+            <a href="/Management/CourseEnroll" class="dashboard-action-btn bg-purple">
+                <i class="fas fa-book"></i> New Course
+            </a>
         </div>
         <div class="dashboard-shortcuts">
             <h3>Quick Links</h3>
@@ -183,21 +180,98 @@ else
     </ul>
 </div>
 
-
 @code {
     private string? userName;
+    private int totalAppointments7d;
+    private int completedAppointments7d;
+    private int scheduledAppointments7d;
+    private int cancelledAppointments7d;
+    private int pendingAppointments7d;
+    private int finishedAppointments7d;
+    private int declinedAppointments7d;
+    private int totalAllAppointments;
+    private List<int> appointmentsPerDay = new();
+
+    private class DashboardCard
+    {
+        public string BootstrapIcon { get; set; } = ""; // e.g. "bi-people-fill"
+        public string IconBg { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Value { get; set; } = "";
+    }
+
+    private List<DashboardCard> dashboardCards = new()
+    {
+        new DashboardCard { BootstrapIcon = "bi-people-fill", IconBg = "bg-blue", Title = "Users", Value = "1,234" },
+        new DashboardCard { BootstrapIcon = "bi-calendar-check-fill", IconBg = "bg-green", Title = "Appointments", Value = "87" },
+        new DashboardCard { BootstrapIcon = "bi-megaphone-fill", IconBg = "bg-yellow", Title = "Campaigns", Value = "12" },
+        new DashboardCard { BootstrapIcon = "bi-bell-fill", IconBg = "bg-purple", Title = "Notifications", Value = "5" },
+        new DashboardCard { BootstrapIcon = "bi-journal-bookmark-fill", IconBg = "bg-green", Title = "Courses", Value = "8" },
+        new DashboardCard { BootstrapIcon = "bi-mortarboard-fill", IconBg = "bg-blue", Title = "Enrollments", Value = "142" }
+    };
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await authStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        if (user.Identity is not null && user.Identity.IsAuthenticated)
+        userName = user.Identity is not null && user.Identity.IsAuthenticated
+            ? user.Identity.Name
+            : "Guest";
+        // Fetch all appointments
+        var allAppointments = await AppointmentApiService.GetAllAsync();
+        totalAllAppointments = allAppointments.Count;
+
+        // Filter for last 7 days
+        var fromDate = DateTime.UtcNow.Date.AddDays(-6);
+        var toDate = DateTime.UtcNow.Date.AddDays(1);
+        var last7d = allAppointments
+            .Where(a => a.AppointmentDate >= fromDate && a.AppointmentDate < toDate)
+            .ToList();
+
+        totalAppointments7d = last7d.Count;
+        completedAppointments7d = last7d.Count(a => a.Status.Equals("Completed", StringComparison.OrdinalIgnoreCase));
+        scheduledAppointments7d = last7d.Count(a => a.Status.Equals("Scheduled", StringComparison.OrdinalIgnoreCase));
+        cancelledAppointments7d = last7d.Count(a => a.Status.Equals("Cancelled", StringComparison.OrdinalIgnoreCase));
+        pendingAppointments7d = last7d.Count(a => a.Status.Equals("Pending", StringComparison.OrdinalIgnoreCase));
+        finishedAppointments7d = last7d.Count(a => a.Status.Equals("Finished", StringComparison.OrdinalIgnoreCase));
+        declinedAppointments7d = last7d.Count(a => a.Status.Equals("Declined", StringComparison.OrdinalIgnoreCase));
+
+        // Appointments per day for sparkline
+        appointmentsPerDay = Enumerable.Range(0, 7)
+            .Select(offset =>
+            {
+                var day = fromDate.AddDays(offset);
+                return last7d.Count(a => a.AppointmentDate.Date == day.Date);
+            })
+            .ToList();
+
+        // Update the Appointments card value
+        var appointmentCard = dashboardCards.FirstOrDefault(c => c.Title == "Appointments");
+        if (appointmentCard != null)
         {
-            userName = user.Identity.Name;
+            appointmentCard.Value = totalAllAppointments.ToString();
         }
-        else
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
         {
-            userName = "Guest";
+            // Pass a .NET object reference for callback
+            await JS.InvokeVoidAsync("dashboardDnD.init", DotNetObjectReference.Create(this));
         }
+    }
+
+    [JSInvokable]
+    public void UpdateCardOrder(int[] newOrder)
+    {
+        // Reorder dashboardCards based on newOrder array
+        var reordered = new List<DashboardCard>();
+        foreach (var idx in newOrder)
+        {
+            reordered.Add(dashboardCards[idx]);
+        }
+        dashboardCards = reordered;
+        StateHasChanged();
     }
 }

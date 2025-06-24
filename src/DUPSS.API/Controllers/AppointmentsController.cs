@@ -34,7 +34,12 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        [HttpGet("Count")]
+        public async Task<ActionResult<int>> GetCount()
+        {
+            var count = await _appointmentDAO.CountAsync();
+            return Ok(count);
+        }
         [HttpGet("GetById/{appointmentId}")]
         public async Task<ActionResult<AppointmentDTO>> GetById(string appointmentId)
         {

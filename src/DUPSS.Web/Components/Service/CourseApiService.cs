@@ -14,5 +14,11 @@ namespace DUPSS.Web.Components.Service
         {
             _httpClient = httpClient;
         }
+
+        public async Task<int> GetCountAsync()
+        {
+            var result = await _httpClient.GetFromJsonAsync<int>("api/Courses/Count");
+            return result;
+        }
     }
 }

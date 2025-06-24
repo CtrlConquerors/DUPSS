@@ -1,4 +1,5 @@
-﻿using DUPSS.API.Models.AccessLayer.Interfaces; // Thêm namespace này để sử dụng ICourseDAO
+﻿using DUPSS.API.Models.AccessLayer.DAOs;
+using DUPSS.API.Models.AccessLayer.Interfaces; // Thêm namespace này để sử dụng ICourseDAO
 using DUPSS.API.Models.DTOs; // Thêm namespace này để sử dụng CourseDTO
 using DUPSS.API.Models.Objects; // Đảm bảo namespace này được bao gồm cho Course domain model
 using Microsoft.AspNetCore.Mvc;
@@ -46,6 +47,26 @@ namespace DUPSS.API.Controllers
                 return Ok(course);
             }
             catch (NpgsqlException ex)
+            {
+                return StatusCode(500, $"Database error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("Count")]
+        public async Task<ActionResult<int>> GetCount()
+        {
+            try
+            {
+                // Replace _userDAO.CountAsync() with a manual count operation
+                var courses = await _courseDAO.GetAllAsync();
+                var count = courses.Count;
+                return Ok(count);
+            }
+            catch (Npgsql.NpgsqlException ex)
             {
                 return StatusCode(500, $"Database error: {ex.Message}");
             }

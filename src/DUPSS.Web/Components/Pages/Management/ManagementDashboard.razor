@@ -5,6 +5,8 @@
 @inject AppointmentApiService AppointmentApiService
 @inject CampaignApiService CampaignApiService
 @inject UserApiService UserApiService
+@inject CourseApiService CourseApiService
+@inject CourseEnrollApiService CourseEnrollApiService
 @layout ManagementLayout
 @inject IJSRuntime JS
 
@@ -191,8 +193,10 @@ else
     private int pendingAppointments7d;
     private int finishedAppointments7d;
     private int declinedAppointments7d;
+    private int totalCourseEnrollments;
     private int totalAllAppointments;
     private int totalCampaigns;
+    private int totalCourses;
     private int totalUsers;
     private List<int> appointmentsPerDay = new();
 
@@ -231,6 +235,22 @@ else
         if (usersCard != null)
         {
             usersCard.Value = totalUsers.ToString();
+        }
+
+        // Efficient course count
+        totalCourses = await CourseApiService.GetCountAsync();
+        var coursesCard = dashboardCards.FirstOrDefault(c => c.Title == "Courses");
+        if (coursesCard != null)
+        {
+            coursesCard.Value = totalCourses.ToString();
+        }
+
+        // Fetch course enrollment count
+        totalCourseEnrollments = await CourseEnrollApiService.GetCountAsync();
+        var enrollCard = dashboardCards.FirstOrDefault(c => c.Title == "Enrollments" || c.Title == "Course Enrollments");
+        if (enrollCard != null)
+        {
+            enrollCard.Value = totalCourseEnrollments.ToString();
         }
 
         // Fetch all appointments

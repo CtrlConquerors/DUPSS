@@ -60,9 +60,7 @@ namespace DUPSS.API.Controllers
         {
             try
             {
-                Console.WriteLine("📥 [SERVER] Create() called.");
-                Console.WriteLine($"🧾 Incoming DTO: MemberId={dto.MemberId}, ConsultantId={dto.ConsultantId}, Date={dto.AppointmentDate}, Status={dto.Status}");
-
+               
                 var appointment = new Appointment
                 {
                     AppointmentId = "",
@@ -74,17 +72,14 @@ namespace DUPSS.API.Controllers
                     Notes = dto.Notes
                 };
 
-                Console.WriteLine("🛠 [SERVER] Calling DAO.CreateAsync...");
                 var createdAppointment = await _appointmentDAO.CreateAsync(appointment);
-                Console.WriteLine("✅ [SERVER] DAO.CreateAsync successful!");
+
 
                 return CreatedAtAction(nameof(GetById), new { appointmentId = createdAppointment.AppointmentId }, createdAppointment);
             }
             catch (Exception ex)
             {
-                Console.WriteLine("❌ [SERVER ERROR] Failed to create appointment:");
-                Console.WriteLine($"🔴 Message: {ex.Message}");
-                Console.WriteLine($"🔴 StackTrace: {ex.StackTrace}");
+
                 return StatusCode(500, $"Server error: {ex.Message}");
             }
         }
@@ -155,7 +150,7 @@ namespace DUPSS.API.Controllers
             if (dto == null)
                 return BadRequest("Appointment data is missing.");
 
-            // Kiểm tra thông tin bắt buộc
+
             if (string.IsNullOrWhiteSpace(dto.MemberId) ||
                 string.IsNullOrWhiteSpace(dto.ConsultantId) ||
                 string.IsNullOrWhiteSpace(dto.Topic))
@@ -178,7 +173,7 @@ namespace DUPSS.API.Controllers
             return Ok(createdDto);
         }
 
-        [HttpPut("{appointmentId}/status")]
+        [HttpPut("{AppointmentId}/status")]
         public async Task<IActionResult> UpdateStatus(string appointmentId, [FromBody] string status)
         {
             if (string.IsNullOrWhiteSpace(status)) return BadRequest("Status is required.");
@@ -203,7 +198,7 @@ namespace DUPSS.API.Controllers
         {
             public DateTime AppointmentDate { get; set; }
         }
-        [HttpPut("{appointmentId}/notes")]
+        [HttpPut("{AppointmentId}/notes")]
         public async Task<IActionResult> UpdateNotes(string appointmentId, [FromBody] string notes)
         {
             if (string.IsNullOrWhiteSpace(appointmentId))

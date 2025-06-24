@@ -8,16 +8,16 @@
 @inject AppointmentApiService AppointmentService
 
 <h3>My appointment</h3>
-<div class="appointment-link">
-    <NavLink class="appointment-link" href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
-</div>
+
+<NavLink href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
+
 @if (appointments == null)
 {
     <p>Loading appointment...</p>
 }
 else if (!appointments.Any())
 {
-    <p>No appointment available at the moment. Please check back later!.</p>
+    <p>No appointments available at the moment.</p>
 }
 else
 {
@@ -34,7 +34,7 @@ else
             </div>
             <div class="col-auto">
                 <select class="form-select" @bind="selectedStatus">
-                    <option value="">-- Trạng thái --</option>
+                    <option value="">-- Status --</option>
                     <option>Pending</option>
                     <option>Accepted</option>
                     <option>Declined</option>
@@ -43,14 +43,13 @@ else
                 </select>
             </div>
             <div class="col-auto">
-                <button class="btn btn-primary" @onclick="ApplyFilter">Lọc</button>
+                <button class="btn btn-primary" @onclick="ApplyFilter">Filter</button>
                 <button class="btn btn-secondary" @onclick="ResetFilter">Reset</button>
             </div>
         </div>
     </div>
 
-
-    <table class="appointment-table">
+    <table class="table">
         <thead>
             <tr>
                 <th>Id</th>
@@ -65,28 +64,18 @@ else
             @foreach (var appt in filteredAppointments)
             {
                 <tr>
-					<td>@appt.AppointmentId</td>
+                    <td>@appt.AppointmentId</td>
                     <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@appt.Consultant?.Username</td>
                     <td>@appt.Status</td>
                     <td>
-                        <strong>Ghi chú từ tư vấn viên:</strong><br />
+                        <strong>Notes from consultant:</strong><br />
                         @appt.Notes
                     </td>
-
                     <td>
-                        @if (appt.Status == "Finished" || appt.Status == "Declined")
-                        {
-                            <span class="text-muted">This appointment has finished</span>
-                        }
-                        else
-                        {
-                            <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
-                            <button class="btn btn-danger" @onclick="@(() => HandleUnregister(appt.AppointmentId))">❌ Cancel</button>
-                        }
+                        <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
+                        <button class="btn btn-danger" @onclick="@(() => HandleUnregister(appt.AppointmentId))">❌ Cancel</button>
                     </td>
-
-
                 </tr>
             }
         </tbody>
@@ -101,32 +90,26 @@ else
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Dời lịch hẹn</h5>
+                        <h5 class="modal-title">Reschedule Appointment</h5>
                         <button type="button" class="btn-close" @onclick="CancelReschedule"></button>
                     </div>
                     <div class="modal-body">
-                        <label>Thời gian mới:</label>
+                        <label>New Date Time:</label>
                         <input type="datetime-local" class="form-control" @bind="rescheduleDate" />
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="CancelReschedule">Hủy</button>
-                        <button class="btn btn-primary" @onclick="ConfirmReschedule">Xác nhận</button>
+                        <button class="btn btn-secondary" @onclick="CancelReschedule">Cancel</button>
+                        <button class="btn btn-primary" @onclick="ConfirmReschedule">Confirm</button>
                     </div>
                 </div>
             </div>
         </div>
     }
-
-
-
-
-
 }
 
 @code {
     private List<AppointmentDTO>? appointments;
-    
-    
+
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
@@ -140,28 +123,23 @@ else
         appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
         filteredAppointments = appointments.ToList();
     }
+
     private async Task HandleUnregister(string appointmentId)
     {
-   
-        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn huỷ lịch hẹn này không?");
-
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are u sure to cancel this appointment?");
         if (!confirmed) return;
 
         var success = await AppointmentService.CancelAppointmentAsync(appointmentId);
-      
 
         if (success)
         {
-
             appointments = appointments.Where(a => a.AppointmentId != appointmentId).ToList();
             ApplyFilter();
-     
-
-            await JS.InvokeVoidAsync("alert", "Huỷ lịch hẹn thành công.");
+            await JS.InvokeVoidAsync("alert", "Cancel appointment success.");
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Huỷ lịch hẹn thất bại.");
+            await JS.InvokeVoidAsync("alert", "Cancel appointment fail.");
         }
     }
 
@@ -171,7 +149,7 @@ else
     private void StartReschedule(AppointmentDTO appt)
     {
         reschedulingAppointment = appt;
-        rescheduleDate = appt.AppointmentDate.ToLocalTime(); // Gán thời gian cũ
+        rescheduleDate = appt.AppointmentDate.ToLocalTime(); // Set old time
     }
 
     private void CancelReschedule()
@@ -183,7 +161,6 @@ else
     {
         if (reschedulingAppointment == null) return;
 
-        // Chuyển thời gian về UTC để lưu
         var utcDate = rescheduleDate.ToUniversalTime();
 
         var updated = await AppointmentService.RescheduleAppointmentAsync(
@@ -191,13 +168,13 @@ else
 
         if (updated)
         {
-            await JS.InvokeVoidAsync("alert", "Dời lịch hẹn thành công!");
+            await JS.InvokeVoidAsync("alert", "ReBooking successfully!");
             reschedulingAppointment.AppointmentDate = utcDate;
             reschedulingAppointment = null;
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Không thể dời lịch hẹn.");
+            await JS.InvokeVoidAsync("alert", "Cant ReBooking.");
         }
     }
 
@@ -215,7 +192,7 @@ else
             !toDate.HasValue &&
             string.IsNullOrWhiteSpace(selectedStatus))
         {
-            filteredAppointments = appointments.ToList(); 
+            filteredAppointments = appointments.ToList();
             return;
         }
 
@@ -228,7 +205,6 @@ else
             ).ToList();
     }
 
-
     private void ResetFilter()
     {
         searchKeyword = "";
@@ -237,9 +213,4 @@ else
         selectedStatus = "";
         filteredAppointments = appointments.ToList();
     }
-
-
-
-
-
 }

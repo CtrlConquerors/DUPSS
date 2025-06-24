@@ -17,23 +17,6 @@ else if (!appointments.Any())
 }
 else
 {
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
-    <h1> hihi</h1>
     <table class="table">
         <thead>
             <tr>
@@ -49,7 +32,7 @@ else
             @foreach (var appt in appointments)
             {
                 <tr>
-                    <td>@appt.AppointmentDate.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@appt.Member?.Username</td>
                     <td>@appt.Topic</td>
                     <td>
@@ -118,18 +101,18 @@ else
     }
     private async Task SaveNotes(AppointmentDTO appt)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirm", "Gửi ghi chú này đến người dùng?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Send this note to user?");
         if (!confirmed) return;
 
         var success = await AppointmentService.UpdateAppointmentNotesAsync(appt.AppointmentId, appt.Notes);
 
         if (success)
         {
-            await JS.InvokeVoidAsync("alert", "Ghi chú đã được lưu.");
+            await JS.InvokeVoidAsync("alert", "Note success.");
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Lưu ghi chú thất bại.");
+            await JS.InvokeVoidAsync("alert", "Note fail.");
         }
     }
 

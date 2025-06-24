@@ -20,7 +20,7 @@
             @if (consultants == null)
             {
                 <div class="vangogh-loader">
-                    <span>Loading consultant...</span>
+                    <span>Loading consultants...</span>
                 </div>
             }
             else
@@ -29,7 +29,7 @@
                 {
                     <div class="alert alert-warning vangogh-alert">
                         <span class="vangogh-alert-icon">⚠️</span>
-                        Bạn đã có @MaxActiveAppointments lịch hẹn chưa hoàn thành. Vui lòng huỷ hoặc hoàn tất các lịch cũ trước khi đặt lịch mới.
+                        You already have @MaxActiveAppointments active appointment(s). Please cancel or finish them before booking a new one.
                     </div>
                 }
                 else
@@ -53,12 +53,12 @@
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Appointment date</label>
+                                <label class="form-label">Appointment Date</label>
                                 <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
                             </div>
 
                             <div class="mb-3">
-                                <label class="form-label">Topic</label>
+                                <label class="form-label">Topic (Describe what you'd like to discuss)</label>
                                 <InputText class="form-control" @bind-Value="newAppointment.Topic" />
                             </div>
 
@@ -78,7 +78,7 @@
 @code {
     private List<UserDTO>? consultants;
     private List<AppointmentDTO> existingAppointments = new();
-    private const int MaxActiveAppointments = 3;
+    private const int MaxActiveAppointments = 1;
     private bool canBook = true;
 
     private AppointmentDTO newAppointment = new()
@@ -108,10 +108,8 @@
             {
                 newAppointment.MemberId = memberId;
 
-                // Lấy tất cả lịch hẹn của member
                 existingAppointments = await AppointmentApiService.GetAppointmentsForMemberAsync(memberId);
 
-                // Đếm số lịch hẹn chưa hoàn thành
                 var activeCount = existingAppointments
                     .Count(a => a.Status == "Pending" || a.Status == "Accepted" || a.Status == "Confirmed");
 
@@ -128,13 +126,13 @@
     {
         if (string.IsNullOrEmpty(newAppointment.ConsultantId))
         {
-            await JS.InvokeVoidAsync("alert", "Vui lòng chọn tư vấn viên.");
+            await JS.InvokeVoidAsync("alert", "Please pick a consultant.");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(newAppointment.Topic))
         {
-            await JS.InvokeVoidAsync("alert", "Vui lòng nhập chủ đề.");
+            await JS.InvokeVoidAsync("alert", "Please enter the topic for the appointment.");
             return;
         }
 
@@ -142,12 +140,12 @@
 
         if (success)
         {
-            await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thành công!");
+            await JS.InvokeVoidAsync("alert", "Appointment booked successfully!");
             Navigation.NavigateTo("/Appointment", forceLoad: true);
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thất bại. Vui lòng thử lại.");
+            await JS.InvokeVoidAsync("alert", "Failed to book appointment. Please try again.");
         }
     }
 

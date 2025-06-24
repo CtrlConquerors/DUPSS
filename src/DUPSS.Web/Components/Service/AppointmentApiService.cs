@@ -30,7 +30,7 @@ namespace DUPSS.Web.Components.Service
 
         public async Task<bool> CreateAppointmentAsync(AppointmentDTO dto)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/appointments", dto);
+            var response = await _httpClient.PostAsJsonAsync("api/Appointments", dto);
             return response.IsSuccessStatusCode;
         }
         public async Task<bool> CancelAppointmentAsync(string appointmentId)
@@ -48,27 +48,27 @@ namespace DUPSS.Web.Components.Service
                 return await response.Content.ReadFromJsonAsync<List<AppointmentDTO>>() ?? new();
             }
 
-            Console.WriteLine($"[DEBUG] Failed to get appointments for consultant {consultantId}");
+           
             return new List<AppointmentDTO>();
         }
 
         public async Task<bool> UpdateAppointmentStatusAsync(string appointmentId, string status)
         {
-            var response = await _httpClient.PutAsJsonAsync($"api/appointments/{appointmentId}/status", status);
+            var response = await _httpClient.PutAsJsonAsync($"api/Appointments/{appointmentId}/status", status);
             return response.IsSuccessStatusCode;
         }
 
         public async Task<bool> RescheduleAppointmentAsync(string appointmentId, DateTime newDateUtc)
         {
             var response = await _httpClient.PutAsJsonAsync(
-                $"api/appointments/{appointmentId}/reschedule",
+                $"api/Appointments/{appointmentId}/reschedule",
                 new { AppointmentDate = newDateUtc });
 
             return response.IsSuccessStatusCode;
         }
         public async Task<bool> UpdateAppointmentNotesAsync(string appointmentId, string notes)
         {
-            var response = await _httpClient.PutAsJsonAsync($"/api/appointments/{appointmentId}/notes", notes);
+            var response = await _httpClient.PutAsJsonAsync($"/api/Appointments/{appointmentId}/notes", notes);
             return response.IsSuccessStatusCode;
         }
 

@@ -43,7 +43,17 @@
     width: 130px;
     margin-bottom: 1rem;
 }
+.login-logo {
+    transition: transform 0.22s cubic-bezier(.4,2,.6,1), box-shadow 0.22s cubic-bezier(.4,2,.6,1), filter 0.18s;
+    cursor: pointer;
+}
 
+    .login-logo:hover,
+    .login-logo:focus {
+        transform: scale(1.08) rotate(-2deg);
+        box-shadow: 0 8px 32px rgba(30,104,255,0.18), 0 2px 8px rgba(0,0,0,0.10);
+        filter: brightness(1.12) saturate(1.1);
+    }
 /* Login form layout */
 .login-form {
     display: flex;
@@ -100,15 +110,42 @@ input.form-control {
 
 /* Footer text */
 .login-footer {
-    text-align: center;
-    margin-top: 1rem;
+    text-align: left;
+    margin-top: 0rem;
     color: white;
 }
 
     .login-footer a {
         color: white;
-        text-decoration: underline;
+        text-decoration: none;
+        transition: color 0.18s, text-shadow 0.18s, transform 0.18s;
     }
+        .login-footer a:hover,
+        .login-footer a:focus {
+            color: #22c55e;
+            text-shadow: 0 2px 8px #22c55e55;
+            text-decoration: underline;
+            transform: translateX(3px) scale(1.06);
+        }
+.login-footer2 {
+    text-align: center;
+    margin-top: 0rem;
+    color: white;
+}
+
+    .login-footer2 a {
+        color: lightcoral;
+        text-decoration: none;
+        transition: color 0.18s, text-shadow 0.18s, transform 0.18s;
+    }
+
+        .login-footer2 a:hover,
+        .login-footer2 a:focus {
+            color: #ff9800;
+            text-shadow: 0 2px 8px #ff980055;
+            text-decoration: underline;
+            transform: translateX(3px) scale(1.06);
+        }
 
 /* Alert box */
 .alert.alert-danger {

@@ -373,19 +373,21 @@
     border: none;
 }
 
-::deep .nav-item .get-started-btn:hover {
-    background-color: #0056e0;
-    color: white;
-}
+    ::deep .nav-item .get-started-btn:hover {
+        background: linear-gradient(90deg, #1e68ff 0%, #22c55e 100%);
+        color: #fff;
+        box-shadow: 0 6px 24px #1e68ff33, 0 0 0 2px #22c55e22;
+        transform: translateY(-3px) scale(1.09);
+        filter: brightness(1.08);
+        transition: background 0.22s cubic-bezier(.4,2,.6,1), box-shadow 0.22s cubic-bezier(.4,2,.6,1), transform 0.18s cubic-bezier(.4,2,.6,1), filter 0.18s;
+    }
 
 ::deep .nav-item .arrow-box:hover {
-    background-color: #0056e0;
-    color: white;
-}
-
-::deep .nav-item .arrow-box:hover {
-    background-color: #0056e0;
-    color: white;
+    background: linear-gradient(90deg, #22c55e 0%, #1e68ff 100%);
+    color: #fff;
+    box-shadow: 0 4px 16px #22c55e33;
+    transform: scale(1.12) rotate(-6deg);
+    transition: background 0.22s cubic-bezier(.4,2,.6,1), box-shadow 0.22s cubic-bezier(.4,2,.6,1), transform 0.18s cubic-bezier(.4,2,.6,1);
 }
 
 ::deep .get-started-text {

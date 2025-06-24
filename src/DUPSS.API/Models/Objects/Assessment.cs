@@ -9,10 +9,10 @@ namespace DUPSS.API.Models.Objects
         public required string AssessmentId { get; set; }
         [Required, MaxLength(100)]
         public required string AssessmentType { get; set; }
-        [MaxLength(20)]
-        public string Version { get; set; } = "1.0";
-        [MaxLength(10)]
-        public string Language { get; set; } = "eng";
+        [Required, MaxLength(20)]
+        public required string Version { get; set; } = "1.0";
+        [Required, MaxLength(10)]
+        public required string Language { get; set; } = "eng";
         public string? Description { get; set; }
         [NotMapped]
         public string? ImageUrl { get; set; }

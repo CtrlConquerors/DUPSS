@@ -10,8 +10,8 @@ namespace DUPSS.API.Models.Objects
         public required string AssessmentId { get; set; }
         [Required, MaxLength(500)]
         public required string Question { get; set; }
-        [MaxLength(50)]
-        public string QuestionType { get; set; } = "MultipleChoice";
+        [Required, MaxLength(50)]
+        public required string QuestionType { get; set; } = "MultipleChoice";
         public List<AssessmentAnswer> Answers { get; set; } = new();
     }
 }

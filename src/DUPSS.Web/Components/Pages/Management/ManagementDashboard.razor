@@ -4,6 +4,7 @@
 @inject JwtAuthenticationStateProvider authStateProvider
 @inject AppointmentApiService AppointmentApiService
 @inject CampaignApiService CampaignApiService
+@inject UserApiService UserApiService
 @layout ManagementLayout
 @inject IJSRuntime JS
 
@@ -192,6 +193,7 @@ else
     private int declinedAppointments7d;
     private int totalAllAppointments;
     private int totalCampaigns;
+    private int totalUsers;
     private List<int> appointmentsPerDay = new();
 
     private class DashboardCard
@@ -219,6 +221,18 @@ else
         userName = user.Identity is not null && user.Identity.IsAuthenticated
             ? user.Identity.Name
             : "Guest";
+
+        // Fetch all users and count
+        var allUsers = await UserApiService.GetAllAsync();
+        totalUsers = allUsers.Count;
+
+        // Update the Users card value
+        var usersCard = dashboardCards.FirstOrDefault(c => c.Title == "Users");
+        if (usersCard != null)
+        {
+            usersCard.Value = totalUsers.ToString();
+        }
+
         // Fetch all appointments
         var allAppointments = await AppointmentApiService.GetAllAsync();
         totalAllAppointments = allAppointments.Count;

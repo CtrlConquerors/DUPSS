@@ -110,6 +110,26 @@ namespace DUPSS.API.Controllers
             }
         }
 
+        [HttpGet("Count")]
+        public async Task<ActionResult<int>> GetCount()
+        {
+            try
+            {
+                // Replace _userDAO.CountAsync() with a manual count operation
+                var users = await _userDAO.GetAllAsync();
+                var count = users.Count;
+                return Ok(count);
+            }
+            catch (Npgsql.NpgsqlException ex)
+            {
+                return StatusCode(500, $"Database error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpPost("Create")]
         public async Task<ActionResult<UserDTO>> Create([FromBody] CreateUserRequest request)
         {

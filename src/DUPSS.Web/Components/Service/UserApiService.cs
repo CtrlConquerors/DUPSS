@@ -91,5 +91,11 @@ namespace DUPSS.Web.Components.Service
                 return new List<UserDTO>();
             }
         }
+
+        public async Task<int> GetCountAsync()
+        {
+            var result = await _httpClient.GetFromJsonAsync<int>("api/Users/Count");
+            return result;
+        }
     }
 }

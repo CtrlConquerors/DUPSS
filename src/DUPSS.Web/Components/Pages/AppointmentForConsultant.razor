@@ -43,7 +43,9 @@ else
                         </button>
                     </td>
 
-                    <td>@appt.Status</td>
+                    <td>
+                        <span class="status-badge @appt.Status">@appt.Status</span>
+                    </td>
                     <td>
                         @if (appt.Status == "Pending")
                         {

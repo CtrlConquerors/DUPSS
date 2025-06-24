@@ -111,7 +111,7 @@
                     <tr>
                         <td>@index</td>
                         <td>@appointment.AppointmentId</td>
-                        <td>@appointment.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                        <td>@appointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@appointment.Member?.Username</td>
                         <td>@appointment.Consultant?.Username</td>
                         <td>@appointment.Topic</td>

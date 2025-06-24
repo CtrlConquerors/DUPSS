@@ -17,6 +17,33 @@ else if (!appointments.Any())
 }
 else
 {
+    <div class="mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-auto">
+                <input class="form-control" @bind="searchKeyword" placeholder="🔍 Search by member or topic" />
+            </div>
+            <div class="col-auto">
+                <input type="date" class="form-control" @bind="fromDate" />
+            </div>
+            <div class="col-auto">
+                <input type="date" class="form-control" @bind="toDate" />
+            </div>
+            <div class="col-auto">
+                <select class="form-select" @bind="selectedStatus">
+                    <option value="">-- Status --</option>
+                    <option>Pending</option>
+                    <option>Accepted</option>
+                    <option>Declined</option>
+                    <option>Finished</option>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-primary" @onclick="ApplyFilter">Apply Filter</button>
+                <button class="btn btn-secondary" @onclick="ResetFilter">Reset</button>
+            </div>
+        </div>
+    </div>
+
     <table class="table">
         <thead>
             <tr>
@@ -24,12 +51,12 @@ else
                 <th>Member</th>
                 <th>Topic</th>
                 <th>Note</th>
-                <th>Status</th>         
+                <th>Status</th>
                 <th>Action</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var appt in appointments)
+            @foreach (var appt in filteredAppointments)
             {
                 <tr>
                     <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
@@ -42,20 +69,22 @@ else
                             💾 Save Notes
                         </button>
                     </td>
-
                     <td>
-                        <span class="status-badge @appt.Status">@appt.Status</span>
+                        <span class="status-badge @appt.Status.ToLowerInvariant()">@appt.Status</span>
                     </td>
                     <td>
                         @if (appt.Status == "Pending")
                         {
                             <button class="btn btn-success btn-sm me-1" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Accepted"))">✅ Accept</button>
                             <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Declined"))">❌ Decline</button>
-                            
+                        }
+                        else if (appt.Status == "Accepted" || appt.Status == "Confirmed")
+                        {
+                            <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Finished"))">✔️ Mark as Finished</button>
                         }
                         else
                         {
-                            <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Finished"))"> Finished </button>
+                            <span class="text-muted">No further actions</span>
                         }
                     </td>
                 </tr>
@@ -66,6 +95,12 @@ else
 
 @code {
     private List<AppointmentDTO>? appointments;
+    private List<AppointmentDTO> filteredAppointments = new();
+
+    private string searchKeyword = "";
+    private DateTime? fromDate = null;
+    private DateTime? toDate = null;
+    private string selectedStatus = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -78,6 +113,7 @@ else
         }
 
         appointments = await AppointmentService.GetAppointmentsForConsultantAsync(userId);
+        filteredAppointments = appointments.ToList(); // copy ban đầu
     }
 
     private async Task UpdateStatus(string appointmentId, string newStatus)
@@ -93,14 +129,16 @@ else
             if (appt != null)
                 appt.Status = newStatus;
 
+            ApplyFilter();
+
             await JS.InvokeVoidAsync("alert", $"Appointment marked as {newStatus}.");
         }
         else
         {
             await JS.InvokeVoidAsync("alert", $"Failed to update appointment status.");
         }
-
     }
+
     private async Task SaveNotes(AppointmentDTO appt)
     {
         var confirmed = await JS.InvokeAsync<bool>("confirm", "Send this note to user?");
@@ -110,12 +148,33 @@ else
 
         if (success)
         {
-            await JS.InvokeVoidAsync("alert", "Note success.");
+            await JS.InvokeVoidAsync("alert", "Note saved successfully.");
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Note fail.");
+            await JS.InvokeVoidAsync("alert", "Failed to save note.");
         }
     }
 
+    private void ApplyFilter()
+    {
+        filteredAppointments = appointments
+            .Where(a =>
+                (string.IsNullOrEmpty(searchKeyword) ||
+                 a.Member?.Username?.Contains(searchKeyword, StringComparison.OrdinalIgnoreCase) == true ||
+                 a.Topic?.Contains(searchKeyword, StringComparison.OrdinalIgnoreCase) == true) &&
+                (!fromDate.HasValue || a.AppointmentDate.Date >= fromDate.Value.Date) &&
+                (!toDate.HasValue || a.AppointmentDate.Date <= toDate.Value.Date) &&
+                (string.IsNullOrEmpty(selectedStatus) || a.Status == selectedStatus)
+            ).ToList();
+    }
+
+    private void ResetFilter()
+    {
+        searchKeyword = "";
+        fromDate = null;
+        toDate = null;
+        selectedStatus = "";
+        filteredAppointments = appointments.ToList();
+    }
 }

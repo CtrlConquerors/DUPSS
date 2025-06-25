@@ -63,7 +63,7 @@ namespace DUPSS.API.Controllers
                 // Map DTO to model
                 var assessmentResult = new AssessmentResult
                 {
-                    ResultId = assessmentResultDTO.ResultId ?? Guid.NewGuid().ToString(),
+                    ResultId = assessmentResultDTO.ResultId,
                     AssessmentId = assessmentResultDTO.AssessmentId,
                     MemberId = assessmentResultDTO.MemberId,
                     TotalScore = assessmentResultDTO.TotalScore,

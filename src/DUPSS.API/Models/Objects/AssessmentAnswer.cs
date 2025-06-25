@@ -10,6 +10,7 @@ namespace DUPSS.API.Models.Objects
         public required string QuestionId { get; set; }
         [Required, MaxLength(500)]
         public required string Answer { get; set; }
+        public string? AnswerDetails { get; set; }
         public int ScoreValue { get; set; } // Numeric score
         public string? ScoreDescription { get; set; } // Optional description
 

@@ -62,7 +62,7 @@ namespace DUPSS.API.Controllers
             {
                 var question = new AssessmentQuestion
                 {
-                    QuestionId = questionDTO.QuestionId ?? Guid.NewGuid().ToString(),
+                    QuestionId = questionDTO.QuestionId,
                     AssessmentId = questionDTO.AssessmentId,
                     Question = questionDTO.Question,
                     QuestionType = questionDTO.QuestionType

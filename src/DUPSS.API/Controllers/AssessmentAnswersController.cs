@@ -62,9 +62,10 @@ namespace DUPSS.API.Controllers
             {
                 var answer = new AssessmentAnswer
                 {
-                    AnswerId = answerDTO.AnswerId ?? Guid.NewGuid().ToString(),
+                    AnswerId = answerDTO.AnswerId,
                     QuestionId = answerDTO.QuestionId,
                     Answer = answerDTO.Answer,
+                    AnswerDetails = answerDTO.AnswerDetails,
                     ScoreValue = answerDTO.ScoreValue,
                     ScoreDescription = answerDTO.ScoreDescription
                 };
@@ -92,6 +93,7 @@ namespace DUPSS.API.Controllers
                     AnswerId = answerDTO.AnswerId,
                     QuestionId = answerDTO.QuestionId,
                     Answer = answerDTO.Answer,
+                    AnswerDetails = answerDTO.AnswerDetails,
                     ScoreValue = answerDTO.ScoreValue,
                     ScoreDescription = answerDTO.ScoreDescription
                 };

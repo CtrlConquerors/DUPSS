@@ -23,6 +23,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 AnswerId = assessmentAnswer.AnswerId,
                 QuestionId = assessmentAnswer.QuestionId,
                 Answer = assessmentAnswer.Answer,
+                AnswerDetails = assessmentAnswer.AnswerDetails,
                 ScoreValue = assessmentAnswer.ScoreValue,
                 ScoreDescription = assessmentAnswer.ScoreDescription
             };
@@ -38,6 +39,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     AnswerId = a.AnswerId,
                     QuestionId = a.QuestionId,
                     Answer = a.Answer,
+                    AnswerDetails = a.AnswerDetails,
                     ScoreValue = a.ScoreValue,
                     ScoreDescription = a.ScoreDescription,
                     Question = a.Question != null ? new AssessmentQuestionDTO
@@ -60,6 +62,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     AnswerId = a.AnswerId,
                     QuestionId = a.QuestionId,
                     Answer = a.Answer,
+                    AnswerDetails = a.AnswerDetails,
                     ScoreValue = a.ScoreValue,
                     ScoreDescription = a.ScoreDescription,
                     Question = a.Question != null ? new AssessmentQuestionDTO
@@ -81,6 +84,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
 
             existingAnswer.QuestionId = assessmentAnswer.QuestionId;
             existingAnswer.Answer = assessmentAnswer.Answer;
+            existingAnswer.AnswerDetails = assessmentAnswer.AnswerDetails;
             existingAnswer.ScoreValue = assessmentAnswer.ScoreValue;
             existingAnswer.ScoreDescription = assessmentAnswer.ScoreDescription;
 
@@ -90,6 +94,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 AnswerId = existingAnswer.AnswerId,
                 QuestionId = existingAnswer.QuestionId,
                 Answer = existingAnswer.Answer,
+                AnswerDetails = existingAnswer.AnswerDetails,
                 ScoreValue = existingAnswer.ScoreValue,
                 ScoreDescription = existingAnswer.ScoreDescription
             };

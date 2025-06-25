@@ -9,6 +9,17 @@
 
 <h3>My appointment</h3>
 
+@if (nextAppointment != null)
+{
+    <div class="alert alert-info mb-4">
+        <strong>📌 Your next appointment:</strong><br />
+        With <strong>@nextAppointment.Consultant?.Username</strong> on
+        <strong>@nextAppointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong><br />
+        <em>Topic:</em> @nextAppointment.Topic
+    </div>
+}
+
+
 <div class="appointment-link">
     <NavLink class="appointment-link" href="/BookAppointment" Match="NavLinkMatch.All">Booking appointment</NavLink>
 </div>
@@ -88,7 +99,7 @@ else
         <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
 
         <div class="modal"
-             style="z-index: 1050; display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        style="z-index: 1050; display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -111,6 +122,7 @@ else
 
 @code {
     private List<AppointmentDTO>? appointments;
+    private AppointmentDTO? nextAppointment;
 
     protected override async Task OnInitializedAsync()
     {
@@ -124,6 +136,11 @@ else
         }
         appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
         filteredAppointments = appointments.ToList();
+        // Find next appointment
+        nextAppointment = appointments
+            .Where(a => a.AppointmentDate > DateTime.UtcNow && a.Status is "Pending" or "Accepted")
+            .OrderBy(a => a.AppointmentDate)
+            .FirstOrDefault();
     }
 
     private async Task HandleUnregister(string appointmentId)

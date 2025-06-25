@@ -22,21 +22,21 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             {
                 AssessmentId = assessment.AssessmentId,
                 AssessmentType = assessment.AssessmentType,
-                Description = assessment.Description
+                Description = assessment.Description,
+                Version = assessment.Version, // Fix for CS9035: Setting required 'Version'
+                Language = assessment.Language // Fix for CS9035: Setting required 'Language'
             };
         }
 
-        public async Task<AssessmentDTO?> GetByIdAsync(string assessmentId)
+        public async Task<Assessment> GetByIdAsync(string assessmentId, bool includeQuestions = false, bool includeAnswers = false)
         {
-            return await _context.Assessment
-                .Where(a => a.AssessmentId == assessmentId)
-                .Select(a => new AssessmentDTO
-                {
-                    AssessmentId = a.AssessmentId,
-                    AssessmentType = a.AssessmentType,
-                    Description = a.Description
-                })
-                .FirstOrDefaultAsync();
+            var query = _context.Assessment.AsQueryable();
+            if (includeQuestions)
+                query = query.Include(a => a.Questions);
+            if (includeAnswers)
+                query = query.Include(a => a.Questions).ThenInclude(q => q.Answers);
+
+            return await query.FirstOrDefaultAsync(a => a.AssessmentId == assessmentId);
         }
 
         public async Task<List<AssessmentDTO>> GetAllAsync()
@@ -46,7 +46,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 {
                     AssessmentId = a.AssessmentId,
                     AssessmentType = a.AssessmentType,
-                    Description = a.Description
+                    Description = a.Description,
+                    Version = a.Version, // Fix for CS9035: Setting required 'Version'
+                    Language = a.Language // Fix for CS9035: Setting required 'Language'
                 })
                 .ToListAsync();
         }
@@ -65,7 +67,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             {
                 AssessmentId = existingAssessment.AssessmentId,
                 AssessmentType = existingAssessment.AssessmentType,
-                Description = existingAssessment.Description
+                Description = existingAssessment.Description,
+                Version = existingAssessment.Version, // Fix for CS9035: Setting required 'Version'
+                Language = existingAssessment.Language // Fix for CS9035: Setting required 'Language'
             };
         }
 

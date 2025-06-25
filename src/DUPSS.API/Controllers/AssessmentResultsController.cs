@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.DAOs;
+using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,7 @@ namespace DUPSS.API.Controllers
     [ApiController, Route("api/[controller]")]
     public class AssessmentResultsController : ControllerBase
     {
-        private readonly AssessmentResultDAO _assessmentResultDAO;
+        private readonly IAssessmentResultDAO _assessmentResultDAO;
 
         public AssessmentResultsController(AppDbContext context)
         {
@@ -55,10 +56,22 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPost("Create")]
-        public async Task<ActionResult<AssessmentResultDTO>> Create([FromBody] AssessmentResult assessmentResult)
+        public async Task<ActionResult<AssessmentResultDTO>> Create([FromBody] AssessmentResultDTO assessmentResultDTO)
         {
             try
             {
+                // Map DTO to model
+                var assessmentResult = new AssessmentResult
+                {
+                    ResultId = assessmentResultDTO.ResultId ?? Guid.NewGuid().ToString(),
+                    AssessmentId = assessmentResultDTO.AssessmentId,
+                    MemberId = assessmentResultDTO.MemberId,
+                    TotalScore = assessmentResultDTO.TotalScore,
+                    ScoreDetails = assessmentResultDTO.ScoreDetails,
+                    Recommendation = assessmentResultDTO.Recommendation
+                    // Note: Assessment navigation property is not set; only AssessmentId is needed
+                };
+
                 var createdResult = await _assessmentResultDAO.CreateAsync(assessmentResult);
                 return CreatedAtAction(nameof(GetById), new { resultId = createdResult.ResultId }, createdResult);
             }
@@ -73,11 +86,24 @@ namespace DUPSS.API.Controllers
         }
 
         [HttpPut("Update")]
-        public async Task<ActionResult<AssessmentResultDTO>> Update([FromBody] AssessmentResult assessmentResult)
+        public async Task<ActionResult<AssessmentResultDTO>> Update([FromBody] AssessmentResultDTO assessmentResultDTO)
         {
             try
             {
+                // Map DTO to model
+                var assessmentResult = new AssessmentResult
+                {
+                    ResultId = assessmentResultDTO.ResultId,
+                    AssessmentId = assessmentResultDTO.AssessmentId,
+                    MemberId = assessmentResultDTO.MemberId,
+                    TotalScore = assessmentResultDTO.TotalScore,
+                    ScoreDetails = assessmentResultDTO.ScoreDetails,
+                    Recommendation = assessmentResultDTO.Recommendation
+                };
+
                 var updatedResult = await _assessmentResultDAO.UpdateAsync(assessmentResult);
+                if (updatedResult == null)
+                    return NotFound($"AssessmentResult with ID {assessmentResultDTO.ResultId} not found.");
                 return Ok(updatedResult);
             }
             catch (Npgsql.NpgsqlException ex)

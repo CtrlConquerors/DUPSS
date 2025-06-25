@@ -16,43 +16,50 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
 
         public async Task<AssessmentResultDTO> CreateAsync(AssessmentResult assessmentResult)
         {
-            _context.AssessmentResult.Add(assessmentResult);
+            _context.AssessmentResult.Add(assessmentResult); 
             await _context.SaveChangesAsync();
             return new AssessmentResultDTO
             {
                 ResultId = assessmentResult.ResultId,
                 AssessmentId = assessmentResult.AssessmentId,
                 MemberId = assessmentResult.MemberId,
-                Score = assessmentResult.Score,
+                TotalScore = assessmentResult.TotalScore,
+                ScoreDetails = assessmentResult.ScoreDetails,
                 Recommendation = assessmentResult.Recommendation
             };
         }
 
         public async Task<AssessmentResultDTO?> GetByIdAsync(string resultId)
         {
-            return await _context.AssessmentResult
+            return await _context.AssessmentResult 
+                .Include(ar => ar.Assessment)
+                .Include(ar => ar.Member)
                 .Where(ar => ar.ResultId == resultId)
                 .Select(ar => new AssessmentResultDTO
                 {
                     ResultId = ar.ResultId,
                     AssessmentId = ar.AssessmentId,
                     MemberId = ar.MemberId,
-                    Score = ar.Score,
+                    TotalScore = ar.TotalScore,
+                    ScoreDetails = ar.ScoreDetails,
                     Recommendation = ar.Recommendation,
-                    Assessment = ar.Assessment != null ? new AssessmentDTO
+                    Assessment = ar.Assessment != null ? new Assessment
                     {
                         AssessmentId = ar.Assessment.AssessmentId,
                         AssessmentType = ar.Assessment.AssessmentType,
-                        Description = ar.Assessment.Description
+                        Description = ar.Assessment.Description,
+                        Version = ar.Assessment.Version,
+                        Language = ar.Assessment.Language
                     } : null,
-                    Member = ar.Member != null ? new UserDTO
+                    Member = ar.Member != null ? new User
                     {
                         UserId = ar.Member.UserId,
                         Username = ar.Member.Username,
                         DoB = ar.Member.DoB,
                         PhoneNumber = ar.Member.PhoneNumber,
                         Email = ar.Member.Email,
-                        RoleId = ar.Member.RoleId
+                        RoleId = ar.Member.RoleId,
+                        PasswordHash = string.Empty 
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -60,28 +67,34 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
 
         public async Task<List<AssessmentResultDTO>> GetAllAsync()
         {
-            return await _context.AssessmentResult
+            return await _context.AssessmentResult 
+                .Include(ar => ar.Assessment)
+                .Include(ar => ar.Member)
                 .Select(ar => new AssessmentResultDTO
                 {
                     ResultId = ar.ResultId,
                     AssessmentId = ar.AssessmentId,
                     MemberId = ar.MemberId,
-                    Score = ar.Score,
+                    TotalScore = ar.TotalScore,
+                    ScoreDetails = ar.ScoreDetails,
                     Recommendation = ar.Recommendation,
-                    Assessment = ar.Assessment != null ? new AssessmentDTO
+                    Assessment = ar.Assessment != null ? new Assessment
                     {
                         AssessmentId = ar.Assessment.AssessmentId,
                         AssessmentType = ar.Assessment.AssessmentType,
-                        Description = ar.Assessment.Description
+                        Description = ar.Assessment.Description,
+                        Version = ar.Assessment.Version,
+                        Language = ar.Assessment.Language
                     } : null,
-                    Member = ar.Member != null ? new UserDTO
+                    Member = ar.Member != null ? new User
                     {
                         UserId = ar.Member.UserId,
                         Username = ar.Member.Username,
                         DoB = ar.Member.DoB,
                         PhoneNumber = ar.Member.PhoneNumber,
                         Email = ar.Member.Email,
-                        RoleId = ar.Member.RoleId
+                        RoleId = ar.Member.RoleId,
+                        PasswordHash = string.Empty 
                     } : null
                 })
                 .ToListAsync();
@@ -95,7 +108,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
 
             existingResult.AssessmentId = assessmentResult.AssessmentId;
             existingResult.MemberId = assessmentResult.MemberId;
-            existingResult.Score = assessmentResult.Score;
+            existingResult.TotalScore = assessmentResult.TotalScore;
+            existingResult.ScoreDetails = assessmentResult.ScoreDetails;
             existingResult.Recommendation = assessmentResult.Recommendation;
 
             await _context.SaveChangesAsync();
@@ -104,18 +118,19 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 ResultId = existingResult.ResultId,
                 AssessmentId = existingResult.AssessmentId,
                 MemberId = existingResult.MemberId,
-                Score = existingResult.Score,
+                TotalScore = existingResult.TotalScore,
+                ScoreDetails = existingResult.ScoreDetails,
                 Recommendation = existingResult.Recommendation
             };
         }
 
         public async Task<bool> DeleteAsync(string resultId)
         {
-            var assessmentResult = await _context.AssessmentResult.FindAsync(resultId);
+            var assessmentResult = await _context.AssessmentResult.FindAsync(resultId); 
             if (assessmentResult == null)
                 return false;
 
-            _context.AssessmentResult.Remove(assessmentResult);
+            _context.AssessmentResult.Remove(assessmentResult); 
             await _context.SaveChangesAsync();
             return true;
         }

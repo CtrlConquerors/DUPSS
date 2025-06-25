@@ -33,7 +33,7 @@
         <div class="assessment-grid">
             @foreach (var item in showAllAssessment ? assessment : assessment.Take(DefaultAssessmentDisplayLimit))
             {
-                <div class="assessment-card clickable">
+                <div class="assessment-card clickable" @onclick="() => NavigateToDetail(item.AssessmentId)">
                     @* <div class="card-image">
                         <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")"
                              alt="Assessment Image" />
@@ -124,5 +124,10 @@
         {
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
+    }
+    private void NavigateToDetail(string AssessmentId)
+    {
+        Console.WriteLine($"Navigating to blog detail: AssessmentId={AssessmentId}");
+        NavigationManager.NavigateTo($"/Blog/Detail/{AssessmentId}", forceLoad: true);
     }
 }

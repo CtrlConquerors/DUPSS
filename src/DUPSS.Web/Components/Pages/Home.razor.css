@@ -226,18 +226,39 @@ body {
     font-weight: 500;
     box-shadow: 0 1px 4px rgba(30,104,255,0.04);
 }
-@media (max-width: 992px) {
+@media (max-width: 576px) {
     .blog-card {
-        padding: 1.2rem 0.5rem 1.5rem 0.5rem;
+        padding: 0.5rem 0.2rem 1rem 0.2rem;
+        margin-bottom: 18px;
     }
 
-        .blog-card .card-body {
-            padding: 1.2rem 1rem 1rem 1rem;
-        }
+    .card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0;
+        padding: 6px;
+        border-radius: 10px;
+        box-sizing: border-box;
+    }
 
-        .blog-card .card img {
-            height: 120px;
-        }
+    .card-title {
+        font-size: 1.1rem;
+        word-break: break-word;
+    }
+
+    .blog-card img,
+    .card img {
+        width: 100%;
+        max-width: 100%;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+
+    .blog-card .badge {
+        font-size: 0.8rem;
+        padding: 0.3em 0.7em;
+    }
 }
 /* --- Hero Section Styling --- */
 .hero-section {

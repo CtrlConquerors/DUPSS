@@ -14,6 +14,47 @@ else
     <p>Welcome @userName to the management home page. Here you can manage various aspects of the application.</p>
 }
 
+<div class="dashboard-cards">
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon bg-blue"><i class="fas fa-users"></i></div>
+        <div>
+            <div class="dashboard-card-title">Users</div>
+            <div class="dashboard-card-value">1,234</div>
+        </div>
+    </div>
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon bg-green"><i class="fas fa-calendar-check"></i></div>
+        <div>
+            <div class="dashboard-card-title">Appointments</div>
+            <div class="dashboard-card-value">87</div>
+        </div>
+    </div>
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon bg-yellow"><i class="fas fa-bullhorn"></i></div>
+        <div>
+            <div class="dashboard-card-title">Campaigns</div>
+            <div class="dashboard-card-value">12</div>
+        </div>
+    </div>
+    <div class="dashboard-card">
+        <div class="dashboard-card-icon bg-purple"><i class="fas fa-bell"></i></div>
+        <div>
+            <div class="dashboard-card-title">Notifications</div>
+            <div class="dashboard-card-value">5</div>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-section">
+    <h2>Recent Activity</h2>
+    <ul class="dashboard-activity">
+        <li><span class="activity-dot bg-blue"></span> New user registered</li>
+        <li><span class="activity-dot bg-green"></span> Appointment confirmed</li>
+        <li><span class="activity-dot bg-yellow"></span> Campaign launched</li>
+        <li><span class="activity-dot bg-purple"></span> Notification sent</li>
+    </ul>
+</div>
+
 @code {
     private string? userName;
 

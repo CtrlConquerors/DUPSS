@@ -2,62 +2,91 @@
 @using DUPSS.API.Models.AccessLayer.Interfaces
 @using DUPSS.Web.Components.Service
 @using DUPSS.API.Models.DTOs
-@using DUPSS.Web.Components.Service
 @inject AppointmentApiService AppointmentApiService
 @inject UserApiService UserService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
 
-<h3>Booking appointment with consultant</h3>
+<div class="vangogh-bg">
+    <div class="vangogh-stars"></div>
+    <div class="vangogh-swirls"></div>
+    <div class="book-appointment-outer">
+        <div class="soft-card vangogh-card">
+            <h3>
+                <span class="vangogh-title">🎨 Booking appointment with consultant</span>
+            </h3>
 
-@if (consultants == null)
-{
-    <p>Loading consultant...</p>
-}
-else
-{
-    <EditForm Model="newAppointment" OnValidSubmit="HandleBooking">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-
-        <div class="mb-3">
-            <label class="form-label">Choose Consultant</label>
-            <select class="form-select" @onchange="HandleConsultantChange">
-                <option value="">-- Choose Consultant --</option>
-                @foreach (var consultant in consultants)
+            @if (consultants == null)
+            {
+                <div class="vangogh-loader">
+                    <span>Loading consultant...</span>
+                </div>
+            }
+            else
+            {
+                @if (!canBook)
                 {
-                    <option value="@consultant.UserId">@consultant.Username</option>
+                    <div class="alert alert-warning vangogh-alert">
+                        <span class="vangogh-alert-icon">⚠️</span>
+                        Bạn đã có @MaxActiveAppointments lịch hẹn chưa hoàn thành. Vui lòng huỷ hoặc hoàn tất các lịch cũ trước khi đặt lịch mới.
+                    </div>
                 }
-            </select>
-        </div>
+                else
+                {
+                    <div class="vangogh-form-container">
+                        <EditForm Model="newAppointment" OnValidSubmit="HandleBooking" class="edit-form">
+                            <DataAnnotationsValidator />
+                            <ValidationSummary class="vangogh-validation" />
 
-        <div class="mb-3">
-            <label class="form-label">Appointment date</label>
-            <InputDate @bind-Value="newAppointment.AppointmentDate" class="form-control" />
-        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Choose Consultant</label>
+                                <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange">
+                                    <option value="">-- Choose Consultant --</option>
+                                    @foreach (var consultant in consultants)
+                                    {
+                                        <option value="@consultant.UserId">
+                                            @consultant.Username (@consultant.Username)
+                                        </option>
+                                    }
+                                </InputSelect>
+                            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Topic</label>
-            <InputText class="form-control" @bind-Value="newAppointment.Topic" />
-        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Appointment date</label>
+                                <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
+                            </div>
 
-        <div class="mb-3">
-            <label class="form-label">Note ( Optional )</label>
-            <InputTextArea class="form-control" @bind-Value="newAppointment.Notes" />
-        </div>
+                            <div class="mb-3">
+                                <label class="form-label">Topic</label>
+                                <InputText class="form-control" @bind-Value="newAppointment.Topic" />
+                            </div>
 
-        <button class="btn btn-primary" type="submit">Booking</button>
-    </EditForm>
-}
+                            <div class="vangogh-btn-row">
+                                <button class="btn btn-primary vangogh-btn" type="submit">
+                                    <span class="vangogh-btn-text">Book Now</span> <span class="vangogh-btn-brush">🖌️</span>
+                                </button>
+                            </div>
+                        </EditForm>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>
 
 @code {
     private List<UserDTO>? consultants;
+    private List<AppointmentDTO> existingAppointments = new();
+    private const int MaxActiveAppointments = 3;
+    private bool canBook = true;
+
     private AppointmentDTO newAppointment = new()
         {
-            AppointmentId = Guid.NewGuid().ToString(),
+            AppointmentId = "",
             MemberId = "",
             ConsultantId = "",
-            AppointmentDate = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            AppointmentDate = DateTime.Today.AddDays(1),
             Status = "Pending",
             Topic = ""
         };
@@ -68,6 +97,7 @@ else
 
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+
         if (user.Identity?.IsAuthenticated == true)
         {
             var memberId = user.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
@@ -77,45 +107,56 @@ else
             if (!string.IsNullOrEmpty(memberId))
             {
                 newAppointment.MemberId = memberId;
+
+                // Lấy tất cả lịch hẹn của member
+                existingAppointments = await AppointmentApiService.GetAppointmentsForMemberAsync(memberId);
+
+                // Đếm số lịch hẹn chưa hoàn thành
+                var activeCount = existingAppointments
+                    .Count(a => a.Status == "Pending" || a.Status == "Accepted" || a.Status == "Confirmed");
+
+                canBook = activeCount < MaxActiveAppointments;
             }
-        }
-    }
-
-
-    private async Task HandleBooking()
-    {
-        Console.WriteLine("📅 [DEBUG] Starting appointment booking process...");
-        Console.WriteLine($"📌 AppointmentId: {newAppointment.AppointmentId}");
-        Console.WriteLine($"👤 MemberId: {newAppointment.MemberId}");
-        Console.WriteLine($"🧑‍⚕️ ConsultantId: {newAppointment.ConsultantId}");
-        Console.WriteLine($"🗓 AppointmentDate: {newAppointment.AppointmentDate}");
-        Console.WriteLine($"🎯 Topic: {newAppointment.Topic}");
-        Console.WriteLine($"📝 Notes: {newAppointment.Notes}");
-        Console.WriteLine($"📋 Status: {newAppointment.Status}");
-
-        var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
-        Console.WriteLine($"📥 [DEBUG] Appointment creation API returned: {(success ? "Success" : "Failure")}");
-
-        if (success)
-        {
-            Console.WriteLine("✅ [DEBUG] Appointment created successfully. Redirecting to /Appointment...");
-            Navigation.NavigateTo("/Appointment");
         }
         else
         {
-            Console.WriteLine("❌ [ERROR] Failed to create appointment. Please check the API or input data.");
+            Navigation.NavigateTo("/login", true);
         }
     }
 
+    private async Task HandleBooking()
+    {
+        if (string.IsNullOrEmpty(newAppointment.ConsultantId))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng chọn tư vấn viên.");
+            return;
+        }
 
+        if (string.IsNullOrWhiteSpace(newAppointment.Topic))
+        {
+            await JS.InvokeVoidAsync("alert", "Vui lòng nhập chủ đề.");
+            return;
+        }
 
+        var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
 
+        if (success)
+        {
+            await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thành công!");
+            Navigation.NavigateTo("/Appointment", forceLoad: true);
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Đặt lịch hẹn thất bại. Vui lòng thử lại.");
+        }
+    }
 
     private void HandleConsultantChange(ChangeEventArgs e)
     {
-        newAppointment.ConsultantId = e.Value?.ToString() ?? "";
-        Console.WriteLine($"🧑‍⚕️ [DEBUG] ConsultantId được chọn: {newAppointment.ConsultantId}");
+        var selectedValue = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedValue))
+        {
+            newAppointment.ConsultantId = selectedValue;
+        }
     }
-
-
 }

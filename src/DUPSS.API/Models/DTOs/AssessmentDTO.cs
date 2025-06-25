@@ -7,7 +7,6 @@ namespace DUPSS.API.Models.DTOs
     {
         public required string AssessmentId { get; set; }
         public required string AssessmentType { get; set; }
-        public string? ImageUrl { get; set; }
         public required string Version { get; set; } = "1.0";
         public required string Language { get; set; } = "eng";
         public string? Description { get; set; }

@@ -68,8 +68,8 @@ namespace DUPSS.API.Controllers
                     MemberId = assessmentResultDTO.MemberId,
                     TotalScore = assessmentResultDTO.TotalScore,
                     ScoreDetails = assessmentResultDTO.ScoreDetails,
-                    Recommendation = assessmentResultDTO.Recommendation
-                    // Note: Assessment navigation property is not set; only AssessmentId is needed
+                    Recommendation = assessmentResultDTO.Recommendation,
+                    CompletedOn = DateOnly.FromDateTime(DateTime.Now) // Set completed date to now
                 };
 
                 var createdResult = await _assessmentResultDAO.CreateAsync(assessmentResult);
@@ -98,7 +98,8 @@ namespace DUPSS.API.Controllers
                     MemberId = assessmentResultDTO.MemberId,
                     TotalScore = assessmentResultDTO.TotalScore,
                     ScoreDetails = assessmentResultDTO.ScoreDetails,
-                    Recommendation = assessmentResultDTO.Recommendation
+                    Recommendation = assessmentResultDTO.Recommendation,
+                    CompletedOn = assessmentResultDTO.CompletedOn ?? DateOnly.FromDateTime(DateTime.Now) // Use provided date or set to now
                 };
 
                 var updatedResult = await _assessmentResultDAO.UpdateAsync(assessmentResult);

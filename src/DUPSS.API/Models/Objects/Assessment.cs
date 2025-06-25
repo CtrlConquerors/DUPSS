@@ -14,8 +14,6 @@ namespace DUPSS.API.Models.Objects
         [Required, MaxLength(10)]
         public required string Language { get; set; } = "eng";
         public string? Description { get; set; }
-        [NotMapped]
-        public string? ImageUrl { get; set; }
         public List<AssessmentQuestion> Questions { get; set; } = new();
         public List<AssessmentResult> Results { get; set; } = new();
     }

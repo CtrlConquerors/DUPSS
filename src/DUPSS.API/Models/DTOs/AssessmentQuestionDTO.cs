@@ -10,7 +10,7 @@ namespace DUPSS.API.Models.DTOs
         public required string AssessmentId { get; set; } = null!;
         public required string Question { get; set; }
         public required string QuestionType { get; set; } = "MultipleChoice";
-        // public List<AssessmentAnswerDTO> Answers { get; set; } = new();
+        public List<AssessmentAnswerDTO> Answers { get; set; } = new();
         [JsonIgnore]
         public Assessment? Assessment { get; set; }
     }

@@ -23,8 +23,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 AssessmentId = assessment.AssessmentId,
                 AssessmentType = assessment.AssessmentType,
                 Description = assessment.Description,
-                Version = assessment.Version, // Fix for CS9035: Setting required 'Version'
-                Language = assessment.Language // Fix for CS9035: Setting required 'Language'
+                Version = assessment.Version,
+                Language = assessment.Language 
             };
         }
 
@@ -47,8 +47,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     AssessmentId = a.AssessmentId,
                     AssessmentType = a.AssessmentType,
                     Description = a.Description,
-                    Version = a.Version, // Fix for CS9035: Setting required 'Version'
-                    Language = a.Language // Fix for CS9035: Setting required 'Language'
+                    Version = a.Version, 
+                    Language = a.Language 
                 })
                 .ToListAsync();
         }
@@ -68,8 +68,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 AssessmentId = existingAssessment.AssessmentId,
                 AssessmentType = existingAssessment.AssessmentType,
                 Description = existingAssessment.Description,
-                Version = existingAssessment.Version, // Fix for CS9035: Setting required 'Version'
-                Language = existingAssessment.Language // Fix for CS9035: Setting required 'Language'
+                Version = existingAssessment.Version, 
+                Language = existingAssessment.Language
             };
         }
 

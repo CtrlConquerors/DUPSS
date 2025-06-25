@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.Objects;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.DTOs
 {
@@ -11,6 +12,7 @@ namespace DUPSS.API.Models.DTOs
         public int ScoreValue { get; set; } // Numeric score
         public string? ScoreDescription { get; set; } // Optional description
 
-        // public AssessmentQuestion? Question { get; set; }
+        [JsonIgnore]
+        public AssessmentQuestion? Question { get; set; }
     }
 }

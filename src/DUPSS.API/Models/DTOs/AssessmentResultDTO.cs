@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.Objects;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.DTOs
 {
@@ -13,7 +14,9 @@ namespace DUPSS.API.Models.DTOs
         public string? Recommendation { get; set; }
         public DateOnly? CompletedOn { get; set; }
 
+        [JsonIgnore]
         public UserDTO? Member { get; set; }
+        [JsonIgnore]
         public AssessmentDTO? Assessment { get; set; }
     }
 }

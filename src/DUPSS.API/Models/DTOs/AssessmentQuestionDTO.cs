@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.Objects;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DUPSS.API.Models.DTOs
 {
@@ -10,6 +11,7 @@ namespace DUPSS.API.Models.DTOs
         public required string Question { get; set; }
         public required string QuestionType { get; set; } = "MultipleChoice";
         // public List<AssessmentAnswerDTO> Answers { get; set; } = new();
-        // public Assessment? Assessment { get; set; }
+        [JsonIgnore]
+        public Assessment? Assessment { get; set; }
     }
 }

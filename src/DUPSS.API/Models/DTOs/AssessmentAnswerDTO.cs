@@ -11,6 +11,6 @@ namespace DUPSS.API.Models.DTOs
         public int ScoreValue { get; set; } // Numeric score
         public string? ScoreDescription { get; set; } // Optional description
 
-        public AssessmentQuestion? Question { get; set; }
+        // public AssessmentQuestion? Question { get; set; }
     }
 }

@@ -25,7 +25,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 MemberId = assessmentResult.MemberId,
                 TotalScore = assessmentResult.TotalScore,
                 ScoreDetails = assessmentResult.ScoreDetails,
-                Recommendation = assessmentResult.Recommendation
+                Recommendation = assessmentResult.Recommendation,
+                CompletedOn = assessmentResult.CompletedOn
             };
         }
 
@@ -43,7 +44,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     TotalScore = ar.TotalScore,
                     ScoreDetails = ar.ScoreDetails,
                     Recommendation = ar.Recommendation,
-                    Assessment = ar.Assessment != null ? new Assessment
+                    CompletedOn = ar.CompletedOn,
+                    Assessment = ar.Assessment != null ? new AssessmentDTO
                     {
                         AssessmentId = ar.Assessment.AssessmentId,
                         AssessmentType = ar.Assessment.AssessmentType,
@@ -51,7 +53,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         Version = ar.Assessment.Version,
                         Language = ar.Assessment.Language
                     } : null,
-                    Member = ar.Member != null ? new User
+                    Member = ar.Member != null ? new UserDTO
                     {
                         UserId = ar.Member.UserId,
                         Username = ar.Member.Username,
@@ -59,7 +61,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = ar.Member.PhoneNumber,
                         Email = ar.Member.Email,
                         RoleId = ar.Member.RoleId,
-                        PasswordHash = string.Empty 
+                        // PasswordHash = string.Empty 
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -78,7 +80,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     TotalScore = ar.TotalScore,
                     ScoreDetails = ar.ScoreDetails,
                     Recommendation = ar.Recommendation,
-                    Assessment = ar.Assessment != null ? new Assessment
+                    CompletedOn = ar.CompletedOn,
+                    Assessment = ar.Assessment != null ? new AssessmentDTO
                     {
                         AssessmentId = ar.Assessment.AssessmentId,
                         AssessmentType = ar.Assessment.AssessmentType,
@@ -86,7 +89,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         Version = ar.Assessment.Version,
                         Language = ar.Assessment.Language
                     } : null,
-                    Member = ar.Member != null ? new User
+                    Member = ar.Member != null ? new UserDTO
                     {
                         UserId = ar.Member.UserId,
                         Username = ar.Member.Username,
@@ -94,7 +97,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         PhoneNumber = ar.Member.PhoneNumber,
                         Email = ar.Member.Email,
                         RoleId = ar.Member.RoleId,
-                        PasswordHash = string.Empty 
+                        // PasswordHash = string.Empty 
                     } : null
                 })
                 .ToListAsync();
@@ -111,6 +114,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingResult.TotalScore = assessmentResult.TotalScore;
             existingResult.ScoreDetails = assessmentResult.ScoreDetails;
             existingResult.Recommendation = assessmentResult.Recommendation;
+            existingResult.CompletedOn = assessmentResult.CompletedOn;
 
             await _context.SaveChangesAsync();
             return new AssessmentResultDTO
@@ -120,7 +124,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 MemberId = existingResult.MemberId,
                 TotalScore = existingResult.TotalScore,
                 ScoreDetails = existingResult.ScoreDetails,
-                Recommendation = existingResult.Recommendation
+                Recommendation = existingResult.Recommendation,
+                CompletedOn = existingResult.CompletedOn,
             };
         }
 

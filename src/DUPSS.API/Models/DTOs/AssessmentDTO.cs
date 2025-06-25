@@ -12,6 +12,6 @@ namespace DUPSS.API.Models.DTOs
         public required string Language { get; set; } = "eng";
         public string? Description { get; set; }
         // Exclude Results to avoid potential cycles; fetch separately if needed
-        public List<AssessmentQuestion> Questions { get; set; } = new();
+        // public List<AssessmentQuestion> Questions { get; set; } = new();
     }
 }

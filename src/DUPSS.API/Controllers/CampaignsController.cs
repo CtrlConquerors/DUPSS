@@ -1,8 +1,10 @@
 ﻿using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.DAOs;
+using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Internal;
 
 namespace DUPSS.API.Controllers
 {
@@ -53,6 +55,14 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
+        [HttpGet("Count")]
+        public async Task<ActionResult<int>> GetCount()
+        {
+            var count = await _campaignDAO.CountAsync();
+            return Ok(count);
+        }
+
 
         [HttpPost("Create")]
         public async Task<ActionResult<CampaignDTO>> Create([FromBody] Campaign campaign)

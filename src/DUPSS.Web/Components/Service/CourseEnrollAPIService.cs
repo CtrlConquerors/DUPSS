@@ -43,7 +43,11 @@ namespace DUPSS.Web.Components.Service
                 throw;
             }
         }
-
+        public async Task<int> GetCountAsync()
+        {
+            var result = await _httpClient.GetFromJsonAsync<int>("api/CourseEnrolls/Count");
+            return result;
+        }
         /// <summary>
         /// Adds the authorization header to HttpClient default request headers if a token exists.
         /// This method is duplicated from GenericApiService because custom methods in derived

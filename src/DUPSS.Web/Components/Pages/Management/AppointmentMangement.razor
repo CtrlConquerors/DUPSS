@@ -111,22 +111,26 @@
                     <tr>
                         <td>@index</td>
                         <td>@appointment.AppointmentId</td>
-                        <td>@appointment.AppointmentDate.ToString("yyyy-MM-dd")</td>
+                        <td>@appointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@appointment.Member?.Username</td>
                         <td>@appointment.Consultant?.Username</td>
                         <td>@appointment.Topic</td>
                         <td>
-                            @if (appointment.Status?.Equals("Scheduled", StringComparison.OrdinalIgnoreCase) == true)
+                            @if (appointment.Status?.Equals("Pending", StringComparison.OrdinalIgnoreCase) == true)
                             {
-                                <span class="scheduled-indicator" title="Scheduled Appointment"></span>
+                                    <span class="pending-indicator" title="Pending Appointment"></span>
                             }
-                            else if (appointment.Status?.Equals("Completed", StringComparison.OrdinalIgnoreCase) == true)
+                            else if (appointment.Status?.Equals("Accepted", StringComparison.OrdinalIgnoreCase) == true)
                             {
-                                <span class="completed-indicator" title="Completed Appointment"></span>
+                                    <span class="accepted-indicator" title="Accepted Appointment"></span>
                             }
-                            else if (appointment.Status?.Equals("Cancelled", StringComparison.OrdinalIgnoreCase) == true)
+                            else if (appointment.Status?.Equals("Declined", StringComparison.OrdinalIgnoreCase) == true)
                             {
                                 <span class="cancelled-indicator" title="Cancelled Appointment"></span>
+                            }
+                            else if (appointment.Status?.Equals("Finished", StringComparison.OrdinalIgnoreCase) == true)
+                            {
+                                    <span class="cancelled-indicator" title="Cancelled Appointment"></span>
                             }
                             @appointment.Status
                         </td>
@@ -214,9 +218,10 @@
             <div class="mb-3">
                 <label class="form-label">Status</label>
                 <select class="form-select" @bind="appointmentToEdit.Status">
-                    <option value="Scheduled">Scheduled</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Cancelled">Cancelled</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Accepted">Accepted</option>
+                    <option value="Declined">Declined</option>
+                    <option value="Finished">Finished</option>
                 </select>
             </div>
 
@@ -264,7 +269,7 @@
             AppointmentDate = DateTime.Now,
 
         Topic = "",
-        Status = "Scheduled",
+        Status = "Pending",
         Notes = ""
     };
     private bool showEditForm = false;
@@ -453,7 +458,7 @@
                 AppointmentDate = DateTime.Now,
 
             Topic = "",
-            Status = "Scheduled",
+            Status = "Pending",
             Notes = ""
         };
         isNewAppointment = true;
@@ -555,7 +560,7 @@
                 AppointmentDate = DateTime.Now,
 
             Topic = "",
-            Status = "Scheduled",
+            Status = "Pending",
             Notes = ""
         };
         showEditForm = false;

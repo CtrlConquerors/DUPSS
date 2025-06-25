@@ -234,7 +234,11 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 return true;
             }
         }
-
+        public async Task<int> CountAsync()
+        {
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.CourseEnroll.CountAsync();
+        }
         /// <summary>
         /// Retrieves course enrollments for a specific member in a specific course.
         /// Used primarily to check for duplicate enrollments before creation.

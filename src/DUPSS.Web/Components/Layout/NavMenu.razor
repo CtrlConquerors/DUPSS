@@ -46,10 +46,12 @@
 
                 <AuthorizeView Roles="ME,AD,ST,MA">
                     <Authorized>
-                        <li class="nav-item">
-                            <NavLink class="nav-link" href="/Appointment">Appointment</NavLink>
-                        </li>
+                       
 
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/AppointmentHome">Appointment</NavLink>
+                        </li>
+              
                     </Authorized>
 
                 </AuthorizeView>
@@ -59,6 +61,10 @@
                     <Authorized>
                         <li class="nav-item">
                             <NavLink class="nav-link" href="/AppointmentForConsultant">Consultant Appointment</NavLink>
+                        </li>
+
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/ConsultantDashboard">Dashboard</NavLink>
                         </li>
 
                     </Authorized>

@@ -136,5 +136,10 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             await _context.SaveChangesAsync();
             return true;
         }
+
+        public async Task<int> CountAsync()
+        {
+            return await _context.Campaign.CountAsync();
+        }
     }
 }

@@ -1,0 +1,76 @@
+﻿@page "/AppointmentHome"
+@using DUPSS.API.Models.DTOs
+@using DUPSS.Web.Components.Service
+@inject UserApiService UserService
+
+<h2 class="mb-4">📅 Welcome to the Appointment Center</h2>
+
+<div class="mb-5">
+    <h4>💡 What is this feature?</h4>
+    <p>
+        The Appointment feature allows members to book 1-on-1 online consultations with professional consultants.
+        You can choose your preferred consultant, select a time slot that suits your schedule, and describe your topic in advance.
+    </p>
+</div>
+
+<div class="mb-5">
+    <h4>🧠 Popular Consultation Topics</h4>
+    <ul>
+        <li>🚭 Preventing Drug Use</li>
+        <li>💬 Mental Health & Stress Management</li>
+        <li>🏫 School and Academic Guidance</li>
+        <li>👥 Peer Pressure & Social Relationships</li>
+        <li>🏠 Family Communication</li>
+    </ul>
+</div>
+
+<div class="mb-5">
+    <h4>👨‍⚕️ Our Available Consultants</h4>
+    @if (consultants == null)
+    {
+        <p>Loading consultants...</p>
+    }
+    else if (!consultants.Any())
+    {
+        <p>No consultants available at the moment.</p>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            @foreach (var consultant in consultants)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body">
+                            <h5 class="card-title">@consultant.Username</h5>
+                            <p class="card-text">
+                                <strong>Email:</strong> @consultant.Email <br />
+                                <strong>Phone:</strong> @consultant.PhoneNumber
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<div class="text-center mt-4">
+
+    <a href="/Appointment" class="btn btn-primary btn-lg">
+        Your Appointment History
+    </a>
+
+    <a href="/BookAppointment" class="btn btn-primary btn-lg">
+        📌 Book an Appointment Now
+    </a>
+</div>
+
+@code {
+    private List<UserDTO>? consultants;
+
+    protected override async Task OnInitializedAsync()
+    {
+        consultants = await UserService.GetConsultantsAsync();
+    }
+}

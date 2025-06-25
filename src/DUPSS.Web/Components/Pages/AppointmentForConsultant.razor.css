@@ -1,0 +1,404 @@
+﻿/* Artistic Main Title */
+h3 {
+    font-size: 2.4rem;
+    font-weight: 900;
+    letter-spacing: 1.5px;
+    margin-bottom: 2.5rem;
+    text-align: center;
+    background: linear-gradient(90deg, #3554d1 0%, #6e8efb 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 6px 32px #3554d133;
+    padding-top: 0.5rem;
+}
+
+/* Table Container for Centering */
+.table {
+    width: 100%;
+    margin: 0 auto 2rem auto;
+    border-collapse: separate;
+    border-spacing: 0 18px;
+    background: transparent;
+    box-sizing: border-box;
+}
+
+    /* Table Header */
+    .table thead th {
+        background: linear-gradient(90deg, #f5f8ff 60%, #eaf0ff 100%);
+        color: #3554d1;
+        font-weight: 800;
+        padding: 18px 14px;
+        border: none;
+        font-size: 1.15rem;
+        letter-spacing: 0.7px;
+        border-radius: 14px 14px 0 0;
+        box-shadow: 0 2px 12px #3554d11a;
+        text-align: center;
+        vertical-align: middle;
+        transition: background 0.3s, color 0.3s;
+    }
+
+        .table thead th:hover {
+            background: linear-gradient(90deg, #eaf0ff 60%, #f5f8ff 100%);
+            color: #222;
+            cursor: pointer;
+        }
+
+    /* Table Row as Card */
+    .table tbody tr {
+        background: linear-gradient(100deg, #fff 60%, #f5f8ff 100%);
+        box-shadow: 0 6px 32px #3554d11a;
+        border-radius: 16px;
+        transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.2s, background 0.3s;
+        overflow: hidden;
+        text-align: center;
+        vertical-align: middle;
+        position: relative;
+    }
+
+        .table tbody tr:hover {
+            box-shadow: 0 16px 48px #3554d155, 0 0 0 4px #6e8efb33;
+            transform: translateY(-4px) scale(1.018);
+            background: linear-gradient(100deg, #eaf0ff 60%, #f5f8ff 100%);
+            z-index: 2;
+        }
+
+    /* Table Cell */
+    .table td {
+        padding: 20px 14px;
+        vertical-align: middle;
+        border: none;
+        font-size: 1.08rem;
+        border-bottom: 1px solid #e6eaf5;
+        background: transparent;
+        transition: background 0.2s, color 0.2s;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
+        .table td:hover {
+            background: #f0f6ff;
+            color: #3554d1;
+        }
+
+        .table td:last-child {
+            text-align: center;
+        }
+
+/* Status badge */
+.status-badge {
+    display: inline-block;
+    min-width: 110px;
+    text-align: center;
+    padding: 8px 0;
+    border-radius: 20px;
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #fff;
+    background: #bdbdbd;
+    letter-spacing: 0.7px;
+    box-shadow: 0 2px 8px #3554d122;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.2s, filter 0.2s;
+    margin: 0 auto;
+    cursor: pointer;
+}
+
+    .status-badge:hover {
+        filter: brightness(1.15) drop-shadow(0 0 8px #6e8efb88);
+        transform: scale(1.07) rotate(-2deg);
+        box-shadow: 0 4px 18px #3554d144;
+        z-index: 3;
+    }
+
+    .status-badge.Pending {
+        background: linear-gradient(90deg, #fbbf24 60%, #fcd34d 100%);
+        color: #fff;
+    }
+
+    .status-badge.Accepted {
+        background: linear-gradient(90deg, #22c55e 60%, #4ade80 100%);
+        color: #fff;
+    }
+
+    .status-badge.Declined {
+        background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
+        color: #fff;
+    }
+
+    .status-badge.Finished {
+        background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
+        color: #fff;
+    }
+
+    .status-badge.Completed {
+        background: linear-gradient(90deg, #0ea5e9 60%, #38bdf8 100%);
+        color: #fff;
+    }
+
+/* Notes area */
+.form-control {
+    min-height: 120px;
+    padding: 18px 16px;
+    font-size: 1.15rem;
+    width: 98%;
+    border-radius: 14px;
+    border: 1.5px solid #e0e7ef;
+    background: #f8fafc;
+    margin-bottom: 8px;
+    margin-top: 2px;
+    transition: border 0.25s, box-shadow 0.25s, background 0.25s;
+    box-shadow: 0 2px 8px #3554d111;
+    resize: vertical;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+    .form-control:focus, .form-control:hover {
+        border: 2px solid #3554d1;
+        background: #fff;
+        outline: none;
+        box-shadow: 0 4px 18px #3554d122;
+    }
+
+/* Save Notes button - Transparent Blue */
+.btn-outline-primary {
+    position: relative;
+    overflow: visible;
+    align-items: center;
+    background-color: rgba(53, 84, 209, 0.12);
+    border: 2px solid rgba(53, 84, 209, 0.35);
+    border-radius: 10px;
+    color: #3554d1;
+    font-weight: 700;
+    font-family: Inter, sans-serif;
+    font-size: 1.05rem;
+    padding: 5px 17px !important;
+    margin: 0 auto;
+    display: block;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(53, 84, 209, 0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    z-index: 1;
+}
+
+    .btn-outline-primary:after {
+        background-color: rgba(53, 84, 209, 0.18);
+        border-radius: 10px;
+        content: "";
+        display: block;
+        height: 100%;
+        left: 0;
+        width: 100%;
+        position: absolute;
+        top: -2px;
+        transform: translate(8px, 8px);
+        transition: transform .2s ease-out;
+        z-index: -1;
+    }
+
+    .btn-outline-primary:hover:after {
+        transform: translate(0, 0);
+    }
+
+    .btn-outline-primary:active {
+        background-color: rgba(53, 84, 209, 0.22);
+        outline: 0;
+    }
+
+    .btn-outline-primary:hover,
+    .btn-outline-primary:focus,
+    .btn-outline-primary:active {
+        color: #fff !important;
+        background-color: rgba(53, 84, 209, 0.35);
+        outline: 0;
+    }
+
+/* Accept button - Transparent Green */
+.btn-success {
+    position: relative;
+    overflow: visible;
+    align-items: center;
+    background-color: rgba(34, 197, 94, 0.12);
+    border: 2px solid rgba(34, 197, 94, 0.35);
+    border-radius: 10px;
+    color: #176b4c;
+    font-weight: 800;
+    font-family: Inter, sans-serif;
+    font-size: 1.05rem;
+    padding: 8px 22px;
+    margin: 0 6px;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    z-index: 1;
+}
+
+    .btn-success:after {
+        background-color: rgba(34, 197, 94, 0.18);
+        border-radius: 10px;
+        content: "";
+        display: block;
+        height: 100%;
+        left: 0;
+        width: 100%;
+        position: absolute;
+        top: -2px;
+        transform: translate(8px, 8px);
+        transition: transform .2s ease-out;
+        z-index: -1;
+    }
+
+    .btn-success:hover:after {
+        transform: translate(0, 0);
+    }
+
+    .btn-success:active {
+        background-color: rgba(34, 197, 94, 0.22);
+        outline: 0;
+    }
+
+    .btn-success:hover,
+    .btn-success:focus,
+    .btn-success:active {
+        color: #fff !important;
+        background-color: rgba(34, 197, 94, 0.35);
+        outline: 0;
+    }
+
+/* Decline/Finish button - Transparent Red */
+.btn-danger {
+    position: relative;
+    overflow: visible;
+    align-items: center;
+    background-color: rgba(232, 63, 63, 0.12);
+    border: 2px solid rgba(232, 63, 63, 0.35);
+    border-radius: 10px;
+    color: #a83232;
+    font-weight: 800;
+    font-family: Inter, sans-serif;
+    font-size: 1.05rem;
+    padding: 8px 22px;
+    margin: 0 6px;
+    display: inline-block;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(232, 63, 63, 0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.15s;
+    z-index: 1;
+}
+
+    .btn-danger:after {
+        background-color: rgba(232, 63, 63, 0.18);
+        border-radius: 10px;
+        content: "";
+        display: block;
+        height: 100%;
+        left: 0;
+        width: 100%;
+        position: absolute;
+        top: -2px;
+        transform: translate(8px, 8px);
+        transition: transform .2s ease-out;
+        z-index: -1;
+    }
+
+    .btn-danger:hover:after {
+        transform: translate(0, 0);
+    }
+
+    .btn-danger:active {
+        background-color: rgba(232, 63, 63, 0.22);
+        outline: 0;
+    }
+
+    .btn-danger:hover,
+    .btn-danger:focus,
+    .btn-danger:active {
+        color: #fff !important;
+        background-color: rgba(232, 63, 63, 0.35);
+        outline: 0;
+    }
+
+/* Responsive: keep the effect on full width */
+@media (max-width: 900px) {
+    .btn-outline-primary, .btn-success, .btn-danger {
+        width: 100%;
+        margin: 8px 0;
+    }
+}
+
+.btn-sm {
+    padding: 8px 22px;
+    font-size: 1.05rem;
+}
+
+.me-1 {
+    margin-right: 10px;
+}
+
+.mt-1 {
+    margin-top: 10px;
+}
+
+/* Smooth fade-in animation for table rows */
+@keyframes fadeInRow {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+.table tbody tr {
+    animation: fadeInRow 0.7s cubic-bezier(.4,2,.6,1);
+}
+
+/* Responsive: Stack cards and align content */
+@media (max-width: 900px) {
+    .table thead {
+        display: none;
+    }
+
+    .table, .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+
+        .table tr {
+            margin-bottom: 28px;
+            box-shadow: 0 2px 10px #3554d111;
+        }
+
+        .table td {
+            padding: 16px 10px;
+            border-bottom: none;
+            position: relative;
+            text-align: left;
+        }
+
+            .table td:before {
+                content: attr(data-label);
+                font-weight: 800;
+                color: #3554d1;
+                display: block;
+                margin-bottom: 8px;
+                font-size: 1.08rem;
+            }
+
+    .form-control {
+        width: 100%;
+    }
+
+    .btn-outline-primary, .btn-success, .btn-danger {
+        width: 100%;
+        margin: 8px 0;
+    }
+}

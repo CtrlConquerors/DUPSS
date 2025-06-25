@@ -70,6 +70,11 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 throw new Exception($"API: Failed to create user: {ex.Message}", ex);
             }
         }
+        public async Task<int> CountAsync()
+        {
+            await using var context = await _contextFactory.CreateDbContextAsync();
+            return await context.User.CountAsync();
+        }
 
         public async Task<UserDTO> GetByIdAsync(string userId)
         {
@@ -171,5 +176,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 throw new Exception($"Failed to delete user: {ex.Message}", ex);
             }
         }
+
+        
     }
 }

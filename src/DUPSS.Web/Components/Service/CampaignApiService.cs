@@ -26,5 +26,11 @@ namespace DUPSS.Web.Components.Service
             var result = await _httpClient.GetFromJsonAsync<List<CampaignDTO>>(url);
             return result ?? new List<CampaignDTO>();
         }
+
+        public async Task<int> GetCountAsync()
+        {
+            var result = await _httpClient.GetFromJsonAsync<int>("api/Campaigns/Count");
+            return result;
+        }
     }
 }

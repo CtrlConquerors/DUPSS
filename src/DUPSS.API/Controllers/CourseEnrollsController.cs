@@ -1,12 +1,13 @@
 ﻿using DUPSS.API.Models.AccessLayer;
+using DUPSS.API.Models.AccessLayer.DAOs;
 using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects; // Ensure this namespace is included for CourseEnroll domain model
 using Microsoft.AspNetCore.Mvc;
+using Npgsql;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System;
-using Npgsql;
 
 namespace DUPSS.API.Controllers
 {
@@ -58,6 +59,26 @@ namespace DUPSS.API.Controllers
             catch (Exception ex)
             {
                 Console.WriteLine($"Internal server error in GetById({enrollId}): {ex.Message}");
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("Count")]
+        public async Task<ActionResult<int>> GetCount()
+        {
+            try
+            {
+                // Replace _userDAO.CountAsync() with a manual count operation
+                var courses = await _courseEnrollDAO.GetAllAsync();
+                var count = courses.Count;
+                return Ok(count);
+            }
+            catch (Npgsql.NpgsqlException ex)
+            {
+                return StatusCode(500, $"Database error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }

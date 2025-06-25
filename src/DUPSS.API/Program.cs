@@ -29,6 +29,8 @@ builder.Services.AddScoped<ICourseDAO, CourseDAO>();
 builder.Services.AddScoped<ICourseEnrollDAO, CourseEnrollDAO>();
 builder.Services.AddScoped<IAssessmentDAO, AssessmentDAO>();
 builder.Services.AddScoped<IAssessmentResultDAO, AssessmentResultDAO>();
+builder.Services.AddScoped<IAssessmentQuestionDAO, AssessmentQuestionDAO>();
+builder.Services.AddScoped<IAssessmentAnswerDAO, AssessmentAnswerDAO>();
 builder.Services.AddScoped<IBlogDAO, BlogDAO>();
 builder.Services.AddScoped<IBlogTopicDAO, BlogTopicDAO>();
 builder.Services.AddScoped<ICampaignRegistrationDAO, CampaignRegistrationDAO>();

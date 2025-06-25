@@ -13,6 +13,6 @@ namespace DUPSS.API.Models.DTOs
         public string? ScoreDescription { get; set; } // Optional description
 
         [JsonIgnore]
-        public AssessmentQuestion? Question { get; set; }
+        public AssessmentQuestionDTO? Question { get; set; }
     }
 }

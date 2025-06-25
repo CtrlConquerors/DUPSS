@@ -17,5 +17,6 @@ namespace DUPSS.API.Models.Objects
         [NotMapped]
         public string? ImageUrl { get; set; }
         public List<AssessmentQuestion> Questions { get; set; } = new();
+        public List<AssessmentResult> Results { get; set; } = new();
     }
 }

@@ -15,6 +15,8 @@ namespace DUPSS.API.Models.AccessLayer
         public DbSet<CourseEnroll> CourseEnroll { get; set; }
         public DbSet<Assessment> Assessment { get; set; }
         public DbSet<AssessmentResult> AssessmentResult { get; set; }
+        public DbSet<AssessmentQuestion> AssessmentQuestion { get; set; }
+        public DbSet<AssessmentAnswer> AssessmentAnswer { get; set; } 
         public DbSet<Blog> Blog { get; set; }
         public DbSet<BlogTopic> BlogTopic { get; set; }
 
@@ -89,18 +91,6 @@ namespace DUPSS.API.Models.AccessLayer
                 .WithMany(c => c.Enrollments)
                 .HasForeignKey(ce => ce.CourseId);
 
-            // Assessment -> AssessmentResult (one-to-many)
-            modelBuilder.Entity<AssessmentResult>()
-                .HasOne(ar => ar.Assessment)
-                .WithMany(a => a.Results)
-                .HasForeignKey(ar => ar.AssessmentId);
-
-            // Users -> AssessmentResult (one-to-many)
-            modelBuilder.Entity<AssessmentResult>()
-                .HasOne(ar => ar.Member)
-                .WithMany(u => u.AssessmentResults)
-                .HasForeignKey(ar => ar.MemberId);
-
             // Users -> Blogs (one-to-many)
             modelBuilder.Entity<Blog>()
                 .HasOne(b => b.Staff)
@@ -123,7 +113,29 @@ namespace DUPSS.API.Models.AccessLayer
                 .WithMany()
                 .HasForeignKey(r => r.CampaignId);
 
+            // Assessment -> AssessmentResult (one-to-many)
+            modelBuilder.Entity<AssessmentResult>()
+                .HasOne(ar => ar.Assessment)
+                .WithMany(a => a.Results)
+                .HasForeignKey(ar => ar.AssessmentId);
 
+            // Users -> AssessmentResult (one-to-many)
+            modelBuilder.Entity<AssessmentResult>()
+                .HasOne(ar => ar.Member)
+                .WithMany(u => u.AssessmentResults)
+                .HasForeignKey(ar => ar.MemberId);
+
+            // Assessment -> AssessmentQuestion (one-to-many)
+            modelBuilder.Entity<AssessmentQuestion>()
+                .HasOne(a => a.Assessment)
+                .WithMany(a => a.Questions)
+                .HasForeignKey(q => q.AssessmentId);
+
+            // AssessmentQuestion -> AssessmentAnswer (one-to-many)
+            modelBuilder.Entity<AssessmentAnswer>()
+                .HasOne(q => q.Question)
+                .WithMany(q => q.Answers)
+                .HasForeignKey(a => a.QuestionId);
 
 
             // Configure indexes (optional, as schema already defines them)

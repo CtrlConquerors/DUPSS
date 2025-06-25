@@ -13,5 +13,6 @@ namespace DUPSS.API.Models.Objects
         [Required, MaxLength(50)]
         public required string QuestionType { get; set; } = "MultipleChoice";
         public List<AssessmentAnswer> Answers { get; set; } = new();
+        public Assessment? Assessment { get; set; }
     }
 }

@@ -12,5 +12,7 @@ namespace DUPSS.API.Models.Objects
         public required string Answer { get; set; }
         public int ScoreValue { get; set; } // Numeric score
         public string? ScoreDescription { get; set; } // Optional description
+
+        public AssessmentQuestion? Question { get; set; }  // Navigation property for related question
     }
 }

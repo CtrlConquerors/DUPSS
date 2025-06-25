@@ -1,4 +1,4 @@
-﻿@page "/Blog/Detail/{AssessmentId}"
+﻿@page "/Assessment/Detail/{AssessmentId}"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 @using Markdig
@@ -46,22 +46,7 @@
                         }
                     }
                 </span>
-                <div class="assessment-hero-meta">
-                    <div class="info-row">
-                        <label>Topic:</label>
-                        <span>@assessment.BlogTopic!.BlogTopicName</span>
-                    </div>
-                    <div class="info-row">
-                        <label>Author:</label>
-                        <span>@(assessment.Staff?.Username ?? "Unknown")</span>
-                    </div>
-                </div>
             </div>
-        </div>
-
-        <div class="blog-section">
-            <h3>Content</h3>
-            <div>@((MarkupString)Markdown.ToHtml(assessment.Content ?? "", pipeline))</div>
         </div>
 
         <div class="navigation-buttons">
@@ -118,7 +103,7 @@
 
     private void GoBack()
     {
-        Console.WriteLine("Navigating back to /assessment");
-        NavigationManager.NavigateTo("/assessment", forceLoad: true);
+        Console.WriteLine("Navigating back to /Assessment");
+        NavigationManager.NavigateTo("/Assessment", forceLoad: true);
     }
 }

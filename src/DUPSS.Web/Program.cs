@@ -72,6 +72,12 @@ builder.Services.AddScoped<CampaignRegistrationApiService>(sp => new CampaignReg
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 builder.Services.AddScoped<AssessmentApiService>(sp => new AssessmentApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<AssessmentQuestionApiService>(sp => new AssessmentQuestionApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<AssessmentAnswerApiService>(sp => new AssessmentAnswerApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
+builder.Services.AddScoped<AssessmentResultApiService>(sp => new AssessmentResultApiService(
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 
 
 builder.Services.AddScoped<ProtectedLocalStorage>();
@@ -84,13 +90,6 @@ builder.Services.AddCors(options =>
             .AllowAnyHeader()
             .AllowCredentials());
 });
-
-// REMOVED: This generic HttpClient registration is likely redundant and could cause issues
-// if the named "ApiClient" is intended for all API calls.
-// builder.Services.AddScoped(sp => new HttpClient
-// {
-//     BaseAddress = new Uri("https://localhost:7084/")
-// });
 
 var app = builder.Build();
 

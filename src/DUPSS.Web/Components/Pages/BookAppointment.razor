@@ -153,7 +153,7 @@
 
                     bool isOverlap = requestedStart < existingEnd && existingStart < requestedEnd;
 
-                    return isOverlap && a.Status is "Pending" or "Accepted";
+                    return isOverlap && a.Status == "Accepted"; // ✅ chỉ block Accepted
                 });
 
                 if (!hasConflict)
@@ -187,6 +187,29 @@
                 await JS.InvokeVoidAsync("alert", "Please pick a consultant.");
                 return;
             }
+
+            // ✅ Check conflict manually when user chooses consultant
+            var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(newAppointment.ConsultantId);
+
+            bool hasConflict = consultantAppointments.Any(a =>
+            {
+                TimeSpan duration = TimeSpan.FromMinutes(30);
+
+                var existingStart = a.AppointmentDate;
+                var existingEnd = existingStart.Add(duration);
+
+                var requestedStart = newAppointment.AppointmentDate.ToUniversalTime();
+                var requestedEnd = requestedStart.Add(duration);
+
+                bool isOverlap = requestedStart < existingEnd && existingStart < requestedEnd;
+                return isOverlap && a.Status == "Accepted"; // ✅ only block accepted
+            });
+
+            if (hasConflict)
+            {
+                await JS.InvokeVoidAsync("alert", "This consultant already has an accepted appointment at the selected time. Please choose a different time or consultant.");
+                return;
+            }
         }
 
         var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
@@ -201,6 +224,7 @@
             await JS.InvokeVoidAsync("alert", "Failed to book appointment. Please try again.");
         }
     }
+
 
 
 

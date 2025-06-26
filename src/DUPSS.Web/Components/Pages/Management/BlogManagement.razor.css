@@ -144,6 +144,11 @@
     width: 120px;
     text-align: center;
 }
+    .blog-table th:nth-child(5),
+    .blog-table td:nth-child(5) {
+        width: 120px;
+        text-align: center;
+    }
 
 .blog-table th:last-child,
 .blog-table td:last-child {

@@ -245,6 +245,19 @@
                 {
                     modules.First().IsExpanded = true;
                 }
+
+                // NEW: If the course is completed, mark all modules and lessons as complete
+                if (currentEnrollment != null && currentEnrollment.Status == "Completed")
+                {
+                    foreach (var module in modules)
+                    {
+                        module.IsComplete = true;
+                        foreach (var lesson in module.Lessons)
+                        {
+                            lesson.IsComplete = true;
+                        }
+                    }
+                }
             }
         }
         catch (Exception ex)
@@ -260,59 +273,59 @@
         {
             modules.Add(new CourseModule
             {
-                Title = "Module 1: Introduction",
-                Description = "In this module, you will be introduced to the course's program and how to stay sober.",
+                Title = "Module 1: Embracing a Sober & Social Life", // Changed title
+                Description = "In this module, you will be introduced to the course's program and how to stay sober. You are expected to spend 2 to 3 hours on this module's workload.",
                 IsComplete = false,
                 LearningObjectives = new List<string> {
-                    "Recognize the nature of drugs.",
-                    "Understand how bad drug is.",
-                    "Conduct formative research."
+                    "Understand the core principles of sober living.",
+                    "Identify personal motivations for a substance-free lifestyle.",
+                    "Set foundational goals for social engagement without substances."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Welcome to the course", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "Welcome to the exciting world of drug rehabilitation! This course is designed to guide you through a journey of recovery and self-discovery. We believe in your potential to overcome challenges and build a fulfilling life free from addiction. Throughout the modules, you will find resources, insights, and exercises to support your path to sobriety. Remember, you are not alone in this journey, and support is always available." },
-                    new CourseLesson { Title = "Course Syllabus", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "The course syllabus provides a detailed overview of the curriculum, learning objectives, and assessment methods. It outlines the topics covered in each module, recommended readings, and important dates. Familiarizing yourself with the syllabus will help you plan your studies effectively and stay on track with your progress. If you have any questions, feel free to reach out to your instructor or support team." },
-                    new CourseLesson { Title = "Help Us Learn More About You!", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "To provide you with the best possible learning experience, we encourage you to share more about yourself. Your insights and experiences can help us tailor the content to better meet your needs. Please take a moment to complete the brief survey, which will allow us to understand your background, learning preferences, and any specific areas where you might need additional support. Your responses are confidential and will only be used to enhance your learning journey." }
+                    new CourseLesson { Title = "Your Journey to Sober Fun", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "Welcome to the exciting world of drug rehabilitation! This course is designed to guide you through a journey of recovery and self-discovery. We believe in your potential to overcome challenges and build a fulfilling life free from addiction. Throughout the modules, you will find resources, insights, and exercises to support your path to sobriety. Remember, you are not alone in this journey, and support is always available." }, // Changed title
+                    new CourseLesson { Title = "Navigating Your Sober Path", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "The course syllabus provides a detailed overview of the curriculum, learning objectives, and assessment methods. It outlines the topics covered in each module, recommended readings, and important dates. Familiarizing yourself with the syllabus will help you plan your studies effectively and stay on track with your progress. If you have any questions, feel free to reach out to your instructor or support team." }, // Changed title
+                    new CourseLesson { Title = "Share Your Sober & Social Goals", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "To provide you with the best possible learning experience, we encourage you to share more about yourself. Your insights and experiences can help us tailor the content to better meet your needs. Please take a moment to complete the brief survey, which will allow us to understand your background, learning preferences, and any specific areas where you might need additional support. Your responses are confidential and will only be used to enhance your learning journey." } // Changed title
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 2: Building Healthy Social Connections",
-                Description = "This module explores the dynamics of social interactions, offering insights into fostering meaningful relationships and navigating social environments without the need for substances.",
+                Title = "Module 2: Building Healthy Social Connections", // Changed title to fit theme
+                Description = "This module explores the dynamics of social interactions, offering insights into fostering meaningful relationships and navigating social environments without the need for substances.", // Changed description
                 IsComplete = false,
                 LearningObjectives = new List<string> {
-                      "Recognize the impact of past substance use on social dynamics.",
+                    "Recognize the impact of past substance use on social dynamics.",
                     "Identify healthy vs. unhealthy social relationships.",
                     "Develop strategies for setting boundaries in social settings.",
                     "Explore the benefits of a supportive sober community."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Understanding Social Dynamics & Triggers", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "In this lesson, we delve into the fundamental aspects of social dynamics and how they can be impacted by a history of substance use. You will learn to identify common social triggers that might lead to cravings or discomfort, and begin to understand how to approach these situations with a sober mindset. This foundational knowledge is crucial for building resilient social connections." },
-                    new CourseLesson { Title = "Cultivating Positive Relationships", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson focuses on practical strategies for building and maintaining positive, supportive relationships that align with your sober lifestyle. We'll explore techniques for clear communication, active listening, and setting healthy boundaries to ensure your social circle contributes positively to your recovery journey. Learn how to identify and nurture connections that uplift you." },
-                    new CourseLesson { Title = "Navigating Social Events Soberly", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson provides actionable advice for attending social gatherings and events without feeling pressured to use substances. You'll learn coping mechanisms for uncomfortable situations, how to politely decline offers, and strategies for finding enjoyment in social settings purely on your own terms. Prepare to confidently embrace sober social fun!" }
+                    new CourseLesson { Title = "Understanding Social Dynamics & Triggers", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "In this lesson, we delve into the fundamental aspects of social dynamics and how they can be impacted by a history of substance use. You will learn to identify common social triggers that might lead to cravings or discomfort, and begin to understand how to approach these situations with a sober mindset. This foundational knowledge is crucial for building resilient social connections." }, // Changed title and content
+                    new CourseLesson { Title = "Cultivating Positive Relationships", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson focuses on practical strategies for building and maintaining positive, supportive relationships that align with your sober lifestyle. We'll explore techniques for clear communication, active listening, and setting healthy boundaries to ensure your social circle contributes positively to your recovery journey. Learn how to identify and nurture connections that uplift you." }, // Changed title and content
+                    new CourseLesson { Title = "Navigating Social Events Soberly", Type = "Reading", DurationText = "10 min", IsComplete = false, Content = "This lesson provides actionable advice for attending social gatherings and events without feeling pressured to use substances. You'll learn coping mechanisms for uncomfortable situations, how to politely decline offers, and strategies for finding enjoyment in social settings purely on your own terms. Prepare to confidently embrace sober social fun!" } // Changed title and content
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 3: Practicing New Social Skills",
+                Title = "Module 3: Practicing New Social Skills", // Changed title
                 Description = "This module focuses on practical application, guiding you through exercises and real-world scenarios to build confidence and competence in sober social interactions.",
                 IsComplete = false,
                 LearningObjectives = new List<string> {
-                   "Practice effective communication in sober social settings.",
+                    "Practice effective communication in sober social settings.",
                     "Learn techniques for declining substances gracefully.",
                     "Develop coping mechanisms for social anxiety without relying on substances."
                 },
                 Lessons = new List<CourseLesson>
                 {
-                 
-                    new CourseLesson { Title = "Lesson 3.1: Communicating Confidently", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/9ifImJbiLVQ?si=l_ymGYEtPLcwfUN5" }, 
-                    new CourseLesson { Title = "Lesson 3.2: Role-Playing Social Situations", Type = "Reading", DurationText = "8 min", IsComplete = false, Content = "In this lesson, you'll engage in various role-playing exercises designed to simulate real-life social scenarios. This hands-on approach will help you practice responding to peer pressure, initiating conversations, and handling awkward moments, all while maintaining your sobriety. The goal is to build muscle memory for positive social interactions, making it easier to navigate social events with confidence and ease." },
+                    // Example YouTube embed URL
+                    new CourseLesson { Title = "Lesson 3.1: Communicating Confidently", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/IiVC7omXhUQ?rel=0" }, 
+                    new CourseLesson { Title = "Lesson 3.2: Role-Playing Social Situations", Type = "Reading", DurationText = "8 min", IsComplete = false, Content = "In this lesson, you'll engage in various role-playing exercises designed to simulate real-life social scenarios. This hands-on approach will help you practice responding to peer pressure, initiating conversations, and handling awkward moments, all while maintaining your sobriety. The goal is to build muscle memory for positive social interactions, making it easier to navigate social events with confidence and ease." }, 
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 4:  Evaluating Your Social Progress",
+                Title = "Module 4: Evaluating Your Social Progress", // Changed title
                 Description = "This module focuses on evaluating your progress in navigating social situations without substances. You'll learn to track your successes, identify challenges, and adjust your strategies for continued growth.",
                 IsComplete = false,
                 LearningObjectives = new List<string> {
@@ -322,17 +335,17 @@
                 },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Lesson 4.1: Setting Social Goals", Type = "Reading", DurationText = "7 min", IsComplete = false, Content = "This lesson delves into the importance of setting clear and achievable social goals in your sober journey. You'll learn how to define what 'fun' and 'social' mean to you without substances, create actionable steps, and develop a roadmap for expanding your sober social circle." },
+                    new CourseLesson { Title = "Lesson 4.1: Setting Social Goals", Type = "Reading", DurationText = "7 min", IsComplete = false, Content = "This lesson delves into the importance of setting clear and achievable social goals in your sober journey. You'll learn how to define what 'fun' and 'social' mean to you without substances, create actionable steps, and develop a roadmap for expanding your sober social circle." }, 
                     new CourseLesson { Title = "Lesson 4.2: Reflecting on Social Encounters", Type = "Video", DurationText = "18 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/0SHJdYREATE?si=F3ap7W_Ct1OjUi10" },
                 }
             });
             modules.Add(new CourseModule
             {
                 Title = "Module 5: Sustaining Your Sober & Social Life",
-                Description = "This module provides strategies and resources to help you maintain your sober and social lifestyle long-term. You'll learn about building lasting support systems and discovering new ways to have fun without substances.",
+                Description = "This module equips you with essential strategies and resources for long-term sobriety, helping you build and maintain a thriving social life free from substance dependence.",
                 IsComplete = false,
                 LearningObjectives = new List<string> {
-                   "Build and maintain a strong sober support network.",
+                    "Build and maintain a strong sober support network.",
                     "Discover new, enjoyable sober activities and hobbies.",
                     "Plan for long-term sobriety and social well-being."
                 },
@@ -347,26 +360,32 @@
         {
             modules.Add(new CourseModule
             {
-                Title = "Module 1: Foundations",
+                Title = "Module 1: Laying the Foundations for Sober Fun",
                 Description = "This module provides the foundational knowledge required for the course.",
                 IsComplete = false,
-                LearningObjectives = new List<string> { "Understand basic concepts", "Identify key terminologies" },
+                LearningObjectives = new List<string> {
+                    "Define key concepts of sobriety and social well-being.",
+                    "Understand the importance of a substance-free lifestyle for social health."
+                },
                 Lessons = new List<CourseLesson>
                 {
-                    new CourseLesson { Title = "Course Introduction", Type = "Video", DurationText = "8 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/u7T2r4C173M?si=kLSLR5MbMrJ4dJUZ" },
-                    new CourseLesson { Title = "Core Reading", Type = "Reading", DurationText = "20 min", IsComplete = false, Content = "This core reading delves into the fundamental principles of the subject matter. It's designed to give you a solid understanding of the essential concepts that will be built upon in subsequent modules. Take your time to absorb the information and feel free to revisit sections as needed. A strong foundation here will greatly benefit your learning journey." }
+                    new CourseLesson { Title = "Introduction to Sober Living", Type = "Video", DurationText = "8 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/u7T2r4C173M?si=kLSLR5MbMrJ4dJUZ" },
+                    new CourseLesson { Title = "Understanding the Benefits of Sobriety", Type = "Reading", DurationText = "20 min", IsComplete = false, Content = "This core reading delves into the fundamental principles of the subject matter. It's designed to give you a solid understanding of the essential concepts that will be built upon in subsequent modules. Take your time to absorb the information and feel free to revisit sections as needed. A strong foundation here will greatly benefit your learning journey." }
                 }
             });
             modules.Add(new CourseModule
             {
-                Title = "Module 2: Application",
+                Title = "Module 2: Applying Sober Strategies",
                 Description = "Apply the concepts learned in Module 1 to practical scenarios.",
                 IsComplete = false,
-                LearningObjectives = new List<string> { "Implement basic techniques", "Solve simple problems" },
+                LearningObjectives = new List<string> {
+                    "Apply practical strategies for navigating social events soberly.",
+                    "Evaluate personal progress in maintaining a sober and social life."
+                },
                 Lessons = new List<CourseLesson>
                 {
-                    
-                    new CourseLesson { Title = "Solution Walkthrough", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/NO5-tFfuZAA?si=DxhtLKtwx6CxQQxt" }
+                    new CourseLesson { Title = "Quiz: Your Sober Choices", Type = "Quiz", DurationText = "10 questions", IsComplete = false },
+                    new CourseLesson { Title = "Navigating Social Scenarios", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/NO5-tFfuZAA?si=DxhtLKtwx6CxQQxt" }
                 }
             });
         }

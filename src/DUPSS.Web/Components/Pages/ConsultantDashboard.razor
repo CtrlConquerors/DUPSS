@@ -79,7 +79,11 @@ else
                         <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@appt.Member?.Username</td>
                         <td>@appt.Topic</td>
-                        <td>@appt.Status</td>
+                        <td>
+                            <span class="status-badge @(appt.Status == "Declined" ? "status-declined" : appt.Status == "Finished" ? "status-finished" : appt.Status == "Accepted" ? "status-accepted" : "")">
+                                @appt.Status
+                            </span>
+                        </td>
                     </tr>
                 }
             </tbody>

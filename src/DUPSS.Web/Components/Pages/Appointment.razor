@@ -15,8 +15,8 @@
         <strong>📌 Your next appointment:</strong><br />
         With <strong>@nextAppointment.Consultant?.Username</strong> on
         <strong>@nextAppointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong><br />
-        <em>Topic:</em>@nextAppointment.Topic <br />
-        <em>Status:</em>@nextAppointment.Status
+        <em>Topic:</em> @nextAppointment.Topic <br />
+        <em>Status:</em> @nextAppointment.Status
     </div>
 }
 
@@ -53,7 +53,7 @@ else
                     <option>Accepted</option>
                     <option>Declined</option>
                     <option>Finished</option>
-                    <option>Confirmed</option>
+                    <option>Cancel</option>
                 </select>
             </div>
             <div class="col-auto">

@@ -113,7 +113,7 @@
 
                 existingAppointments = await AppointmentApiService.GetAppointmentsForMemberAsync(memberId);
                 var activeCount = existingAppointments
-                    .Count(a => a.Status is "Pending" or "Accepted" or "Confirmed");
+                    .Count(a => a.Status is "Pending" or "Accepted" );
 
                 canBook = activeCount < MaxActiveAppointments;
             }
@@ -153,7 +153,7 @@
 
                     bool isOverlap = requestedStart < existingEnd && existingStart < requestedEnd;
 
-                    return isOverlap && a.Status == "Accepted"; // ✅ chỉ block Accepted
+                    return isOverlap && a.Status == "Accepted"; 
                 });
 
                 if (!hasConflict)
@@ -202,7 +202,7 @@
                 var requestedEnd = requestedStart.Add(duration);
 
                 bool isOverlap = requestedStart < existingEnd && existingStart < requestedEnd;
-                return isOverlap && a.Status == "Accepted"; // ✅ only block accepted
+                return isOverlap && a.Status == "Accepted"; 
             });
 
             if (hasConflict)

@@ -1,7 +1,7 @@
 ﻿@page "/ConsultantDashboard"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
-@inject AppointmentApiService AppointmentService
+@inject AppointmentApiService AppointmentApiService
 @inject AuthenticationStateProvider AuthProvider
 
 <h3 class="mb-4">🎯 Consultant Dashboard</h3>
@@ -97,10 +97,10 @@ else
 
         if (!string.IsNullOrEmpty(userId))
         {
-            allAppointments = await AppointmentService.GetAppointmentsForConsultantAsync(userId);
+            allAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(userId);
             todayCount = allAppointments.Count(a => a.AppointmentDate.Date == DateTime.Today);
             upcomingAppointments = allAppointments
-                .Where(a => a.AppointmentDate > DateTime.Now && (a.Status == "Accepted" || a.Status == "Pending" || a.Status == "Confirmed"))
+                .Where(a => a.AppointmentDate > DateTime.Now && (a.Status == "Accepted" || a.Status == "Pending"))
                 .OrderBy(a => a.AppointmentDate)
                 .Take(5)
                 .ToList();

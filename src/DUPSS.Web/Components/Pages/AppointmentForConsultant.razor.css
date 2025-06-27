@@ -115,18 +115,18 @@ h3 {
         color: #fff;
     }
 
-    .status-badge.Accepted {
-        background: linear-gradient(90deg, #22c55e 60%, #4ade80 100%);
-        color: #fff;
-    }
-
-    .status-badge.Declined {
+    .status-badge.declined {
         background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
         color: #fff;
     }
 
-    .status-badge.Finished {
-        background: linear-gradient(90deg, #6366f1 60%, #818cf8 100%);
+    .status-badge.finished {
+        background: linear-gradient(90deg, #facc15 60%, #fde047 100%);
+        color: #333;
+    }
+
+    .status-badge.accepted {
+        background: linear-gradient(90deg, #22c55e 60%, #4ade80 100%);
         color: #fff;
     }
 
@@ -134,10 +134,32 @@ h3 {
         background: linear-gradient(90deg, #0ea5e9 60%, #38bdf8 100%);
         color: #fff;
     }
+.text-muted.declined {
+    color: #ef4444 !important;
+    background: linear-gradient(90deg, #f87171 60%, #ef4444 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
 
+.text-muted.cancel {
+    color: #444 !important;
+    background: grey;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.text-muted.finished {
+    color: #facc15 !important;
+    background: darkgoldenrod;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
 /* Notes area */
 .form-control {
-    min-height: 120px;
+    min-height: 60px;
     padding: 18px 16px;
     font-size: 1.15rem;
     width: 98%;
@@ -402,3 +424,106 @@ h3 {
         margin: 8px 0;
     }
 }
+.mb-4 {
+    background: rgba(255, 255, 255, 0.32);
+    backdrop-filter: blur(10px);
+    border: 1.5px solid rgba(180, 200, 255, 0.22);
+    border-radius: 18px;
+    box-shadow: 0 2px 16px rgba(44,62,80,0.07);
+    padding: 22px 28px 14px 28px;
+    margin-bottom: 36px;
+    max-width: 1300px;
+    margin-left: auto;
+    margin-right: auto;
+    transition: box-shadow 0.2s;
+    position: relative;
+    z-index: 2;
+    /* Add a little animation for entrance */
+    animation: fadeIn 0.7s cubic-bezier(0.4,0,0.2,1);
+}
+
+    .mb-4:focus-within,
+    .mb-4:hover {
+        box-shadow: 0 4px 32px rgba(44,62,80,0.13);
+    }
+
+    /* Filter row layout */
+    .mb-4 .row.g-3 {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px 18px;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Each filter item */
+    .mb-4 .col-auto {
+        flex: 1 1 180px;
+        min-width: 160px;
+        max-width: 220px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Input and select styling */
+    .mb-4 .form-control,
+    .mb-4 .form-select {
+        width: 350px;
+        border-radius: 12px;
+        border: 1.5px solid #cbd5e1;
+        font-size: 1rem;
+        padding: 12px 14px;
+        background: rgba(249,250,251,0.85);
+        color: #222;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        box-shadow: 0 1.5px 4px rgba(30,104,255,0.04);
+        height:60px;
+    }
+
+        .mb-4 .form-control:focus,
+        .mb-4 .form-select:focus {
+            border-color: #2563eb;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 0 0 2px #dbeafe;
+        }
+
+    /* Button group */
+    .mb-4 .btn {
+        border-radius: 999px;
+        font-weight: 600;
+        font-size: 1rem;
+        padding: 10px 10px;
+        margin-right: 8px;
+        margin-top: 0;
+        margin-bottom: 0;
+        transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.18s;
+        box-shadow: 0 2px 8px rgba(59,130,246,0.07);
+    }
+
+    .mb-4 .btn-primary {
+        background: #2563eb;
+        color: #fff;
+        border: none;
+    }
+
+        .mb-4 .btn-primary:hover,
+        .mb-4 .btn-primary:focus {
+            background: #1e40af;
+            color: #fff;
+            transform: translateY(-1px) scale(1.04);
+        }
+
+    .mb-4 .btn-secondary {
+        background: #e0e7ef;
+        color: #2563eb;
+        border: none;
+    }
+
+        .mb-4 .btn-secondary:hover,
+        .mb-4 .btn-secondary:focus {
+            background: #c7d2fe;
+            color: #1e40af;
+            transform: translateY(-1px) scale(1.04);
+        }

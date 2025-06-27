@@ -237,7 +237,7 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
 
 .dashboard-chart-placeholder {
     width: 100%;
-    height: 60px;
+    height: 200px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -254,11 +254,11 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 1.08rem;
+    font-size: 1.06rem;
     font-weight: 700;
     border: none;
     border-radius: 14px;
-    padding: 13px 24px;
+    padding: 13px 10px;
     color: #fff;
     background: #2563eb;
     box-shadow: 0 2px 8px #e5e7eb;
@@ -284,7 +284,7 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
 .dashboard-action-btn:hover, .dashboard-action-btn:focus {
     background: linear-gradient(90deg, #2563eb 0%, #22c55e 100%);
     box-shadow: 0 8px 32px #2563eb33;
-    transform: translateY(-3px) scale(1.07);
+    transform: translateY(-3px) scale(1.03);
     filter: brightness(1.08);
 }
 

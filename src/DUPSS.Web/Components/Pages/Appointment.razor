@@ -15,7 +15,8 @@
         <strong>📌 Your next appointment:</strong><br />
         With <strong>@nextAppointment.Consultant?.Username</strong> on
         <strong>@nextAppointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong><br />
-        <em>Topic:</em> @nextAppointment.Topic
+        <em>Topic:</em> @nextAppointment.Topic <br />
+        <em>Status:</em> @nextAppointment.Status
     </div>
 }
 
@@ -52,7 +53,7 @@ else
                     <option>Accepted</option>
                     <option>Declined</option>
                     <option>Finished</option>
-                    <option>Confirmed</option>
+                    <option>Cancel</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -65,7 +66,7 @@ else
     <table class="appointment-table">
         <thead>
             <tr>
-                <th>Id</th>
+    
                 <th>Date</th>
                 <th>Consultant</th>
                 <th>Status</th>
@@ -77,7 +78,7 @@ else
             @foreach (var appt in filteredAppointments)
             {
                 <tr>
-                    <td>@appt.AppointmentId</td>
+           
                     <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@appt.Consultant?.Username</td>
                     <td>@appt.Status</td>
@@ -86,8 +87,28 @@ else
                         @appt.Notes
                     </td>
                     <td>
-                        <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
-                        <button class="btn btn-danger" @onclick="@(() => HandleUnregister(appt.AppointmentId))">❌ Cancel</button>
+                        @if (appt.Status == "Pending")
+                        {
+                            <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
+                            <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>
+                        }
+                        else if (appt.Status == "Accepted")
+                        {
+                            <span class="text-muted">This Appointment has been Accepted</span>
+                            <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>
+                        }
+                        else if (appt.Status == "Cancel")
+                        {
+                            <span class="text-muted">This Appointment has been cancelled</span>
+                        }
+                        else if (appt.Status == "Declined")
+                        {
+                            <span class="text-muted">This Appointment has been Declined by the Consultant. For more information, see the note from consultant</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">This Appointment has been finished</span>
+                        }
                     </td>
                 </tr>
             }
@@ -231,5 +252,27 @@ else
         toDate = null;
         selectedStatus = "";
         filteredAppointments = appointments.ToList();
+    }
+    private async Task UpdateStatus(string appointmentId, string newStatus)
+    {
+        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure to mark this appointment as {newStatus}?");
+        if (!confirmed) return;
+
+        var success = await AppointmentService.UpdateAppointmentStatusAsync(appointmentId, newStatus);
+
+        if (success)
+        {
+            var appt = appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
+            if (appt != null)
+                appt.Status = newStatus;
+
+            ApplyFilter();
+
+            await JS.InvokeVoidAsync("alert", $"Appointment marked as {newStatus}.");
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", $"Failed to update appointment status.");
+        }
     }
 }

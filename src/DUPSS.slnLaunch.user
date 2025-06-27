@@ -1,6 +1,6 @@
 [
   {
-    "Name": "Launch",
+    "Name": "Web",
     "Projects": [
       {
         "Path": "DUPSS.Web\\DUPSS.Web.csproj",
@@ -11,6 +11,26 @@
         "Path": "DUPSS.API\\DUPSS.API.csproj",
         "Action": "Start",
         "DebugTarget": "https"
+      }
+    ]
+  },
+  {
+    "Name": "WPF",
+    "Projects": [
+      {
+        "Path": "DUPSS.API\\DUPSS.API.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "wpf"
+      },
+      {
+        "Path": "DUPSS.Web\\DUPSS.Web.csproj",
+        "Action": "StartWithoutDebugging",
+        "DebugTarget": "wpf"
+      },
+      {
+        "Path": "DUPSS.App\\DUPSS.App.csproj",
+        "Action": "Start",
+        "DebugTarget": "DUPSS.App"
       }
     ]
   }

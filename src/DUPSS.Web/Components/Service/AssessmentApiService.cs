@@ -13,7 +13,7 @@ namespace DUPSS.Web.Components.Service
         }
         public async Task<AssessmentResultDTO> SubmitAssessmentAsync(string assessmentId, AssessmentSubmissionDTO submission)
         {
-            var response = await _httpClient.PostAsJsonAsync($"/api/Assessments/{assessmentId}/submit​", submission);
+            var response = await _httpClient.PostAsJsonAsync($"/api/Assessments/{assessmentId}/submit", submission);
             response.EnsureSuccessStatusCode();
             return await response.Content.ReadFromJsonAsync<AssessmentResultDTO>();
         }

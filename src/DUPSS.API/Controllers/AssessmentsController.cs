@@ -151,7 +151,8 @@ namespace DUPSS.API.Controllers
                     MemberId = submission.MemberId,
                     TotalScore = totalScore,
                     ScoreDetails = string.Join("; ", scoreDetails),
-                    Recommendation = recommendation
+                    Recommendation = recommendation,
+                    CompletedOn = DateOnly.FromDateTime(DateTime.Now)
                 };
 
                 var createdResult = await _assessmentResultDAO.CreateAsync(result);

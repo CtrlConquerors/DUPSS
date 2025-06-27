@@ -1,11 +1,13 @@
 ﻿@page "/Assessment/Take/{AssessmentId}"
+@using System.Security.Claims
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 @inject AssessmentApiService AssessmentApiService
 @inject AssessmentQuestionApiService AssessmentQuestionApiService
 @inject AssessmentAnswerApiService AssessmentAnswerApiService
 @inject NavigationManager NavigationManager
-@inject IJSRuntime JSRuntime
+@inject AuthenticationStateProvider AuthProvider
+@inject IJSRuntime JS
 
 <div class="take-assessment-container">
     @if (isLoading)
@@ -237,6 +239,7 @@
     private string errorMessage = string.Empty;
     private int currentQuestionIndex = 0;
     private string selectedAnswerId = string.Empty;
+    private string? CurrentMemberId;
 
     private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
     private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
@@ -364,10 +367,30 @@
 
         try
         {
+            if (string.IsNullOrEmpty(CurrentMemberId))
+            {
+                var authState = await AuthProvider.GetAuthenticationStateAsync();
+                var user = authState.User;
+
+                if (user.Identity?.IsAuthenticated == true)
+                {
+                    CurrentMemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                        ?? user.FindFirst("sub")?.Value
+                        ?? user.FindFirst("MemberId")?.Value;
+                }
+
+                if (string.IsNullOrEmpty(CurrentMemberId))
+                {
+                    await JS.InvokeVoidAsync("alert", "Failed to retrieve Member ID. Please login again.");
+                    NavigationManager.NavigateTo("/login");
+                    return;
+                }
+            }
+            
             // Prepare submission data
             var submission = new AssessmentSubmissionDTO
             {
-                MemberId = "current-user-id", // TODO: Replace with actual user ID from authentication
+                MemberId = CurrentMemberId,
                 Answers = userAnswers.Values.Select(answerId => new AnswerSubmissionDTO { AnswerId = answerId }).ToList()
             };
 

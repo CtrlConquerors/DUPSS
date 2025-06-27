@@ -1,717 +1,282 @@
-﻿@page "/Management/Assessment"
-@using DUPSS.API.Models.DTOs
-@using DUPSS.API.Models.Objects
-@using DUPSS.Web.Components.Layout
+﻿@* Assessment Management Main Page *@
+@page "/Management/Assessment"
 @using DUPSS.Web.Components.Service
+@using DUPSS.API.Models.DTOs
 @inject NavigationManager NavigationManager
 @inject AssessmentApiService AssessmentApiService
-@inject UserApiService UserApiService
-@inject RoleApiService RoleApiService
-@inject IJSRuntime JS
-@layout ManagementLayout
+@inject IJSRuntime JSRuntime
 
 <div class="assessment-management-container">
-    <div class="header-section">
-        <h1 class="page-title">Assessment Management</h1>
-        <div class="actions">
-            <button class="add-assessment-button" @onclick="AddAssessment">
-                <i class="bi bi-plus-circle"></i> ADD ASSESSMENT
-            </button>
-        </div>
-    </div>
-    <div class="filter-sort-section">
-        <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by Blog Title, Topic, Staff, ID, Content"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortAssessments" />
-        </div>
-
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnStaffFilterChanged">
-                <option value="">All Staff</option>
-                @if (staffUsers != null)
-                {
-                    @foreach (var staff in staffUsers)
-                    {
-                        <option value="@staff.UserId">@staff.Username</option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="sort-controls">
-            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortAssessments">
-                <option value="BlogId">Sort: Blog ID</option>
-                <option value="Title">Sort: Title</option>
-                <option value="TopicName">Sort: Topic Name</option>
-                <option value="StaffName">Sort: Staff Name</option>
-                <option value="Status">Sort: Status</option>
-            </select>
-            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                @if (sortDirection == SortDirection.Ascending)
-                {
-                    <i class="bi bi-sort-alpha-down"></i>
-                }
-                else
-                {
-                    <i class="bi bi-sort-alpha-down-alt"></i>
-                }
-            </button>
-        </div>
+    <h1>Assessment Management</h1>
+    
+    <div class="management-actions">
+        <button @onclick="ShowCreateAssessmentForm">Create New Assessment</button>
+        <button @onclick="RefreshAssessments">Refresh List</button>
     </div>
 
-    @if (assessments == null || staffUsers == null || roles == null)
+    @if (isLoading)
     {
-        <div class="loading-indicator">Loading blogs and related data...</div>
+        <div class="loading">
+            <p>Loading assessments...</p>
+        </div>
     }
     else if (hasError)
     {
-        <div class="error-message">Error loading data. Please try again later.</div>
-    }
-    else if (!filteredBlogs.Any())
-    {
-        <div class="no-data-message">No blogs found matching your criteria.</div>
+        <div class="error">
+            <p>Error loading assessments: @errorMessage</p>
+            <button @onclick="RefreshAssessments">Retry</button>
+        </div>
     }
     else
     {
-        <div class="table-container">
-            <table class="blog-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Blog ID</th>
-                        <th>Title</th>
-                        <th>Topic Name</th>
-                        <th>Status</th>
-                        <th>Staff Name</th>
-                        <th>Content</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @{
-                        var index = (currentPage - 1) * itemsPerPage + 1;
-                    }
-                    @foreach (var blog in PaginatedBlogs)
-                    {
-                        <tr>
-                            <td>@index</td>
-                            <td>@blog.BlogId</td>
-                            <td>@blog.Title</td>
-                            <td>@blog.BlogTopic?.BlogTopicName</td>
-                            <td>
-                                @if (blog.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
-                                {
-                                    <span class="published-indicator" title="Published Blog"></span>
-                                }
-                                else if (blog.Status?.Equals("Draft", StringComparison.OrdinalIgnoreCase) == true)
-                                {
-                                    <span class="draft-indicator" title="Draft Blog"></span>
-                                }
-                                @blog.Status
-                            </td>
-                            <td>@blog.Staff?.Username</td>
-                            <td>@(blog.Content?.Length > 100 ? blog.Content.Substring(0, 100) + "..." : blog.Content)</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-sm btn-primary me-2" @onclick="() => EditBlog(blog.BlogId)">
-                                        <i class="bi bi-three-dots-vertical"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.BlogId)">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        index++;
-                    }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex justify-content-center mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageIndex = i;
-                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
-                    @pageIndex
-                </button>
-            }
-        </div>
-    }
-
-    @if (showEditForm)
-    {
-        <div class="card p-3 my-4 edit-form-card">
-            <h5>@(isNewBlog ? "Add New Blog" : "Edit Blog: " + blogToEdit.Title)</h5>
-
-            @if (!string.IsNullOrEmpty(validationMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @validationMessage
-                </div>
-            }
-
-            <div class="mb-3">
-                <label class="form-label">Blog Title</label>
-                <input class="form-control" @bind="blogToEdit.Title" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Topic</label>
-                @if (showNewTopicInput)
-                {
-                    <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name" />
-                    <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New Topic</button>
-                }
-                else
-                {
-                    <select class="form-select" @bind="blogToEdit.BlogTopicId">
-                        <option value="">Select Topic</option>
-                        @if (blogTopics != null)
-                        {
-                            @foreach (var topic in blogTopics)
-                            {
-                                <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("No blog topics available.");
-                        }
-                    </select>
-                    <div class="d-flex justify-content-between mt-2">
-                        <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
-                        @if (!string.IsNullOrWhiteSpace(blogToEdit.BlogTopicId))
-                        {
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTopic(blogToEdit.BlogTopicId)">Delete Selected Topic</button>
-                        }
+        @if (showCreateForm)
+        {
+            <div class="create-form">
+                <h3>Create New Assessment</h3>
+                <form @onsubmit="CreateAssessment" @onsubmit:preventDefault="true">
+                    <div class="form-group">
+                        <label for="assessmentId">Assessment ID:</label>
+                        <input id="assessmentId" @bind="newAssessment.AssessmentId" required />
                     </div>
-                }
+                    <div class="form-group">
+                        <label for="assessmentType">Assessment Type:</label>
+                        <input id="assessmentType" @bind="newAssessment.AssessmentType" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="version">Version:</label>
+                        <input id="version" @bind="newAssessment.Version" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="language">Language:</label>
+                        <input id="language" @bind="newAssessment.Language" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" @bind="newAssessment.Description"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Create Assessment</button>
+                        <button type="button" @onclick="CancelCreate">Cancel</button>
+                    </div>
+                </form>
             </div>
+        }
 
-            <div class="mb-3">
-                <label class="form-label">Content (Markdown)</label>
-                <textarea class="form-control" id="markdownEditor" rows="10"></textarea>
-                @if (!isSimpleMDELoaded)
-                {
-                    <p class="text-warning mt-2">Warning: Rich text editor failed to load. Using plain text input.</p>
-                    <textarea class="form-control" @bind="blogToEdit.Content" rows="10" placeholder="SimpleMDE failed to load. Enter Markdown content here."></textarea>
-                }
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" @bind="blogToEdit.Status">
-                    <option value="Draft">Draft</option>
-                    <option value="Published">Published</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Staff</label>
-                <select class="form-select" @bind="blogToEdit.StaffId">
-                    <option value="">Select Staff</option>
-                    @if (staffUsers != null)
-                    {
-                        @foreach (var staff in staffUsers)
+        <div class="assessments-list">
+            <h3>Existing Assessments</h3>
+            @if (assessments != null && assessments.Any())
+            {
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Type</th>
+                            <th>Version</th>
+                            <th>Language</th>
+                            <th>Description</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var assessment in assessments)
                         {
-                            <option value="@staff.UserId">@staff.Username</option>
+                            <tr>
+                                <td>@assessment.AssessmentId</td>
+                                <td>@assessment.AssessmentType</td>
+                                <td>@assessment.Version</td>
+                                <td>@assessment.Language</td>
+                                <td>@(assessment.Description ?? "No description")</td>
+                                <td>
+                                    <button @onclick="() => EditAssessment(assessment)">Edit</button>
+                                    <button @onclick="() => ManageQuestions(assessment.AssessmentId)">Manage Questions</button>
+                                    <button @onclick="() => DeleteAssessment(assessment.AssessmentId)" 
+                                            @onclick:preventDefault="true">Delete</button>
+                                </td>
+                            </tr>
                         }
-                    }
-                </select>
-            </div>
-
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveBlog">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-            </div>
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p>No assessments found.</p>
+            }
         </div>
+
+        @if (showEditForm && editingAssessment != null)
+        {
+            <div class="edit-form">
+                <h3>Edit Assessment</h3>
+                <form @onsubmit="UpdateAssessment" @onsubmit:preventDefault="true">
+                    <div class="form-group">
+                        <label for="editAssessmentType">Assessment Type:</label>
+                        <input id="editAssessmentType" @bind="editingAssessment.AssessmentType" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editVersion">Version:</label>
+                        <input id="editVersion" @bind="editingAssessment.Version" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editLanguage">Language:</label>
+                        <input id="editLanguage" @bind="editingAssessment.Language" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="editDescription">Description:</label>
+                        <textarea id="editDescription" @bind="editingAssessment.Description"></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Update Assessment</button>
+                        <button type="button" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        }
     }
 </div>
 
 @code {
     private List<AssessmentDTO>? assessments;
-    private List<UserDTO>? staffUsers;
-    private List<RoleDTO>? roles;
+    private bool isLoading = true;
     private bool hasError = false;
-    private int currentPage = 1;
-    private int itemsPerPage = 8;
-    private string validationMessage = string.Empty;
-    private bool isSimpleMDELoaded = false;
-    private bool shouldInitSimpleMDE = false;
-
-    // Search, Sort, Filter state
-    private string searchTerm = string.Empty;
-    private string selectedTopicId = string.Empty;
-    private string selectedStaffId = string.Empty;
-    private string sortBy = "AssessmentId";
-    private SortDirection sortDirection = SortDirection.Ascending;
-
-    private enum SortDirection { Ascending, Descending }
-
-    private AssessmentDTO assessmentToEdit = new AssessmentDTO
-    {
-        AssessmentId = "",
-        AssessmentType = "",
-        Description = "",
-        Version = "",
-        Language = ""
-    };
+    private string errorMessage = "";
+    private bool showCreateForm = false;
     private bool showEditForm = false;
-    private bool isNewAssessment = false;
-    private string newTopicName = string.Empty;
-
-    private List<AssessmentDTO> filteredAssessments = new List<AssessmentDTO>();
-
-    private IEnumerable<AssessmentDTO> PaginatedAssessments =>
-        filteredAssessments?
-            .Skip((currentPage - 1) * itemsPerPage)
-            .Take(itemsPerPage) ?? Enumerable.Empty<AssessmentDTO>();
-
-    private int TotalPages => (int)Math.Ceiling((filteredAssessments?.Count ?? 0) / (double)itemsPerPage);
-
-    private void GoToPage(int page)
-    {
-        if (page < 1) page = 1;
-        if (page > TotalPages) page = TotalPages;
-
-        if (currentPage != page)
-        {
-            currentPage = page;
-            StateHasChanged();
-        }
-    }
+    private AssessmentDTO newAssessment = new() { AssessmentId = "", AssessmentType = "", Version = "1.0", Language = "eng" };
+    private AssessmentDTO? editingAssessment = null;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAssessments();
+    }
+
+    private async Task LoadAssessments()
+    {
         try
         {
-            assessments = await AssessmentApiService.GetAllAsync();
-            roles = await RoleApiService.GetAllAsync();
-            var allUsers = await UserApiService.GetAllAsync();
-
-            // Filter for Staff users (assuming RoleId starts with "ST")
-            var staffRoleIds = roles?.Where(r => r.RoleId.StartsWith("ST", StringComparison.OrdinalIgnoreCase)).Select(r => r.RoleId).ToList();
-            staffUsers = allUsers?.Where(u => staffRoleIds != null && staffRoleIds.Contains(u.RoleId)).ToList();
-
-            FilterAndSortAssessments();
+            isLoading = true;
             hasError = false;
+            assessments = await AssessmentApiService.GetAllAsync();
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error fetching data: {ex.Message}");
-            assessments = new List<AssessmentDTO>();
-            filteredAssessments = new List<AssessmentDTO>();
-            staffUsers = new List<UserDTO>();
-            roles = new List<RoleDTO>();
             hasError = true;
+            errorMessage = ex.Message;
         }
-    }
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (showEditForm && shouldInitSimpleMDE)
+        finally
         {
-            try
-            {
-                var isSimpleMDEAvailable = await JS.InvokeAsync<bool>("eval", "typeof SimpleMDE !== 'undefined'");
-                if (isSimpleMDEAvailable)
-                {
-                    await JS.InvokeVoidAsync("initializeSimpleMDE", "#markdownEditor");
-                    isSimpleMDELoaded = true;
-                    await JS.InvokeVoidAsync("setSimpleMDEContent", "#markdownEditor", assessmentToEdit.Description);
-                }
-                else
-                {
-                    Console.WriteLine("SimpleMDE not available. Falling back to plain textarea.");
-                    validationMessage = "Markdown editor failed to load. Using plain text input.";
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error initializing SimpleMDE: {ex.Message}");
-                validationMessage = "Failed to initialize Markdown editor.";
-                isSimpleMDELoaded = false;
-            }
-            shouldInitSimpleMDE = false;
+            isLoading = false;
             StateHasChanged();
         }
     }
 
-    private void FilterAndSortAssessments()
+    private void ShowCreateAssessmentForm()
     {
-        if (assessments == null)
-        {
-            filteredAssessments = new List<AssessmentDTO>();
-            return;
-        }
-
-        IEnumerable<AssessmentDTO> query = assessments;
-
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            var lowerSearchTerm = searchTerm.ToLower();
-            query = query.Where(b =>
-                (b.AssessmentType?.ToLower().Contains(lowerSearchTerm) ?? false) ||
-                // (b.Staff?.Username?.ToLower().Contains(lowerSearchTerm) ?? false) ||     //NEED TO ADD DB
-                (b.AssessmentId?.ToLower().Contains(lowerSearchTerm) ?? false) ||
-                (b.Description?.ToLower().Contains(lowerSearchTerm) ?? false)
-            );
-        }
-
-        // Apply Topic Filter
-        if (!string.IsNullOrWhiteSpace(selectedTopicId))
-        {
-            query = query.Where(b => b.AssessmentId == selectedTopicId);
-        }
-
-        // Apply Staff Filter
-        // if (!string.IsNullOrWhiteSpace(selectedStaffId))
-        // {
-        //     query = query.Where(b => b.StaffId == selectedStaffId);
-        // }
-
-        // Apply Sorting
-        switch (sortBy)
-        {
-            case "AssessmentType":
-                query = sortDirection == SortDirection.Ascending ?
-                    query.OrderBy(b => b.AssessmentType, StringComparer.OrdinalIgnoreCase) :
-                    query.OrderByDescending(b => b.AssessmentType, StringComparer.OrdinalIgnoreCase);
-                break;
-            case "Description":
-                query = sortDirection == SortDirection.Ascending ?
-                    query.OrderBy(b => b.Description, StringComparer.OrdinalIgnoreCase) :
-                    query.OrderByDescending(b => b.Description, StringComparer.OrdinalIgnoreCase);
-                break;
-            // case "StaffName":
-            //     query = sortDirection == SortDirection.Ascending ?
-            //         query.OrderBy(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase) :
-            //         query.OrderByDescending(b => b.Staff?.Username, StringComparer.OrdinalIgnoreCase);
-            //     break;
-            case "AssessmentId":
-                query = sortDirection == SortDirection.Ascending ?
-                    query.OrderBy(b => b.AssessmentId) :
-                    query.OrderByDescending(b => b.AssessmentId);
-                break;
-            default:
-                query = query.OrderBy(b => b.AssessmentId);
-                break;
-        }
-
-        filteredAssessments = query.ToList();
-        currentPage = 1;
+        showCreateForm = true;
+        showEditForm = false;
+        newAssessment = new() { AssessmentId = "", AssessmentType = "", Version = "1.0", Language = "eng" };
     }
 
-    private void OnTopicFilterChanged(ChangeEventArgs e)
+    private async Task CreateAssessment()
     {
-        selectedTopicId = e.Value?.ToString() ?? string.Empty;
-        FilterAndSortAssessments();
-    }
-
-    private void OnStaffFilterChanged(ChangeEventArgs e)
-    {
-        selectedStaffId = e.Value?.ToString() ?? string.Empty;
-        FilterAndSortAssessments();
-    }
-
-    private void ToggleSortDirection()
-    {
-        sortDirection = sortDirection == SortDirection.Ascending ? SortDirection.Descending : SortDirection.Ascending;
-        FilterAndSortAssessments();
-    }
-
-    private string GenerateNextAssessmentId()
-    {
-        var maxIdNum = 0;
-        if (assessments != null && assessments.Any())
-        {
-            maxIdNum = assessments
-                .Select(b =>
-                {
-                    if (b.AssessmentId != null && b.AssessmentId.StartsWith("B") && int.TryParse(b.AssessmentId.Substring(1), out var num))
-                    {
-                        return num;
-                    }
-                    return 0;
-                })
-                .DefaultIfEmpty(0)
-                .Max();
-        }
-        return $"B{maxIdNum + 1:D4}";
-    }
-
-    private void AddAssessment()
-    {
-        validationMessage = string.Empty;
-        newTopicName = string.Empty;
-        AssessmentToEdit = new AssessmentDTO
-        {
-            BlogId = GenerateNextAssessmentId(),
-            Title = "",
-            Content = "",
-            Status = "Draft",
-            StaffId = "",
-            BlogTopicId = ""
-        };
-        isNewBlog = true;
-        showEditForm = true;
-        isSimpleMDELoaded = false;
-        shouldInitSimpleMDE = true;
-        StateHasChanged();
-    }
-
-    private void EditAssessment(string blogId)
-    {
-        validationMessage = string.Empty;
-        showNewTopicInput = false;
-        newTopicName = string.Empty;
-        var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
-        if (blog != null)
-        {
-            blogToEdit = new BlogDTO
-            {
-                BlogId = blog.BlogId,
-                Title = blog.Title,
-                Content = blog.Content,
-                Status = blog.Status,
-                StaffId = blog.StaffId,
-                BlogTopicId = blog.BlogTopicId,
-                Staff = blog.Staff,
-                BlogTopic = blog.BlogTopic != null ? new BlogTopicDTO
-                {
-                    BlogTopicId = blog.BlogTopic.BlogTopicId,
-                    BlogTopicName = blog.BlogTopic.BlogTopicName
-                } : null
-            };
-            isNewBlog = false;
-            showEditForm = true;
-            isSimpleMDELoaded = false;
-            shouldInitSimpleMDE = true;
-            StateHasChanged();
-        }
-    }
-
-    private void PromptAddNewTopic()
-    {
-        showNewTopicInput = true;
-        blogToEdit.BlogTopicId = "";
-        newTopicName = string.Empty;
-        validationMessage = string.Empty;
-    }
-
-    private void CancelNewTopicInput()
-    {
-        showNewTopicInput = false;
-        newTopicName = string.Empty;
-        validationMessage = string.Empty;
-    }
-
-    private async Task DeleteTopic(string topicId)
-    {
-        if (string.IsNullOrWhiteSpace(topicId))
-        {
-            validationMessage = "No topic selected for deletion.";
-            return;
-        }
-
-        var topic = blogTopics?.FirstOrDefault(t => t.BlogTopicId == topicId);
-        if (topic == null)
-        {
-            validationMessage = "Topic not found.";
-            return;
-        }
-
-        var blogsUsingTopic = blogs?.Any(b => b.BlogTopicId == topicId) ?? false;
-        if (blogsUsingTopic)
-        {
-            validationMessage = $"Cannot delete topic '{topic.BlogTopicName}' because it is currently assigned to one or more blogs. Please reassign blogs first.";
-            return;
-        }
-
-        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete topic '{topic.BlogTopicName}' (ID: {topicId})?");
-        if (confirmed)
-        {
-            try
-            {
-                var success = await BlogTopicApiService.DeleteAsync(topicId);
-                if (success)
-                {
-                    Console.WriteLine($"Topic '{topic.BlogTopicName}' (ID: {topicId}) deleted successfully.");
-                    validationMessage = string.Empty;
-
-                    blogTopics = await BlogTopicApiService.GetAllAsync();
-                    blogs = await BlogApiService.GetAllAsync();
-                    FilterAndSortBlogs();
-
-                    if (blogToEdit.BlogTopicId == topicId)
-                    {
-                        blogToEdit.BlogTopicId = "";
-                    }
-                }
-                else
-                {
-                    validationMessage = $"Failed to delete topic '{topic.BlogTopicName}'.";
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deleting topic: {ex.Message}");
-                validationMessage = $"Error deleting topic: {ex.Message}";
-            }
-        }
-    }
-
-    private async Task SaveBlog()
-    {
-        if (string.IsNullOrWhiteSpace(blogToEdit.Title))
-        {
-            validationMessage = "Blog Title cannot be empty.";
-            return;
-        }
-        if (isSimpleMDELoaded)
-        {
-            try
-            {
-                blogToEdit.Content = await JS.InvokeAsync<string>("getSimpleMDEContent", "#markdownEditor");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting SimpleMDE content: {ex.Message}");
-            }
-        }
-        if (string.IsNullOrWhiteSpace(blogToEdit.Content))
-        {
-            validationMessage = "Blog Content cannot be empty.";
-            return;
-        }
-        if (string.IsNullOrWhiteSpace(blogToEdit.StaffId))
-        {
-            validationMessage = "Please select a Staff.";
-            return;
-        }
-        if (showNewTopicInput)
-        {
-            if (string.IsNullOrWhiteSpace(newTopicName))
-            {
-                validationMessage = "New Topic Name cannot be empty.";
-                return;
-            }
-            var existingTopic = blogTopics?.FirstOrDefault(t => t.BlogTopicName.Equals(newTopicName, StringComparison.OrdinalIgnoreCase));
-            if (existingTopic != null)
-            {
-                validationMessage = $"Topic '{newTopicName}' already exists. Please select it from the dropdown or enter a different name.";
-                return;
-            }
-
-            try
-            {
-                var newTopicId = GenerateNextTopicId();
-                var newTopic = new BlogTopic { BlogTopicId = newTopicId, BlogTopicName = newTopicName };
-                await BlogTopicApiService.CreateAsync(newTopic);
-                blogToEdit.BlogTopicId = newTopic.BlogTopicId;
-                blogTopics = await BlogTopicApiService.GetAllAsync();
-                showNewTopicInput = false;
-                newTopicName = string.Empty;
-            }
-            catch (Exception ex)
-            {
-                validationMessage = $"Error creating new topic: {ex.Message}";
-                return;
-            }
-        }
-        else
-        {
-            if (string.IsNullOrWhiteSpace(blogToEdit.BlogTopicId))
-            {
-                validationMessage = "Please select a Topic.";
-                return;
-            }
-        }
-
-        validationMessage = string.Empty;
-
         try
         {
-            if (isNewBlog)
+            var assessment = new AssessmentDTO()
             {
-                await BlogApiService.CreateAsync(blogToEdit);
-                Console.WriteLine($"Blog '{blogToEdit.Title}' created with ID: {blogToEdit.BlogId}");
-            }
-            else
-            {
-                var response = await BlogApiService.UpdateAsync(blogToEdit);
-                if (response == null)
-                {
-                    validationMessage = "Failed to update blog. Please try again.";
-                    return;
-                }
+                AssessmentId = newAssessment.AssessmentId,
+                AssessmentType = newAssessment.AssessmentType,
+                Version = newAssessment.Version,
+                Language = newAssessment.Language,
+                Description = newAssessment.Description
+            };
 
-                Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
-            }
-
-            blogs = await BlogApiService.GetAllAsync();
-            FilterAndSortBlogs();
-            showEditForm = false;
-            GoToPage(1);
+            await AssessmentApiService.CreateAsync(assessment);
+            await LoadAssessments();
+            showCreateForm = false;
+            await JSRuntime.InvokeVoidAsync("alert", "Assessment created successfully!");
         }
         catch (Exception ex)
         {
-            validationMessage = $"Error saving blog: {ex.Message}";
+            await JSRuntime.InvokeVoidAsync("alert", $"Error creating assessment: {ex.Message}");
         }
-        StateHasChanged();
     }
 
-    private void CancelEdit()
+    private void EditAssessment(AssessmentDTO assessment)
     {
-        validationMessage = string.Empty;
-        showNewTopicInput = false;
-        newTopicName = string.Empty;
-        blogToEdit = new BlogDTO
+        editingAssessment = new AssessmentDTO
         {
-            BlogId = "",
-            Title = "",
-            Content = "",
-            Status = "Draft",
-            StaffId = "",
-            BlogTopicId = ""
+            AssessmentId = assessment.AssessmentId,
+            AssessmentType = assessment.AssessmentType,
+            Version = assessment.Version,
+            Language = assessment.Language,
+            Description = assessment.Description
         };
-        isNewBlog = false;
-        showEditForm = false;
-        isSimpleMDELoaded = false;
+        showEditForm = true;
+        showCreateForm = false;
+    }
+
+    private async Task UpdateAssessment()
+    {
+        try
+        {
+            if (editingAssessment != null)
+            {
+                var assessment = new AssessmentDTO
+                {
+                    AssessmentId = editingAssessment.AssessmentId,
+                    AssessmentType = editingAssessment.AssessmentType,
+                    Version = editingAssessment.Version,
+                    Language = editingAssessment.Language,
+                    Description = editingAssessment.Description
+                };
+
+                await AssessmentApiService.UpdateAsync(assessment);
+                await LoadAssessments();
+                showEditForm = false;
+                editingAssessment = null;
+                await JSRuntime.InvokeVoidAsync("alert", "Assessment updated successfully!");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Error updating assessment: {ex.Message}");
+        }
     }
 
     private async Task DeleteAssessment(string assessmentId)
     {
-        var assessmentToDelete = assessments?.FirstOrDefault(b => b.AssessmentId == assessmentId);
-        if (assessmentToDelete == null)
-        {
-            Console.WriteLine($"Assessment with ID {assessmentId} not found for deletion.");
-            return;
-        }
-
-        var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete blog '{assessmentToDelete.AssessmentType}' (ID: {AssessmentId})?");
-        if (confirmed)
+        if (await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete assessment {assessmentId}?"))
         {
             try
             {
-                var success = await AssessmentApiService.DeleteAsync(assessmentId);
-                if (success)
-                {
-                    Console.WriteLine($"Blog '{assessmentToDelete.AssessmentType}' (ID: {blogId}) deleted successfully.");
-                    assessments = await AssessmentApiService.GetAllAsync();
-                    FilterAndSortAssessments();
-                }
-                else
-                {
-                    Console.WriteLine($"Failed to delete assessment '{blogToDelete.Title}'.");
-                }
+                await AssessmentApiService.DeleteAsync(assessmentId);
+                await LoadAssessments();
+                await JSRuntime.InvokeVoidAsync("alert", "Assessment deleted successfully!");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error deleting blog: {ex.Message}");
+                await JSRuntime.InvokeVoidAsync("alert", $"Error deleting assessment: {ex.Message}");
             }
         }
+    }
+
+    private void ManageQuestions(string assessmentId)
+    {
+        NavigationManager.NavigateTo($"/Management/Assessment/{assessmentId}/Questions/", forceLoad: true);
+    }
+
+    private async Task RefreshAssessments()
+    {
+        await LoadAssessments();
+    }
+
+    private void CancelCreate()
+    {
+        showCreateForm = false;
+    }
+
+    private void CancelEdit()
+    {
+        showEditForm = false;
+        editingAssessment = null;
     }
 }

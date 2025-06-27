@@ -2,13 +2,17 @@
 @using DUPSS.Web.Components.Service  
 @using DUPSS.API.Models.DTOs   
 @inject NavigationManager NavigationManager  
-@inject CampaignApiService CampaignApiService  
-@inject IJSRuntime JSRuntime  
 @inject AssessmentApiService AssessmentApiService  
-<div class="assessment-page-container">
-    <h1 class="page-title">Assessment</h1>
+@inject IJSRuntime JSRuntime  
 
-    @if (assessment == null)
+<div class="assessment-page-container">
+    <h1 class="page-title">Mental Health & Substance Use Assessments</h1>
+    <p class="page-description">
+        Complete validated screening tools to assess your mental health and substance use patterns. 
+        These assessments provide insights and recommendations for your wellbeing.
+    </p>
+
+    @if (assessments == null)
     {
         <div class="loading-indicator">
             <p>Loading assessments...</p>
@@ -22,7 +26,7 @@
             <button class="retry-button" @onclick="RetryLoadAssessments">Retry</button>
         </div>
     }
-    else if (!assessment.Any())
+    else if (!assessments.Any())
     {
         <div class="no-assessment-message">
             <p>No assessments available at the moment. Please check back later!</p>
@@ -31,61 +35,95 @@
     else
     {
         <div class="assessment-grid">
-            @foreach (var item in showAllAssessment ? assessment : assessment.Take(DefaultAssessmentDisplayLimit))
+            @foreach (var item in showAllAssessments ? assessments : assessments.Take(DefaultAssessmentDisplayLimit))
             {
-                <div class="assessment-card clickable" @onclick="() => NavigateToDetail(item.AssessmentId)">
-                    @* <div class="card-image">
-                        <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")"
-                             alt="Assessment Image" />
-                    </div> *@
-                    <div class="card-content">
+                <div class="assessment-card">
+                    <div class="card-header">
                         <h3 class="assessment-type">@item.AssessmentType</h3>
-                        <p>@(item.Description != null && item.Description.Length > 100 
-                            ? item.Description.Substring(0, 100) + "..." 
-                            : item.Description ?? "No description available")</p>
+                        <span class="assessment-version">v@item.Version</span>
+                    </div>
+                    <div class="card-content">
+                        <p class="assessment-description">
+                            @(item.Description != null && item.Description.Length > 150 
+                                ? item.Description.Substring(0, 150) + "..." 
+                                : item.Description ?? GetDefaultDescription(item.AssessmentType))
+                        </p>
+                        <div class="card-meta">
+                            <span class="language-tag">@GetLanguageDisplay(item.Language)</span>
+                            <span class="assessment-duration">@GetEstimatedDuration(item.AssessmentType)</span>
+                        </div>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn-primary take-assessment" @onclick="() => StartAssessment(item.AssessmentId)">
+                            <i class="icon-play"></i>
+                            Take Assessment
+                        </button>
+                        <button class="btn-secondary learn-more" @onclick="() => ViewAssessmentInfo(item.AssessmentId)">
+                            <i class="icon-info"></i>
+                            Learn More
+                        </button>
                     </div>
                 </div>
             }
         </div>
 
-        @if (assessment.Count > DefaultAssessmentDisplayLimit && !showAllAssessment)
+        @if (assessments.Count > DefaultAssessmentDisplayLimit && !showAllAssessments)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllAssessments" disabled="@(!_isHydrated)">
-                    @(_isHydrated ? "Explore More" : "Loading...")
+                    @(_isHydrated ? "Show More Assessments" : "Loading...")
                 </button>
             </div>
         }
 
-        @if (showAllAssessment)
+        @if (showAllAssessments)
         {
             <div class="main-explore-button-container">
                 <button class="main-explore-button" @onclick="ToggleShowAllAssessments">Show Less</button>
             </div>
         }
     }
+
+    <!-- Quick Info Section -->
+    <div class="assessment-info-section">
+        <h2>About These Assessments</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <h3>CRAFFT Screening</h3>
+                <p>A validated tool for screening adolescents and young adults for substance use disorders. Takes about 2-3 minutes.</p>
+            </div>
+            <div class="info-card">
+                <h3>ASSIST Screening</h3>
+                <p>WHO's Alcohol, Smoking and Substance Involvement Screening Test. Comprehensive assessment taking 5-10 minutes.</p>
+            </div>
+            <div class="info-card">
+                <h3>Privacy & Confidentiality</h3>
+                <p>Your responses are confidential and used only to provide personalized recommendations for your wellbeing.</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <Footer />
 
 @code {  
-    private List<AssessmentDTO>? assessment;  
+    private List<AssessmentDTO>? assessments;  
     private bool hasError = false;  
-    private bool showAllAssessment = false;  
-    private const int DefaultAssessmentDisplayLimit = 3;  
+    private bool showAllAssessments = false;  
+    private const int DefaultAssessmentDisplayLimit = 6;  
     private bool _isHydrated = false;  
 
     protected override async Task OnInitializedAsync()  
     {  
-        await LoadAssessmentAsync();  
+        await LoadAssessmentsAsync();  
     }  
 
-    private async Task LoadAssessmentAsync()  
+    private async Task LoadAssessmentsAsync()  
     {  
         try  
         {  
-            assessment = await AssessmentApiService.GetAllAsync();  
-            Console.WriteLine($"Loaded {assessment?.Count} assessments.");  
+            assessments = await AssessmentApiService.GetAllAsync();  
+            Console.WriteLine($"Loaded {assessments?.Count} assessments.");  
             hasError = false;  
         }  
         catch (Exception ex)  
@@ -98,10 +136,11 @@
             StateHasChanged();  
         }
     }  
+
     private async Task RetryLoadAssessments()
     {
         hasError = false;
-        await LoadAssessmentAsync();
+        await LoadAssessmentsAsync();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -117,17 +156,54 @@
 
     private async Task ToggleShowAllAssessments()
     {
-        showAllAssessment = !showAllAssessment;
-        Console.WriteLine($"ToggleShowAllAssessments called. showAllAssessments is now: {showAllAssessment}");
+        showAllAssessments = !showAllAssessments;
+        Console.WriteLine($"ToggleShowAllAssessments called. showAllAssessments is now: {showAllAssessments}");
 
-        if (!showAllAssessment)
+        if (!showAllAssessments)
         {
             await JSRuntime.InvokeVoidAsync("window.scrollTo", 0, 0);
         }
     }
-    private void NavigateToDetail(string AssessmentId)
+
+    private void StartAssessment(string assessmentId)
     {
-        Console.WriteLine($"Navigating to blog detail: AssessmentId={AssessmentId}");
-        NavigationManager.NavigateTo($"/Blog/Detail/{AssessmentId}", forceLoad: true);
+        Console.WriteLine($"Starting assessment: AssessmentId={assessmentId}");
+        NavigationManager.NavigateTo($"/Assessment/Take/{assessmentId}", forceLoad: true);
+    }
+
+    private void ViewAssessmentInfo(string assessmentId)
+    {
+        Console.WriteLine($"Viewing assessment info: AssessmentId={assessmentId}");
+        NavigationManager.NavigateTo($"/Assessment/Info/{assessmentId}", forceLoad: true);
+    }
+
+    private string GetDefaultDescription(string assessmentType)
+    {
+        return assessmentType switch
+        {
+            "CRAFFT" => "A brief screening tool to identify adolescents and young adults who may have a substance use disorder or are at risk of developing one.",
+            "ASSIST" => "The World Health Organization's comprehensive screening tool for alcohol, tobacco, and other substance use problems.",
+            _ => "A validated screening tool to assess mental health and substance use patterns."
+        };
+    }
+
+    private string GetLanguageDisplay(string language)
+    {
+        return language switch
+        {
+            "eng" => "English",
+            "vie" => "Tiếng Việt",
+            _ => language.ToUpper()
+        };
+    }
+
+    private string GetEstimatedDuration(string assessmentType)
+    {
+        return assessmentType switch
+        {
+            "CRAFFT" => "2-3 min",
+            "ASSIST" => "5-10 min",
+            _ => "3-5 min"
+        };
     }
 }

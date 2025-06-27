@@ -1,0 +1,429 @@
+﻿@page "/Assessment/Take/{AssessmentId}"
+@using DUPSS.API.Models.DTOs
+@using DUPSS.Web.Components.Service
+@inject AssessmentApiService AssessmentApiService
+@inject AssessmentQuestionApiService AssessmentQuestionApiService
+@inject AssessmentAnswerApiService AssessmentAnswerApiService
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="take-assessment-container">
+    @if (isLoading)
+    {
+        <div class="loading-indicator">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <p>Loading assessment...</p>
+            </div>
+        </div>
+    }
+    else if (hasError)
+    {
+        <div class="error-message">
+            <div class="error-icon">⚠️</div>
+            <h3>Unable to Load Assessment</h3>
+            <p>@errorMessage</p>
+            <div class="error-actions">
+                <button class="retry-button" @onclick="RetryLoadAssessment">
+                    <span class="button-icon">🔄</span>
+                    Retry
+                </button>
+                <button class="back-button" @onclick="GoBackToAssessments">
+                    <span class="button-icon">←</span>
+                    Back to Assessments
+                </button>
+            </div>
+        </div>
+    }
+    else if (assessment == null || !questions.Any())
+    {
+        <div class="no-content-message">
+            <div class="no-content-icon">📋</div>
+            <h3>Assessment Not Available</h3>
+            <p>This assessment is currently not available or has no questions.</p>
+            <button class="back-button" @onclick="GoBackToAssessments">
+                <span class="button-icon">←</span>
+                Back to Assessments
+            </button>
+        </div>
+    }
+    else if (showResults && assessmentResult != null)
+    {
+        <div class="results-container">
+            <div class="results-header">
+                <div class="results-icon">✅</div>
+                <h2>Assessment Complete</h2>
+                <h3>@assessment.AssessmentType Results</h3>
+            </div>
+
+            <div class="results-content">
+                <div class="score-section">
+                    <div class="score-display">
+                        <span class="score-label">Total Score</span>
+                        <span class="score-value">@assessmentResult.TotalScore</span>
+                    </div>
+                </div>
+
+                <div class="recommendation-section">
+                    <h4>Recommendation</h4>
+                    <div class="recommendation-text">
+                        @assessmentResult.Recommendation
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(assessmentResult.ScoreDetails))
+                {
+                    <div class="details-section">
+                        <h4>Score Details</h4>
+                        <div class="score-details">
+                            @foreach (var detail in assessmentResult.ScoreDetails.Split(';'))
+                            {
+                                <div class="detail-item">@detail.Trim()</div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="completion-info">
+                    <p><strong>Completed on:</strong> @assessmentResult.CompletedOn?.ToString("MMMM dd, yyyy")</p>
+                </div>
+            </div>
+
+            <div class="results-actions">
+                <button class="primary-button" @onclick="TakeAnotherAssessment">
+                    <span class="button-icon">📋</span>
+                    Take Another Assessment
+                </button>
+                <button class="secondary-button" @onclick="GoBackToAssessments">
+                    <span class="button-icon">←</span>
+                    Back to Assessments
+                </button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="assessment-header">
+            <div class="assessment-info">
+                <h1>@assessment.AssessmentType</h1>
+                <p class="assessment-description">@assessment.Description</p>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-info">
+                    <span class="progress-text">Question @(currentQuestionIndex + 1) of @questions.Count</span>
+                    <span class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / questions.Count) * 100, 0)%</span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: @(((double)(currentQuestionIndex + 1) / questions.Count) * 100)%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="question-container">
+            <div class="question-card">
+                <div class="question-header">
+                    <h3>Question @(currentQuestionIndex + 1)</h3>
+                </div>
+                
+                <div class="question-text">
+                    @currentQuestion.Question
+                </div>
+
+                <div class="answers-container">
+                    @foreach (var answer in currentAnswers)
+                    {
+                        <div class="answer-option @(selectedAnswerId == answer.AnswerId ? "selected" : "")" 
+                             @onclick="() => SelectAnswer(answer.AnswerId)">
+                            <div class="answer-radio">
+                                <input type="radio" 
+                                       name="answer-@currentQuestion.QuestionId" 
+                                       value="@answer.AnswerId" 
+                                       checked="@(selectedAnswerId == answer.AnswerId)"
+                                       @onchange="() => SelectAnswer(answer.AnswerId)" />
+                                <span class="radio-checkmark"></span>
+                            </div>
+                            <div class="answer-content">
+                                <div class="answer-text">@answer.Answer</div>
+                                @if (!string.IsNullOrEmpty(answer.AnswerDetails))
+                                {
+                                    <div class="answer-details">@answer.AnswerDetails</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="question-actions">
+                    <button class="secondary-button" 
+                            @onclick="PreviousQuestion" 
+                            disabled="@(currentQuestionIndex == 0)">
+                        <span class="button-icon">←</span>
+                        Previous
+                    </button>
+                    
+                    @if (currentQuestionIndex < questions.Count - 1)
+                    {
+                        <button class="primary-button" 
+                                @onclick="NextQuestion" 
+                                disabled="@(string.IsNullOrEmpty(selectedAnswerId))">
+                            Next
+                            <span class="button-icon">→</span>
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="submit-button" 
+                                @onclick="SubmitAssessment" 
+                                disabled="@(string.IsNullOrEmpty(selectedAnswerId) || isSubmitting)">
+                            @if (isSubmitting)
+                            {
+                                <span class="button-spinner"></span>
+                                <span>Submitting...</span>
+                            }
+                            else
+                            {
+                                <span class="button-icon">✓</span>
+                                <span>Submit Assessment</span>
+                            }
+                        </button>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="assessment-footer">
+            <button class="exit-button" @onclick="ConfirmExit">
+                <span class="button-icon">×</span>
+                Exit Assessment
+            </button>
+        </div>
+    }
+</div>
+
+@if (showExitConfirmation)
+{
+    <div class="modal-overlay" @onclick="CancelExit">
+        <div class="modal-content" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h3>Exit Assessment?</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to exit this assessment? Your progress will be lost.</p>
+            </div>
+            <div class="modal-actions">
+                <button class="secondary-button" @onclick="CancelExit">Cancel</button>
+                <button class="danger-button" @onclick="ExitAssessment">Exit</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string AssessmentId { get; set; } = string.Empty;
+
+    private AssessmentDTO? assessment;
+    private List<AssessmentQuestionDTO> questions = new();
+    private Dictionary<string, List<AssessmentAnswerDTO>> questionAnswers = new();
+    private Dictionary<string, string> userAnswers = new(); // QuestionId -> AnswerId
+    private AssessmentResultDTO? assessmentResult;
+
+    private bool isLoading = true;
+    private bool hasError = false;
+    private bool isSubmitting = false;
+    private bool showResults = false;
+    private bool showExitConfirmation = false;
+    private string errorMessage = string.Empty;
+    private int currentQuestionIndex = 0;
+    private string selectedAnswerId = string.Empty;
+
+    private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
+    private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAssessmentAsync();
+    }
+
+    private async Task LoadAssessmentAsync()
+    {
+        isLoading = true;
+        hasError = false;
+        errorMessage = string.Empty;
+
+        try
+        {
+            Console.WriteLine($"Loading assessment with ID: {AssessmentId}");
+            
+            // Load assessment details
+            assessment = await AssessmentApiService.GetByIdAsync(AssessmentId);
+            if (assessment == null)
+            {
+                hasError = true;
+                errorMessage = "Assessment not found.";
+                return;
+            }
+
+            // Load all questions for this assessment
+            var allQuestions = await AssessmentQuestionApiService.GetAllAsync();
+            questions = allQuestions.Where(q => q.AssessmentId == AssessmentId).ToList();
+
+            if (!questions.Any())
+            {
+                hasError = true;
+                errorMessage = "No questions found for this assessment.";
+                return;
+            }
+
+            // Load all answers and group by question
+            var allAnswers = await AssessmentAnswerApiService.GetAllAsync();
+            questionAnswers = allAnswers
+                .Where(a => questions.Any(q => q.QuestionId == a.QuestionId))
+                .GroupBy(a => a.QuestionId)
+                .ToDictionary(g => g.Key, g => g.ToList());
+
+            // Validate that all questions have answers
+            var questionsWithoutAnswers = questions.Where(q => !questionAnswers.ContainsKey(q.QuestionId) || !questionAnswers[q.QuestionId].Any()).ToList();
+            if (questionsWithoutAnswers.Any())
+            {
+                hasError = true;
+                errorMessage = $"Some questions are missing answer options: {string.Join(", ", questionsWithoutAnswers.Select(q => q.QuestionId))}";
+                return;
+            }
+
+            // Initialize selected answer for first question
+            LoadCurrentQuestionAnswer();
+
+            Console.WriteLine($"Successfully loaded assessment with {questions.Count} questions");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading assessment: {ex.Message}");
+            hasError = true;
+            errorMessage = $"Failed to load assessment: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void LoadCurrentQuestionAnswer()
+    {
+        if (userAnswers.ContainsKey(currentQuestion.QuestionId))
+        {
+            selectedAnswerId = userAnswers[currentQuestion.QuestionId];
+        }
+        else
+        {
+            selectedAnswerId = string.Empty;
+        }
+    }
+
+    private async Task RetryLoadAssessment()
+    {
+        await LoadAssessmentAsync();
+    }
+
+    private void SelectAnswer(string answerId)
+    {
+        selectedAnswerId = answerId;
+        userAnswers[currentQuestion.QuestionId] = answerId;
+        StateHasChanged();
+    }
+
+    private void NextQuestion()
+    {
+        if (currentQuestionIndex < questions.Count - 1 && !string.IsNullOrEmpty(selectedAnswerId))
+        {
+            currentQuestionIndex++;
+            LoadCurrentQuestionAnswer();
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousQuestion()
+    {
+        if (currentQuestionIndex > 0)
+        {
+            currentQuestionIndex--;
+            LoadCurrentQuestionAnswer();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SubmitAssessment()
+    {
+        if (string.IsNullOrEmpty(selectedAnswerId) || isSubmitting)
+            return;
+
+        isSubmitting = true;
+        StateHasChanged();
+
+        try
+        {
+            // Prepare submission data
+            var submission = new AssessmentSubmissionDTO
+            {
+                MemberId = "current-user-id", // TODO: Replace with actual user ID from authentication
+                Answers = userAnswers.Values.Select(answerId => new AnswerSubmissionDTO { AnswerId = answerId }).ToList()
+            };
+
+            Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers");
+
+            // Submit assessment
+            assessmentResult = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
+            
+            if (assessmentResult != null)
+            {
+                showResults = true;
+                Console.WriteLine($"Assessment submitted successfully. Score: {assessmentResult.TotalScore}");
+            }
+            else
+            {
+                hasError = true;
+                errorMessage = "Failed to submit assessment. Please try again.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error submitting assessment: {ex.Message}");
+            hasError = true;
+            errorMessage = $"Failed to submit assessment: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ConfirmExit()
+    {
+        showExitConfirmation = true;
+        StateHasChanged();
+    }
+
+    private void CancelExit()
+    {
+        showExitConfirmation = false;
+        StateHasChanged();
+    }
+
+    private void ExitAssessment()
+    {
+        NavigationManager.NavigateTo("/Assessment", forceLoad: true);
+    }
+
+    private void GoBackToAssessments()
+    {
+        NavigationManager.NavigateTo("/Assessment", forceLoad: true);
+    }
+
+    private void TakeAnotherAssessment()
+    {
+        NavigationManager.NavigateTo("/Assessment", forceLoad: true);
+    }
+}

@@ -306,12 +306,12 @@
 /* Status Badges for Enrollments */
 .status-badge {
     padding: 5px 10px;
-    border-radius: 5px;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 0.8rem;
     display: inline-block;
     text-align: center;
-    width: 80px; /* Fixed width for consistency */
+    width: 90px; /* Fixed width for consistency */
 }
 
 .status-enrolled {

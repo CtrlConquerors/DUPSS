@@ -203,9 +203,58 @@
 .action-buttons {
     display: flex;
     justify-content: center; /* Center the action buttons */
+    align-items:center;
     gap: 5px; /* Small gap between buttons */
 }
+a.btn {
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #000;
+    box-sizing: border-box;
+    color: #000 !important;
+    cursor: pointer;
+    display: inline-flex;
+    fill: #000;
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    height: 53px;
+    justify-content: center;
+    letter-spacing: -.8px;
+    line-height: 24px;
+    min-width: 140px;
+    outline: 0;
+    padding: 0 17px;
+    text-align: center;
+    text-decoration: none;
+    transition: all .3s;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+}
 
+    a.btn:focus {
+        color: #171e29 !important;
+    }
+
+    a.btn:hover {
+        border-color: #06f;
+        color: #06f !important;
+        fill: #06f;
+        transform:scale(1.05);
+    }
+
+    a.btn:active {
+        border-color: #06f;
+        color: #06f !important;
+        fill: #06f;
+    }
+
+@media (min-width: 768px) {
+    a.btn {
+        min-width: 170px;
+    }
+}
 .btn {
     padding: 8px 12px; /* Adjusted padding for action buttons */
     border-radius: 4px;
@@ -348,12 +397,12 @@
 /* Status Indicator (Green/Red for Active/Completed/Planned) */
 .status-badge {
     padding: 5px 10px;
-    border-radius: 5px;
+    border-radius: 10px;
     font-weight: 600;
     font-size: 0.8rem;
     display: inline-block; /* Allows padding and border */
     text-align: center;
-    width: 80px; /* Fixed width for consistency */
+    width: 85px; /* Fixed width for consistency */
 }
 
 .status-active {

@@ -178,8 +178,6 @@ else
         };
 
         var registrationJson = System.Text.Json.JsonSerializer.Serialize(registration);
-        Console.WriteLine("🧪 Registration object: " + registrationJson);
-        await JS.InvokeVoidAsync("console.log", "🧪 Registration object", registrationJson);
 
         var response = await HttpClientFactory.CreateClient("ApiClient")
             .PostAsJsonAsync("api/CampaignRegistration", registration);
@@ -195,25 +193,23 @@ else
         else
         {
             var content = await response.Content.ReadAsStringAsync();
-            Console.WriteLine($"❌ Registration failed: {response.StatusCode} - {content}");
-            await JS.InvokeVoidAsync("console.log", "❌ Registration failed content", content);
 
             await JS.InvokeVoidAsync("alert", $"Failed to register. Server said: {response.StatusCode}");
         }
     }
     private async Task HandleUnregister(string campaignId)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirm", "Bạn có chắc muốn huỷ đăng ký chiến dịch này không?");
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure to unregister this campaign?");
         if (!confirmed) return;
 
         var success = await CampaignRegistrationApiService.UnregisterAsync(MemberId, campaignId);
         if (success)
         {
-            await JS.InvokeVoidAsync("alert", "Huỷ đăng ký thành công.");
+            await JS.InvokeVoidAsync("alert", "Unregister success.");
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Huỷ đăng ký thất bại.");
+            await JS.InvokeVoidAsync("alert", "Unregister fail.");
         }
     }
 

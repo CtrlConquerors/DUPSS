@@ -110,7 +110,7 @@ input.form-control {
 
 /* Footer text */
 .login-footer {
-    text-align: left;
+    text-align: right;
     margin-top: 0rem;
     color: white;
 }

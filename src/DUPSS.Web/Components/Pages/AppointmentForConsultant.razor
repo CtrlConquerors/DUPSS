@@ -35,6 +35,7 @@ else
                     <option>Accepted</option>
                     <option>Declined</option>
                     <option>Finished</option>
+                    <option>Cancel</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -78,13 +79,21 @@ else
                             <button class="btn btn-success btn-sm me-1" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Accepted"))">✅ Accept</button>
                             <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Declined"))">❌ Decline</button>
                         }
-                        else if (appt.Status == "Accepted" || appt.Status == "Confirmed")
+                        else if (appt.Status == "Accepted" )
                         {
                             <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Finished"))">✔️ Mark as Finished</button>
                         }
+                        else if (appt.Status == "Declined")
+                        {
+                            <span class="text-muted">This Appointment has been declined</span>
+                        }
+                        else if (appt.Status == "Cancel")
+                        {
+                            <span class="text-muted">This Appointment has been cancelled by user.</span>
+                        }
                         else
                         {
-                            <span class="text-muted">No further actions</span>
+                            <span class="text-muted">This Appointment has been finished</span>
                         }
                     </td>
                 </tr>

@@ -135,15 +135,15 @@
                 <div class="answers-container">
                     @foreach (var answer in currentAnswers)
                     {
-                        <div class="answer-option @(selectedAnswerId == answer.AnswerId ? "selected" : "")" 
-                             @onclick="() => SelectAnswer(answer.AnswerId)">
-                            <div class="answer-radio">
-                                <input type="radio" 
+                        <div class="answer-option @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")" 
+                             @onclick="() => ToggleAnswer(answer.AnswerId)">
+                            <div class="answer-checkbox">
+                                <input type="checkbox" 
                                        name="answer-@currentQuestion.QuestionId" 
                                        value="@answer.AnswerId" 
-                                       checked="@(selectedAnswerId == answer.AnswerId)"
-                                       @onchange="() => SelectAnswer(answer.AnswerId)" />
-                                <span class="radio-checkmark"></span>
+                                       checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
+                                       @onchange="() => ToggleAnswer(answer.AnswerId)" />
+                                <span class="checkbox-checkmark"></span>
                             </div>
                             <div class="answer-content">
                                 <div class="answer-text">@answer.Answer</div>
@@ -168,7 +168,7 @@
                     {
                         <button class="primary-button" 
                                 @onclick="NextQuestion" 
-                                disabled="@(string.IsNullOrEmpty(selectedAnswerId))">
+                                disabled="@(!selectedAnswerIds.Any())">
                             Next
                             <span class="button-icon">→</span>
                         </button>
@@ -177,7 +177,7 @@
                     {
                         <button class="submit-button" 
                                 @onclick="SubmitAssessment" 
-                                disabled="@(string.IsNullOrEmpty(selectedAnswerId) || isSubmitting)">
+                                disabled="@(!selectedAnswerIds.Any() || isSubmitting)">
                             @if (isSubmitting)
                             {
                                 <span class="button-spinner"></span>
@@ -228,7 +228,7 @@
     private AssessmentDTO? assessment;
     private List<AssessmentQuestionDTO> questions = new();
     private Dictionary<string, List<AssessmentAnswerDTO>> questionAnswers = new();
-    private Dictionary<string, string> userAnswers = new(); // QuestionId -> AnswerId
+    private Dictionary<string, List<string>> userAnswers = new(); // QuestionId -> List<AnswerId>
     private AssessmentResultDTO? assessmentResult;
 
     private bool isLoading = true;
@@ -238,13 +238,18 @@
     private bool showExitConfirmation = false;
     private string errorMessage = string.Empty;
     private int currentQuestionIndex = 0;
-    private string selectedAnswerId = string.Empty;
+    private List<string> selectedAnswerIds = new();
     private string? CurrentMemberId;
 
     private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
     private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
 
     protected override async Task OnInitializedAsync()
+    {
+        await LoadAssessmentAsync();
+    }
+
+    private async Task RetryLoadAssessment()
     {
         await LoadAssessmentAsync();
     }
@@ -295,8 +300,17 @@
                 return;
             }
 
-            // Initialize selected answer for first question
-            LoadCurrentQuestionAnswer();
+            // Initialize user answers dictionary
+            foreach (var question in questions)
+            {
+                if (!userAnswers.ContainsKey(question.QuestionId))
+                {
+                    userAnswers[question.QuestionId] = new List<string>();
+                }
+            }
+
+            // Initialize selected answers for first question
+            LoadCurrentQuestionAnswers();
 
             Console.WriteLine($"Successfully loaded assessment with {questions.Count} questions");
         }
@@ -313,36 +327,33 @@
         }
     }
 
-    private void LoadCurrentQuestionAnswer()
+    private void LoadCurrentQuestionAnswers()
     {
-        if (userAnswers.ContainsKey(currentQuestion.QuestionId))
+        selectedAnswerIds = userAnswers.ContainsKey(currentQuestion.QuestionId)
+            ? new List<string>(userAnswers[currentQuestion.QuestionId])
+            : new List<string>();
+    }
+
+    private void ToggleAnswer(string answerId)
+    {
+        if (selectedAnswerIds.Contains(answerId))
         {
-            selectedAnswerId = userAnswers[currentQuestion.QuestionId];
+            selectedAnswerIds.Remove(answerId);
         }
         else
         {
-            selectedAnswerId = string.Empty;
+            selectedAnswerIds.Add(answerId);
         }
-    }
-
-    private async Task RetryLoadAssessment()
-    {
-        await LoadAssessmentAsync();
-    }
-
-    private void SelectAnswer(string answerId)
-    {
-        selectedAnswerId = answerId;
-        userAnswers[currentQuestion.QuestionId] = answerId;
+        userAnswers[currentQuestion.QuestionId] = new List<string>(selectedAnswerIds);
         StateHasChanged();
     }
 
     private void NextQuestion()
     {
-        if (currentQuestionIndex < questions.Count - 1 && !string.IsNullOrEmpty(selectedAnswerId))
+        if (currentQuestionIndex < questions.Count - 1 && selectedAnswerIds.Any())
         {
             currentQuestionIndex++;
-            LoadCurrentQuestionAnswer();
+            LoadCurrentQuestionAnswers();
             StateHasChanged();
         }
     }
@@ -352,14 +363,14 @@
         if (currentQuestionIndex > 0)
         {
             currentQuestionIndex--;
-            LoadCurrentQuestionAnswer();
+            LoadCurrentQuestionAnswers();
             StateHasChanged();
         }
     }
 
     private async Task SubmitAssessment()
     {
-        if (string.IsNullOrEmpty(selectedAnswerId) || isSubmitting)
+        if (!selectedAnswerIds.Any() || isSubmitting)
             return;
 
         isSubmitting = true;
@@ -391,7 +402,7 @@
             var submission = new AssessmentSubmissionDTO
             {
                 MemberId = CurrentMemberId,
-                Answers = userAnswers.Values.Select(answerId => new AnswerSubmissionDTO { AnswerId = answerId }).ToList()
+                Answers = userAnswers.SelectMany(kvp => kvp.Value.Select(answerId => new AnswerSubmissionDTO { AnswerId = answerId })).ToList()
             };
 
             Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers");

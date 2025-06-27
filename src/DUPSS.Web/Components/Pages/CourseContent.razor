@@ -60,7 +60,7 @@
 
             @foreach (var module in modules)
             {
-                <div class="module-section">
+                <div class="module-section @(module.IsExpanded ? "expanded" : "")">
                     <div class="module-header" @onclick="() => ToggleModule(module)">
                         <span class="module-title-text">
                             @module.Title
@@ -74,8 +74,7 @@
                         }
                     </div>
 
-                    @if (module.IsExpanded)
-                    {
+
                         <div class="module-body">
                             <div class="learning-objectives-toggle-container">
                                 <div class="learning-objectives-toggle" @onclick="() => ToggleLearningObjectives(module)">
@@ -129,7 +128,7 @@
                                 }
                             </div>
                         </div>
-                    }
+                    
                 </div>
             }
             <div class="bottom-navigation">

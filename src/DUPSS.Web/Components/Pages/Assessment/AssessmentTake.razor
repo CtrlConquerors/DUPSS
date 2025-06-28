@@ -110,14 +110,16 @@
                 <h1>@assessment.AssessmentType</h1>
                 <p class="assessment-description">@assessment.Description</p>
             </div>
-            
+
             <div class="progress-container">
                 <div class="progress-info">
                     <span class="progress-text">Question @(currentQuestionIndex + 1) of @questions.Count</span>
-                    <span class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / questions.Count) * 100, 0)%</span>
+                    <span
+                        class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / questions.Count) * 100, 0)%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: @(((double)(currentQuestionIndex + 1) / questions.Count) * 100)%"></div>
+                    <div class="progress-fill"
+                         style="width: @(((double)(currentQuestionIndex + 1) / questions.Count) * 100)%"></div>
                 </div>
             </div>
         </div>
@@ -127,7 +129,7 @@
                 <div class="question-header">
                     <h3>Question @(currentQuestionIndex + 1)</h3>
                 </div>
-                
+
                 <div class="question-text">
                     @currentQuestion.Question
                 </div>
@@ -140,12 +142,13 @@
                             {
                                 <div class="answer-option">
                                     <div class="answer-checkbox">
-                                        <input type="checkbox" 
-                                               name="answer-@currentQuestion.QuestionId" 
-                                               value="@answer.AnswerId" 
+                                        <input type="checkbox"
+                                               name="answer-@currentQuestion.QuestionId"
+                                               value="@answer.AnswerId"
                                                checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
-                                               @onchange="() => ToggleAnswer(answer.AnswerId)" />
-                                        <span class="checkbox-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
+                                               @onchange="() => ToggleAnswer(answer.AnswerId)"/>
+                                        <span
+                                            class="checkbox-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
                                     </div>
                                     <div class="answer-content">
                                         <div class="answer-text">@answer.Answer</div>
@@ -163,12 +166,13 @@
                             {
                                 <div class="answer-option">
                                     <div class="answer-radio">
-                                        <input type="radio" 
-                                               name="answer-@currentQuestion.QuestionId" 
-                                               value="@answer.AnswerId" 
+                                        <input type="radio"
+                                               name="answer-@currentQuestion.QuestionId"
+                                               value="@answer.AnswerId"
                                                checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
-                                               @onchange="() => SelectSingleAnswer(answer.AnswerId)" />
-                                        <span class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
+                                               @onchange="() => SelectSingleAnswer(answer.AnswerId)"/>
+                                        <span
+                                            class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
                                     </div>
                                     <div class="answer-content">
                                         <div class="answer-text">@answer.Answer</div>
@@ -184,12 +188,12 @@
                         case "Scale":
                             <div class="answer-option">
                                 <div class="answer-scale">
-                                    <input type="number" 
-                                           name="answer-@currentQuestion.QuestionId" 
-                                           min="1" 
-                                           max="10" 
-                                           @bind="scaleAnswer" 
-                                           @bind:event="oninput" />
+                                    <input type="number"
+                                           name="answer-@currentQuestion.QuestionId"
+                                           min="1"
+                                           max="10"
+                                           value="@((answers.ContainsKey(currentQuestion.QuestionId) ? answers[currentQuestion.QuestionId] : string.Empty))"
+                                           @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)" />
                                     <span class="scale-label"> (1 = Lowest, 10 = Highest)</span>
                                 </div>
                             </div>
@@ -198,9 +202,9 @@
                         case "Text":
                             <div class="answer-option">
                                 <div class="answer-textarea">
-                                    <textarea name="answer-@currentQuestion.QuestionId" 
-                                              @bind="textAnswer" 
-                                              @bind:event="oninput" 
+                                    <textarea name="answer-@currentQuestion.QuestionId"
+                                              value="@((answers.ContainsKey(currentQuestion.QuestionId) ? answers[currentQuestion.QuestionId] : string.Empty))"
+                                              @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)"
                                               placeholder="Enter your answer here"></textarea>
                                 </div>
                             </div>
@@ -209,17 +213,17 @@
                 </div>
 
                 <div class="question-actions">
-                    <button class="secondary-button" 
-                            @onclick="PreviousQuestion" 
+                    <button class="secondary-button"
+                            @onclick="PreviousQuestion"
                             disabled="@(currentQuestionIndex == 0)">
                         <span class="button-icon">←</span>
                         Previous
                     </button>
-                    
+
                     @if (currentQuestionIndex < questions.Count - 1)
                     {
-                        <button class="primary-button" 
-                                @onclick="NextQuestion" 
+                        <button class="primary-button"
+                                @onclick="NextQuestion"
                                 disabled="@(!IsAnswerSelected())">
                             Next
                             <span class="button-icon">→</span>
@@ -227,8 +231,8 @@
                     }
                     else
                     {
-                        <button class="submit-button" 
-                                @onclick="SubmitAssessment" 
+                        <button class="submit-button"
+                                @onclick="SubmitAssessment"
                                 disabled="@(!IsAnswerSelected() || isSubmitting)">
                             @if (isSubmitting)
                             {
@@ -291,12 +295,56 @@
     private string errorMessage = string.Empty;
     private int currentQuestionIndex = 0;
     private List<string> selectedAnswerIds = new();
-    private string? scaleAnswer;
-    private string? textAnswer;
     private string? CurrentMemberId;
 
     private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
     private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
+
+    private Dictionary<string, string> answers = new();
+    private bool stopAtFourthQuestion = false;
+    private int earlyTextScore = 0;
+
+    private void SaveAnswerOnInput(string questionId, ChangeEventArgs e)
+    {
+        if (e?.Value != null)
+        {
+            answers[questionId] = e.Value.ToString();
+        }
+
+        // Check if the first 3 questions are text and answered with 0
+        var firstThreeTextQuestions = questions.Take(3).ToList();
+        bool allZero = true;
+        earlyTextScore = 0;
+        for (int i = 0; i < firstThreeTextQuestions.Count; i++)
+        {
+            var q = firstThreeTextQuestions[i];
+            if (q.QuestionType == "Text")
+            {
+                if (answers.TryGetValue(q.QuestionId, out var val) && int.TryParse(val, out int num))
+                {
+                    if (num != 0)
+                    {
+                        earlyTextScore += 1;
+                        allZero = false;
+                    }
+                }
+                else
+                {
+                    allZero = false;
+                }
+            }
+            else
+            {
+                allZero = false;
+            }
+        }
+        if (allZero && questions.Count > 3)
+        {
+            currentQuestionIndex = 3; // Move to 4th question (index 3)
+            stopAtFourthQuestion = true;
+            StateHasChanged();
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -312,7 +360,7 @@
         try
         {
             Console.WriteLine($"Loading assessment with ID: {AssessmentId}");
-            
+
             // Load assessment details
             assessment = await AssessmentApiService.GetByIdAsync(AssessmentId);
             if (assessment == null)
@@ -343,7 +391,7 @@
             // Validate that all questions have answers for MultipleChoice and YesNo
             var questionsWithoutAnswers = questions
                 .Where(q => (q.QuestionType == "MultipleChoice" || q.QuestionType == "YesNo") &&
-                            (!questionAnswers.ContainsKey(q.QuestionId) || !questionAnswers[q.QuestionId].Any()))
+                    (!questionAnswers.ContainsKey(q.QuestionId) || !questionAnswers[q.QuestionId].Any()))
                 .ToList();
             if (questionsWithoutAnswers.Any())
             {
@@ -384,8 +432,7 @@
         selectedAnswerIds = userAnswers.ContainsKey(currentQuestion.QuestionId)
             ? new List<string>(userAnswers[currentQuestion.QuestionId])
             : new List<string>();
-        scaleAnswer = selectedAnswerIds.FirstOrDefault();
-        textAnswer = selectedAnswerIds.FirstOrDefault();
+        answers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault();
     }
 
     private void ToggleAnswer(string answerId)
@@ -415,8 +462,8 @@
         {
             "MultipleChoice" => selectedAnswerIds.Any(),
             "YesNo" => selectedAnswerIds.Any(),
-            "Scale" => !string.IsNullOrEmpty(scaleAnswer),
-            "Text" => !string.IsNullOrEmpty(textAnswer),
+            "Scale" => !string.IsNullOrEmpty(answers[currentQuestion.QuestionId]),
+            "Text" => !string.IsNullOrEmpty(answers[currentQuestion.QuestionId]),
             _ => false
         };
     }
@@ -425,11 +472,11 @@
     {
         if (currentQuestion.QuestionType == "Scale")
         {
-            userAnswers[currentQuestion.QuestionId] = new List<string> { scaleAnswer ?? "" };
+            userAnswers[currentQuestion.QuestionId] = new List<string> { answers[currentQuestion.QuestionId] ?? "" };
         }
         else if (currentQuestion.QuestionType == "Text")
         {
-            userAnswers[currentQuestion.QuestionId] = new List<string> { textAnswer ?? "" };
+            userAnswers[currentQuestion.QuestionId] = new List<string> { answers[currentQuestion.QuestionId] ?? "" };
         }
         else
         {
@@ -444,6 +491,8 @@
 
     private void NextQuestion()
     {
+        if (stopAtFourthQuestion)
+            return;
         if (currentQuestionIndex < questions.Count - 1 && IsAnswerSelected())
         {
             SaveCurrentAnswer();
@@ -455,6 +504,8 @@
 
     private void PreviousQuestion()
     {
+        if (stopAtFourthQuestion)
+            return;
         if (currentQuestionIndex > 0)
         {
             SaveCurrentAnswer();
@@ -490,11 +541,11 @@
                 if (string.IsNullOrEmpty(CurrentMemberId))
                 {
                     await JS.InvokeVoidAsync("alert", "Failed to retrieve Member ID. Please login again.");
-                    NavigationManager.NavigateTo("/Assessment/login");
+                    NavigationManager.NavigateTo("/login");
                     return;
                 }
             }
-            
+
             // Prepare submission data
             var submission = new AssessmentSubmissionDTO
             {
@@ -506,7 +557,7 @@
 
             // Submit assessment
             assessmentResult = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
-            
+
             if (assessmentResult != null)
             {
                 showResults = true;

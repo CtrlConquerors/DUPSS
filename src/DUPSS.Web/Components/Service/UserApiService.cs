@@ -97,5 +97,21 @@ namespace DUPSS.Web.Components.Service
             var result = await _httpClient.GetFromJsonAsync<int>("api/Users/Count");
             return result;
         }
+
+        public async Task<UserDTO?> GetUserByIdAsync(string userId)
+        {
+            var response = await _httpClient.GetAsync($"api/Users/GetById/{userId}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<UserDTO>();
+            }
+            else
+            {
+                Console.WriteLine($"Failed to get user by id. Status code: {response.StatusCode}");
+            }
+            return null;
+        }
+
+
     }
 }

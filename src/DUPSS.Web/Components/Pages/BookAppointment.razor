@@ -2,6 +2,8 @@
 @using DUPSS.API.Models.AccessLayer.Interfaces
 @using DUPSS.Web.Components.Service
 @using DUPSS.API.Models.DTOs
+
+@inject EmailService EmailService
 @inject AppointmentApiService AppointmentApiService
 @inject UserApiService UserService
 @inject NavigationManager Navigation
@@ -151,9 +153,7 @@
                     var requestedStart = newAppointment.AppointmentDate.ToUniversalTime();
                     var requestedEnd = requestedStart.Add(duration);
 
-                    bool isOverlap = requestedStart < existingEnd && existingStart < requestedEnd;
-
-                    return isOverlap && a.Status == "Accepted"; 
+                    return requestedStart < existingEnd && existingStart < requestedEnd && a.Status == "Accepted";
                 });
 
                 if (!hasConflict)
@@ -188,7 +188,6 @@
                 return;
             }
 
-            // ✅ Check conflict manually when user chooses consultant
             var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(newAppointment.ConsultantId);
 
             bool hasConflict = consultantAppointments.Any(a =>
@@ -201,8 +200,7 @@
                 var requestedStart = newAppointment.AppointmentDate.ToUniversalTime();
                 var requestedEnd = requestedStart.Add(duration);
 
-                bool isOverlap = requestedStart < existingEnd && existingStart < requestedEnd;
-                return isOverlap && a.Status == "Accepted"; 
+                return requestedStart < existingEnd && existingStart < requestedEnd && a.Status == "Accepted";
             });
 
             if (hasConflict)
@@ -216,7 +214,30 @@
 
         if (success)
         {
-            await JS.InvokeVoidAsync("alert", "Appointment booked successfully!");
+            var member = await UserService.GetUserByIdAsync(newAppointment.MemberId);
+
+            var consultant = consultants?.FirstOrDefault(c => c.UserId == newAppointment.ConsultantId);
+
+            if (member != null && !string.IsNullOrEmpty(member.Email))
+            {
+                var subject = "Appointment booked successfully";
+                var body = $"Hello {member.Username},\n\n" +
+                             $"You have successfully booked an appointment about '{newAppointment.Topic}' at {newAppointment.AppointmentDate} with Consultant: {(consultant != null ? consultant.Username : "Unknown")}\n" ;
+
+                await EmailService.SendEmailAsync(member.Email, subject, body);
+            }
+
+            if (consultant != null && !string.IsNullOrEmpty(consultant.Email))
+            {
+                var subject = "New appointment assigned";
+                var body = $"Hello {consultant.Username},\n\n" +
+                           $"You have been assigned a new appointment from member '{member?.Username}' " +
+                           $"about '{newAppointment.Topic}' at {newAppointment.AppointmentDate.ToString("f")}.";
+
+                await EmailService.SendEmailAsync(consultant.Email, subject, body);
+            }
+
+            await JS.InvokeVoidAsync("alert", "Appointment booked successfully! An email has been sent.");
             Navigation.NavigateTo("/Appointment", forceLoad: true);
         }
         else
@@ -224,6 +245,7 @@
             await JS.InvokeVoidAsync("alert", "Failed to book appointment. Please try again.");
         }
     }
+
 
 
 
@@ -236,4 +258,6 @@
             newAppointment.ConsultantId = selectedValue;
         }
     }
+
+
 }

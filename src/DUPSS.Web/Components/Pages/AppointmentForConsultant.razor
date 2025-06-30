@@ -4,6 +4,8 @@
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
 @inject AppointmentApiService AppointmentService
+@inject UserApiService UserApiService
+@inject EmailService EmailService
 
 <h3>My Appointments</h3>
 
@@ -66,7 +68,7 @@ else
                     <td>
                         <InputTextArea class="form-control" @bind-Value="appt.Notes" />
                         <button class="btn btn-sm btn-outline-primary mt-1"
-                                @onclick="@(() => SaveNotes(appt))">
+                        @onclick="@(() => SaveNotes(appt))">
                             💾 Save Notes
                         </button>
                     </td>
@@ -141,6 +143,22 @@ else
             ApplyFilter();
 
             await JS.InvokeVoidAsync("alert", $"Appointment marked as {newStatus}.");
+
+            var member = await UserApiService.GetUserByIdAsync(appt.MemberId);
+
+
+            // Gửi email cho member
+            if (member != null && !string.IsNullOrEmpty(member.Email))
+            {
+                var subject = $"Appointment {newStatus}";
+                var body = $"Hello {member.Username}\n\n" +
+                           $"Your appointment at {appt.AppointmentDate.ToLocalTime():dd/MM/yyyy HH:mm} " +
+                           $"with consultant: {appt.Consultant?.Username ?? "Unknown"} has been {newStatus}.\n\n" +
+                           $"For more information, please check the note from consultant.";
+                await EmailService.SendEmailAsync(member.Email, subject, body);
+
+
+            }
         }
         else
         {

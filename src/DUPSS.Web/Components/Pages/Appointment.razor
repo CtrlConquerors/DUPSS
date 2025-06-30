@@ -6,6 +6,7 @@
 @inject IJSRuntime JS
 @inject UserApiService UserService
 @inject AppointmentApiService AppointmentService
+@inject EmailService EmailService
 
 <h3>My appointment</h3>
 
@@ -66,7 +67,7 @@ else
     <table class="appointment-table">
         <thead>
             <tr>
-    
+
                 <th>Date</th>
                 <th>Consultant</th>
                 <th>Status</th>
@@ -78,7 +79,7 @@ else
             @foreach (var appt in filteredAppointments)
             {
                 <tr>
-           
+
                     <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                     <td>@appt.Consultant?.Username</td>
                     <td>@appt.Status</td>
@@ -162,6 +163,8 @@ else
             .Where(a => a.AppointmentDate > DateTime.UtcNow && a.Status is "Pending" or "Accepted")
             .OrderBy(a => a.AppointmentDate)
             .FirstOrDefault();
+
+        ApplyFilter();
     }
 
     private async Task HandleUnregister(string appointmentId)
@@ -200,7 +203,7 @@ else
     private async Task ConfirmReschedule()
     {
         if (reschedulingAppointment == null) return;
-
+        var oldDate = reschedulingAppointment.AppointmentDate;
         var utcDate = rescheduleDate.ToUniversalTime();
 
         var updated = await AppointmentService.RescheduleAppointmentAsync(
@@ -210,18 +213,45 @@ else
         {
             await JS.InvokeVoidAsync("alert", "ReBooking successfully!");
             reschedulingAppointment.AppointmentDate = utcDate;
+
+            // Lấy thông tin member và consultant
+            var member = await UserService.GetUserByIdAsync(reschedulingAppointment.MemberId);
+            var consultant = await UserService.GetUserByIdAsync(reschedulingAppointment.ConsultantId);
+
+            // Gửi email cho member
+            if (member != null && !string.IsNullOrEmpty(member.Email))
+            {
+                var subject = "Appointment rescheduled successfully";
+                var body = $"Hello {member.Username},\n\n" +
+                          $"You have successfully rescheduled your appointment from {oldDate.ToLocalTime():f} to {utcDate.ToLocalTime():f} " +
+                          $"with consultant: {consultant?.Username ?? "Unknown"}.";
+
+                await EmailService.SendEmailAsync(member.Email, subject, body);
+            }
+
+            // Gửi email cho consultant
+            if (consultant != null && !string.IsNullOrEmpty(consultant.Email))
+            {
+                var subject = "An appointment has been rescheduled";
+                var body = $"Hello {consultant.Username},\n\n" +
+                           $"Member '{member?.Username}' has rescheduled the appointment to {utcDate.ToLocalTime():f}.";
+
+                await EmailService.SendEmailAsync(consultant.Email, subject, body);
+            }
+
             reschedulingAppointment = null;
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Cant ReBooking.");
+            await JS.InvokeVoidAsync("alert", "Can't ReBooking.");
         }
     }
+
 
     private string searchKeyword = "";
     private DateTime? fromDate = null;
     private DateTime? toDate = null;
-    private string selectedStatus = "";
+    private string selectedStatus = "Pending";
 
     private List<AppointmentDTO> filteredAppointments = new();
 

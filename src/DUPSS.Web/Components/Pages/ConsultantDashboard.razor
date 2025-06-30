@@ -40,7 +40,7 @@ else
         <div class="col-md-3">
             <div class="card text-white bg-danger mb-3">
                 <div class="card-body">
-                    <h5 class="card-title">Canceled</h5>
+                    <h5 class="card-title">Cancelled</h5>
                     <p class="card-text fs-4">@canceledCount</p>
                 </div>
             </div>
@@ -79,11 +79,7 @@ else
                         <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
                         <td>@appt.Member?.Username</td>
                         <td>@appt.Topic</td>
-                        <td>
-                            <span class="status-badge @(appt.Status == "Declined" ? "status-declined" : appt.Status == "Finished" ? "status-finished" : appt.Status == "Accepted" ? "status-accepted" : "")">
-                                @appt.Status
-                            </span>
-                        </td>
+                        <td>@appt.Status</td>
                     </tr>
                 }
             </tbody>

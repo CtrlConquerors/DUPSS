@@ -79,6 +79,9 @@ builder.Services.AddScoped<AssessmentAnswerApiService>(sp => new AssessmentAnswe
 builder.Services.AddScoped<AssessmentResultApiService>(sp => new AssessmentResultApiService(
     sp.GetRequiredService<IHttpClientFactory>().CreateClient("ApiClient")));
 
+builder.Services.AddScoped<EmailService>();
+
+
 
 builder.Services.AddScoped<ProtectedLocalStorage>();
 

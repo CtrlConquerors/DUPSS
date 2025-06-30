@@ -1,18 +1,10 @@
 ﻿@page "/"
+@using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Service
 @inject IJSRuntime JS
+@inject BlogTopicApiService BlogTopicApiService
+@inject NavigationManager NavigationManager
 <PageTitle>Home</PageTitle>
-
-@* Demo for Blazor Server with Supabase Authentication *@
-
-@* <AuthorizeView>
-    <Authorized>
-        <h3>Hello, @context.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value</h3>
-        <p>Role: @context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
-    </Authorized>
-    <NotAuthorized>
-        <h3>Welcome, Guest! Please <a href="/login">log in</a> to personalize your experience.</h3>
-    </NotAuthorized>
-</AuthorizeView> *@
 
 <div class="container-fluid px-5 py-4">
     <section class="hero-section">
@@ -21,10 +13,10 @@
 
         <div class="hero-card">
             <h2>A Journey of Overcoming Temptation</h2>
-            <p class="quote">"I didn’t think one small decision could change everything—until it did."</p>
+            <p class="quote">"A heartfelt story and reflection on resisting the temptation of drugs, finding strength from within, and building a life of purpose beyond addiction."</p>
 
 
-            <NavLink href="/inspiring-story" class="btn-read-story">
+            <NavLink href="/Blog/Detail/B0004" class="btn-read-story">
                 READ THE STORY <span class="arrow">→</span>
             </NavLink>
         </div>
@@ -34,14 +26,29 @@
     <div class="row ">
         <div class="col-md-3 blog-topics">
             <h5 class="fw-semibold mb-5" style="color: #1b6ec2">Blog Topics</h5>
-            <ul class="list-unstyled">
-                <li class="py-2">Health & Wellness</li>
-                <li class="py-2">Education</li>
-                <li class="py-2">Science & Research</li>
-                <li class="py-2">Policy & Advocacy</li>
-                <li class="py-2">Events & Campaigns</li>
-                <li class="py-2">Social Life</li>
-            </ul>
+            @if (isLoadingBlogTopics)
+            {
+                <div class="text-center py-3">
+                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading topics...
+                </div>
+            }
+            else if (BlogTopics != null && BlogTopics.Any())
+            {
+                <ul class="list-unstyled">
+                    @foreach (var topic in BlogTopics)
+                    {
+                        <li class="py-2">
+                            <NavLink href="@($"/Blog?blogTopic={topic.BlogTopicId}")">
+                                @topic.BlogTopicName
+                            </NavLink>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="text-muted py-3">No topics found.</div>
+            }
         </div>
 
         <div class="col-md-9 blog-card">
@@ -138,8 +145,8 @@
         <div class="left">
             <h4>Stay up to date</h4>
             <h2>Get Started</h2>
-            <form>
-                <input type="email" placeholder="Enter your email.." required/>
+            <form @onsubmit="OnRegisterSubmit">
+                <input type="email" placeholder="Enter your email.." required @bind="email" />
                 <button type="submit">Register now</button>
             </form>
             <p>*You can unsubscribe anytime</p>
@@ -185,21 +192,41 @@
             showSlide(currentIndex);
         };
     </script>
+    
+</div>
 
-    @* @code{
+@code {
+    private List<BlogTopic> BlogTopics;
+    private string email = String.Empty;
+    private bool isLoadingBlogTopics = true;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("startRain", "rainCanvas");
-    }
-} *@
-
-    @code {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        if (firstRender)
         {
-            if (firstRender)
-            {
-                await JS.InvokeVoidAsync("initCarousel");
-            }
+            await JS.InvokeVoidAsync("initCarousel");
         }
     }
-</div>
+    
+    protected override async Task OnInitializedAsync()
+    {
+        isLoadingBlogTopics = true;
+        try
+        {
+            BlogTopics = await BlogTopicApiService.GetAllAsync();
+        }
+        finally
+        {
+            isLoadingBlogTopics = false;
+        }
+    }
+
+    private Task OnRegisterSubmit()
+    {
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var url = $"/register?email={Uri.EscapeDataString(email)}";
+            NavigationManager.NavigateTo(url, forceLoad: true);
+        }
+        return Task.CompletedTask;
+    }
+}

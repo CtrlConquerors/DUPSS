@@ -2,6 +2,7 @@ using DUPSS.API.Models.AccessLayer;
 using DUPSS.API.Models.AccessLayer.DAOs;
 using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Services;
+using DUPSS.Web.Components.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -39,6 +40,9 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+
+
+
 
 builder.Services.AddCors(options =>
 {

@@ -113,13 +113,13 @@
 
             <div class="progress-container">
                 <div class="progress-info">
-                    <span class="progress-text">Question @(currentQuestionIndex + 1) of @questions.Count</span>
+                    <span class="progress-text">Question @(currentQuestionIndex + 1) of @GetEffectiveQuestionCount()</span>
                     <span
-                        class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / questions.Count) * 100, 0)%</span>
+                        class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100, 0)%</span>
                 </div>
                 <div class="progress-bar">
                     <div class="progress-fill"
-                         style="width: @(((double)(currentQuestionIndex + 1) / questions.Count) * 100)%"></div>
+                         style="width: @(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100)%"></div>
                 </div>
             </div>
         </div>
@@ -222,7 +222,7 @@
                         Previous
                     </button>
 
-                    @if (currentQuestionIndex < questions.Count - 1 && !stopAtFourthQuestion)
+                    @if (currentQuestionIndex < GetEffectiveQuestionCount() - 1)
                     {
                         <button class="primary-button"
                                 @onclick="NextQuestion"
@@ -306,6 +306,9 @@
     private bool stopAtFourthQuestion = false;
     private int earlyTextScore = 0;
 
+    // New property to track if early termination logic has been triggered
+    private bool earlyTerminationTriggered = false;
+
     private async Task SaveAnswerOnInput(string questionId, ChangeEventArgs e)
     {
         if (e?.Value != null)
@@ -324,7 +327,6 @@
                     answers[questionId] = string.Empty;
                     userAnswers[questionId] = new List<string>();
                     answers[questionId + "_text"] = string.Empty;
-                    await JS.InvokeVoidAsync("alert", "Please provide a non-empty answer.");
                 }
             }
             else if (currentQuestion.QuestionType == "Scale")
@@ -360,7 +362,10 @@
                     answers[questionId] = string.Empty;
                     userAnswers[questionId] = new List<string>();
                     answers[questionId + "_text"] = string.Empty;
-                    await JS.InvokeVoidAsync("alert", "Please enter a number between 1 and 10.");
+                    if (!string.IsNullOrEmpty(input.Trim()))
+                    {
+                        await JS.InvokeVoidAsync("alert", "Please enter a number between 1 and 10.");
+                    }
                 }
             }
             else
@@ -378,49 +383,69 @@
         await SaveAnswersToLocalStorage();
         StateHasChanged();
     }
+
     private void NextQuestion()
     {
-        if (stopAtFourthQuestion)
-            return;
-
-        if (currentQuestionIndex < questions.Count - 1 && IsAnswerSelected())
+        if (currentQuestionIndex < GetEffectiveQuestionCount() - 1 && IsAnswerSelected())
         {
             SaveCurrentAnswer();
-
-            // Early termination logic
-            if (questions.Count >= 4 && currentQuestionIndex < 3)
-            {
-                bool allTextAndZero = questions.Take(Math.Min(3, questions.Count)).All(q =>
-                    q.QuestionType == "Text" &&
-                    answers.TryGetValue(q.QuestionId + "_text", out var val) &&
-                    val == "0");
-
-                // Calculate earlyTextScore: 1 point for each non-zero Text answer
-                earlyTextScore = 0;
-                foreach (var q in questions.Take(Math.Min(3, questions.Count)))
-                {
-                    if (q.QuestionType == "Text" &&
-                        answers.TryGetValue(q.QuestionId + "_text", out var val) &&
-                        val != "0")
-                    {
-                        earlyTextScore += 1;
-                    }
-                }
-
-                stopAtFourthQuestion = allTextAndZero;
-                if (allTextAndZero && currentQuestionIndex == 2) // Check after third question
-                {
-                    currentQuestionIndex = 3; // Move to fourth question
-                    StateHasChanged();
-                    return;
-                }
-            }
-
+            CheckEarlyTerminationLogic();
             currentQuestionIndex++;
             LoadCurrentQuestionAnswers();
             StateHasChanged();
         }
     }
+
+    private void PreviousQuestion()
+    {
+        if (currentQuestionIndex > 0)
+        {
+            SaveCurrentAnswer();
+            currentQuestionIndex--;
+            LoadCurrentQuestionAnswers();
+            StateHasChanged();
+        }
+    }
+
+    private void CheckEarlyTerminationLogic()
+    {
+        // Early termination logic - only check if we have enough questions and haven't already triggered it
+        if (questions.Count >= 4 && currentQuestionIndex < 3 && !earlyTerminationTriggered)
+        {
+            bool allTextAndZero = questions.Take(Math.Min(3, questions.Count)).All(q =>
+                q.QuestionType == "Text" &&
+                answers.TryGetValue(q.QuestionId + "_text", out var val) &&
+                val == "0");
+
+            // Calculate earlyTextScore: 1 point for each non-zero Text answer
+            earlyTextScore = 0;
+            foreach (var q in questions.Take(Math.Min(3, questions.Count)))
+            {
+                if (q.QuestionType == "Text" &&
+                    answers.TryGetValue(q.QuestionId + "_text", out var val) &&
+                    val != "0")
+                {
+                    earlyTextScore += 1;
+                }
+            }
+
+            if (allTextAndZero && currentQuestionIndex == 2) // After answering third question
+            {
+                stopAtFourthQuestion = true;
+                earlyTerminationTriggered = true;
+            }
+        }
+    }
+
+    private int GetEffectiveQuestionCount()
+    {
+        if (stopAtFourthQuestion && earlyTerminationTriggered)
+        {
+            return 4; // Show only first 4 questions
+        }
+        return questions.Count;
+    }
+
     private async Task SaveAnswersToLocalStorage()
     {
         var storageData = new Dictionary<string, List<string>>();
@@ -498,7 +523,10 @@
                 }
             }
 
-            // Initialize selected answers for first question
+            // Try to load saved answers from localStorage
+            await LoadAnswersFromLocalStorage();
+
+            // Initialize selected answers for current question
             LoadCurrentQuestionAnswers();
 
             Console.WriteLine($"Successfully loaded assessment with {questions.Count} questions");
@@ -516,12 +544,47 @@
         }
     }
 
+    private async Task LoadAnswersFromLocalStorage()
+    {
+        try
+        {
+            var storedData = await JS.InvokeAsync<string>("localStorage.getItem", $"assessment_{AssessmentId}_answers");
+            if (!string.IsNullOrEmpty(storedData))
+            {
+                var storageData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(storedData);
+                if (storageData != null)
+                {
+                    foreach (var kvp in storageData)
+                    {
+                        if (kvp.Key.EndsWith("_text"))
+                        {
+                            answers[kvp.Key] = kvp.Value.FirstOrDefault() ?? string.Empty;
+                        }
+                        else if (userAnswers.ContainsKey(kvp.Key))
+                        {
+                            userAnswers[kvp.Key] = kvp.Value ?? new List<string>();
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading answers from localStorage: {ex.Message}");
+        }
+    }
+
     private void LoadCurrentQuestionAnswers()
     {
         selectedAnswerIds = userAnswers.ContainsKey(currentQuestion.QuestionId)
             ? new List<string>(userAnswers[currentQuestion.QuestionId])
             : new List<string>();
-        answers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault();
+        
+        // For display purposes, set the main answer field
+        if (selectedAnswerIds.Any())
+        {
+            answers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault();
+        }
     }
 
     private void ToggleAnswer(string answerId)
@@ -582,19 +645,6 @@
     {
         await LoadAssessmentAsync();
     }
-
-    private void PreviousQuestion()
-    {
-        if (stopAtFourthQuestion)
-            return;
-        if (currentQuestionIndex > 0)
-        {
-            SaveCurrentAnswer();
-            currentQuestionIndex--;
-            LoadCurrentQuestionAnswers();
-            StateHasChanged();
-        }
-    }
     
     private string ProcessAndReturnDetail(string detail, int index)
     {
@@ -650,29 +700,33 @@
                 EarlyTextScore = earlyTextScore
             };
 
-            // Process answers
-            foreach (var kvp in userAnswers)
-            {
-                var question = questions.FirstOrDefault(q => q.QuestionId == kvp.Key);
-                if (question == null) continue;
+            // Process answers - only include answers for questions that were actually presented
+            var questionsToSubmit = stopAtFourthQuestion && earlyTerminationTriggered 
+                ? questions.Take(4).ToList() 
+                : questions;
 
-                if (question.QuestionType == "Text" && kvp.Value.Any() && !string.IsNullOrEmpty(kvp.Value[0]))
+            foreach (var question in questionsToSubmit)
+            {
+                if (userAnswers.ContainsKey(question.QuestionId) && userAnswers[question.QuestionId].Any())
                 {
-                    // Add Text answer directly to TextAnswers
-                    submission.TextAnswers.Add(new TextAnswerSubmissionDTO
+                    if (question.QuestionType == "Text" && !string.IsNullOrEmpty(userAnswers[question.QuestionId][0]))
                     {
-                        QuestionId = kvp.Key,
-                        Answer = kvp.Value[0]
-                    });
-                }
-                else
-                {
-                    // For non-Text questions (Scale, MultipleChoice, YesNo)
-                    foreach (var answerId in kvp.Value)
-                    {
-                        if (!string.IsNullOrEmpty(answerId))
+                        // Add Text answer directly to TextAnswers
+                        submission.TextAnswers.Add(new TextAnswerSubmissionDTO
                         {
-                            submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
+                            QuestionId = question.QuestionId,
+                            Answer = userAnswers[question.QuestionId][0]
+                        });
+                    }
+                    else
+                    {
+                        // For non-Text questions (Scale, MultipleChoice, YesNo)
+                        foreach (var answerId in userAnswers[question.QuestionId])
+                        {
+                            if (!string.IsNullOrEmpty(answerId))
+                            {
+                                submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
+                            }
                         }
                     }
                 }
@@ -708,7 +762,6 @@
             StateHasChanged();
         }
     }
-
 
     private void ConfirmExit()
     {

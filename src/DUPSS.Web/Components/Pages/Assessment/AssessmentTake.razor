@@ -192,7 +192,7 @@
                                            name="answer-@currentQuestion.QuestionId"
                                            min="1"
                                            max="10"
-                                           value="@((answers.ContainsKey(currentQuestion.QuestionId) ? answers[currentQuestion.QuestionId] : string.Empty))"
+                                           value="@(answers.ContainsKey(currentQuestion.QuestionId + "_text") ? answers[currentQuestion.QuestionId + "_text"] : string.Empty)"
                                            @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)" />
                                     <span class="scale-label"> (1 = Lowest, 10 = Highest)</span>
                                 </div>
@@ -203,7 +203,7 @@
                             <div class="answer-option">
                                 <div class="answer-textarea">
                                     <textarea name="answer-@currentQuestion.QuestionId"
-                                              value="@((answers.ContainsKey(currentQuestion.QuestionId) ? answers[currentQuestion.QuestionId] : string.Empty))"
+                                              value="@(answers.ContainsKey(currentQuestion.QuestionId + "_text") ? answers[currentQuestion.QuestionId + "_text"] : string.Empty)"
                                               @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)"
                                               placeholder="Enter your answer here"></textarea>
                                 </div>
@@ -220,7 +220,7 @@
                         Previous
                     </button>
 
-                    @if (currentQuestionIndex < questions.Count - 1)
+                    @if (currentQuestionIndex < questions.Count - 1 && !stopAtFourthQuestion)
                     {
                         <button class="primary-button"
                                 @onclick="NextQuestion"
@@ -304,46 +304,186 @@
     private bool stopAtFourthQuestion = false;
     private int earlyTextScore = 0;
 
-    private void SaveAnswerOnInput(string questionId, ChangeEventArgs e)
+    // private void SaveAnswerOnInput(string questionId, ChangeEventArgs e)
+    // {
+    //     if (e?.Value != null)
+    //     {
+    //         answers[questionId] = e.Value.ToString();
+    //     }
+
+    //     Check if the first 3 questions are text and answered with 0
+    //     var firstThreeTextQuestions = questions.Take(3).ToList();
+    //     bool allZero = true;
+    //     earlyTextScore = 0;
+    //     for (int i = 0; i < firstThreeTextQuestions.Count; i++)
+    //     {
+    //         var q = firstThreeTextQuestions[i];
+    //         if (q.QuestionType == "Text")
+    //         {
+    //             if (answers.TryGetValue(q.QuestionId, out var val) && int.TryParse(val, out int num))
+    //             {
+    //                 if (num != 0)
+    //                 {
+    //                     earlyTextScore += 1;
+    //                     allZero = false;
+    //                 }
+    //             }
+    //             else
+    //             {
+    //                 allZero = false;
+    //             }
+    //         }
+    //         else
+    //         {
+    //             allZero = false;
+    //         }
+    //     }
+    //     if (allZero && questions.Count > 3)
+    //     {
+    //         currentQuestionIndex = 3; Move to 4th question (index 3)
+    //         stopAtFourthQuestion = true;
+    //         StateHasChanged();
+    //     }
+    // }
+
+    private async Task SaveAnswerOnInput(string questionId, ChangeEventArgs e)
     {
         if (e?.Value != null)
         {
-            answers[questionId] = e.Value.ToString();
-        }
-
-        // Check if the first 3 questions are text and answered with 0
-        var firstThreeTextQuestions = questions.Take(3).ToList();
-        bool allZero = true;
-        earlyTextScore = 0;
-        for (int i = 0; i < firstThreeTextQuestions.Count; i++)
-        {
-            var q = firstThreeTextQuestions[i];
-            if (q.QuestionType == "Text")
+            string input = e.Value.ToString();
+            if (currentQuestion.QuestionType == "Text")
             {
-                if (answers.TryGetValue(q.QuestionId, out var val) && int.TryParse(val, out int num))
+                if (!string.IsNullOrEmpty(input.Trim()))
                 {
-                    if (num != 0)
+                    var answerDto = new AssessmentAnswerDTO
                     {
-                        earlyTextScore += 1;
-                        allZero = false;
+                        AnswerId = string.Empty,
+                        QuestionId = questionId,
+                        Answer = input,
+                        AnswerDetails = null,
+                        ScoreValue = 0,
+                        ScoreDescription = null
+                    };
+                    var createdAnswer = await AssessmentAnswerApiService.CreateAnswerAsync(answerDto);
+                    if (createdAnswer != null)
+                    {
+                        answers[questionId] = createdAnswer.AnswerId; // Store AnswerId for submission
+                        userAnswers[questionId] = new List<string> { createdAnswer.AnswerId }; // Store AnswerId for submission
+                        answers[questionId + "_text"] = input; // Store text input for display and early termination
+                    }
+                    else
+                    {
+                        await JS.InvokeVoidAsync("alert", "Failed to save text answer.");
+                        answers[questionId] = string.Empty;
+                        userAnswers[questionId] = new List<string>();
+                        answers[questionId + "_text"] = string.Empty;
                     }
                 }
                 else
                 {
-                    allZero = false;
+                    answers[questionId] = string.Empty;
+                    userAnswers[questionId] = new List<string>();
+                    answers[questionId + "_text"] = string.Empty;
+                    await JS.InvokeVoidAsync("alert", "Please provide a non-empty answer.");
+                }
+            }
+            else if (currentQuestion.QuestionType == "Scale")
+            {
+                if (int.TryParse(input, out int value) && value >= 1 && value <= 10)
+                {
+                    var answerDto = new AssessmentAnswerDTO
+                    {
+                        AnswerId = string.Empty,
+                        QuestionId = questionId,
+                        Answer = input,
+                        AnswerDetails = null,
+                        ScoreValue = value,
+                        ScoreDescription = null
+                    };
+                    var createdAnswer = await AssessmentAnswerApiService.CreateAnswerAsync(answerDto);
+                    if (createdAnswer != null)
+                    {
+                        answers[questionId] = createdAnswer.AnswerId; // Store AnswerId for submission
+                        userAnswers[questionId] = new List<string> { createdAnswer.AnswerId }; // Store AnswerId for submission
+                        answers[questionId + "_text"] = input; // Store input for display
+                    }
+                    else
+                    {
+                        answers[questionId] = string.Empty;
+                        userAnswers[questionId] = new List<string>();
+                        answers[questionId + "_text"] = string.Empty;
+                        await JS.InvokeVoidAsync("alert", "Failed to save scale answer.");
+                    }
+                }
+                else
+                {
+                    answers[questionId] = string.Empty;
+                    userAnswers[questionId] = new List<string>();
+                    answers[questionId + "_text"] = string.Empty;
+                    await JS.InvokeVoidAsync("alert", "Please enter a number between 1 and 10.");
                 }
             }
             else
             {
-                allZero = false;
+                answers[questionId] = input;
             }
         }
-        if (allZero && questions.Count > 3)
+        else
         {
-            currentQuestionIndex = 3; // Move to 4th question (index 3)
-            stopAtFourthQuestion = true;
+            answers[questionId] = string.Empty;
+            userAnswers[questionId] = new List<string>();
+            answers[questionId + "_text"] = string.Empty;
+        }
+
+        await SaveAnswersToLocalStorage();
+        StateHasChanged();
+    }
+    private void NextQuestion()
+    {
+        if (stopAtFourthQuestion)
+            return;
+
+        if (currentQuestionIndex < questions.Count - 1 && IsAnswerSelected())
+        {
+            SaveCurrentAnswer();
+
+            // Early termination logic
+            if (questions.Count >= 4 && currentQuestionIndex < 3)
+            {
+                bool allTextAndZero = questions.Take(Math.Min(3, questions.Count)).All(q =>
+                    q.QuestionType == "Text" &&
+                    answers.TryGetValue(q.QuestionId + "_text", out var val) &&
+                    val == "0");
+                earlyTextScore = allTextAndZero ? 0 : questions.Take(Math.Min(3, questions.Count))
+                    .Count(q => q.QuestionType == "Text" &&
+                                answers.TryGetValue(q.QuestionId + "_text", out var val) &&
+                                val != "0");
+                stopAtFourthQuestion = allTextAndZero;
+                if (allTextAndZero && currentQuestionIndex == 2) // Check after third question
+                {
+                    currentQuestionIndex = 3; // Move to fourth question
+                    StateHasChanged();
+                    return;
+                }
+            }
+
+            currentQuestionIndex++;
+            LoadCurrentQuestionAnswers();
             StateHasChanged();
         }
+    }
+    private async Task SaveAnswersToLocalStorage()
+    {
+        var storageData = new Dictionary<string, List<string>>();
+        foreach (var kvp in userAnswers)
+        {
+            storageData[kvp.Key] = kvp.Value;
+        }
+        foreach (var kvp in answers)
+        {
+            storageData[kvp.Key] = new List<string> { kvp.Value };
+        }
+        await JS.InvokeVoidAsync("localStorage.setItem", $"assessment_{AssessmentId}_answers", System.Text.Json.JsonSerializer.Serialize(storageData));
     }
 
     protected override async Task OnInitializedAsync()
@@ -462,8 +602,13 @@
         {
             "MultipleChoice" => selectedAnswerIds.Any(),
             "YesNo" => selectedAnswerIds.Any(),
-            "Scale" => !string.IsNullOrEmpty(answers[currentQuestion.QuestionId]),
-            "Text" => !string.IsNullOrEmpty(answers[currentQuestion.QuestionId]),
+            "Scale" => userAnswers[currentQuestion.QuestionId].Any() &&
+                       answers.ContainsKey(currentQuestion.QuestionId + "_text") &&
+                       int.TryParse(answers[currentQuestion.QuestionId + "_text"], out int value) &&
+                       value >= 1 && value <= 10,
+            "Text" => userAnswers[currentQuestion.QuestionId].Any() &&
+                      answers.ContainsKey(currentQuestion.QuestionId + "_text") &&
+                      !string.IsNullOrEmpty(answers[currentQuestion.QuestionId + "_text"]),
             _ => false
         };
     }
@@ -487,19 +632,6 @@
     private async Task RetryLoadAssessment()
     {
         await LoadAssessmentAsync();
-    }
-
-    private void NextQuestion()
-    {
-        if (stopAtFourthQuestion)
-            return;
-        if (currentQuestionIndex < questions.Count - 1 && IsAnswerSelected())
-        {
-            SaveCurrentAnswer();
-            currentQuestionIndex++;
-            LoadCurrentQuestionAnswers();
-            StateHasChanged();
-        }
     }
 
     private void PreviousQuestion()

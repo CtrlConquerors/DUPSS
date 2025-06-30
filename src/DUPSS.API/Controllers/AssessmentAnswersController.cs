@@ -4,6 +4,7 @@ using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace DUPSS.API.Controllers
 {
@@ -60,9 +61,14 @@ namespace DUPSS.API.Controllers
         {
             try
             {
+                if (answerDTO == null || string.IsNullOrEmpty(answerDTO.QuestionId) || string.IsNullOrEmpty(answerDTO.Answer))
+                {
+                    return BadRequest("QuestionId and Answer are required.");
+                }
+
                 var answer = new AssessmentAnswer
                 {
-                    AnswerId = answerDTO.AnswerId,
+                    AnswerId = string.IsNullOrEmpty(answerDTO.AnswerId) ? Guid.NewGuid().ToString() : answerDTO.AnswerId,
                     QuestionId = answerDTO.QuestionId,
                     Answer = answerDTO.Answer,
                     AnswerDetails = answerDTO.AnswerDetails,
@@ -132,5 +138,6 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
     }
 }

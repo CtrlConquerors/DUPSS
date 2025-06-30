@@ -59,7 +59,10 @@
 
                         <div class="mb-3">
                             <label class="form-label">Appointment Date</label>
-                            <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
+                            <input type="datetime-local" class="form-control"
+                                   @bind="newAppointment.AppointmentDate"
+                                   min="@minDateTimeString" />
+
                         </div>
 
                         <div class="mb-3">
@@ -85,6 +88,8 @@
     private const int MaxActiveAppointments = 1;
     private bool canBook = true;
     private bool autoSelectConsultant = false;
+    private string minDateTimeString => DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+
 
     private AppointmentDTO newAppointment = new()
         {
@@ -133,6 +138,13 @@
             await JS.InvokeVoidAsync("alert", "Please enter the topic for the appointment.");
             return;
         }
+
+        if (newAppointment.AppointmentDate < DateTime.Now)
+        {
+            await JS.InvokeVoidAsync("alert", "You cannot book an appointment in the past.");
+            return;
+        }
+
 
         if (autoSelectConsultant)
         {

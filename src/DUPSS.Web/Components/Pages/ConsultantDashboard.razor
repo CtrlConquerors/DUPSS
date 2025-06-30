@@ -54,6 +54,15 @@ else
                 </div>
             </div>
         </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-danger mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Missed</h5>
+                    <p class="card-text fs-4">@missedCount</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <h4>📅 Upcoming Appointments</h4>
@@ -99,6 +108,7 @@ else
     private int finishedCount;
     private int canceledCount;
     private int declinedCount;
+    private int missedCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,9 +118,16 @@ else
         if (!string.IsNullOrEmpty(userId))
         {
             allAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(userId);
-            todayCount = allAppointments.Count(a => a.AppointmentDate.Date == DateTime.Today);
+            var todayLocal = DateTime.Today;
+            todayCount = allAppointments.Count(a =>
+                a.AppointmentDate.ToLocalTime().Date == todayLocal &&
+                (a.Status == "Accepted" || a.Status == "Pending"));
+
+
+            var nowUtc = DateTime.UtcNow;
+
             upcomingAppointments = allAppointments
-                .Where(a => a.AppointmentDate > DateTime.Now && (a.Status == "Accepted" || a.Status == "Pending"))
+                .Where(a => a.AppointmentDate > nowUtc && (a.Status == "Accepted" || a.Status == "Pending"))
                 .OrderBy(a => a.AppointmentDate)
                 .Take(5)
                 .ToList();
@@ -118,6 +135,7 @@ else
             finishedCount = allAppointments.Count(a => a.Status == "Finished");
             canceledCount = allAppointments.Count(a => a.Status == "Cancel");
             declinedCount = allAppointments.Count(a => a.Status == "Declined");
+            missedCount = allAppointments.Count(a => a.Status == "Missed");
         }
 
         isLoading = false;

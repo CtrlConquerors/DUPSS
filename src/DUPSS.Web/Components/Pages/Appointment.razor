@@ -76,8 +76,10 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var appt in filteredAppointments)
-            {
+            @foreach (var appt in filteredAppointments
+           .OrderByDescending(a => a.Status == "Pending" || a.Status == "Accepted")
+           .ThenBy(a => a.AppointmentDate))
+           {
                 <tr>
 
                     <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
@@ -130,7 +132,10 @@ else
                     </div>
                     <div class="modal-body">
                         <label>New Date Time:</label>
-                        <input type="datetime-local" class="form-control" @bind="rescheduleDate" />
+                        <input type="datetime-local" class="form-control"
+                               @bind="rescheduleDate"
+                               min="@minRescheduleDateString" />
+
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" @onclick="CancelReschedule">Cancel</button>
@@ -145,6 +150,8 @@ else
 @code {
     private List<AppointmentDTO>? appointments;
     private AppointmentDTO? nextAppointment;
+    private string minRescheduleDateString => DateTime.Now.ToString("yyyy-MM-ddTHH:mm");
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,11 +171,36 @@ else
             .OrderBy(a => a.AppointmentDate)
             .FirstOrDefault();
 
-        ApplyFilter();
+
+        // NEW: auto update expired appointments
+        await AutoUpdateExpiredAppointments();
+        
     }
+    private async Task AutoUpdateExpiredAppointments()
+    {
+        var now = DateTime.UtcNow;
+        TimeSpan duration = TimeSpan.FromMinutes(30);
+
+        foreach (var appt in appointments)
+        {
+            var endTime = appt.AppointmentDate.Add(duration);
+            if (endTime < now && (appt.Status == "Pending" || appt.Status == "Accepted"))
+            {
+                // Update status
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
+                if (success)
+                {
+                    appt.Status = "Missed";
+                }
+            }
+        }
+        ApplyFilter(); 
+    }
+
 
     private async Task HandleUnregister(string appointmentId)
     {
+
         var confirmed = await JS.InvokeAsync<bool>("confirm", "Are u sure to cancel this appointment?");
         if (!confirmed) return;
 
@@ -202,6 +234,13 @@ else
 
     private async Task ConfirmReschedule()
     {
+        if (rescheduleDate < DateTime.Now)
+        {
+            await JS.InvokeVoidAsync("alert", "You cannot reschedule to a past time.");
+            return;
+        }
+
+
         if (reschedulingAppointment == null) return;
         var oldDate = reschedulingAppointment.AppointmentDate;
         var utcDate = rescheduleDate.ToUniversalTime();
@@ -251,7 +290,7 @@ else
     private string searchKeyword = "";
     private DateTime? fromDate = null;
     private DateTime? toDate = null;
-    private string selectedStatus = "Pending";
+    private string selectedStatus = "";
 
     private List<AppointmentDTO> filteredAppointments = new();
 

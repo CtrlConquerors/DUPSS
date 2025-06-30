@@ -38,6 +38,7 @@ else
                     <option>Declined</option>
                     <option>Finished</option>
                     <option>Cancel</option>
+                    <option>Missed</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -59,7 +60,9 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var appt in filteredAppointments)
+            @foreach (var appt in filteredAppointments
+           .OrderByDescending(a => a.Status == "Pending" || a.Status == "Accepted")
+           .ThenBy(a => a.AppointmentDate))
             {
                 <tr>
                     <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>

@@ -8,8 +8,8 @@ namespace DUPSS.Web.Components.Service
     {
         private readonly string smtpHost = "smtp.gmail.com";
         private readonly int smtpPort = 587;
-        private readonly string senderEmail = "khoipham27052005@gmail.com";        // Thay email thật
-        private readonly string appPassword = "qaxqzefpqruuogof";           // Thay App Password
+        private readonly string senderEmail = "evanvondeln@gmail.com";        
+        private readonly string appPassword = "ooggbjfsdhlnqmvy";          
 
         public async Task SendEmailAsync(string toEmail, string subject, string body)
         {
@@ -20,8 +20,16 @@ namespace DUPSS.Web.Components.Service
                 EnableSsl = true
             };
 
-            var mailMessage = new MailMessage(senderEmail, toEmail, subject, body);
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(senderEmail, "ALPHA SWP391"), 
+                Subject = subject,
+                Body = body
+            };
+            mailMessage.To.Add(toEmail);
+
             await smtpClient.SendMailAsync(mailMessage);
         }
+
     }
 }

@@ -237,7 +237,7 @@
                 await EmailService.SendEmailAsync(consultant.Email, subject, body);
             }
 
-            await JS.InvokeVoidAsync("alert", "Appointment booked successfully! An email has been sent.");
+            await JS.InvokeVoidAsync("alert", "Appointment booked successfully!");
             Navigation.NavigateTo("/Appointment", forceLoad: true);
         }
         else

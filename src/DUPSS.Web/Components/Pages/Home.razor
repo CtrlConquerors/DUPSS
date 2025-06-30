@@ -5,18 +5,6 @@
 @inject BlogTopicApiService BlogTopicApiService
 <PageTitle>Home</PageTitle>
 
-@* Demo for Blazor Server with Supabase Authentication *@
-
-@* <AuthorizeView>
-    <Authorized>
-        <h3>Hello, @context.User.FindFirst(System.Security.Claims.ClaimTypes.Name)?.Value</h3>
-        <p>Role: @context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</p>
-    </Authorized>
-    <NotAuthorized>
-        <h3>Welcome, Guest! Please <a href="/login">log in</a> to personalize your experience.</h3>
-    </NotAuthorized>
-</AuthorizeView> *@
-
 <div class="container-fluid px-5 py-4">
     <section class="hero-section">
         <div class="hero-content">

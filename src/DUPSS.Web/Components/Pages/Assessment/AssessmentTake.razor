@@ -114,12 +114,10 @@
             <div class="progress-container">
                 <div class="progress-info">
                     <span class="progress-text">Question @(currentQuestionIndex + 1) of @GetEffectiveQuestionCount()</span>
-                    <span
-                        class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100, 0)%</span>
+                    <span class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100, 0)%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill"
-                         style="width: @(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100)%"></div>
+                    <div class="progress-fill" style="width: @(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100)%"></div>
                 </div>
             </div>
         </div>
@@ -160,7 +158,6 @@
                                 </div>
                             }
                             break;
-
                         case "YesNo":
                             @foreach (var answer in currentAnswers)
                             {
@@ -184,7 +181,6 @@
                                 </div>
                             }
                             break;
-
                         case "Scale":
                             <div class="answer-option">
                                 <div class="answer-scale">
@@ -198,7 +194,6 @@
                                 </div>
                             </div>
                             break;
-
                         case "Text":
                             <div class="answer-option">
                                 <div class="answer-textarea">
@@ -328,6 +323,8 @@
                     userAnswers[questionId] = new List<string>();
                     answers[questionId + "_text"] = string.Empty;
                 }
+                // Re-evaluate early termination logic after any text answer change
+                CheckEarlyTerminationLogic();
             }
             else if (currentQuestion.QuestionType == "Scale")
             {
@@ -378,6 +375,11 @@
             answers[questionId] = string.Empty;
             userAnswers[questionId] = new List<string>();
             answers[questionId + "_text"] = string.Empty;
+            // Re-evaluate early termination logic if answer is cleared
+            if (currentQuestion.QuestionType == "Text")
+            {
+                CheckEarlyTerminationLogic();
+            }
         }
 
         await SaveAnswersToLocalStorage();
@@ -403,23 +405,24 @@
             SaveCurrentAnswer();
             currentQuestionIndex--;
             LoadCurrentQuestionAnswers();
+            CheckEarlyTerminationLogic(); // Re-evaluate early termination when going back
             StateHasChanged();
         }
     }
 
     private void CheckEarlyTerminationLogic()
     {
-        // Early termination logic - only check if we have enough questions and haven't already triggered it
-        if (questions.Count >= 4 && currentQuestionIndex < 3 && !earlyTerminationTriggered)
+        if (questions.Count >= 4)
         {
-            bool allTextAndZero = questions.Take(Math.Min(3, questions.Count)).All(q =>
+            // Check if all of the first three questions are Text type and answered with 0
+            bool allTextAndZero = questions.Take(3).All(q =>
                 q.QuestionType == "Text" &&
                 answers.TryGetValue(q.QuestionId + "_text", out var val) &&
                 val == "0");
 
             // Calculate earlyTextScore: 1 point for each non-zero Text answer
             earlyTextScore = 0;
-            foreach (var q in questions.Take(Math.Min(3, questions.Count)))
+            foreach (var q in questions.Take(3))
             {
                 if (q.QuestionType == "Text" &&
                     answers.TryGetValue(q.QuestionId + "_text", out var val) &&
@@ -429,11 +432,23 @@
                 }
             }
 
-            if (allTextAndZero && currentQuestionIndex == 2) // After answering third question
+            // Update early termination flags
+            if (allTextAndZero && currentQuestionIndex >= 2) // Only stop at fourth question if all are 0
             {
                 stopAtFourthQuestion = true;
                 earlyTerminationTriggered = true;
             }
+            else
+            {
+                // Reset early termination if any answer is non-zero
+                stopAtFourthQuestion = false;
+                earlyTerminationTriggered = false;
+            }
+        }
+        else
+        {
+            stopAtFourthQuestion = false;
+            earlyTerminationTriggered = false;
         }
     }
 
@@ -441,9 +456,9 @@
     {
         if (stopAtFourthQuestion && earlyTerminationTriggered)
         {
-            return 4; // Show only first 4 questions
+            return Math.Min(4, questions.Count); // Show only first 4 questions if early termination is active
         }
-        return questions.Count;
+        return questions.Count; // Show all questions otherwise
     }
 
     private async Task SaveAnswersToLocalStorage()
@@ -528,6 +543,7 @@
 
             // Initialize selected answers for current question
             LoadCurrentQuestionAnswers();
+            CheckEarlyTerminationLogic(); // Initial check after loading answers
 
             Console.WriteLine($"Successfully loaded assessment with {questions.Count} questions");
         }

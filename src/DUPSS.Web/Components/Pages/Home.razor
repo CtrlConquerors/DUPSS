@@ -1,5 +1,8 @@
 ﻿@page "/"
+@using DUPSS.API.Models.Objects
+@using DUPSS.Web.Components.Service
 @inject IJSRuntime JS
+@inject BlogTopicApiService BlogTopicApiService
 <PageTitle>Home</PageTitle>
 
 @* Demo for Blazor Server with Supabase Authentication *@
@@ -35,12 +38,10 @@
         <div class="col-md-3 blog-topics">
             <h5 class="fw-semibold mb-5" style="color: #1b6ec2">Blog Topics</h5>
             <ul class="list-unstyled">
-                <li class="py-2">Health & Wellness</li>
-                <li class="py-2">Education</li>
-                <li class="py-2">Science & Research</li>
-                <li class="py-2">Policy & Advocacy</li>
-                <li class="py-2">Events & Campaigns</li>
-                <li class="py-2">Social Life</li>
+                @foreach (var topic in BlogTopics)
+                {
+                    <li class="py-2">@topic.BlogTopicName</li>
+                }
             </ul>
         </div>
 
@@ -185,21 +186,24 @@
             showSlide(currentIndex);
         };
     </script>
+    
+</div>
 
-    @* @code{
+@code {
+
+    private List<BlogTopic> BlogTopics;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("startRain", "rainCanvas");
-    }
-} *@
-
-    @code {
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        if (firstRender)
         {
-            if (firstRender)
-            {
-                await JS.InvokeVoidAsync("initCarousel");
-            }
+            await JS.InvokeVoidAsync("initCarousel");
         }
     }
-</div>
+    
+    protected override async Task OnInitializedAsync()
+    {
+        // Initialize any data or services needed for the component
+        // For example, fetching blog topics from an API
+        BlogTopics = await BlogTopicApiService.GetAllAsync();
+    }
+}

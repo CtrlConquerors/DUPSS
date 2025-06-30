@@ -11,9 +11,24 @@
     <h1 class="page-title">Ongoing Blog Posts</h1>
     <p class="page-subtitle">Discover insights and updates from our team.</p>
 
-    <div class="search-input-container">
-        <input type="text" class="form-control" placeholder="Search blogs by title, topic, or content..."
-               @bind="searchTerm" @bind:event="oninput" @onkeyup="ApplySearchAndDisplay" />
+    <div class="filters-container">
+        <div class="search-input-container">
+            <input type="text" class="form-control" placeholder="Search blogs by title, topic, or content..."
+                   @bind="searchTerm" @bind:event="oninput" @onkeyup="ApplySearchAndDisplay" />
+        </div>
+
+        <div class="topic-filter-container">
+            <select class="form-select" value="@selectedTopicId" @onchange="OnTopicFilterChanged">
+                <option value="">All Topics</option>
+                @if (blogTopics != null)
+                {
+                    @foreach (var topic in blogTopics)
+                    {
+                        <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
+                    }
+                }
+            </select>
+        </div>
     </div>
 
     @if (blogs == null)
@@ -77,17 +92,44 @@
 
 @code {
     private List<BlogDTO>? blogs;
+    private List<BlogTopic>? blogTopics;
     private List<BlogDTO> filteredBlogs = new List<BlogDTO>();
     private bool hasError = false;
     private bool showAllBlogs = false;
     private const int DefaultBlogDisplayLimit = 3;
     private bool _isHydrated = false;
     private string searchTerm = string.Empty;
+    private string selectedTopicId = string.Empty;
+
+    [Parameter]
+    [SupplyParameterFromQuery(Name = "blogTopic")]
+    public string? BlogTopicFromQuery { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadBlogTopicsAsync();
         await LoadBlogsAsync();
+        
+        // Set the selected topic from query parameter if provided
+        if (!string.IsNullOrWhiteSpace(BlogTopicFromQuery))
+        {
+            selectedTopicId = BlogTopicFromQuery;
+        }
+        
         ApplySearchAndDisplay();
+    }
+
+    private async Task LoadBlogTopicsAsync()
+    {
+        try
+        {
+            blogTopics = await BlogTopicApiService.GetAllAsync();
+            Console.WriteLine($"Loaded {blogTopics?.Count} blog topics.");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading blog topics: {ex.Message}");
+        }
     }
 
     private async Task LoadBlogsAsync()
@@ -117,7 +159,10 @@
             filteredBlogs = new List<BlogDTO>();
             return;
         }
+
         IEnumerable<BlogDTO> query = blogs;
+
+        // Apply search term filter
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var lowerSearchTerm = searchTerm.ToLower().Trim();
@@ -128,9 +173,28 @@
                 (b.BlogId?.ToLower().Contains(lowerSearchTerm) ?? false)
             );
         }
+
+        // Apply topic filter
+        if (!string.IsNullOrWhiteSpace(selectedTopicId))
+        {
+            query = query.Where(b => b.BlogTopic?.BlogTopicId == selectedTopicId);
+        }
+
         filteredBlogs = query.ToList();
         showAllBlogs = false;
         StateHasChanged();
+    }
+
+    private async Task OnTopicFilterChanged(ChangeEventArgs e)
+    {
+        selectedTopicId = e.Value?.ToString() ?? string.Empty;
+        
+        // Update the URL with the selected topic
+        var uri = NavigationManager.GetUriWithQueryParameter("blogTopic", 
+            string.IsNullOrWhiteSpace(selectedTopicId) ? null : selectedTopicId);
+        NavigationManager.NavigateTo(uri, replace: true);
+        
+        ApplySearchAndDisplay();
     }
 
     private async Task RetryLoadBlogs()

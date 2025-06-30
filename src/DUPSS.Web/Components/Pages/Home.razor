@@ -37,7 +37,11 @@
                 <ul class="list-unstyled">
                     @foreach (var topic in BlogTopics)
                     {
-                        <li class="py-2">@topic.BlogTopicName</li>
+                        <li class="py-2">
+                            <NavLink href="@($"/Blog?blogTopic={topic.BlogTopicId}")">
+                                @topic.BlogTopicName
+                            </NavLink>
+                        </li>
                     }
                 </ul>
             }

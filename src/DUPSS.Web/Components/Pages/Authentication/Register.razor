@@ -40,17 +40,6 @@
                 <input id="dob" type="date" @bind="newUser.DoB" />
             </div>
 
-            <div class="form-group">
-                <label for="role">Role <span class="text-danger">*</span></label>
-                <select id="role" @bind="newUser.RoleId" required>
-                    <option value="">Select Role</option>
-                    @foreach (var role in availableRoles)
-                    {
-                        <option value="@role.RoleId">@role.RoleName</option>
-                    }
-                </select>
-            </div>
-
             @if (!string.IsNullOrEmpty(errorMessage))
             {
                 <div class="alert alert-danger" role="alert">
@@ -81,7 +70,7 @@
 
 @code {
     // Khởi tạo newUser mà không cố gắng gán cho PasswordHash
-    private UserDTO newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
+    private UserDTO newUser = new() { UserId = "", Username = "", Email = "", RoleId = "ME" };
     private string password = string.Empty;
     private List<RoleDTO> availableRoles = new();
     private string? errorMessage;

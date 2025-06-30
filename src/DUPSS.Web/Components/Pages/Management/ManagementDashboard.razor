@@ -64,6 +64,7 @@ else
                 <span class="dashboard-chart-period">Last 7 days</span>
             </div>
             <div class="dashboard-chart-placeholder" style="flex-direction:column;align-items:flex-start;">
+
                 <svg width="100%" height="200" viewBox="0 0 250 30">
                     <!-- Y Axis -->
                     <line x1="30" y1="-25" x2="30" y2="55" stroke="#bbb" stroke-width="0.5"/>
@@ -154,7 +155,18 @@ else
             <div>
                 <div class="profile-name">@userName</div>
             </div>
-            <button class="dashboard-action-btn bg-blue" style="margin-top:12px;font-size:1rem;padding:8px 18px;"><i class="fas fa-cog"></i> Profile</button>
+            <div class="profile-expand-container @(isProfileExpanded ? "expanded" : "")">
+                <button class="dashboard-action-btn bg-blue profile-expand-btn"
+                        @onclick="() => isProfileExpanded = !isProfileExpanded">
+                    <i class="fas fa-cog"></i> Profile
+                </button>
+                @if (isProfileExpanded)
+                {
+                    <div class="profile-expanded-content">
+                        <p>Profile expanded! (Add details here.)</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -220,6 +232,7 @@ else
 </div>
 
 @code {
+    private bool isProfileExpanded = false;
     private string? userName;
     private int totalAppointments7d;
     private int completedAppointments7d;

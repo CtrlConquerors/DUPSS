@@ -202,10 +202,12 @@
                         case "Text":
                             <div class="answer-option">
                                 <div class="answer-textarea">
-                                    <textarea name="answer-@currentQuestion.QuestionId"
-                                              value="@(answers.ContainsKey(currentQuestion.QuestionId + "_text") ? answers[currentQuestion.QuestionId + "_text"] : string.Empty)"
-                                              @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)"
-                                              placeholder="Enter your answer here"></textarea>
+                                    <input type="number"
+                                           name="answer-@currentQuestion.QuestionId"
+                                           min="0"
+                                           value="@(answers.ContainsKey(currentQuestion.QuestionId + "_text") ? answers[currentQuestion.QuestionId + "_text"] : string.Empty)"
+                                           @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)"
+                                           placeholder="Enter a number (0 for none)" />
                                 </div>
                             </div>
                             break;

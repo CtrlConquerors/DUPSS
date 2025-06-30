@@ -3,8 +3,16 @@
 @using DUPSS.Web.Components.Service
 @inject UserApiService UserService
 
+<div class="animated-bg-shapes">
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
+</div>
+
 <main class="appointment-home-container">
-    <header class="appointment-home-header text-center">
+    <header class="appointment-home-header">
         <div class="appointment-home-icon">📅</div>
         <h2 class="appointment-home-title">Welcome to the Appointment Center</h2>
         <p class="appointment-home-subtitle">
@@ -12,7 +20,7 @@
         </p>
     </header>
 
-    <section class="appointment-home-info mb-5">
+    <section class="about-section">
         <h3>💡 What is this feature?</h3>
         <p>
             The Appointment feature allows members to schedule confidential 1-on-1 online consultation sessions.
@@ -27,7 +35,7 @@
         </p>
     </section>
 
-    <section class="appointment-home-info mb-5">
+    <section class="about-section">
         <h3>🕐 Consultant Availability</h3>
         <p>Most consultants are available at these time slots:</p>
         <ul>
@@ -38,7 +46,7 @@
         <p>Choose time slots in these ranges for faster approval.</p>
     </section>
 
-    <section class="appointment-home-info mb-5">
+    <section class="about-section">
         <h3>🧠 Popular Consultation Topics</h3>
         <ul>
             <li>🚭 Preventing Drug Use</li>
@@ -49,9 +57,8 @@
         </ul>
     </section>
 
-    <section class="mb-5">
+    <section>
         <h3 class="mb-4">👨‍⚕️ Our Available Consultants</h3>
-
         @if (consultants == null)
         {
             <p>Loading consultants...</p>
@@ -62,21 +69,15 @@
         }
         else
         {
-            <div class="row row-cols-md-1 row-cols-sm-2 row-cols-md-3 row-cols-md-4 g-12">
+            <div class="icon-grid">
                 @foreach (var consultant in consultants)
                 {
-                    <div class="col">
-                        <article class="card h-100 shadow-sm border-0" style="border-radius:1.25rem;">
-                            <div class="card-body d-flex flex-column align-items-start">
-                                <h5 class="card-title mb-2">
-                                    @consultant.Username
-                                </h5>
-                                <p class="card-text mb-1">
-                                    <strong>Email:</strong> @consultant.Email <br />
-                                    <strong>Phone:</strong> @consultant.PhoneNumber
-                                </p>
-                            </div>
-                        </article>
+                    <div class="card">
+                        <h5 style="margin-bottom:0.5rem;">@consultant.Username</h5>
+                        <div>
+                            <strong>Email:</strong> @consultant.Email <br />
+                            <strong>Phone:</strong> @consultant.PhoneNumber
+                        </div>
                     </div>
                 }
             </div>

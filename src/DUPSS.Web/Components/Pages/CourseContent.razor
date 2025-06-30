@@ -1,12 +1,12 @@
 ﻿@page "/CourseContent/{CourseId}"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
-@using System.Security.Claims @* Needed for ClaimType *@
+@using System.Security.Claims 
 @inject CourseApiService CourseApiService
-@inject CourseEnrollApiService CourseEnrollApiService // NEW: Inject CourseEnrollApiService
+@inject CourseEnrollApiService CourseEnrollApiService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
-@inject AuthenticationStateProvider AuthenticationStateProvider // NEW: Inject AuthenticationStateProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider 
 
 <div class="course-page-layout">
     @if (course == null && !hasError)

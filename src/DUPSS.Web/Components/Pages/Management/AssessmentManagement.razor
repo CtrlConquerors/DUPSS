@@ -35,10 +35,6 @@
                 <h3>Create New Assessment</h3>
                 <form @onsubmit="CreateAssessment" @onsubmit:preventDefault="true">
                     <div class="form-group">
-                        <label for="assessmentId">Assessment ID:</label>
-                        <input id="assessmentId" @bind="newAssessment.AssessmentId" required />
-                    </div>
-                    <div class="form-group">
                         <label for="assessmentType">Assessment Type:</label>
                         <input id="assessmentType" @bind="newAssessment.AssessmentType" required />
                     </div>
@@ -182,7 +178,7 @@
         {
             var assessment = new AssessmentDTO()
             {
-                AssessmentId = newAssessment.AssessmentId,
+                AssessmentId = newAssessment.AssessmentType + "-" + newAssessment.Language + "-" + newAssessment.Version,
                 AssessmentType = newAssessment.AssessmentType,
                 Version = newAssessment.Version,
                 Language = newAssessment.Language,

@@ -48,10 +48,6 @@
                 <h3>Create New Answer</h3>
                 <form @onsubmit="CreateAnswer" @onsubmit:preventDefault="true">
                     <div class="form-group">
-                        <label for="answerId">Answer ID:</label>
-                        <input id="answerId" @bind="newAnswer.AnswerId" required />
-                    </div>
-                    <div class="form-group">
                         <label for="answerText">Answer Text:</label>
                         <textarea id="answerText" @bind="newAnswer.Answer" required></textarea>
                     </div>
@@ -208,13 +204,21 @@
         showEditForm = false;
     }
 
+    private string GenerateShortGuid()
+    {
+        return Convert.ToBase64String(Guid.NewGuid().ToByteArray())
+            .Replace("=", "")
+            .Replace("+", "")
+            .Replace("/", "");
+    }
+
     private async Task CreateAnswer()
     {
         try
         {
             var answer = new AssessmentAnswerDTO
             {
-                AnswerId = newAnswer.AnswerId,
+                AnswerId = GenerateShortGuid(),
                 QuestionId = QuestionId,
                 Answer = newAnswer.Answer,
                 AnswerDetails = newAnswer.AnswerDetails,

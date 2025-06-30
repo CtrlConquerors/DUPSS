@@ -5,7 +5,6 @@
 @using DUPSS.Web.Components.Service
 @using Microsoft.AspNetCore.Components.Forms
 @inject AuthApiService AuthApiService
-@inject RoleApiService RoleApiService
 @inject NavigationManager NavigationManager
 <div class="background-view"></div>
 <div class="register-container">
@@ -69,25 +68,22 @@
 
 
 @code {
-    // Khởi tạo newUser mà không cố gắng gán cho PasswordHash
-    private UserDTO newUser = new() { UserId = "", Username = "", Email = "", RoleId = "ME" };
+    [SupplyParameterFromQuery(Name = "email")]
+    private string? ParaEmail { get; set; }
+    
+    private readonly UserDTO newUser = new UserDTO { UserId = "", Username = "", Email = "", RoleId = "ME" };
     private string password = string.Empty;
-    private List<RoleDTO> availableRoles = new();
     private string? errorMessage;
     private string? message;
-
-    protected override async Task OnInitializedAsync()
+    
+    protected override void OnInitialized()
     {
-        try
+        if (!string.IsNullOrEmpty(ParaEmail))
         {
-            availableRoles = await RoleApiService.GetAllAsync() ?? new List<RoleDTO>();
-        }
-        catch (Exception ex)
-        {
-            errorMessage = $"Failed to load roles: {ex.Message}";
+            newUser.Email = ParaEmail;
         }
     }
-
+    
     private async Task HandleRegister()
     {
         message = null;

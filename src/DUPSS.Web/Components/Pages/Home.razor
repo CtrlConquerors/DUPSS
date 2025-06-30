@@ -3,6 +3,7 @@
 @using DUPSS.Web.Components.Service
 @inject IJSRuntime JS
 @inject BlogTopicApiService BlogTopicApiService
+@inject NavigationManager NavigationManager
 <PageTitle>Home</PageTitle>
 
 <div class="container-fluid px-5 py-4">
@@ -25,12 +26,25 @@
     <div class="row ">
         <div class="col-md-3 blog-topics">
             <h5 class="fw-semibold mb-5" style="color: #1b6ec2">Blog Topics</h5>
-            <ul class="list-unstyled">
-                @foreach (var topic in BlogTopics)
-                {
-                    <li class="py-2">@topic.BlogTopicName</li>
-                }
-            </ul>
+            @if (isLoadingBlogTopics)
+            {
+                <div class="text-center py-3">
+                    <span class="spinner-border spinner-border-sm text-primary" role="status"></span> Loading topics...
+                </div>
+            }
+            else if (BlogTopics != null && BlogTopics.Any())
+            {
+                <ul class="list-unstyled">
+                    @foreach (var topic in BlogTopics)
+                    {
+                        <li class="py-2">@topic.BlogTopicName</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="text-muted py-3">No topics found.</div>
+            }
         </div>
 
         <div class="col-md-9 blog-card">
@@ -127,8 +141,8 @@
         <div class="left">
             <h4>Stay up to date</h4>
             <h2>Get Started</h2>
-            <form>
-                <input type="email" placeholder="Enter your email.." required/>
+            <form @onsubmit="OnRegisterSubmit">
+                <input type="email" placeholder="Enter your email.." required @bind="email" />
                 <button type="submit">Register now</button>
             </form>
             <p>*You can unsubscribe anytime</p>
@@ -178,8 +192,9 @@
 </div>
 
 @code {
-
     private List<BlogTopic> BlogTopics;
+    private string email = String.Empty;
+    private bool isLoadingBlogTopics = true;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -190,8 +205,24 @@
     
     protected override async Task OnInitializedAsync()
     {
-        // Initialize any data or services needed for the component
-        // For example, fetching blog topics from an API
-        BlogTopics = await BlogTopicApiService.GetAllAsync();
+        isLoadingBlogTopics = true;
+        try
+        {
+            BlogTopics = await BlogTopicApiService.GetAllAsync();
+        }
+        finally
+        {
+            isLoadingBlogTopics = false;
+        }
+    }
+
+    private Task OnRegisterSubmit()
+    {
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            var url = $"/register?email={Uri.EscapeDataString(email)}";
+            NavigationManager.NavigateTo(url, forceLoad: true);
+        }
+        return Task.CompletedTask;
     }
 }

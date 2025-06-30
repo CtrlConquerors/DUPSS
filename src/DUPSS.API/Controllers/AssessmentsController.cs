@@ -4,6 +4,7 @@ using DUPSS.API.Models.AccessLayer.Interfaces;
 using DUPSS.API.Models.DTOs;
 using DUPSS.API.Models.Objects;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq;
 
 namespace DUPSS.API.Controllers
 {
@@ -18,7 +19,6 @@ namespace DUPSS.API.Controllers
             _assessmentDAO = new AssessmentDAO(context);
             _assessmentResultDAO = new AssessmentResultDAO(context);
         }
-
 
         [HttpGet("GetAll")]
         public async Task<ActionResult<IEnumerable<AssessmentDTO>>> GetAll()
@@ -113,20 +113,22 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
+
         [HttpPost("{assessmentId}/submit")]
         public async Task<ActionResult<AssessmentResultDTO>> SubmitAssessment(string assessmentId, [FromBody] AssessmentSubmissionDTO submission)
         {
             try
             {
-                // Fetch the assessment with questions and answers
+                // Validate input
+                if (string.IsNullOrEmpty(submission.MemberId) || string.IsNullOrEmpty(assessmentId))
+                    return BadRequest("Invalid member or assessment ID.");
+
+                // Fetch the assessment with questions (answers not needed for Text questions)
                 var assessment = await _assessmentDAO.GetByIdAsync(assessmentId, includeQuestions: true, includeAnswers: true);
                 if (assessment == null)
                     return NotFound($"Assessment with ID {assessmentId} not found.");
 
-                // Calculate total score and score details
-                int totalScore = 0;
-                var scoreDetails = new List<string>();
-
+                // Validate non-Text answers (Scale, MultipleChoice, YesNo)
                 foreach (var answer in submission.Answers)
                 {
                     var selectedAnswer = assessment.Questions
@@ -135,12 +137,43 @@ namespace DUPSS.API.Controllers
 
                     if (selectedAnswer == null)
                         return BadRequest($"Invalid answer ID: {answer.AnswerId}");
-
-                    totalScore += selectedAnswer.ScoreValue;
-                    scoreDetails.Add($"{selectedAnswer.QuestionId}: {selectedAnswer.ScoreDescription ?? selectedAnswer.Answer}");
                 }
 
-                // Generate recommendation based on score (customize for CRAFFT/ASSIST)
+                // Validate Text answers (ensure QuestionId exists and is Text type)
+                foreach (var textAnswer in submission.TextAnswers)
+                {
+                    var question = assessment.Questions
+                        .FirstOrDefault(q => q.QuestionId == textAnswer.QuestionId && q.QuestionType == "Text");
+                    if (question == null)
+                        return BadRequest($"Invalid or non-Text QuestionId: {textAnswer.QuestionId}");
+                }
+
+                // Calculate total score
+                int totalScore = submission.EarlyTextScore; // Use EarlyTextScore for Text questions
+                var scoreDetails = new List<string>();
+
+                // Process non-Text answers
+                foreach (var answer in submission.Answers)
+                {
+                    var selectedAnswer = assessment.Questions
+                        .SelectMany(q => q.Answers)
+                        .FirstOrDefault(a => a.AnswerId == answer.AnswerId);
+
+                    if (selectedAnswer != null)
+                    {
+                        totalScore += selectedAnswer.ScoreValue;
+                        scoreDetails.Add($"{selectedAnswer.QuestionId}: {selectedAnswer.ScoreDescription ?? selectedAnswer.Answer} (Score: {selectedAnswer.ScoreValue})");
+                    }
+                }
+
+                // Process Text answers (not saved to database)
+                foreach (var textAnswer in submission.TextAnswers)
+                {
+                    int textScore = (submission.TextAnswers.IndexOf(textAnswer) < 3 && textAnswer.Answer != "0") ? 1 : 0;
+                    scoreDetails.Add($"{textAnswer.QuestionId}: {textAnswer.Answer} (Score: {textScore})");
+                }
+
+                // Generate recommendation based on score
                 string recommendation = GenerateRecommendation(assessment.AssessmentType, totalScore);
 
                 // Create and save the result

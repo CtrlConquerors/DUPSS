@@ -11,11 +11,24 @@ namespace DUPSS.Web.Components.Service
         {
             _httpClient = httpClient;
         }
-        public async Task<AssessmentResultDTO> SubmitAssessmentAsync(string assessmentId, AssessmentSubmissionDTO submission)
+        public async Task<AssessmentResultDTO?> SubmitAssessmentAsync(string assessmentId, AssessmentSubmissionDTO submission)
         {
-            var response = await _httpClient.PostAsJsonAsync($"/api/Assessments/{assessmentId}/submit", submission);
-            response.EnsureSuccessStatusCode();
-            return await response.Content.ReadFromJsonAsync<AssessmentResultDTO>();
+            try
+            {
+                var response = await _httpClient.PostAsJsonAsync($"api/assessments/{assessmentId}/submit", submission);
+                if (response.IsSuccessStatusCode)
+                {
+                    return await response.Content.ReadFromJsonAsync<AssessmentResultDTO>();
+                }
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Failed to submit assessment: {response.StatusCode} - {errorContent}");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error submitting assessment: {ex.Message}");
+                return null;
+            }
         }
     }
 }

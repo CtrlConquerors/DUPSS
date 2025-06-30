@@ -78,7 +78,6 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Answer ID</th>
                             <th>Answer Text</th>
                             <th>Score Value</th>
                             <th>Score Description</th>
@@ -90,7 +89,6 @@
                         @foreach (var answer in answers)
                         {
                             <tr>
-                                <td>@answer.AnswerId</td>
                                 <td>@answer.Answer</td>
                                 <td>@answer.ScoreValue</td>
                                 <td>@(answer.ScoreDescription ?? "N/A")</td>

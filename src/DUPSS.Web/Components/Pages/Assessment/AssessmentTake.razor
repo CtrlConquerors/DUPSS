@@ -78,9 +78,9 @@
                     <div class="details-section">
                         <h4>Score Details</h4>
                         <div class="score-details">
-                            @foreach (var detail in assessmentResult.ScoreDetails.Split(';'))
+                            @foreach (var (detail, index) in assessmentResult.ScoreDetails.Split(';').Select((value, i) => (value, i)))
                             {
-                                <div class="detail-item">@detail.Trim()</div>
+                                <div class="detail-item">@ProcessAndReturnDetail(detail, index)</div>
                             }
                         </div>
                     </div>
@@ -305,48 +305,6 @@
     private Dictionary<string, string> answers = new();
     private bool stopAtFourthQuestion = false;
     private int earlyTextScore = 0;
-
-    // private void SaveAnswerOnInput(string questionId, ChangeEventArgs e)
-    // {
-    //     if (e?.Value != null)
-    //     {
-    //         answers[questionId] = e.Value.ToString();
-    //     }
-
-    //     Check if the first 3 questions are text and answered with 0
-    //     var firstThreeTextQuestions = questions.Take(3).ToList();
-    //     bool allZero = true;
-    //     earlyTextScore = 0;
-    //     for (int i = 0; i < firstThreeTextQuestions.Count; i++)
-    //     {
-    //         var q = firstThreeTextQuestions[i];
-    //         if (q.QuestionType == "Text")
-    //         {
-    //             if (answers.TryGetValue(q.QuestionId, out var val) && int.TryParse(val, out int num))
-    //             {
-    //                 if (num != 0)
-    //                 {
-    //                     earlyTextScore += 1;
-    //                     allZero = false;
-    //                 }
-    //             }
-    //             else
-    //             {
-    //                 allZero = false;
-    //             }
-    //         }
-    //         else
-    //         {
-    //             allZero = false;
-    //         }
-    //     }
-    //     if (allZero && questions.Count > 3)
-    //     {
-    //         currentQuestionIndex = 3; Move to 4th question (index 3)
-    //         stopAtFourthQuestion = true;
-    //         StateHasChanged();
-    //     }
-    // }
 
     private async Task SaveAnswerOnInput(string questionId, ChangeEventArgs e)
     {
@@ -637,73 +595,21 @@
             StateHasChanged();
         }
     }
-
-    // private async Task SubmitAssessment()
-    // {
-    //     if (!IsAnswerSelected() || isSubmitting)
-    //         return;
-
-    //     SaveCurrentAnswer();
-    //     isSubmitting = true;
-    //     StateHasChanged();
-
-    //     try
-    //     {
-    //         if (string.IsNullOrEmpty(CurrentMemberId))
-    //         {
-    //             var authState = await AuthProvider.GetAuthenticationStateAsync();
-    //             var user = authState.User;
-
-    //             if (user.Identity?.IsAuthenticated == true)
-    //             {
-    //                 CurrentMemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-    //                     ?? user.FindFirst("sub")?.Value
-    //                     ?? user.FindFirst("MemberId")?.Value;
-    //             }
-
-    //             if (string.IsNullOrEmpty(CurrentMemberId))
-    //             {
-    //                 await JS.InvokeVoidAsync("alert", "Failed to retrieve Member ID. Please login again.");
-    //                 NavigationManager.NavigateTo("/login");
-    //                 return;
-    //             }
-    //         }
-
-    //         Prepare submission data
-    //         var submission = new AssessmentSubmissionDTO
-    //         {
-    //             MemberId = CurrentMemberId,
-    //             Answers = userAnswers.SelectMany(kvp => kvp.Value.Select(answerId => new AnswerSubmissionDTO { AnswerId = answerId })).ToList()
-    //         };
-
-    //         Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers");
-
-    //         Submit assessment
-    //         assessmentResult = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
-
-    //         if (assessmentResult != null)
-    //         {
-    //             showResults = true;
-    //             Console.WriteLine($"Assessment submitted successfully. Score: {assessmentResult.TotalScore}");
-    //         }
-    //         else
-    //         {
-    //             hasError = true;
-    //             errorMessage = "Failed to submit assessment. Please try again.";
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         Console.WriteLine($"Error submitting assessment: {ex.Message}");
-    //         hasError = true;
-    //         errorMessage = $"Failed to submit assessment: {ex.Message}";
-    //     }
-    //     finally
-    //     {
-    //         isSubmitting = false;
-    //         StateHasChanged();
-    //     }
-    // }
+    
+    private string ProcessAndReturnDetail(string detail, int index)
+    {
+        var trimmedDetail = detail.Trim();
+        
+        if (!string.IsNullOrEmpty(trimmedDetail) && trimmedDetail.Contains(':'))
+        {
+            return "Question " + (index + 1) + ": " + trimmedDetail.Substring(trimmedDetail.IndexOf(':') + 1);
+        }
+        else
+        {
+            return "Question " + (index + 1) + ": " + trimmedDetail;
+        }
+    }
+    
     private async Task SubmitAssessment()
     {
         if (!IsAnswerSelected() || isSubmitting)

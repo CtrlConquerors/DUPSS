@@ -123,7 +123,7 @@ namespace DUPSS.API.Controllers
                 if (string.IsNullOrEmpty(submission.MemberId) || string.IsNullOrEmpty(assessmentId))
                     return BadRequest("Invalid member or assessment ID.");
 
-                // Fetch the assessment with questions (answers not needed for Text questions)
+                // Fetch the assessment with questions and answers
                 var assessment = await _assessmentDAO.GetByIdAsync(assessmentId, includeQuestions: true, includeAnswers: true);
                 if (assessment == null)
                     return NotFound($"Assessment with ID {assessmentId} not found.");
@@ -148,29 +148,39 @@ namespace DUPSS.API.Controllers
                         return BadRequest($"Invalid or non-Text QuestionId: {textAnswer.QuestionId}");
                 }
 
-                // Calculate total score
+                // Calculate total score and score details in question order
                 int totalScore = submission.EarlyTextScore; // Use EarlyTextScore for Text questions
                 var scoreDetails = new List<string>();
 
-                // Process non-Text answers
-                foreach (var answer in submission.Answers)
+                // Iterate through questions in their natural order
+                foreach (var question in assessment.Questions.OrderBy(q => q.QuestionId))
                 {
-                    var selectedAnswer = assessment.Questions
-                        .SelectMany(q => q.Answers)
-                        .FirstOrDefault(a => a.AnswerId == answer.AnswerId);
-
-                    if (selectedAnswer != null)
+                    if (question.QuestionType == "Text")
                     {
-                        totalScore += selectedAnswer.ScoreValue;
-                        scoreDetails.Add($"{selectedAnswer.QuestionId}: {selectedAnswer.ScoreDescription ?? selectedAnswer.Answer} (Score: {selectedAnswer.ScoreValue})");
+                        // Find matching Text answer
+                        var textAnswer = submission.TextAnswers
+                            .FirstOrDefault(ta => ta.QuestionId == question.QuestionId);
+                        if (textAnswer != null && !string.IsNullOrEmpty(textAnswer.Answer))
+                        {
+                            int textScore = (submission.TextAnswers.IndexOf(textAnswer) < 3 && textAnswer.Answer != "0") ? 1 : 0;
+                            scoreDetails.Add($"{question.QuestionId}: {textAnswer.Answer} (Score: {textScore})");
+                        }
                     }
-                }
+                    else
+                    {
+                        // Find matching non-Text answer
+                        var answer = submission.Answers
+                            .Select(a => assessment.Questions
+                                .SelectMany(q => q.Answers)
+                                .FirstOrDefault(ans => ans.AnswerId == a.AnswerId && ans.QuestionId == question.QuestionId))
+                            .FirstOrDefault(a => a != null);
 
-                // Process Text answers (not saved to database)
-                foreach (var textAnswer in submission.TextAnswers)
-                {
-                    int textScore = (submission.TextAnswers.IndexOf(textAnswer) < 3 && textAnswer.Answer != "0") ? 1 : 0;
-                    scoreDetails.Add($"{textAnswer.QuestionId}: {textAnswer.Answer} (Score: {textScore})");
+                        if (answer != null)
+                        {
+                            totalScore += answer.ScoreValue;
+                            scoreDetails.Add($"{answer.QuestionId}: {answer.ScoreDescription ?? answer.Answer} (Score: {answer.ScoreValue})");
+                        }
+                    }
                 }
 
                 // Generate recommendation based on score

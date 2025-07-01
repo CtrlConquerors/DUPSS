@@ -44,8 +44,14 @@
         border: 1px solid #ced4da;
         font-size: 1rem;
         box-shadow: 0 2px 5px rgba(0,0,0,0.05); /* Subtle shadow */
+        transition: transform 0.22s ease-in-out, box-shadow 0.22s ease-in-out;
+    
     }
-
+.search-input-container .form-control:hover,
+.search-input-container .form-control:focus {
+    transform: scale(1.035) translateY(-2px);
+    box-shadow: 0 4px 18px #3498db22;
+}
 
 /* Loading indicator styling */
 .loading-indicator {

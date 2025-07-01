@@ -216,7 +216,7 @@ else
             <div class="system-usage-track">
                 <div class="system-usage-fill" style="width: 72%;"></div>
             </div>
-            <div class="system-usage-percent">72%</div>
+            <div class="system-usage-percent">@((systemUsagePercent > 100 ? 100 : systemUsagePercent))%</div>
         </div>
     </div>
     <div class="dashboard-section dashboard-top-course">
@@ -278,6 +278,10 @@ else
     private UserDTO? currentUser;
     private int topCourseEnrollments = 0;
     private double topCourseCompletionRate = 0.0;
+    private int maxUsers = 1000; // Set your system's user capacity here
+    private int systemUsagePercent => maxUsers > 0
+    ? (int)Math.Round((totalUsers / (double)maxUsers) * 100)
+    : 0;
 
     private class DashboardCard
     {

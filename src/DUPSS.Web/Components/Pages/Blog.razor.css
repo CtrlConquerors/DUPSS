@@ -130,3 +130,97 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+/* Glassmorphism style for filters container */
+.filters-container {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    padding: 18px 22px;
+    border-radius: 18px;
+    box-shadow: 0 1px 18px 0 #3498db22;
+    transition: box-shadow 0.22s, background 0.22s, transform 0.18s, border 0.22s;
+}
+
+    .filters-container:hover {
+        background: transparent;
+        box-shadow: 0 8px 32px 0 #3498db44, 0 0 0 3px #bcd6f7;
+        transform: translateY(-2px) scale(1.018);
+        backdrop-filter: blur(18px) saturate(180%);
+        -webkit-backdrop-filter: blur(18px) saturate(180%);
+    }
+
+
+.search-input-container {
+    flex: 1 1 320px;
+    min-width: 220px;
+    max-width: 400px;
+}
+
+    .search-input-container .form-control {
+        width: 650px;
+        padding: 13px 15px;
+        font-size: 1.08rem;
+        border: 1.5px solid #bcd6f7;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #222;
+        margin-bottom: 0;
+        margin-top: 0;
+        box-shadow: 0 2px 2px #3498db11;
+        transition: border 0.22s, box-shadow 0.22s, background 0.22s;
+        outline: none;
+        display: block;
+        margin-left:-250px;
+    }
+
+        .search-input-container .form-control:focus {
+            border: 2px solid #3498db;
+            background: #fff;
+            box-shadow: 0 4px 18px #3498db22;
+        }
+
+.topic-filter-container {
+    flex: 0 1 220px;
+    min-width: 180px;
+    max-width: 260px;
+}
+
+    .topic-filter-container .form-select {
+        width: 100%;
+        padding: 13px 15px;
+        font-size: 1.08rem;
+        border: 1.5px solid #bcd6f7;
+        border-radius: 12px;
+        background: #f8fafc;
+        color: #222;
+        box-shadow: 0 2px 8px #3498db11;
+        transition: border 0.22s, box-shadow 0.22s, background 0.22s;
+        outline: none;
+    }
+
+        .topic-filter-container .form-select:focus {
+            border: 2px solid #3498db;
+            background: #fff;
+            box-shadow: 0 4px 18px #3498db22;
+        }
+
+@media (max-width: 700px) {
+    .filters-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding: 12px 8px;
+    }
+
+    .search-input-container,
+    .topic-filter-container {
+        max-width: 100%;
+        min-width: 0;
+    }
+}
+
+.no-blog-message p{
+    color:white;
+}

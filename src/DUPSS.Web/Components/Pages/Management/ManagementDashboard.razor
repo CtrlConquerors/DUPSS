@@ -153,20 +153,31 @@ else
         <!-- Profile Quick Card -->
         <div class="dashboard-profile-card">
             <div class="profile-avatar">
-                <i class="fas fa-user-circle"></i>
+                @if (!string.IsNullOrEmpty(currentUser?.ImageUrl))
+                {
+                    @* <img src="@currentUser.ImageUrl" alt="Profile Picture" style="width:48px;height:48px;border-radius:50%;" /> *@
+                }
+                else
+                {
+                    <i class="fas fa-user-circle"></i>
+                }
             </div>
             <div>
-                <div class="profile-name">@userName</div>
+                <div class="profile-name">@currentUser?.Username</div>
             </div>
             <div class="profile-expand-container @(isProfileExpanded ? "expanded" : "")">
                 <button class="dashboard-action-btn bg-blue profile-expand-btn"
                         @onclick="() => isProfileExpanded = !isProfileExpanded">
                     <i class="fas fa-cog"></i> Profile
                 </button>
-                @if (isProfileExpanded)
+                @if (isProfileExpanded && currentUser != null)
                 {
                     <div class="profile-expanded-content">
-                        <p>Profile expanded! (Add details here.)</p>
+                        <p><b>Email:</b> @currentUser.Email</p>
+                        <p><b>Phone:</b> @(string.IsNullOrEmpty(currentUser.PhoneNumber) ? "N/A" : currentUser.PhoneNumber)</p>
+                        <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>
+                        <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p>
+                        <p><b>Role:</b> @currentUser.Role?.RoleName</p>
                     </div>
                 }
             </div>
@@ -264,6 +275,7 @@ else
     private List<int> appointmentsPerDay = new();
     private string growthDisplay = "+0.0%";
     private CourseDTO? topCourse;
+    private UserDTO? currentUser;
     private int topCourseEnrollments = 0;
     private double topCourseCompletionRate = 0.0;
 
@@ -296,6 +308,9 @@ else
         // Fetch all users and count
         var allUsers = await UserApiService.GetAllAsync();
         totalUsers = allUsers.Count;
+
+        // Find the current user details
+        currentUser = allUsers.FirstOrDefault(u => u.Username == userName);
 
         // Update the Users card value
         var usersCard = dashboardCards.FirstOrDefault(c => c.Title == "Users");

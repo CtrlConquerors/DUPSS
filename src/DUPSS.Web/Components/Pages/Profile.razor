@@ -1,0 +1,104 @@
+﻿@page "/profile"
+@using DUPSS.API.Models.DTOs
+@using System.Timers
+@using DUPSS.Web.Components.Service
+@inject UserApiService UserApiService
+@inject JwtAuthenticationStateProvider AuthStateProvider
+
+<div class="profile-bg">
+    <div class="profile-main-card">
+        <div class="profile-header">
+            <div>
+                <div class="profile-welcome">Welcome, @user?.Username</div>
+                <div class="profile-date">@DateTime.Now</div>
+            </div>
+            <button class="profile-edit-btn" @onclick="() => isEdit = !isEdit">Edit</button>
+        </div>
+        <div class="profile-content">
+            <div class="profile-user-info">
+                <div class="profile-avatar-lg">
+                    @if (!string.IsNullOrEmpty(user?.ImageUrl))
+                    {
+                        <img src="\images\avatar2.png" alt="Profile Picture" />
+                    }
+                    else
+                    {
+                        <i class="fas fa-user-circle"></i>
+                    }
+                </div>
+                <div>
+                    <div class="profile-user-name">@user?.Username</div>
+                    <div class="profile-user-email">@user?.Email</div>
+                </div>
+            </div>
+
+            <div class="profile-fields">
+                <div class="profile-fields-col">
+                    <label>Full Name</label>
+                    <input disabled value="@user?.Username" />
+                    <label>Number of Course Enrollment</label>
+                    <input disabled value="-" />
+                    <label>Language</label>
+                    <input disabled value="English" />
+                    <label>My email Address</label>
+                    <div class="profile-email-box">
+                        <span class="profile-email-icon"><i class="fas fa-envelope"></i></span>
+                        <span>@user?.Email</span>
+                        <span class="profile-email-date">@user?.CreatedDate.ToString("MMMM yyyy")</span>
+                    </div>
+                    <button class="profile-add-email-btn" disabled>+ Add Email Address</button>
+                </div>
+                <div class="profile-fields-col">
+                    <label>Nick Name</label>
+                    <input disabled value="-" />
+                    <label>Country</label>
+                    <input disabled value="-" />
+                    <label>Time Zone</label>
+                    <input disabled value="@timeZoneDisplay" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private UserDTO? user;
+    private bool isEdit = false;
+    private DateTime currentTime = DateTime.Now;
+    private Timer? timer;
+    private string timeZoneDisplay = "UTC+0";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var username = authState.User.Identity?.Name;
+        if (!string.IsNullOrEmpty(username))
+        {
+            var users = await UserApiService.GetAllAsync();
+            user = users.FirstOrDefault(u => u.Username == username);
+        }
+        timer = new Timer(1000); // 1 second interval
+        timer.Elapsed += (s, e) =>
+        {
+            currentTime = DateTime.Now;
+            InvokeAsync(StateHasChanged);
+        };
+        timer.Start();
+
+        // Get the user's local time zone offset in hours
+        var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
+        var sign = offset.TotalHours >= 0 ? "+" : "-";
+        timeZoneDisplay = $"UTC{sign}{offset:hh\\:mm}";
+        timer = new Timer(1000); // 1 second interval
+        timer.Elapsed += (s, e) =>
+        {
+            currentTime = DateTime.Now;
+            InvokeAsync(StateHasChanged);
+        };
+        timer.Start();
+    }
+    public void Dispose()
+    {
+        timer?.Dispose();
+    }
+}

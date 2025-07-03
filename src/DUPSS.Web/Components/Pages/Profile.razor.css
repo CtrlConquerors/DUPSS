@@ -244,6 +244,59 @@
         transform: translateY(-2px) scale(1.04);
     }
 
+/* --- Profile Table Styles (for enrollments & campaigns) --- */
+.profile-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1.5rem;
+    background: #f7f8fa;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px #eaf0ff;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+    .profile-table th, .profile-table td {
+        padding: 0.85rem 1.1rem;
+        text-align: left;
+    }
+
+    .profile-table th {
+        background: #eaf0ff;
+        color: #3766ff;
+        font-weight: 600;
+        border-bottom: 2px solid #d6e4ff;
+        letter-spacing: 0.02em;
+    }
+
+    .profile-table tr {
+        transition: background 0.15s;
+    }
+
+    .profile-table tbody tr:hover {
+        background: #eaf0ff;
+    }
+
+    .profile-table td {
+        color: #222b45;
+        border-bottom: 1px solid #f0f4fa;
+        vertical-align: middle;
+    }
+
+    .profile-table .profile-link {
+        color: #3766ff;
+        text-decoration: underline;
+        font-weight: 500;
+        transition: color 0.18s;
+    }
+
+        .profile-table .profile-link:hover {
+            color: #2546b8;
+            text-decoration: underline;
+        }
+
 @media (max-width: 900px) {
     .profile-main-card {
         padding: 0 0 24px 0;
@@ -257,4 +310,48 @@
         flex-direction: column;
         gap: 0;
     }
+
+    .profile-table th, .profile-table td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.98rem;
+    }
+
+    .profile-table {
+        font-size: 0.98rem;
+    }
 }
+.profile-section-collapse {
+    margin-bottom: 1.5rem;
+}
+
+.profile-collapse-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #eaf0ff;
+    color: #3766ff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #eaf0ff;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+    outline: none;
+    user-select: none;
+}
+
+    .profile-collapse-btn:hover, .profile-collapse-btn:focus {
+        background: #3766ff;
+        color: #fff;
+        box-shadow: 0 4px 16px #3766ff33;
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .profile-collapse-btn span {
+        font-size: 1.2em;
+        font-weight: bold;
+        transition: transform 0.18s;
+    }

@@ -78,6 +78,17 @@ namespace DUPSS.Web.Components.Service
             return result;
         }
 
+        public async Task<List<AppointmentDTO>> GetAllAppointmentsAsync()
+        {
+            var response = await _httpClient.GetAsync("api/Appointments/GetAll");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<List<AppointmentDTO>>() ?? new();
+            }
+            return new List<AppointmentDTO>();
+        }
+
+
 
     }
 }

@@ -77,7 +77,13 @@ else
                 @foreach (var appt in upcomingAppointments)
                 {
                     <tr>
-                        <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @{
+                                var start = appt.AppointmentDate.ToLocalTime();
+                                var end = start.AddMinutes(40);
+                            }
+                            @start.ToString("dd/MM/yyyy HH:mm") - @end.ToString("HH:mm")
+                        </td>
                         <td>@appt.Member?.Username</td>
                         <td>@appt.Topic</td>
                         <td>@appt.Status</td>
@@ -110,19 +116,26 @@ else
         if (!string.IsNullOrEmpty(userId))
         {
             allAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(userId);
-            var todayLocal = DateTime.Today;
-            todayCount = allAppointments.Count(a =>
-                a.AppointmentDate.ToLocalTime().Date == todayLocal &&
-                (a.Status == "Accepted" || a.Status == "Pending"));
 
+            var todayLocal = DateTime.Now.Date;
+            var tomorrowLocal = todayLocal.AddDays(1);
+
+            todayCount = allAppointments.Count(a =>
+            {
+                var localTime = a.AppointmentDate.ToLocalTime();
+                Console.WriteLine($"[CHECK] Appt Local: {localTime}");
+                return localTime >= todayLocal
+                    && localTime < tomorrowLocal
+                    && (a.Status == "Accepted" || a.Status == "Pending");
+            });
 
             var nowUtc = DateTime.UtcNow;
-
             upcomingAppointments = allAppointments
                 .Where(a => a.AppointmentDate > nowUtc && (a.Status == "Accepted" || a.Status == "Pending"))
                 .OrderBy(a => a.AppointmentDate)
                 .Take(5)
                 .ToList();
+
             upcomingCount = upcomingAppointments.Count;
             finishedCount = allAppointments.Count(a => a.Status == "Finished");
             canceledCount = allAppointments.Count(a => a.Status == "Cancel");
@@ -132,4 +145,5 @@ else
 
         isLoading = false;
     }
+
 }

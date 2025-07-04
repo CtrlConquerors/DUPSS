@@ -25,7 +25,7 @@ else
                 <input class="form-control" @bind="searchKeyword" placeholder="🔍 Search by member or topic" />
             </div>
             <div class="col-auto">
-                <input type="date" class="form-control" @bind="fromDate" />
+                <input type="date" class="form-control" @bind="fromDate" placeholder="Start Date" />
             </div>
             <div class="col-auto">
                 <input type="date" class="form-control" @bind="toDate" />
@@ -70,8 +70,8 @@ else
                             var start = appt.AppointmentDate.ToLocalTime();
                             var end = start.AddMinutes(40);
                         }
-                        <div>@start.ToString("dd/MM/yyyy HH:mm")</div>
-                        <div style="margin-left:20px;">@end.ToString("HH:mm")</div>
+                        <div>@start.ToString("dd/MM/yyyy")</div>
+                        <div>@start.ToString("HH:mm") - @end.ToString("HH:mm")</div>
                     </td>
                     <td>@appt.Member?.Username</td>
                     <td>@appt.Topic</td>

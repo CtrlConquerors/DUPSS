@@ -438,3 +438,34 @@
         min-width: unset; /* Remove minimum width constraints */
     }
 }
+
+/* NEW: Image Upload Specific Styles */
+.image-preview img {
+    max-width: 200px; /* Control preview image size */
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.no-image-placeholder {
+    padding: 20px;
+    border: 1px dashed #ced4da;
+    border-radius: 8px;
+    color: #6c757d;
+    text-align: center;
+    background-color: #f8f9fa;
+}
+
+/* NEW: Style for images within the course table */
+.table-course-image {
+    max-width: 80px; /* Adjust as needed */
+    height: auto;
+    border-radius: 4px;
+    vertical-align: middle;
+}
+
+.no-image-available {
+    color: #6c757d;
+    font-style: italic;
+    font-size: 0.9em;
+}

@@ -8,6 +8,7 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@using System.IO 
 @attribute [StreamRendering]
 
 <div class="course-detail-container">
@@ -65,6 +66,7 @@
                 </div>
 
                 <div class="instructor-info">
+                    @* Display instructor avatar based on ImageUrl resolved from wwwroot/images *@
                     <img src="@(coursePageData.Instructor?.ImageUrl ?? $"https://placehold.co/40x40/95a5a6/ffffff?text={(coursePageData.Instructor?.Username?.FirstOrDefault().ToString() ?? "C")}")"
                          alt="Consultant Avatar" class="instructor-avatar-small" />
                     <span class="instructor-text">Instructor: <span class="instructor-name-link">@coursePageData.Instructor?.Username</span></span>
@@ -104,7 +106,7 @@
             </div> @* End of course-content-column *@
 
             <div class="course-image-column">
-                @* Right column for the course picture *@
+                @* Right column for the course picture, resolved from wwwroot/images *@
                 <img src="@(coursePageData.Course.ImageUrl ?? "https://placehold.co/400x300/F0F0F0/000000?text=Course+Image")"
                      alt="Course Decorative Image" class="course-decorative-image" />
             </div>
@@ -125,6 +127,9 @@
     private string enrollmentMessage = string.Empty;
     private string enrollmentMessageClass = string.Empty;
     private string? currentLoggedInUserId;
+
+    [Inject]
+    private IWebHostEnvironment WebHostEnvironment { get; set; } = default!; // Inject IWebHostEnvironment
 
     protected override async Task OnParametersSetAsync()
     {
@@ -167,6 +172,47 @@
 
             if (fetchedCourse != null && fetchedCourse.Consultant != null)
             {
+                // Resolve Course Image URL from wwwroot/images
+                if (!string.IsNullOrEmpty(fetchedCourse.CourseId))
+                {
+                    var wwwrootPath = WebHostEnvironment.WebRootPath;
+                    var imagesPath = Path.Combine(wwwrootPath, "images");
+                    var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+
+                    foreach (var ext in supportedExtensions)
+                    {
+                        var potentialFileName = $"{fetchedCourse.CourseId}{ext}";
+                        var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            fetchedCourse.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL
+                            break;
+                        }
+                    }
+                }
+
+                // Resolve Instructor (Consultant) Image URL from wwwroot/images
+                if (!string.IsNullOrEmpty(fetchedCourse.Consultant.UserId))
+                {
+                    var wwwrootPath = WebHostEnvironment.WebRootPath;
+                    var imagesPath = Path.Combine(wwwrootPath, "images"); // Assuming consultant images are also in wwwroot/images
+                    var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+
+                    foreach (var ext in supportedExtensions)
+                    {
+                        var potentialFileName = $"{fetchedCourse.Consultant.UserId}{ext}";
+                        var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                        if (System.IO.File.Exists(fullPath))
+                        {
+                            fetchedCourse.Consultant.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL
+                            break;
+                        }
+                    }
+                }
+
+
                 coursePageData = new CoursePageData
                 {
                     Course = fetchedCourse,
@@ -306,7 +352,8 @@
         else
         {
             Console.WriteLine("Cannot navigate to course content: Course ID is missing.");
-            JSRuntime.InvokeVoidAsync("alert", "Course content not available.");
+            // Changed alert to console log as per previous instructions to avoid browser alerts
+            JSRuntime.InvokeVoidAsync("console.error", "Course content not available.");
         }
     }
 

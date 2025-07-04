@@ -25,10 +25,13 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 CourseName = course.CourseName,
                 CourseType = course.CourseType,
                 StaffId = course.StaffId,
-                Description = course.Description, // NEW: Include Description
-                ConsultantId = course.ConsultantId, // NEW: Include ConsultantId
-                ImageUrl = $"images/{course.CourseId}.jpg",
-                ImageUrl2 = $"images/{course.ConsultantId}.jpg",
+                Description = course.Description,
+                ConsultantId = course.ConsultantId,
+                // ImageUrl and ImageUrl2 are [NotMapped] and are now managed by the client (Blazor component)
+                // The client will ensure the correct ImageUrl is set on the DTO before sending it.
+                // When returning from DAO, we don't fabricate it here.
+                ImageUrl = course.ImageUrl, // Pass through the ImageUrl from the incoming course object
+                ImageUrl2 = course.ImageUrl2, // Pass through ImageUrl2 if it's ever set
                 CreatedDate = course.CreatedDate,
                 Status = course.Status,
                 Inventory = course.Inventory,
@@ -41,7 +44,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             return await _context.Course
                 .Include(c => c.Topic) // Eagerly load Topic
                 .Include(c => c.Staff) // Eagerly load Staff
-                .Include(c => c.Consultant) // NEW: Eagerly load Consultant
+                .Include(c => c.Consultant) // Eagerly load Consultant
                 .Where(c => c.CourseId == courseId)
                 .Select(c => new CourseDTO
                 {
@@ -50,10 +53,12 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     CourseName = c.CourseName,
                     CourseType = c.CourseType,
                     StaffId = c.StaffId,
-                    Description = c.Description, // NEW: Include Description
-                    ConsultantId = c.ConsultantId, // NEW: Include ConsultantId
-                    ImageUrl = $"images/{c.CourseId}.jpg",
-                    ImageUrl2 = $"images/{c.ConsultantId}.jpg",
+                    Description = c.Description,
+                    ConsultantId = c.ConsultantId,
+                    // ImageUrl and ImageUrl2 are [NotMapped] and should not be fabricated here.
+                    // The Blazor component will determine the correct URL based on files in wwwroot.
+                    ImageUrl = null, // Set to null, the client will resolve it
+                    ImageUrl2 = null, // Set to null, the client will resolve it
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
                     Inventory = c.Inventory,
@@ -72,14 +77,15 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
                     } : null,
-                    Consultant = c.Consultant != null ? new UserDTO // NEW: Include Consultant DTO
+                    Consultant = c.Consultant != null ? new UserDTO
                     {
                         UserId = c.Consultant.UserId,
                         Username = c.Consultant.Username,
                         DoB = c.Consultant.DoB,
                         PhoneNumber = c.Consultant.PhoneNumber,
                         Email = c.Consultant.Email,
-                        ImageUrl = $"images/{c.Consultant.UserId}.jpg",
+                        // ImageUrl for Consultant is also not mapped to DB, client can derive
+                        ImageUrl = null, // Set to null, client will resolve it
                         RoleId = c.Consultant.RoleId
                     } : null
                 })
@@ -91,7 +97,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             return await _context.Course
                 .Include(c => c.Topic) // Eagerly load Topic
                 .Include(c => c.Staff) // Eagerly load Staff
-                .Include(c => c.Consultant) // NEW: Eagerly load Consultant
+                .Include(c => c.Consultant) // Eagerly load Consultant
                 .Select(c => new CourseDTO
                 {
                     CourseId = c.CourseId,
@@ -99,10 +105,12 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     CourseName = c.CourseName,
                     CourseType = c.CourseType,
                     StaffId = c.StaffId,
-                    Description = c.Description, // NEW: Include Description
-                    ConsultantId = c.ConsultantId, // NEW: Include ConsultantId
-                    ImageUrl = $"images/{c.CourseId}.jpg",
-                    ImageUrl2 = $"images/{c.ConsultantId}.jpg",
+                    Description = c.Description,
+                    ConsultantId = c.ConsultantId,
+                    // ImageUrl and ImageUrl2 are [NotMapped] and should not be fabricated here.
+                    // The Blazor component will determine the correct URL based on files in wwwroot.
+                    ImageUrl = null, // Set to null, the client will resolve it
+                    ImageUrl2 = null, // Set to null, the client will resolve it
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
                     Inventory = c.Inventory,
@@ -121,14 +129,15 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
                     } : null,
-                    Consultant = c.Consultant != null ? new UserDTO // NEW: Include Consultant DTO
+                    Consultant = c.Consultant != null ? new UserDTO
                     {
                         UserId = c.Consultant.UserId,
                         Username = c.Consultant.Username,
                         DoB = c.Consultant.DoB,
                         PhoneNumber = c.Consultant.PhoneNumber,
                         Email = c.Consultant.Email,
-                        ImageUrl = $"images/{c.Consultant.UserId}.jpg",
+                        // ImageUrl for Consultant is also not mapped to DB, client can derive
+                        ImageUrl = null, // Set to null, client will resolve it
                         RoleId = c.Consultant.RoleId
                     } : null
                 })
@@ -145,8 +154,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingCourse.CourseType = course.CourseType;
             existingCourse.TopicId = course.TopicId;
             existingCourse.StaffId = course.StaffId;
-            existingCourse.Description = course.Description; // NEW: Update Description
-            existingCourse.ConsultantId = course.ConsultantId; // NEW: Update ConsultantId
+            existingCourse.Description = course.Description;
+            existingCourse.ConsultantId = course.ConsultantId;
 
             await _context.SaveChangesAsync();
             return new CourseDTO
@@ -156,10 +165,13 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 CourseName = existingCourse.CourseName,
                 CourseType = existingCourse.CourseType,
                 StaffId = existingCourse.StaffId,
-                Description = existingCourse.Description, // NEW: Include updated Description
-                ConsultantId = existingCourse.ConsultantId, // NEW: Include updated ConsultantId
-                ImageUrl = $"images/{existingCourse.CourseId}.jpg",
-                ImageUrl2 = $"images/{existingCourse.ConsultantId}.jpg",
+                Description = existingCourse.Description,
+                ConsultantId = existingCourse.ConsultantId,
+                // ImageUrl and ImageUrl2 are [NotMapped] and are now managed by the client (Blazor component)
+                // The client will ensure the correct ImageUrl is set on the DTO before sending it.
+                // When returning from DAO, we don't fabricate it here.
+                ImageUrl = course.ImageUrl, // Pass through the ImageUrl from the incoming course object
+                ImageUrl2 = course.ImageUrl2, // Pass through ImageUrl2 if it's ever set
                 CreatedDate = existingCourse.CreatedDate,
                 Status = existingCourse.Status,
                 Inventory = existingCourse.Inventory,
@@ -183,4 +195,3 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
         }
     }
 }
-

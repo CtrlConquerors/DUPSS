@@ -52,10 +52,10 @@
                     <button class="profile-add-email-btn" disabled>+ Add Email Address</button>
                 </div>
                 <div class="profile-fields-col">
-                    <label>Nick Name</label>
-                    <input disabled value="-" />
-                    <label>Country</label>
-                    <input disabled value="-" />
+                    <label>Phone Number</label>
+                    <input disabled value="@user?.PhoneNumber" />
+                    <label>Birthday</label>
+                    <input disabled value="@user?.DoB" />
                     <label>Time Zone</label>
                     <input disabled value="@timeZoneDisplay" />
                 </div>
@@ -67,8 +67,7 @@
                 <button class="profile-collapse-btn" @onclick="() => showCourses = !showCourses">
                     <span>@(showCourses ? "▼" : "►")</span> My Enrolled Courses
                 </button>
-                @if (showCourses)
-                {
+                <div class="profile-collapse-content @(showCourses ? "expanded" : "")">
                     @if (enrollments is null)
                     {
                         <div>Loading...</div>
@@ -103,15 +102,14 @@
                             </tbody>
                         </table>
                     }
-                }
+                </div>
             </div>
 
             <div class="profile-section-collapse">
                 <button class="profile-collapse-btn" @onclick="() => showCampaigns = !showCampaigns">
                     <span>@(showCampaigns ? "▼" : "►")</span> My Campaign Participations
                 </button>
-                @if (showCampaigns)
-                {
+                <div class="profile-collapse-content @(showCampaigns ? "expanded" : "")">
                     @if (campaigns is null)
                     {
                         <div>Loading...</div>
@@ -146,7 +144,7 @@
                             </tbody>
                         </table>
                     }
-                }
+                </div>
             </div>
         </div>
     </div>

@@ -23,7 +23,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 CampaignId = campaign.CampaignId,
                 StaffId = campaign.StaffId,
                 Title = campaign.Title,
-                ImageUrl = $"images/{campaign.CampaignId}.jpg",
+                ImageUrl = campaign.ImageUrl, // Use the ImageUrl as provided by the Campaign object (which comes from Blazor)
                 Description = campaign.Description,
                 StartDate = campaign.StartDate,
                 EndDate = campaign.EndDate,
@@ -60,9 +60,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         RoleId = c.Staff.RoleId
 
                     } : null,
-                    ImageUrl = $"/images/{c.CampaignId}.jpg"
+                    ImageUrl = c.ImageUrl // Directly use the ImageUrl from the database
                 })
-
                 .FirstOrDefaultAsync();
         }
 
@@ -79,7 +78,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     EndDate = c.EndDate,
                     Status = c.Status,
                     Location = c.Location,
-                    Introduction = c.Introduction,      
+                    Introduction = c.Introduction,
                     Duration = c.EndDate.HasValue ? (TimeSpan?)(c.EndDate.Value.ToDateTime(new TimeOnly(0)) - c.StartDate.ToDateTime(new TimeOnly(0))) : null,
                     Staff = c.Staff != null ? new UserDTO
                     {
@@ -90,7 +89,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         Email = c.Staff.Email,
                         RoleId = c.Staff.RoleId
                     } : null,
-                    ImageUrl = $"/images/{c.CampaignId}.jpg"
+                    ImageUrl = c.ImageUrl 
                 })
                 .ToListAsync();
         }
@@ -109,6 +108,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingCampaign.Location = campaign.Location;
             existingCampaign.Introduction = campaign.Introduction;
             existingCampaign.Status = campaign.Status;
+            existingCampaign.ImageUrl = campaign.ImageUrl; // NEW: Update ImageUrl from DTO
 
             await _context.SaveChangesAsync();
             return new CampaignDTO
@@ -122,7 +122,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 Status = existingCampaign.Status,
                 Duration = existingCampaign.EndDate.HasValue ? (TimeSpan?)(existingCampaign.EndDate.Value.ToDateTime(new TimeOnly(0)) - existingCampaign.StartDate.ToDateTime(new TimeOnly(0))) : null,
                 Location = existingCampaign.Location,
-                Introduction = existingCampaign.Introduction
+                Introduction = existingCampaign.Introduction,
+                ImageUrl = existingCampaign.ImageUrl // NEW: Include ImageUrl in the returned DTO
             };
         }
 

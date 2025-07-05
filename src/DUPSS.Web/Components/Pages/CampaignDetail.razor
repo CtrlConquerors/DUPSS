@@ -8,7 +8,16 @@
 @inject IHttpClientFactory HttpClientFactory
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthProvider
+@inject IWebHostEnvironment WebHostEnvironment // Inject IWebHostEnvironment
 
+@* Custom Message Box for alerts/confirms instead of alert() *@
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @messageCssClass alert-dismissible fade show" role="alert">
+        @message
+        <button type="button" class="btn-close" @onclick="ClearMessage" aria-label="Close"></button>
+    </div>
+}
 
 
 @if (campaign == null)
@@ -19,7 +28,8 @@ else
 {
     <div class="campaign-detail-container">
         <div class="campaign-hero-wrapper">
-            <div class="campaign-hero-image" style="background-image: url('@campaign.ImageUrl');"></div>
+            @* Use the constructed ImageUrl for background-image *@
+            <div class="campaign-hero-image" style="background-image: url('@(campaign.ImageUrl ?? "https://placehold.co/1200x400/F0F0F0/000000?text=Campaign+Image")');"></div>
             <div class="campaign-hero-title">
                 <span class="title-letters">
                     @foreach (var c in campaign.Title)
@@ -54,21 +64,8 @@ else
                 </div>
             </div>
         </div>
-        @* <div class="info-row">
-            <label>Status</label>
-            <span>@campaign.Status</span>
-        </div>
-        <div class="info-row">
-            <label>Phase</label>
-            <span>
-                @campaign.StartDate.ToString("dd/MM/yyyy")
-                –
-                @(campaign.EndDate?.ToString("dd/MM/yyyy") ?? "N/A")
-            </span>
-        </div> *@
 
         <div class="campaign-section">
-
             <div>@((MarkupString)campaign.Introduction.Replace("\n", "<br />"))</div>
         </div>
     </div>
@@ -126,11 +123,67 @@ else
 
     private CampaignDTO? campaign;
 
+    // NEW: For custom message display
+    private string message = string.Empty;
+    private string messageCssClass = string.Empty; // e.g., "alert-success", "alert-danger"
+
+    private void ShowMessage(string msg, bool isSuccess)
+    {
+        message = msg;
+        messageCssClass = isSuccess ? "alert-success" : "alert-danger";
+        StateHasChanged();
+    }
+
+    private void ClearMessage()
+    {
+        message = string.Empty;
+        messageCssClass = string.Empty;
+        StateHasChanged();
+    }
+
+
     protected override async Task OnInitializedAsync()
     {
         try
         {
+            Console.WriteLine($"CampaignDetail: OnInitializedAsync: Loading campaign with ID: {CampaignId}");
             campaign = await CampaignApiService.GetByIdAsync(CampaignId);
+
+            // NEW: Logic to construct ImageUrl from wwwroot/images
+            if (campaign != null && !string.IsNullOrEmpty(campaign.CampaignId))
+            {
+                var wwwrootPath = WebHostEnvironment.WebRootPath;
+                var imagesPath = Path.Combine(wwwrootPath, "images");
+                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                Console.WriteLine($"CampaignDetail: wwwrootPath: {wwwrootPath}");
+                Console.WriteLine($"CampaignDetail: imagesPath: {imagesPath}");
+
+                bool imageFound = false;
+                foreach (var ext in supportedExtensions)
+                {
+                    var potentialFileName = $"{campaign.CampaignId}{ext}";
+                    var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        campaign.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                        Console.WriteLine($"CampaignDetail: Found image for CampaignId {campaign.CampaignId}: {campaign.ImageUrl}");
+                        imageFound = true;
+                        break;
+                    }
+                }
+                if (!imageFound)
+                {
+                    Console.WriteLine($"CampaignDetail: No image found for CampaignId {campaign.CampaignId} in {imagesPath}. ImageUrl remains: {campaign.ImageUrl ?? "null/empty"}");
+                    // If no image is found, ensure ImageUrl is null or empty so the placeholder can be used
+                    campaign.ImageUrl = null;
+                }
+            }
+            else if (campaign != null) // If campaign exists but CampaignId is empty/null, ensure ImageUrl is null
+            {
+                campaign.ImageUrl = null;
+            }
+
 
             var authState = await AuthProvider.GetAuthenticationStateAsync();
             var user = authState.User;
@@ -138,18 +191,25 @@ else
             if (user.Identity?.IsAuthenticated == true)
             {
                 MemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        ?? user.FindFirst("sub")?.Value
-                        ?? user.FindFirst("MemberId")?.Value;
+                                ?? user.FindFirst("sub")?.Value
+                                ?? user.FindFirst("MemberId")?.Value;
+                Console.WriteLine($"CampaignDetail: Authenticated User MemberId: {MemberId}");
+            }
+            else
+            {
+                Console.WriteLine("CampaignDetail: User not authenticated.");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading campaign detail: {ex.Message}");
+            Console.WriteLine($"CampaignDetail: Error loading campaign detail: {ex.Message}");
+            ShowMessage($"Error loading campaign details: {ex.Message}", false);
         }
     }
 
     private async Task HandleRegister()
     {
+        ClearMessage(); // Clear previous messages
         if (string.IsNullOrEmpty(MemberId))
         {
             var authState = await AuthProvider.GetAuthenticationStateAsync();
@@ -158,13 +218,13 @@ else
             if (user.Identity?.IsAuthenticated == true)
             {
                 MemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        ?? user.FindFirst("sub")?.Value
-                        ?? user.FindFirst("MemberId")?.Value;
+                                ?? user.FindFirst("sub")?.Value
+                                ?? user.FindFirst("MemberId")?.Value;
             }
 
             if (string.IsNullOrEmpty(MemberId))
             {
-                await JS.InvokeVoidAsync("alert", "Failed to retrieve Member ID. Please login again.");
+                ShowMessage("Failed to retrieve Member ID. Please login again.", false);
                 NavigationManager.NavigateTo("/login");
                 return;
             }
@@ -177,39 +237,58 @@ else
             RegisteredAt = DateTime.UtcNow
         };
 
-        var registrationJson = System.Text.Json.JsonSerializer.Serialize(registration);
+        // No need to serialize manually, PostAsJsonAsync handles it
+        // var registrationJson = System.Text.Json.JsonSerializer.Serialize(registration);
 
-        var response = await HttpClientFactory.CreateClient("ApiClient")
-            .PostAsJsonAsync("api/CampaignRegistration", registration);
-
-        if (response.IsSuccessStatusCode)
+        try
         {
-            await JS.InvokeVoidAsync("alert", "You have successfully registered for the campaign!");
+            var response = await HttpClientFactory.CreateClient("ApiClient")
+                .PostAsJsonAsync("api/CampaignRegistration", registration);
+
+            if (response.IsSuccessStatusCode)
+            {
+                ShowMessage("You have successfully registered for the campaign!", true);
+            }
+            else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                ShowMessage("You have already registered for this campaign.", false);
+            }
+            else
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                ShowMessage($"Failed to register. Server said: {response.StatusCode} - {content}", false);
+            }
         }
-        else if (response.StatusCode == System.Net.HttpStatusCode.Conflict)
+        catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("alert", "You have already registered for this campaign.");
-        }
-        else
-        {
-            var content = await response.Content.ReadAsStringAsync();
-
-            await JS.InvokeVoidAsync("alert", $"Failed to register. Server said: {response.StatusCode}");
+            Console.WriteLine($"Error during registration: {ex.Message}");
+            ShowMessage($"An error occurred during registration: {ex.Message}", false);
         }
     }
+
     private async Task HandleUnregister(string campaignId)
     {
-        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure to unregister this campaign?");
+        ClearMessage(); // Clear previous messages
+        // Replace JS.InvokeAsync<bool>("confirm", ...) with a custom confirmation modal if preferred
+        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are you sure to unregister this campaign?"); 
         if (!confirmed) return;
 
-        var success = await CampaignRegistrationApiService.UnregisterAsync(MemberId, campaignId);
-        if (success)
+        try
         {
-            await JS.InvokeVoidAsync("alert", "Unregister success.");
+            var success = await CampaignRegistrationApiService.UnregisterAsync(MemberId, campaignId);
+            if (success)
+            {
+                ShowMessage("Unregister success.", true);
+            }
+            else
+            {
+                ShowMessage("Unregister failed. Please try again.", false);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            await JS.InvokeVoidAsync("alert", "Unregister fail.");
+            Console.WriteLine($"Error during unregistration: {ex.Message}");
+            ShowMessage($"An error occurred during unregistration: {ex.Message}", false);
         }
     }
 

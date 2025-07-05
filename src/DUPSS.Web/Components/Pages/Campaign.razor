@@ -1,11 +1,12 @@
 @page "/Campaign"
 @using DUPSS.API.Models.AccessLayer.Interfaces
 @using DUPSS.Web.Components.Service
-@using DUPSS.API.Models.DTOs 
+@using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 @inject NavigationManager NavigationManager
 @inject CampaignApiService CampaignApiService
 @inject IJSRuntime JSRuntime
+@inject IWebHostEnvironment WebHostEnvironment // Inject IWebHostEnvironment
 
 <div class="campaign-page-container">
     <h1 class="page-title">Ongoing Awareness Campaigns</h1>
@@ -46,6 +47,7 @@
                         <p>@item.Description</p>
                     </div>
                 </div>
+              
             }
         </div>
 
@@ -80,14 +82,63 @@
     {
         try
         {
+            Console.WriteLine("Campaign: OnInitializedAsync: Starting data load.");
             campaign = await CampaignApiService.GetAllAsync(); // List<CampaignDTO>
-            Console.WriteLine($"Loaded {campaign?.Count} campaign.");
+            Console.WriteLine($"Campaign: Loaded {campaign?.Count} campaign.");
+
+            // NEW: Logic to construct ImageUrl from wwwroot/images
+            if (campaign != null && campaign.Any())
+            {
+                var wwwrootPath = WebHostEnvironment.WebRootPath;
+                var imagesPath = Path.Combine(wwwrootPath, "images");
+                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                Console.WriteLine($"Campaign: wwwrootPath: {wwwrootPath}");
+                Console.WriteLine($"Campaign: imagesPath: {imagesPath}");
+
+                foreach (var item in campaign)
+                {
+                    if (!string.IsNullOrEmpty(item.CampaignId))
+                    {
+                        bool imageFound = false;
+                        foreach (var ext in supportedExtensions)
+                        {
+                            var potentialFileName = $"{item.CampaignId}{ext}";
+                            var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                            if (System.IO.File.Exists(fullPath))
+                            {
+                                item.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                                Console.WriteLine($"Campaign: Found image for CampaignId {item.CampaignId}: {item.ImageUrl}");
+                                imageFound = true;
+                                break;
+                            }
+                        }
+                        if (!imageFound)
+                        {
+                            Console.WriteLine($"Campaign: No image found for CampaignId {item.CampaignId} in {imagesPath}. ImageUrl remains: {item.ImageUrl ?? "null/empty"}");
+                            // If no image is found, ensure ImageUrl is null or empty so the placeholder can be used
+                            item.ImageUrl = null;
+                        }
+                    }
+                    else
+                    {
+                        // If CampaignId is empty, ensure ImageUrl is null
+                        item.ImageUrl = null;
+                    }
+                }
+            }
+
             hasError = false;
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error loading campaign: {ex.Message}");
+            Console.WriteLine($"Campaign: Error loading campaign: {ex.Message}");
             hasError = true;
+            campaign = new List<CampaignDTO>(); // Ensure list is initialized on error
+        }
+        finally
+        {
+            campaign ??= new List<CampaignDTO>(); // Ensure campaigns list is not null
         }
     }
 
@@ -105,7 +156,7 @@
     private async Task ToggleShowAllCampaign()
     {
         showAllCampaign = !showAllCampaign;
-        Console.WriteLine($"ToggleShowAllCampaign called. showAllCampaign is now: {showAllCampaign}");
+        Console.WriteLine($"Campaign: ToggleShowAllCampaign called. showAllCampaign is now: {showAllCampaign}");
 
         if (!showAllCampaign)
         {
@@ -118,4 +169,3 @@
         NavigationManager.NavigateTo($"/Campaign/Detail/{campaignId}", forceLoad: true);
     }
 }
-

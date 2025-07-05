@@ -23,8 +23,8 @@ namespace DUPSS.API.Models.Objects
 
         public User? Staff { get; set; }
 
-        
 
+        [NotMapped]
         public string? ImageUrl { get; set; }
 
         // New NotMapped property for Duration

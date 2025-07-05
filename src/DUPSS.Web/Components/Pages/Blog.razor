@@ -6,6 +6,7 @@
 @inject BlogApiService BlogApiService
 @inject BlogTopicApiService BlogTopicApiService
 @inject IJSRuntime JSRuntime
+@inject IWebHostEnvironment WebHostEnvironment // NEW: Inject IWebHostEnvironment
 
 <div class="blog-page-container">
     <h1 class="page-title">Ongoing Blog Posts</h1>
@@ -58,7 +59,7 @@
             {
                 <div class="blog-card clickable" @onclick="() => NavigateToDetail(item.BlogId)">
                     <div class="card-image">
-                        <img src= "@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")"
+                        <img src="@(item.ImageUrl ?? "https://placehold.co/300x200/F0F0F0/000000?text=Blog+Image")"
                              alt="Blog Image" />
                     </div>
                     <div class="card-content">
@@ -108,14 +109,14 @@
     protected override async Task OnInitializedAsync()
     {
         await LoadBlogTopicsAsync();
-        await LoadBlogsAsync();
-        
+
         // Set the selected topic from query parameter if provided
         if (!string.IsNullOrWhiteSpace(BlogTopicFromQuery))
         {
             selectedTopicId = BlogTopicFromQuery;
         }
-        
+
+        await LoadBlogsAsync(); // Load blogs after topic is set
         ApplySearchAndDisplay();
     }
 
@@ -136,8 +137,50 @@
     {
         try
         {
+            // Fetch blogs from API
             blogs = (await BlogApiService.GetAllAsync())?.Where(b => b.Status == "Published").ToList();
-            Console.WriteLine($"Loaded {blogs?.Count} blogs.");
+            Console.WriteLine($"Loaded {blogs?.Count} blogs from API.");
+
+            // NEW: Logic to find and set ImageUrl from wwwroot/images
+            if (blogs != null && blogs.Any())
+            {
+                var wwwrootPath = WebHostEnvironment.WebRootPath;
+                var imagesPath = Path.Combine(wwwrootPath, "images");
+                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                Console.WriteLine($"Blog.razor: LoadBlogsAsync: wwwrootPath: {wwwrootPath}");
+                Console.WriteLine($"Blog.razor: LoadBlogsAsync: imagesPath: {imagesPath}");
+
+                foreach (var blog in blogs)
+                {
+                    if (!string.IsNullOrEmpty(blog.BlogId))
+                    {
+                        bool imageFound = false;
+                        foreach (var ext in supportedExtensions)
+                        {
+                            var potentialFileName = $"{blog.BlogId}{ext}";
+                            var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                            if (System.IO.File.Exists(fullPath))
+                            {
+                                blog.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                                Console.WriteLine($"Blog.razor: LoadBlogsAsync: Found image for BlogId {blog.BlogId}: {blog.ImageUrl}");
+                                imageFound = true;
+                                break;
+                            }
+                        }
+                        if (!imageFound)
+                        {
+                            Console.WriteLine($"Blog.razor: LoadBlogsAsync: No image found for BlogId {blog.BlogId} in {imagesPath}. ImageUrl remains: {blog.ImageUrl ?? "null/empty"}");
+                            blog.ImageUrl = null; // Ensure ImageUrl is null if no image is found
+                        }
+                    }
+                    else
+                    {
+                        blog.ImageUrl = null; // If BlogId is empty, ensure ImageUrl is null
+                    }
+                }
+            }
+
             hasError = false;
         }
         catch (Exception ex)
@@ -188,12 +231,12 @@
     private async Task OnTopicFilterChanged(ChangeEventArgs e)
     {
         selectedTopicId = e.Value?.ToString() ?? string.Empty;
-        
+
         // Update the URL with the selected topic
-        var uri = NavigationManager.GetUriWithQueryParameter("blogTopic", 
+        var uri = NavigationManager.GetUriWithQueryParameter("blogTopic",
             string.IsNullOrWhiteSpace(selectedTopicId) ? null : selectedTopicId);
         NavigationManager.NavigateTo(uri, replace: true);
-        
+
         ApplySearchAndDisplay();
     }
 

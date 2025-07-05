@@ -9,7 +9,7 @@
 @inject RoleApiService RoleApiService
 @inject BlogTopicApiService BlogTopicApiService
 @inject IJSRuntime JS
-@inject IWebHostEnvironment WebHostEnvironment // NEW: Inject IWebHostEnvironment for file operations
+@inject IWebHostEnvironment WebHostEnvironment
 @layout ManagementLayout
 
 <div class="blog-management-container">
@@ -99,7 +99,7 @@
                     <th>Status</th>
                     <th>Staff Name</th>
                     <th>Content</th>
-                    <th>Image</th> @* NEW: Image Column Header *@
+                    <th>Image</th>
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -127,7 +127,7 @@
                         </td>
                         <td>@blog.Staff?.Username</td>
                         <td>@(blog.Content?.Length > 100 ? blog.Content.Substring(0, 100) + "..." : blog.Content)</td>
-                        <td> @* NEW: Image Column Cell *@
+                        <td>
                             @if (!string.IsNullOrEmpty(blog.ImageUrl))
                             {
                                 <img src="@blog.ImageUrl" alt="Blog Image" class="table-blog-image" />
@@ -248,7 +248,6 @@
                 </select>
             </div>
 
-            @* NEW: Image Upload Section *@
             <div class="mb-3">
                 <label class="form-label">Blog Image</label>
                 <InputFile OnChange="HandleFileSelection" accept="image/*" class="form-control" />
@@ -280,7 +279,7 @@
 
 @code {
     private List<BlogDTO>? blogs;
-    private List<BlogTopic>? blogTopics; // Note: BlogTopicApiService is GenericApiService<BlogTopic>, so it returns BlogTopic
+    private List<BlogTopic>? blogTopics;
     private List<UserDTO>? staffUsers;
     private List<RoleDTO>? roles;
     private bool hasError = false;
@@ -290,7 +289,6 @@
     private bool isSimpleMDELoaded = false;
     private bool shouldInitSimpleMDE = false;
 
-    // Search, Sort, Filter state
     private string searchTerm = string.Empty;
     private string selectedTopicId = string.Empty;
     private string selectedStaffId = string.Empty;
@@ -307,14 +305,13 @@
         Status = "Draft",
         StaffId = "",
         BlogTopicId = "",
-        ImageUrl = "" // NEW: Initialize ImageUrl
+        ImageUrl = ""
     };
     private bool showEditForm = false;
     private bool isNewBlog = false;
     private bool showNewTopicInput = false;
     private string newTopicName = string.Empty;
 
-    // NEW: Image Upload Properties
     private IBrowserFile? selectedImageFile;
     private string? imagePreviewUrl;
 
@@ -343,7 +340,7 @@
     {
         Console.WriteLine("BlogManagement: OnInitializedAsync: Starting data load.");
 
-        // NEW: Hard reload check
+        // Hard reload check (if still desired for cache-busting)
         var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         if (!currentUri.Query.Contains("t="))
         {
@@ -354,7 +351,7 @@
 
         try
         {
-            await LoadAllDataAsync(); // Consolidated data loading
+            await LoadAllDataAsync();
             FilterAndSortBlogs();
             hasError = false;
             Console.WriteLine("BlogManagement: OnInitializedAsync: Data load complete and filtered.");
@@ -375,19 +372,17 @@
             blogTopics ??= new List<BlogTopic>();
             staffUsers ??= new List<UserDTO>();
             roles ??= new List<RoleDTO>();
-            filteredBlogs = new List<BlogDTO>(); // Ensure initialized
-            FilterAndSortBlogs(); // Always call to set initial filtered list
+            filteredBlogs = new List<BlogDTO>();
+            FilterAndSortBlogs();
         }
     }
 
-    // NEW: Consolidated data loading method
     private async Task LoadAllDataAsync()
     {
         Console.WriteLine("BlogManagement: LoadAllDataAsync: Fetching blogs...");
         blogs = await BlogApiService.GetAllAsync();
         Console.WriteLine($"BlogManagement: LoadAllDataAsync: Fetched {blogs?.Count ?? 0} blogs.");
 
-        // After fetching blogs, try to find their corresponding images in wwwroot/images
         if (blogs != null && blogs.Any())
         {
             var wwwrootPath = WebHostEnvironment.WebRootPath;
@@ -408,7 +403,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            blog.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                            blog.ImageUrl = $"images/{potentialFileName}";
                             Console.WriteLine($"BlogManagement: LoadAllDataAsync: Found image for BlogId {blog.BlogId}: {blog.ImageUrl}");
                             imageFound = true;
                             break;
@@ -417,18 +412,18 @@
                     if (!imageFound)
                     {
                         Console.WriteLine($"BlogManagement: LoadAllDataAsync: No image found for BlogId {blog.BlogId} in {imagesPath}. ImageUrl remains: {blog.ImageUrl ?? "null/empty"}");
-                        blog.ImageUrl = null; // Ensure ImageUrl is null if no image is found
+                        blog.ImageUrl = null;
                     }
                 }
                 else
                 {
-                    blog.ImageUrl = null; // If BlogId is empty, ensure ImageUrl is null
+                    blog.ImageUrl = null;
                 }
             }
         }
 
         Console.WriteLine("BlogManagement: LoadAllDataAsync: Fetching blog topics, roles, and users...");
-        blogTopics = await BlogTopicApiService.GetAllAsync(); // Still returns BlogTopic, not BlogTopicDTO
+        blogTopics = await BlogTopicApiService.GetAllAsync();
         roles = await RoleApiService.GetAllAsync();
         var allUsers = await UserApiService.GetAllAsync();
 
@@ -478,7 +473,6 @@
 
         IEnumerable<BlogDTO> query = blogs;
 
-        // Apply Search Term (Blog Title, Topic Name, Staff Name, Blog ID, Content)
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var lowerSearchTerm = searchTerm.ToLower();
@@ -491,19 +485,16 @@
             );
         }
 
-        // Apply Topic Filter
         if (!string.IsNullOrWhiteSpace(selectedTopicId))
         {
             query = query.Where(b => b.BlogTopicId == selectedTopicId);
         }
 
-        // Apply Staff Filter
         if (!string.IsNullOrWhiteSpace(selectedStaffId))
         {
             query = query.Where(b => b.StaffId == selectedStaffId);
         }
 
-        // Apply Sorting
         switch (sortBy)
         {
             case "Title":
@@ -601,8 +592,8 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null; // NEW: Clear selected image
-        imagePreviewUrl = null; // NEW: Clear image preview
+        selectedImageFile = null;
+        imagePreviewUrl = null;
 
         blogToEdit = new BlogDTO
         {
@@ -612,7 +603,7 @@
             Status = "Draft",
             StaffId = "",
             BlogTopicId = "",
-            ImageUrl = "" // NEW: Ensure ImageUrl is reset
+            ImageUrl = ""
         };
         isNewBlog = true;
         showEditForm = true;
@@ -626,8 +617,8 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null; // NEW: Clear selected image
-        imagePreviewUrl = null; // NEW: Clear image preview
+        selectedImageFile = null;
+        imagePreviewUrl = null;
 
         var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
         if (blog != null)
@@ -646,9 +637,8 @@
                     BlogTopicId = blog.BlogTopic.BlogTopicId,
                     BlogTopicName = blog.BlogTopic.BlogTopicName
                 } : null,
-                ImageUrl = blog.ImageUrl // NEW: Load existing image URL
+                ImageUrl = blog.ImageUrl
             };
-            // NEW: Set image preview if an existing image URL is present
             if (!string.IsNullOrEmpty(blogToEdit.ImageUrl))
             {
                 imagePreviewUrl = blogToEdit.ImageUrl;
@@ -662,7 +652,6 @@
         }
     }
 
-    // NEW: Handle file selection for image upload
     private async Task HandleFileSelection(InputFileChangeEventArgs e)
     {
         Console.WriteLine("BlogManagement: HandleFileSelection: File selection initiated.");
@@ -672,7 +661,6 @@
         if (selectedImageFile != null)
         {
             Console.WriteLine($"BlogManagement: HandleFileSelection: Selected file: {selectedImageFile.Name}, Type: {selectedImageFile.ContentType}, Size: {selectedImageFile.Size} bytes.");
-            // Limit file size (e.g., 5MB)
             if (selectedImageFile.Size > 5 * 1024 * 1024)
             {
                 validationMessage = "File size too large. Maximum 5MB allowed.";
@@ -685,7 +673,6 @@
 
             try
             {
-                // Generate a temporary URL for preview
                 var imageBytes = new byte[selectedImageFile.Size];
                 await selectedImageFile.OpenReadStream().ReadAsync(imageBytes);
                 imagePreviewUrl = $"data:{selectedImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
@@ -750,15 +737,12 @@
         {
             try
             {
-                // Note: BlogTopicApiService is GenericApiService<BlogTopic>, so it expects BlogTopic.
-                // However, the DeleteAsync method typically only needs the ID.
                 var success = await BlogTopicApiService.DeleteAsync(topicId);
                 if (success)
                 {
                     Console.WriteLine($"Topic '{topic.BlogTopicName}' (ID: {topicId}) deleted successfully.");
                     validationMessage = string.Empty;
 
-                    // Reload all data after deletion
                     await LoadAllDataAsync();
                     FilterAndSortBlogs();
 
@@ -782,7 +766,6 @@
 
     private async Task SaveBlog()
     {
-        // Validation checks
         if (string.IsNullOrWhiteSpace(blogToEdit.Title))
         {
             validationMessage = "Blog Title cannot be empty.";
@@ -797,8 +780,6 @@
             catch (Exception ex)
             {
                 Console.WriteLine($"Error getting SimpleMDE content: {ex.Message}");
-                // Fallback to direct bind if SimpleMDE content retrieval fails
-                // validationMessage will already be set if SimpleMDE didn't load
             }
         }
         if (string.IsNullOrWhiteSpace(blogToEdit.Content))
@@ -828,11 +809,10 @@
             try
             {
                 var newTopicId = GenerateNextTopicId();
-                // Note: BlogTopicApiService is GenericApiService<BlogTopic>, so it expects BlogTopic model here.
                 var newTopic = new BlogTopic { BlogTopicId = newTopicId, BlogTopicName = newTopicName };
                 await BlogTopicApiService.CreateAsync(newTopic);
                 blogToEdit.BlogTopicId = newTopic.BlogTopicId;
-                blogTopics = await BlogTopicApiService.GetAllAsync(); // Refresh topics list
+                blogTopics = await BlogTopicApiService.GetAllAsync();
                 showNewTopicInput = false;
                 newTopicName = string.Empty;
             }
@@ -851,11 +831,10 @@
             }
         }
 
-        validationMessage = string.Empty; // Clear validation message if all checks pass
+        validationMessage = string.Empty;
 
         try
         {
-            // NEW: Handle image upload before saving blog data
             if (selectedImageFile != null)
             {
                 Console.WriteLine("BlogManagement: SaveBlog: Image file selected. Starting image upload process.");
@@ -875,12 +854,11 @@
                 }
 
                 var fileExtension = Path.GetExtension(selectedImageFile.Name);
-                var newFileName = $"{blogToEdit.BlogId}{fileExtension}"; // Use BlogId for filename
+                var newFileName = $"{blogToEdit.BlogId}{fileExtension}";
                 var filePath = Path.Combine(imagesPath, newFileName);
                 Console.WriteLine($"BlogManagement: SaveBlog: New image filename: {newFileName}");
                 Console.WriteLine($"BlogManagement: SaveBlog: Full target file path: {filePath}");
 
-                // Delete existing image with any extension if it exists for this BlogId
                 Console.WriteLine($"BlogManagement: SaveBlog: Checking for existing image for BlogId {blogToEdit.BlogId} to delete...");
                 foreach (var ext in new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" })
                 {
@@ -893,7 +871,6 @@
                 }
                 Console.WriteLine("BlogManagement: SaveBlog: Finished checking and deleting old images.");
 
-                // Save the new file
                 Console.WriteLine($"BlogManagement: SaveBlog: Attempting to save new image to: {filePath}");
                 try
                 {
@@ -905,23 +882,19 @@
                 {
                     Console.WriteLine($"BlogManagement: SaveBlog: ERROR during file stream copy: {fileEx.Message}");
                     validationMessage = $"Error saving image file: {fileEx.Message}";
-                    return; // Stop the save process if image saving fails
+                    return;
                 }
 
-                // Update the ImageUrl in the DTO with the relative path for display
                 blogToEdit.ImageUrl = $"images/{newFileName}";
                 Console.WriteLine($"BlogManagement: SaveBlog: blogToEdit.ImageUrl set to: {blogToEdit.ImageUrl}");
             }
             else if (isNewBlog)
             {
-                // If it's a new blog and no image is selected, ensure ImageUrl is empty/null
                 blogToEdit.ImageUrl = "";
                 Console.WriteLine("BlogManagement: SaveBlog: No image selected for new blog. ImageUrl set to empty.");
             }
             else
             {
-                // If it's an existing blog and no new image is selected, keep the existing ImageUrl
-                // The ImageUrl will already be populated from the initial load if an image exists
                 Console.WriteLine("BlogManagement: SaveBlog: No new image selected for existing blog. Keeping existing ImageUrl.");
             }
 
@@ -943,13 +916,12 @@
                 Console.WriteLine($"Blog '{blogToEdit.Title}' updated.");
             }
 
-            // Refresh data and reset form
-            await LoadAllDataAsync(); // Reload all data including images
+            await LoadAllDataAsync();
             FilterAndSortBlogs();
             showEditForm = false;
             GoToPage(1);
-            selectedImageFile = null; // Clear selected file
-            imagePreviewUrl = null; // Clear preview
+            selectedImageFile = null;
+            imagePreviewUrl = null;
         }
         catch (Exception ex)
         {
@@ -963,8 +935,8 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null; // NEW: Clear selected image
-        imagePreviewUrl = null; // NEW: Clear image preview
+        selectedImageFile = null;
+        imagePreviewUrl = null;
 
         blogToEdit = new BlogDTO
         {
@@ -974,7 +946,7 @@
             Status = "Draft",
             StaffId = "",
             BlogTopicId = "",
-            ImageUrl = "" // NEW: Ensure ImageUrl is reset
+            ImageUrl = ""
         };
         isNewBlog = false;
         showEditForm = false;
@@ -1001,7 +973,6 @@
                 {
                     Console.WriteLine($"Blog '{blogToDelete.Title}' (ID: {blogId}) deleted successfully.");
 
-                    // NEW: Delete the associated image file from wwwroot/images
                     var wwwrootPath = WebHostEnvironment.WebRootPath;
                     var imagesPath = Path.Combine(wwwrootPath, "images");
                     var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
@@ -1014,13 +985,12 @@
                         {
                             System.IO.File.Delete(potentialFilePath);
                             Console.WriteLine($"BlogManagement: DeleteBlog: Deleted image file: {potentialFilePath}");
-                            break; // Assuming only one image per blog ID
+                            break;
                         }
                     }
                     Console.WriteLine("BlogManagement: DeleteBlog: Finished checking and deleting associated image.");
 
-                    // Refresh data after successful deletion
-                    await LoadAllDataAsync(); // Reload all data including images
+                    await LoadAllDataAsync();
                     FilterAndSortBlogs();
                     GoToPage(1);
                 }
@@ -1036,14 +1006,21 @@
         }
     }
 
-    // NEW: Method to force a hard reload of the current page
     private void PerformHardReload()
     {
-        // Get the current URI without any existing query parameters
         var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        // Append a unique timestamp to bust the cache
         var newUri = $"{currentUri.GetLeftPart(UriPartial.Path)}?t={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
         Console.WriteLine($"BlogManagement: PerformHardReload: Forcing hard reload to: {newUri}");
-        NavigationManager.NavigateTo(newUri, forceLoad: true);
+        try
+        {
+            NavigationManager.NavigateTo(newUri, forceLoad: true);
+        }
+        catch (Microsoft.AspNetCore.Components.NavigationException)
+        {
+            // This exception is expected and harmless when forceLoad: true is used.
+            // It indicates that Blazor is gracefully stopping the current render cycle
+            // because a full page reload is about to occur.
+            Console.WriteLine("BlogManagement: NavigationException caught during hard reload. This is expected.");
+        }
     }
 }

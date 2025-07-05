@@ -289,6 +289,7 @@
     private string validationMessage = string.Empty;
     private bool isSimpleMDELoaded = false;
     private bool shouldInitSimpleMDE = false;
+    private bool shouldForceReload = false; // Add this flag
 
     // Search, Sort, Filter state
     private string searchTerm = string.Empty;
@@ -347,9 +348,9 @@
         var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
         if (!currentUri.Query.Contains("t="))
         {
-            Console.WriteLine("BlogManagement: OnInitializedAsync: Initial load without cache-busting parameter. Forcing hard reload.");
-            PerformHardReload();
-            return; // Exit to prevent further initialization on this "old" load
+             Console.WriteLine("BlogManagement: OnInitializedAsync: Initial load without cache-busting parameter. Will force hard reload after render.");
+            shouldForceReload = true; // Set flag instead of navigating immediately
+            return;
         }
 
         try
@@ -440,6 +441,12 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (shouldForceReload)
+        {
+            shouldForceReload = false; // Reset flag to avoid infinite loop
+            PerformHardReload();
+            return;
+        }
         if (showEditForm && shouldInitSimpleMDE)
         {
             try

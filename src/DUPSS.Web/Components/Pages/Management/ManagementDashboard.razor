@@ -416,25 +416,25 @@ else
             }
     }
 
-    // protected override async Task OnAfterRenderAsync(bool firstRender)
-    // {
-    //     if (firstRender)
-    //     {
-    //         Pass a .NET object reference for callback
-    //         await JS.InvokeVoidAsync("dashboardDnD.init", DotNetObjectReference.Create(this));
-    //     }
-    // }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Pass a .NET object reference for callback
+            await JS.InvokeVoidAsync("dashboardDnD.init", DotNetObjectReference.Create(this));
+        }
+    }
 
-    // [JSInvokable]
-    // public void UpdateCardOrder(int[] newOrder)
-    // {
-    //     Reorder dashboardCards based on newOrder array
-    //     var reordered = new List<DashboardCard>();
-    //     foreach (var idx in newOrder)
-    //     {
-    //         reordered.Add(dashboardCards[idx]);
-    //     }
-    //     dashboardCards = reordered;
-    //     StateHasChanged();
-    // }
+    [JSInvokable]
+    public void UpdateCardOrder(int[] newOrder)
+    {
+        // Reorder dashboardCards based on newOrder array
+        var reordered = new List<DashboardCard>();
+        foreach (var idx in newOrder)
+        {
+            reordered.Add(dashboardCards[idx]);
+        }
+        dashboardCards = reordered;
+        StateHasChanged();
+    }
 }

@@ -1,9 +1,8 @@
 ﻿@page "/Management/User"
 @using DUPSS.API.Models.Common
 @using DUPSS.API.Models.DTOs
-@using DUPSS.API.Models.Objects 
+@using DUPSS.API.Models.Objects
 @using DUPSS.Web.Components.Layout
-@* Still needed for original objects if any operations still use them, but generally should be DTOs *@
 @using DUPSS.Web.Components.Service
 @inject RoleApiService RoleApiService
 @inject UserApiService UserApiService
@@ -14,6 +13,8 @@
 @layout ManagementLayout
 
 @using Microsoft.AspNetCore.Components.Authorization
+@using System.IO
+@using Microsoft.AspNetCore.Components.Forms
 
 <AuthorizeView Roles="AD,MA,ST">
     <Authorized>
@@ -22,21 +23,20 @@
                 <div class="page-title">User Management</div>
                 <div class="actions">
                     <button class="create" @onclick="ShowCreateUserForm"><i class="bi bi-plus-circle"></i>Create New User</button>
-                    @* Removed stray closing curly brace here. This seems to be a copy-paste error. *@
                 </div>
             </div>
 
             <div class="filter-sort-section">
                 <div class="search-input-container">
                     <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-                    @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
                 </div>
                 <div class="filter-dropdown-container">
                     <select class="form-select" @onchange="OnRoleFilterChanged">
                         <option value="">All Roles</option>
                         @foreach (var role in availableRoles)
                         {
-                            <option value="@role.RoleId">@role.RoleName</option> @* Changed value to RoleId *@
+                            <option value="@role.RoleId">@role.RoleName</option>
                         }
                     </select>
                 </div>
@@ -98,7 +98,7 @@
                                     <td>
                                         <div class="action-buttons">
                                             <button class="btn btn-sm btn-primary me-2"
-                                            @onclick="() => EditUser(user.UserId)">
+                                                    @onclick="() => EditUser(user.UserId)">
                                                 <i class="bi bi-three-dots-vertical"></i>
                                             </button>
                                             <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">
@@ -107,8 +107,6 @@
                                             <button class="btn btn-sm btn-info" @onclick="@(() => ViewCampaignHistory(user.UserId))">
                                                 Campaign History
                                             </button>
-
-
                                         </div>
                                     </td>
                                 </tr>
@@ -122,7 +120,7 @@
                     {
                         var pageIndex = i;
                         <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
+                                @onclick="() => GoToPage(pageIndex)">
                             @pageIndex
                         </button>
                     }
@@ -162,6 +160,7 @@
                                 }
                             </select>
                         </div>
+
                         <div>
                             <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
                             <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
@@ -203,6 +202,7 @@
                                 }
                             </select>
                         </div>
+
                         <div>
                             <button class="btn btn-success me-2" @onclick="SaveEdit">Save</button>
                             <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
@@ -250,12 +250,9 @@
                         <button class="btn btn-secondary mt-2" @onclick="() => showCampaignHistory = false">Close</button>
                     </div>
                 }
-
-
-
             }
 
-            @if (!string.IsNullOrEmpty(message) && editingUserId == null && !showCreateForm)
+            @if (!string.IsNullOrEmpty(message) && editingUserId == null && !showCreateForm && !showCampaignHistory)
             {
                 <div class="alert alert-info mt-3">@message</div>
             }
@@ -282,7 +279,6 @@
     private UserDTO? editingUser;
     private int currentPage = 1;
     private int itemsPerPage = 10;
-    // Changed to selectedRoleId to reflect binding to RoleId
     private string selectedRoleId = "";
     private bool showCreateForm;
     private UserDTO newUser = new() { UserId = "", Username = "", Email = "", RoleId = "" };
@@ -296,19 +292,27 @@
     {
         try
         {
-            users = await UserApiService.GetAllAsync();
-            filteredUsers = users;
-            availableRoles = await RoleApiService.GetAllAsync();
-
-            SortUsers();
+            Console.WriteLine("OnInitializedAsync: Loading all data...");
+            await LoadAllDataAsync();
+            Console.WriteLine("OnInitializedAsync: Data loaded. Applying filters and sort.");
+            FilterUsers();
         }
         catch (Exception ex)
         {
             message = $"Failed to load data: {ex.Message}";
+            Console.WriteLine($"OnInitializedAsync: Error loading data: {ex.Message}");
             users = new List<UserDTO>();
             filteredUsers = new List<UserDTO>();
             availableRoles = new List<RoleDTO>();
         }
+    }
+
+    private async Task LoadAllDataAsync()
+    {
+        Console.WriteLine("LoadAllDataAsync: Fetching users and roles...");
+        users = await UserApiService.GetAllAsync();
+        availableRoles = await RoleApiService.GetAllAsync();
+        Console.WriteLine($"LoadAllDataAsync: Fetched {users?.Count ?? 0} users and {availableRoles?.Count ?? 0} roles.");
     }
 
     private void SortUsers()
@@ -328,7 +332,6 @@
                     query.OrderByDescending(u => u.Email, StringComparer.OrdinalIgnoreCase);
                 break;
             case "RoleName":
-                // Changed to order by Role.RoleName, not RoleId
                 query = sortDirection == SortDirection.Ascending ?
                     query.OrderBy(u => u.Role?.RoleName, StringComparer.OrdinalIgnoreCase) :
                     query.OrderByDescending(u => u.Role?.RoleName, StringComparer.OrdinalIgnoreCase);
@@ -367,7 +370,6 @@
             (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
             (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
             (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)) &&
-            // Changed filter logic to use RoleId
             (string.IsNullOrWhiteSpace(selectedRoleId) || (user.RoleId == selectedRoleId))
         ).ToList();
 
@@ -378,7 +380,6 @@
 
     private void OnRoleFilterChanged(ChangeEventArgs e)
     {
-        // Bind to selectedRoleId (the ID of the role)
         selectedRoleId = e.Value?.ToString() ?? string.Empty;
         FilterUsers();
     }
@@ -397,12 +398,13 @@
         editingUserId = null;
         editingUser = null;
         message = null;
+        showCampaignHistory = false;
     }
 
     private async Task CreateUser()
     {
         if (string.IsNullOrEmpty(newUser.Username) || string.IsNullOrEmpty(newUser.Email) ||
-        string.IsNullOrEmpty(newUserPassword) || string.IsNullOrEmpty(newUser.RoleId))
+            string.IsNullOrEmpty(newUserPassword) || string.IsNullOrEmpty(newUser.RoleId))
         {
             message = "Username, email, password, and role are required.";
             return;
@@ -410,38 +412,42 @@
 
         try
         {
+            Console.WriteLine($"CreateUser: Creating user '{newUser.Username}' via API to get UserId...");
             var createdUser = await UserApiService.CreateAsync(new CreateUserRequest
             {
                 User = new UserDTO
                 {
-                    UserId = newUser.UserId,
+                    UserId = "",
                     Username = newUser.Username,
                     Email = newUser.Email,
                     PhoneNumber = newUser.PhoneNumber,
                     DoB = newUser.DoB,
                     RoleId = newUser.RoleId,
-                    // PasswordHash not included here
+                    ImageUrl = null
                 },
                 Password = newUserPassword
             });
 
-            if (createdUser != null)
+            if (createdUser == null || string.IsNullOrEmpty(createdUser.UserId))
             {
-                message = $"User {newUser.Username} created successfully.";
-                showCreateForm = false;
-                newUser = new UserDTO { UserId = "", Username = "", Email = "", RoleId = "" };
-                newUserPassword = "";
-                users = await UserApiService.GetAllAsync();
-                FilterUsers();
+                message = "Failed to create user or retrieve UserId from API.";
+                Console.WriteLine("CreateUser: API did not return a created user or UserId.");
+                return;
             }
-            else
-            {
-                message = "Failed to create user.";
-            }
+
+            message = $"User {createdUser.Username} created successfully.";
+            showCreateForm = false;
+            newUser = new UserDTO { UserId = "", Username = "", Email = "", RoleId = "" };
+            newUserPassword = "";
+
+            // Refresh data after successful creation
+            await LoadAllDataAsync();
+            FilterUsers();
         }
         catch (Exception ex)
         {
             message = $"Failed to create user: {ex.Message}";
+            Console.WriteLine($"CreateUser: Error creating user: {ex.Message}");
         }
 
         currentPage = 1;
@@ -470,8 +476,8 @@
                 PhoneNumber = user.PhoneNumber,
                 DoB = user.DoB,
                 Role = user.Role,
-                RoleId = user.RoleId
-                // PasswordHash not included here
+                RoleId = user.RoleId,
+                ImageUrl = user.ImageUrl
             };
             message = null;
         }
@@ -482,7 +488,7 @@
     private async Task SaveEdit()
     {
         if (editingUser == null || string.IsNullOrEmpty(editingUser.Username) ||
-        string.IsNullOrEmpty(editingUser.Email) || string.IsNullOrEmpty(editingUser.RoleId))
+            string.IsNullOrEmpty(editingUser.Email) || string.IsNullOrEmpty(editingUser.RoleId))
         {
             message = "Username, email, and role are required.";
             return;
@@ -494,12 +500,15 @@
             message = $"User {editingUser.Username} updated successfully.";
             editingUserId = null;
             editingUser = null;
-            users = await UserApiService.GetAllAsync();
+
+            // Refresh data after successful update
+            await LoadAllDataAsync();
             FilterUsers();
         }
         catch (Exception ex)
         {
             message = $"Failed to update user: {ex.Message}";
+            Console.WriteLine($"SaveEdit: Error updating user: {ex.Message}");
         }
 
         currentPage = 1;
@@ -531,7 +540,9 @@
                 if (success)
                 {
                     message = $"User '{user.Username}' deleted successfully.";
-                    users = await UserApiService.GetAllAsync();
+
+                    // Refresh data after successful deletion
+                    await LoadAllDataAsync();
                     FilterUsers();
                 }
                 else
@@ -542,6 +553,7 @@
             catch (Exception ex)
             {
                 message = $"Failed to delete user: {ex.Message}";
+                Console.WriteLine($"DeleteUser: Error deleting user: {ex.Message}");
             }
         }
 
@@ -560,10 +572,10 @@
         }
         catch (HttpRequestException ex)
         {
-  
+
             if (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                userCampaigns = new(); 
+                userCampaigns = new();
             }
             else
             {
@@ -577,13 +589,6 @@
             return;
         }
 
-        showCampaignHistory = true; 
-
-        showCreateForm = false;
-        
+        showCampaignHistory = true;
     }
-
-
-
-
 }

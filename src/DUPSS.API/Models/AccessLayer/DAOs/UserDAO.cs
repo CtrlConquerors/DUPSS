@@ -56,7 +56,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     DoB = user.DoB,
                     PhoneNumber = user.PhoneNumber,
                     Email = user.Email,
-                    ImageUrl = $"images/{user.UserId}.jpg",
+                    ImageUrl = user.ImageUrl, // Use the ImageUrl as provided by the User object (which comes from Blazor)
                     RoleId = user.RoleId,
                     Role = new RoleDTO
                     {
@@ -88,7 +88,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     DoB = u.DoB,
                     PhoneNumber = u.PhoneNumber,
                     Email = u.Email,
-                    ImageUrl = $"images/{u.UserId}.jpg",
+                    ImageUrl = u.ImageUrl, // Directly use the ImageUrl from the database
                     RoleId = u.RoleId,
                     Role = u.Role != null ? new RoleDTO
                     {
@@ -110,7 +110,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     DoB = u.DoB,
                     PhoneNumber = u.PhoneNumber,
                     Email = u.Email,
-                    ImageUrl = $"images/{u.UserId}.jpg",
+                    ImageUrl = u.ImageUrl, // Directly use the ImageUrl from the database
                     RoleId = u.RoleId,
                     Role = u.Role != null ? new RoleDTO
                     {
@@ -137,8 +137,9 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingUser.Username = user.Username;
             existingUser.Email = user.Email;
             existingUser.PhoneNumber = user.PhoneNumber;
-            existingUser.DoB = user.DoB;          
+            existingUser.DoB = user.DoB;
             existingUser.RoleId = user.RoleId;
+            existingUser.ImageUrl = user.ImageUrl; // NEW: Update ImageUrl from the incoming user object
 
             await context.SaveChangesAsync();
             return new UserDTO
@@ -148,8 +149,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 DoB = existingUser.DoB,
                 PhoneNumber = existingUser.PhoneNumber,
                 Email = existingUser.Email,
-                ImageUrl = $"images/{existingUser.UserId}.jpg",
-                RoleId = existingUser.UserId,
+                ImageUrl = existingUser.ImageUrl, // Use the updated ImageUrl
+                RoleId = existingUser.RoleId, // Corrected: Should be existingUser.RoleId
                 Role = new RoleDTO
                 {
                     RoleId = role.RoleId,
@@ -176,7 +177,5 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 throw new Exception($"Failed to delete user: {ex.Message}", ex);
             }
         }
-
-        
     }
 }

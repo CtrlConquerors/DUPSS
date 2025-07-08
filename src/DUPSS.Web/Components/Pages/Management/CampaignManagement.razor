@@ -352,7 +352,7 @@
         if (campaigns != null && campaigns.Any())
         {
             var wwwrootPath = WebHostEnvironment.WebRootPath;
-            var imagesPath = Path.Combine(wwwrootPath, "images");
+            var imagesPath = Path.Combine(wwwrootPath, "images", "Campaigns");
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
             Console.WriteLine($"CampaignManagement: LoadAllDataAsync: wwwrootPath: {wwwrootPath}");
             Console.WriteLine($"CampaignManagement: LoadAllDataAsync: imagesPath: {imagesPath}");
@@ -369,7 +369,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            campaign.ImageUrl = $"images/{potentialFileName}";
+                            campaign.ImageUrl = $"images/Campaigns/{potentialFileName}";
                             Console.WriteLine($"CampaignManagement: LoadAllDataAsync: Found image for CampaignId {campaign.CampaignId}: {campaign.ImageUrl}");
                             imageFound = true;
                             break;

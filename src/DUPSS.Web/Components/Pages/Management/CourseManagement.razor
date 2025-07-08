@@ -9,7 +9,7 @@
 @inject RoleApiService RoleApiService
 @inject UserApiService UserApiService
 @inject IJSRuntime JS
-@inject IWebHostEnvironment WebHostEnvironment // RE-ADDED: Needed to access wwwroot path for images
+@inject IWebHostEnvironment WebHostEnvironment 
 @layout ManagementLayout
 
 @* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
@@ -399,7 +399,7 @@
         if (courses != null && courses.Any())
         {
             var wwwrootPath = WebHostEnvironment.WebRootPath; // RE-ENABLED
-            var imagesPath = Path.Combine(wwwrootPath, "images"); // RE-ENABLED
+            var imagesPath = Path.Combine(wwwrootPath, "images", "Courses"); // RE-ENABLED
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" }; // Common image extensions
             Console.WriteLine($"LoadAllDataAsync: wwwrootPath: {wwwrootPath}"); // RE-ENABLED
             Console.WriteLine($"LoadAllDataAsync: imagesPath: {imagesPath}"); // RE-ENABLED
@@ -417,7 +417,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            course.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                            course.ImageUrl = $"images/Courses/{potentialFileName}"; // Set the relative URL for display
                             Console.WriteLine($"LoadAllDataAsync: Found image for CourseId {course.CourseId}: {course.ImageUrl}");
                             imageFound = true;
                             break; // Found the image, no need to check other extensions

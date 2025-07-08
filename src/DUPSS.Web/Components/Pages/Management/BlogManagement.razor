@@ -354,7 +354,7 @@
         if (blogs != null && blogs.Any())
         {
             var wwwrootPath = WebHostEnvironment.WebRootPath;
-            var imagesPath = Path.Combine(wwwrootPath, "images");
+            var imagesPath = Path.Combine(wwwrootPath, "images", "Blogs");
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
             Console.WriteLine($"BlogManagement: LoadAllDataAsync: wwwrootPath: {wwwrootPath}");
             Console.WriteLine($"BlogManagement: LoadAllDataAsync: imagesPath: {imagesPath}");
@@ -371,7 +371,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            blog.ImageUrl = $"images/{potentialFileName}";
+                            blog.ImageUrl = $"images/Blogs/{potentialFileName}";
                             Console.WriteLine($"BlogManagement: LoadAllDataAsync: Found image for BlogId {blog.BlogId}: {blog.ImageUrl}");
                             imageFound = true;
                             break;

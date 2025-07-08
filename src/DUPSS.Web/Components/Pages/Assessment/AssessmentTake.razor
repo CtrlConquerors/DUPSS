@@ -583,21 +583,24 @@
             return;
         SaveCurrentAnswer();
 
-        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"))
+        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1"))
         {   
             int substanceIndex = currentQuestionIndex / 8;
             if (substanceIndex > 0)
             {
-                currentQuestionIndex = ((substanceIndex - 1) * 8) + 7; // Move to Q8 of previous substance
+                var prevSubstanceIndex = substanceIndex - 1;
+                var prevSubstanceQ1Id = $"ASSIST_{substances[prevSubstanceIndex].ToUpper().Replace(" ", "_")}_Q1";
+                var prevQ1Answer = userAnswers.GetValueOrDefault(prevSubstanceQ1Id, string.Empty);
+                currentQuestionIndex = prevQ1Answer.EndsWith("_NO") ? prevSubstanceIndex * 8 : ((prevSubstanceIndex * 8) + 7);
             }
             else
             {
-                currentQuestionIndex = 0; // Stay at first question if at first substance
+                currentQuestionIndex = 0;
             }
         }
         else
         {
-            currentQuestionIndex--; // Normal single-step decrement
+            currentQuestionIndex--;
         }
 
         LoadCurrentQuestionAnswers();

@@ -10,152 +10,212 @@ h3 {
     padding-top: 0.5rem !important;
 }
 
-/* Dashboard Card Styling */
-.card {
-    border: none !important;
-    border-radius: 1.5rem !important;
-    box-shadow: 0 4px 24px 0 #3554d122, 0 1.5px 6px 0 #0000000d !important;
-    transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.2s !important;
-    margin-bottom: 1.5rem !important;
-    overflow: visible !important;
-    background-clip: padding-box !important;
-    min-height: 120px !important;
-    position: relative !important;
+/* Dashboard Cards Layout */
+.dashboard-cards-flex {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.2rem;
+    justify-content: center;
+    margin-bottom: 2.5rem;
 }
 
-    .card:after {
+/* Glassmorphism Dashboard Card - Pill Shape, No Icon */
+.dashboard-card {
+    min-width: 220px;
+    min-height: 110px;
+    padding: 1.2rem 2.2rem 1.2rem 2.2rem;
+    border-radius: 999px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: rgba(255,255,255,0.22);
+    backdrop-filter: blur(18px) saturate(1.5) brightness(1.15);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5) brightness(1.15);
+    border: 2.5px solid rgba(255,255,255,0.35);
+    box-shadow: 0 8px 32px 0 #3554d133, 0 1.5px 6px 0 #0000000d, 0 0 0 2px rgba(255,255,255,0.18) inset;
+    transition: box-shadow 0.4s, background 0.4s, border 0.4s, transform 0.3s;
+    cursor: pointer;
+    overflow: hidden;
+    z-index: 1;
+}
+
+    .dashboard-card:before {
         content: "";
-        display: block;
         position: absolute;
         inset: 0;
-        border-radius: 1.5rem;
+        border-radius: 999px;
         pointer-events: none;
-        box-shadow: 0 8px 32px 0 #3554d133;
-        opacity: 0;
-        transition: opacity 0.3s;
-        z-index: 1;
+        background: linear-gradient(120deg,rgba(255,255,255,0.22) 60%,rgba(53,84,209,0.10) 100%);
+        z-index: 0;
+        box-shadow: 0 0 32px 0 rgba(255,255,255,0.12) inset;
+        transition: background 0.4s;
     }
 
-    .card:hover {
-        box-shadow: 0 16px 48px #3554d155, 0 0 0 4px #6e8efb33 !important;
-        transform: translateY(-6px) scale(1.025) !important;
-        z-index: 2 !important;
+.dashboard-card-title,
+.dashboard-card-value {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.dashboard-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    opacity: 0.92;
+    margin-bottom: 0.2rem;
+}
+
+.dashboard-card-value {
+    font-size: 2.3rem;
+    font-weight: 900;
+    letter-spacing: 1px;
+    opacity: 0.98;
+    line-height: 1.1;
+}
+
+/* Clear, strong color backgrounds for each card type */
+/* Dashboard Cards - Colorful, clear, and status-appropriate */
+.dashboard-card.today {
+    background: #2563eb; /* blue-600 */
+    color: #fff;
+}
+
+    .dashboard-card.today:hover {
+        background: #3b82f6; /* blue-500 */
     }
 
-        .card:hover:after {
-            opacity: 1;
-        }
-
-/* Card body style for all dashboard summary cards */
-.card-body {
-    transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.2s !important;
-    border-radius: 1.25rem !important;
-    box-shadow: none !important;
-    margin-bottom: 0 !important;
-    padding: 1.5rem 1.25rem 1.25rem 1.25rem !important;
-    color: inherit !important;
-    background: transparent !important;
-    position: relative !important;
-    z-index: 2 !important;
-    display: flex !important;
-    flex-direction: column !important;
-    align-items: flex-start !important;
-    justify-content: center !important;
-    min-height: 120px !important;
+.dashboard-card.upcoming {
+    background: #0ea5e9; /* sky-500 */
+    color: #fff;
 }
 
-.card-title {
-    font-size: 1.2rem !important;
-    font-weight: 700 !important;
-    margin-bottom: 0.5rem !important;
-    letter-spacing: 0.5px !important;
-    opacity: 0.95 !important;
+    .dashboard-card.upcoming:hover {
+        background: #38bdf8; /* sky-400 */
+    }
+
+.dashboard-card.finished {
+    background: #22c55e; /* green-500 */
+    color: #fff;
 }
 
-.card-text {
-    font-size: 2.1rem !important;
-    font-weight: 900 !important;
-    margin-bottom: 0 !important;
-    letter-spacing: 1px !important;
-    opacity: 0.98 !important;
-    line-height: 1.1 !important;
+    .dashboard-card.finished:hover {
+        background: #4ade80; /* green-400 */
+    }
+
+.dashboard-card.cancelled {
+    background: #6b7280; /* gray-500 */
+    color: #fff;
 }
 
-/* Make sure text is readable on colored cards */
-.card.bg-primary .card-body,
-.card.bg-success .card-body,
-.card.bg-secondary .card-body,
-.card.bg-danger .card-body {
-    color: #fff !important;
+    .dashboard-card.cancelled:hover {
+        background: #9ca3af; /* gray-400 */
+    }
+
+.dashboard-card.declined {
+    background: #ef4444; /* red-500 */
+    color: #fff;
 }
 
-/* Table Container for Centering */
+    .dashboard-card.declined:hover {
+        background: #f87171; /* red-400 */
+    }
+
+.dashboard-card.missed {
+    background: #f59e42; /* orange-400 */
+    color: #fff;
+}
+
+    .dashboard-card.missed:hover {
+        background: #fbbf24; /* yellow-400 */
+    }
+
+/* Remove transform and shadow on hover for calm UX */
+.dashboard-card {
+    transition: background 0.2s;
+    cursor: pointer;
+}
+
+    .dashboard-card:hover {
+        box-shadow: none;
+        transform: none;
+    }
+
+/* Table Section */
+.upcoming-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #3554d1;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
 .table {
     width: 100% !important;
     margin: 0 auto 2rem auto !important;
-    border-collapse: separate !important;
-    border-spacing: 0 18px !important;
-    background: transparent !important;
+    border-collapse: collapse !important;
+    background: #fff !important;
     box-sizing: border-box !important;
+    border-radius: 1.2rem;
+    box-shadow: 0 2px 8px 0 #3554d122;
+    overflow: hidden;
 }
 
-    /* Table Header */
     .table thead th {
-        background: linear-gradient(90deg, #f5f8ff 60%, #eaf0ff 100%) !important;
+        background: #f5f8ff !important;
         color: #3554d1 !important;
         font-weight: 800 !important;
-        padding: 18px 14px !important;
-        border: none !important;
-        font-size: 1.15rem !important;
-        letter-spacing: 0.7px !important;
-        border-radius: 14px 14px 0 0 !important;
-        box-shadow: 0 2px 12px #3554d11a !important;
+        padding: 14px 10px !important;
+        border: 1px solid #e6eaf5 !important;
+        font-size: 1.08rem !important;
+        letter-spacing: 0.5px !important;
+        border-radius: 0 !important;
         text-align: center !important;
         vertical-align: middle !important;
-        transition: background 0.3s, color 0.3s !important;
+        transition: none !important;
     }
 
         .table thead th:hover {
-            background: linear-gradient(90deg, #eaf0ff 60%, #f5f8ff 100%) !important;
-            color: #222 !important;
-            cursor: pointer !important;
+            background: #f5f8ff !important;
+            color: #3554d1 !important;
+            cursor: default !important;
         }
 
-    /* Table Row as Card */
     .table tbody tr {
-        background: linear-gradient(100deg, #fff 60%, #f5f8ff 100%) !important;
-        box-shadow: 0 6px 32px #3554d11a !important;
-        border-radius: 16px !important;
-        transition: box-shadow 0.3s cubic-bezier(.4,2,.6,1), transform 0.2s, background 0.3s !important;
-        overflow: hidden !important;
+        background: #fff !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        transition: none !important;
         text-align: center !important;
         vertical-align: middle !important;
         position: relative !important;
-        animation: fadeInRow 0.7s cubic-bezier(.4,2,.6,1) !important;
+        animation: none !important;
     }
 
         .table tbody tr:hover {
-            box-shadow: 0 16px 48px #3554d155, 0 0 0 4px #6e8efb33 !important;
-            transform: translateY(-4px) scale(1.018) !important;
-            background: linear-gradient(100deg, #eaf0ff 60%, #f5f8ff 100%) !important;
-            z-index: 2 !important;
+            background: #f5f8ff !important;
+            box-shadow: none !important;
+            transform: none !important;
+            z-index: 1 !important;
         }
 
-    /* Table Cell */
     .table td {
-        padding: 20px 14px !important;
+        padding: 14px 10px !important;
         vertical-align: middle !important;
-        border: none !important;
-        font-size: 1.08rem !important;
-        border-bottom: 1px solid #e6eaf5 !important;
-        background: transparent !important;
-        transition: background 0.2s, color 0.2s !important;
+        border: 1px solid #e6eaf5 !important;
+        font-size: 1.05rem !important;
+        background: #fff !important;
+        transition: none !important;
         text-align: center !important;
         box-sizing: border-box !important;
     }
 
         .table td:hover {
-            background: #f0f6ff !important;
+            background: #f5f8ff !important;
             color: #3554d1 !important;
         }
 
@@ -231,62 +291,25 @@ h3 {
 }
 
 /* Responsive: Stack cards and align content */
-@media (max-width: 900px) {
-    .table thead {
-        display: none !important;
+@media (max-width: 1100px) {
+    .dashboard-cards-flex {
+        gap: 1.2rem;
     }
 
-    .table, .table tbody, .table tr, .table td {
-        display: block !important;
-        width: 100% !important;
-    }
-
-        .table tr {
-            margin-bottom: 28px !important;
-            box-shadow: 0 2px 10px #3554d111 !important;
-        }
-
-        .table td {
-            padding: 16px 10px !important;
-            border-bottom: none !important;
-            position: relative !important;
-            text-align: left !important;
-        }
-
-            .table td:before {
-                content: attr(data-label) !important;
-                font-weight: 800 !important;
-                color: #3554d1 !important;
-                display: block !important;
-                margin-bottom: 8px !important;
-                font-size: 1.08rem !important;
-            }
-    
-    .btn-outline-primary {
-        width: 100% !important;
-        margin: 8px 0 !important;
+    .dashboard-card {
+        min-width: 170px;
+        padding: 1.1rem 1.5rem;
     }
 }
- .status-badge {
-    display: inline-block;
-    min-width: 80px;
-    padding: 2px 10px;
-    border-radius: 12px;
-    font-weight: 500;
-    text-align: center;
-}
 
- .status-declined {
-    background-color: #ef4444;
-    color: #fff;
-}
+@media (max-width: 700px) {
+    .dashboard-cards-flex {
+        flex-direction: column;
+        align-items: center;
+    }
 
- .status-finished {
-    background-color: #facc15;
-    color: #333;
-}
-
-.status-accepted {
-    background-color: #22c55e !important;
-    color: #fff;
+    .dashboard-card {
+        width: 95%;
+        min-width: unset;
+    }
 }

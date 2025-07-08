@@ -25,7 +25,7 @@ else
                 <input class="form-control" @bind="searchKeyword" placeholder="🔍 Search by member or topic" />
             </div>
             <div class="col-auto">
-                <input type="date" class="form-control" @bind="fromDate" />
+                <input type="date" class="form-control" @bind="fromDate" placeholder="Start Date" />
             </div>
             <div class="col-auto">
                 <input type="date" class="form-control" @bind="toDate" />
@@ -38,6 +38,7 @@ else
                     <option>Declined</option>
                     <option>Finished</option>
                     <option>Cancel</option>
+                    <option>Missed</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -59,10 +60,19 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var appt in filteredAppointments)
+            @foreach (var appt in filteredAppointments
+           .OrderByDescending(a => a.Status == "Pending" || a.Status == "Accepted")
+           .ThenBy(a => a.AppointmentDate))
             {
                 <tr>
-                    <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @{
+                            var start = appt.AppointmentDate.ToLocalTime();
+                            var end = start.AddMinutes(40);
+                        }
+                        <div>@start.ToString("dd/MM/yyyy")</div>
+                        <div>@start.ToString("HH:mm") - @end.ToString("HH:mm")</div>
+                    </td>
                     <td>@appt.Member?.Username</td>
                     <td>@appt.Topic</td>
                     <td>
@@ -92,6 +102,10 @@ else
                         else if (appt.Status == "Cancel")
                         {
                             <span class="text-muted cancel">This Appointment has been cancelled by user.</span>
+                        }
+                        else if (appt.Status == "Missed")
+                        {
+                            <span class="text-muted cancel">This Appointment has been missed.</span>
                         }
                         else
                         {
@@ -125,7 +139,30 @@ else
 
         appointments = await AppointmentService.GetAppointmentsForConsultantAsync(userId);
         filteredAppointments = appointments.ToList(); // copy ban đầu
+
+        await AutoUpdateExpiredAppointments();
     }
+
+    private async Task AutoUpdateExpiredAppointments()
+    {
+        var now = DateTime.UtcNow;
+        TimeSpan duration = TimeSpan.FromMinutes(60); 
+
+        foreach (var appt in appointments)
+        {
+            var endTime = appt.AppointmentDate.Add(duration);
+            if (endTime < now && (appt.Status == "Pending" || appt.Status == "Accepted"))
+            {
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
+                if (success)
+                {
+                    appt.Status = "Missed";
+                }
+            }
+        }
+        ApplyFilter(); 
+    }
+
 
     private async Task UpdateStatus(string appointmentId, string newStatus)
     {

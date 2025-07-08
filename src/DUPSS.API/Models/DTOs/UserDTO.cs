@@ -13,7 +13,8 @@ namespace DUPSS.API.Models.DTOs
         public required string RoleId { get; set; }
         public string? PasswordHash => null; // PasswordHash is not exposed in DTOs
         public RoleDTO? Role { get; set; }
-        
+        public DateTime CreatedDate { get; set; } // NotMapped property included
+
         //test
         public string Password { get; set; } = string.Empty;
     }

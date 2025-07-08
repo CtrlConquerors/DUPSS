@@ -15,7 +15,12 @@
     <div class="alert alert-info mb-4">
         <strong>📌 Your next appointment:</strong><br />
         With <strong>@nextAppointment.Consultant?.Username</strong> on
-        <strong>@nextAppointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</strong><br />
+        <strong>
+            @nextAppointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")
+            -
+            @nextAppointment.AppointmentDate.ToLocalTime().AddMinutes(40).ToString("HH:mm")
+        </strong><br />
+
         <em>Topic:</em> @nextAppointment.Topic <br />
         <em>Status:</em> @nextAppointment.Status
     </div>
@@ -76,11 +81,20 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var appt in filteredAppointments)
+            @foreach (var appt in filteredAppointments
+          .OrderByDescending(a => a.Status == "Pending" || a.Status == "Accepted")
+          .ThenBy(a => a.AppointmentDate))
             {
                 <tr>
 
-                    <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @{
+                            var start = appt.AppointmentDate.ToLocalTime();
+                            var end = start.AddMinutes(40); 
+                        }
+                        @start.ToString("dd/MM/yyyy HH:mm") - @end.ToString("HH:mm")
+                    </td>
+
                     <td>@appt.Consultant?.Username</td>
                     <td>@appt.Status</td>
                     <td>
@@ -88,11 +102,20 @@ else
                         @appt.Notes
                     </td>
                     <td>
-                        @if (appt.Status == "Pending")
+                        @if (appt.Status == "Pending" || appt.Status == "Accepted")
                         {
-                            <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
-                            <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>
+                            var hoursBefore = (appt.AppointmentDate - DateTime.UtcNow).TotalHours;
+                            if (hoursBefore >= 4)
+                            {
+                                <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
+                                <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>
+                            }
+                            else
+                            {
+                                <span class="text-muted">Too close to appointment time. Please contact consultant to cancel.</span>
+                            }
                         }
+
                         else if (appt.Status == "Accepted")
                         {
                             <span class="text-muted">This Appointment has been Accepted</span>
@@ -104,7 +127,11 @@ else
                         }
                         else if (appt.Status == "Declined")
                         {
-                            <span class="text-muted">This Appointment has been Declined by the Consultant. For more information, see the note from consultant</span>
+                            <span class="text-muted">This Appointment has been Declined by the Consultant. For more information, check the note from consultant</span>
+                        }
+                        else if (appt.Status == "Missed")
+                        {
+                            <span class="text-muted">This Appointment has been Missed by the Consultant. For more information, check the note from consultant</span>
                         }
                         else
                         {
@@ -129,143 +156,124 @@ else
                         <button type="button" class="btn-close" @onclick="CancelReschedule"></button>
                     </div>
                     <div class="modal-body">
-                        <label>New Date Time:</label>
-                        <input type="datetime-local" class="form-control" @bind="rescheduleDate" />
+                        @if (allAvailableSlots.Any())
+                        {
+                            <div class="mb-3">
+                                <label>Choose date:</label>
+                                <select class="form-select" value="@selectedDateString" @onchange="OnDateChanged">
+                                    <option value="">-- Choose date --</option>
+                                    @foreach (var day in allAvailableSlots.Select(s => s.Date).Distinct())
+                                    {
+                                        <option value="@day.ToString("yyyy-MM-dd")">@day.ToString("dddd, dd/MM/yyyy")</option>
+                                    }
+                                </select>
+                            </div>
+
+                            @if (availableSlotsInDay.Any())
+                            {
+                                <div class="mb-3">
+                                    <label>Choose time slot:</label>
+                                    <select class="form-select" @bind="selectedSlotString">
+                                        <option value="">-- Choose a slot --</option>
+                                        @foreach (var slot in availableSlotsInDay)
+                                        {
+                                            <option value="@slot.ToString("o")">
+                                                @slot.ToLocalTime().ToString("HH:mm") - @slot.AddMinutes(40).ToLocalTime().ToString("HH:mm")
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            }
+                            else if (!string.IsNullOrEmpty(selectedDateString))
+                            {
+                                <p class="text-danger">No available slots on selected day.</p>
+                            }
+                        }
+                        else
+                        {
+                            <p class="text-danger">No available slots found. Please try again later.</p>
+                        }
                     </div>
                     <div class="modal-footer">
                         <button class="btn btn-secondary" @onclick="CancelReschedule">Cancel</button>
-                        <button class="btn btn-primary" @onclick="ConfirmReschedule">Confirm</button>
+                        <button class="btn btn-primary"
+                        @onclick="ConfirmReschedule"
+                        disabled="@(string.IsNullOrEmpty(selectedSlotString))">Confirm</button>
                     </div>
                 </div>
             </div>
         </div>
     }
+
+
 }
 
 @code {
     private List<AppointmentDTO>? appointments;
+    private List<AppointmentDTO> filteredAppointments = new();
     private AppointmentDTO? nextAppointment;
+    private AppointmentDTO? reschedulingAppointment;
+
+    private List<UserDTO>? consultants;
+
+    private bool autoSelectConsultant = false;
+
+    // Slot data
+    private List<DateTime> allAvailableSlots = new();
+    private List<DateTime> availableSlotsInDay = new();
+    private string? selectedDateString;
+    private string? selectedSlotString;
+
+    private string searchKeyword = "";
+    private DateTime? fromDate = null;
+    private DateTime? toDate = null;
+    private string selectedStatus = "";
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        if (string.IsNullOrEmpty(userId))
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
+            filteredAppointments = appointments.ToList();
+
+            nextAppointment = appointments
+                .Where(a => a.AppointmentDate > DateTime.UtcNow && a.Status is "Pending" or "Accepted")
+                .OrderBy(a => a.AppointmentDate)
+                .FirstOrDefault();
+
+            await AutoUpdateExpiredAppointments();
+
+            consultants = await UserService.GetConsultantsAsync();
+        }
+        else
         {
             appointments = new List<AppointmentDTO>();
-            return;
         }
-        appointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
-        filteredAppointments = appointments.ToList();
-        // Find next appointment
-        nextAppointment = appointments
-            .Where(a => a.AppointmentDate > DateTime.UtcNow && a.Status is "Pending" or "Accepted")
-            .OrderBy(a => a.AppointmentDate)
-            .FirstOrDefault();
+    }
 
+    private async Task AutoUpdateExpiredAppointments()
+    {
+        var now = DateTime.UtcNow;
+        foreach (var appt in appointments)
+        {
+            if (appt.AppointmentDate.AddMinutes(40) < now && (appt.Status == "Pending" || appt.Status == "Accepted"))
+            {
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
+                if (success)
+                {
+                    appt.Status = "Missed";
+                }
+            }
+        }
         ApplyFilter();
     }
 
-    private async Task HandleUnregister(string appointmentId)
-    {
-        var confirmed = await JS.InvokeAsync<bool>("confirm", "Are u sure to cancel this appointment?");
-        if (!confirmed) return;
-
-        var success = await AppointmentService.CancelAppointmentAsync(appointmentId);
-
-        if (success)
-        {
-            appointments = appointments.Where(a => a.AppointmentId != appointmentId).ToList();
-            ApplyFilter();
-            await JS.InvokeVoidAsync("alert", "Cancel appointment success.");
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("alert", "Cancel appointment fail.");
-        }
-    }
-
-    private AppointmentDTO? reschedulingAppointment;
-    private DateTime rescheduleDate;
-
-    private void StartReschedule(AppointmentDTO appt)
-    {
-        reschedulingAppointment = appt;
-        rescheduleDate = appt.AppointmentDate.ToLocalTime(); // Set old time
-    }
-
-    private void CancelReschedule()
-    {
-        reschedulingAppointment = null;
-    }
-
-    private async Task ConfirmReschedule()
-    {
-        if (reschedulingAppointment == null) return;
-        var oldDate = reschedulingAppointment.AppointmentDate;
-        var utcDate = rescheduleDate.ToUniversalTime();
-
-        var updated = await AppointmentService.RescheduleAppointmentAsync(
-            reschedulingAppointment.AppointmentId, utcDate);
-
-        if (updated)
-        {
-            await JS.InvokeVoidAsync("alert", "ReBooking successfully!");
-            reschedulingAppointment.AppointmentDate = utcDate;
-
-            // Lấy thông tin member và consultant
-            var member = await UserService.GetUserByIdAsync(reschedulingAppointment.MemberId);
-            var consultant = await UserService.GetUserByIdAsync(reschedulingAppointment.ConsultantId);
-
-            // Gửi email cho member
-            if (member != null && !string.IsNullOrEmpty(member.Email))
-            {
-                var subject = "Appointment rescheduled successfully";
-                var body = $"Hello {member.Username},\n\n" +
-                          $"You have successfully rescheduled your appointment from {oldDate.ToLocalTime():f} to {utcDate.ToLocalTime():f} " +
-                          $"with consultant: {consultant?.Username ?? "Unknown"}.";
-
-                await EmailService.SendEmailAsync(member.Email, subject, body);
-            }
-
-            // Gửi email cho consultant
-            if (consultant != null && !string.IsNullOrEmpty(consultant.Email))
-            {
-                var subject = "An appointment has been rescheduled";
-                var body = $"Hello {consultant.Username},\n\n" +
-                           $"Member '{member?.Username}' has rescheduled the appointment to {utcDate.ToLocalTime():f}.";
-
-                await EmailService.SendEmailAsync(consultant.Email, subject, body);
-            }
-
-            reschedulingAppointment = null;
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("alert", "Can't ReBooking.");
-        }
-    }
-
-
-    private string searchKeyword = "";
-    private DateTime? fromDate = null;
-    private DateTime? toDate = null;
-    private string selectedStatus = "Pending";
-
-    private List<AppointmentDTO> filteredAppointments = new();
-
     private void ApplyFilter()
     {
-        if (string.IsNullOrWhiteSpace(searchKeyword) &&
-            !fromDate.HasValue &&
-            !toDate.HasValue &&
-            string.IsNullOrWhiteSpace(selectedStatus))
-        {
-            filteredAppointments = appointments.ToList();
-            return;
-        }
-
         filteredAppointments = appointments
             .Where(a =>
                 (string.IsNullOrEmpty(searchKeyword) || a.Consultant?.Username?.Contains(searchKeyword, StringComparison.OrdinalIgnoreCase) == true) &&
@@ -283,6 +291,7 @@ else
         selectedStatus = "";
         filteredAppointments = appointments.ToList();
     }
+
     private async Task UpdateStatus(string appointmentId, string newStatus)
     {
         var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure to mark this appointment as {newStatus}?");
@@ -293,16 +302,120 @@ else
         if (success)
         {
             var appt = appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
-            if (appt != null)
-                appt.Status = newStatus;
-
+            if (appt != null) appt.Status = newStatus;
             ApplyFilter();
-
             await JS.InvokeVoidAsync("alert", $"Appointment marked as {newStatus}.");
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", $"Failed to update appointment status.");
+            await JS.InvokeVoidAsync("alert", "Failed to update appointment status.");
+        }
+    }
+
+
+
+    private async void StartReschedule(AppointmentDTO appt)
+    {
+        reschedulingAppointment = appt;
+        autoSelectConsultant = false;
+        selectedDateString = null;
+        selectedSlotString = null;
+        availableSlotsInDay.Clear();
+        await GenerateAvailableSlots();
+    }
+
+    private void CancelReschedule()
+    {
+        reschedulingAppointment = null;
+    }
+
+    private async Task ConfirmReschedule()
+    {
+        if (reschedulingAppointment == null || string.IsNullOrEmpty(selectedSlotString))
+            return;
+
+        var newDateUtc = DateTime.Parse(selectedSlotString).ToUniversalTime();
+
+        var consultantAppointments = await AppointmentService.GetAppointmentsForConsultantAsync(reschedulingAppointment.ConsultantId);
+
+        bool slotTaken = consultantAppointments.Any(a =>
+            a.AppointmentId != reschedulingAppointment.AppointmentId &&
+            a.Status != "Cancel" &&
+            newDateUtc < a.AppointmentDate.AddMinutes(40) &&
+            a.AppointmentDate < newDateUtc.AddMinutes(40));
+
+        if (slotTaken)
+        {
+            await JS.InvokeVoidAsync("alert", "Consultant already has an appointment at this time.");
+            return;
+        }
+
+        var updated = await AppointmentService.RescheduleAppointmentAsync(reschedulingAppointment.AppointmentId, newDateUtc);
+
+        if (updated)
+        {
+            await JS.InvokeVoidAsync("alert", "Reschedule successful!");
+            reschedulingAppointment.AppointmentDate = newDateUtc;
+            reschedulingAppointment = null;
+            ApplyFilter();
+        }
+        else
+        {
+            await JS.InvokeVoidAsync("alert", "Reschedule failed.");
+        }
+    }
+
+
+    private async Task GenerateAvailableSlots()
+    {
+        allAvailableSlots.Clear();
+        DateTime now = DateTime.Now;
+        DateTime minTime = now.AddHours(12);
+        DateTime endDate = now.Date.AddDays(7);
+
+        TimeSpan slotDuration = TimeSpan.FromMinutes(40);
+        TimeSpan slotStep = TimeSpan.FromMinutes(45);
+        TimeSpan eveningStart = TimeSpan.FromHours(17.5);
+        TimeSpan eveningEnd = TimeSpan.FromHours(21.5);
+        TimeSpan morningStart = TimeSpan.FromHours(9);
+        TimeSpan morningEnd = TimeSpan.FromHours(11.5);
+
+        for (DateTime day = now.Date; day <= endDate; day = day.AddDays(1))
+        {
+            var dow = day.DayOfWeek;
+            if (dow >= DayOfWeek.Monday && dow <= DayOfWeek.Friday)
+                AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
+            else
+            {
+                AddSlotsForPeriod(day, morningStart, morningEnd, slotDuration, slotStep, minTime);
+                AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
+            }
+        }
+    }
+
+    private void AddSlotsForPeriod(DateTime day, TimeSpan start, TimeSpan end,
+        TimeSpan duration, TimeSpan step, DateTime minTime)
+    {
+        for (var t = start; t + duration <= end; t += step)
+        {
+            var slot = day.Add(t);
+            if (slot > minTime)
+                allAvailableSlots.Add(slot);
+        }
+    }
+
+    private void OnDateChanged(ChangeEventArgs e)
+    {
+        selectedDateString = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedDateString))
+        {
+            var date = DateTime.Parse(selectedDateString);
+            availableSlotsInDay = allAvailableSlots.Where(s => s.Date == date.Date).OrderBy(s => s).ToList();
+        }
+        else
+        {
+            availableSlotsInDay.Clear();
         }
     }
 }
+

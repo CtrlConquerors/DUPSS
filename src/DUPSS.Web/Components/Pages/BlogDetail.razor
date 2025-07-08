@@ -4,6 +4,7 @@
 @using Markdig
 @inject BlogApiService BlogApiService
 @inject NavigationManager NavigationManager
+@inject IWebHostEnvironment WebHostEnvironment // NEW: Inject IWebHostEnvironment
 
 <div class="blog-detail-container">
     @if (isLoading)
@@ -31,14 +32,15 @@
     else
     {
         <div class="blog-hero-wrapper">
-            <div class="blog-hero-image" style="background-image: url('@blog.ImageUrl');"></div>
+            @* Use the constructed ImageUrl for background-image, with a placeholder fallback *@
+            <div class="blog-hero-image" style="background-image: url('@(blog.ImageUrl ?? "https://placehold.co/1200x400/F0F0F0/000000?text=Blog+Image")');"></div>
             <div class="blog-hero-title">
                 <span class="title-letters">
                     @foreach (var c in blog.Title)
                     {
                         if (c == ' ')
                         {
-                            <span class="title-letter" style="width:0.4em;display:inline-block;"> </span>
+                            <span class="title-letter" style="width:0.4em;display:inline-block;"> </span>
                         }
                         else
                         {
@@ -93,6 +95,41 @@
         {
             Console.WriteLine($"Loading blog details for BlogId: {BlogId}");
             blog = await BlogApiService.GetByIdAsync(BlogId);
+
+            // NEW: Logic to find and set ImageUrl from wwwroot/images
+            if (blog != null && !string.IsNullOrEmpty(blog.BlogId))
+            {
+                var wwwrootPath = WebHostEnvironment.WebRootPath;
+                var imagesPath = Path.Combine(wwwrootPath, "images");
+                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                Console.WriteLine($"BlogDetail.razor: LoadBlogAsync: wwwrootPath: {wwwrootPath}");
+                Console.WriteLine($"BlogDetail.razor: LoadBlogAsync: imagesPath: {imagesPath}");
+
+                bool imageFound = false;
+                foreach (var ext in supportedExtensions)
+                {
+                    var potentialFileName = $"{blog.BlogId}{ext}";
+                    var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                    if (System.IO.File.Exists(fullPath))
+                    {
+                        blog.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                        Console.WriteLine($"BlogDetail.razor: LoadBlogAsync: Found image for BlogId {blog.BlogId}: {blog.ImageUrl}");
+                        imageFound = true;
+                        break;
+                    }
+                }
+                if (!imageFound)
+                {
+                    Console.WriteLine($"BlogDetail.razor: LoadBlogAsync: No image found for BlogId {blog.BlogId} in {imagesPath}. ImageUrl remains: {blog.ImageUrl ?? "null/empty"}");
+                    blog.ImageUrl = null; // Ensure ImageUrl is null if no image is found
+                }
+            }
+            else if (blog != null) // If blog exists but BlogId is empty/null, ensure ImageUrl is null
+            {
+                blog.ImageUrl = null;
+            }
+
             if (blog == null)
             {
                 Console.WriteLine($"Blog not found for BlogId: {BlogId}");

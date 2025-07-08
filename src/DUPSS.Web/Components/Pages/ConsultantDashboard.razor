@@ -12,48 +12,51 @@
 }
 else
 {
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="card text-white bg-primary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Today</h5>
-                    <p class="card-text fs-4">@todayCount</p>
-                </div>
+    <div class="dashboard-cards-flex mb-5">
+        <div class="dashboard-card glass today">
+            <div class="dashboard-card-icon"><i class="fas fa-calendar-day"></i></div>
+            <div>
+                <div class="dashboard-card-title">Today</div>
+                <div class="dashboard-card-value">@todayCount</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Upcoming</h5>
-                    <p class="card-text fs-4">@upcomingCount</p>
-                </div>
+        <div class="dashboard-card glass upcoming">
+            <div class="dashboard-card-icon"><i class="fas fa-calendar-plus"></i></div>
+            <div>
+                <div class="dashboard-card-title">Upcoming</div>
+                <div class="dashboard-card-value">@upcomingCount</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-secondary mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Finished</h5>
-                    <p class="card-text fs-4">@finishedCount</p>
-                </div>
+        <div class="dashboard-card glass finished">
+            <div class="dashboard-card-icon"><i class="fas fa-check-circle"></i></div>
+            <div>
+                <div class="dashboard-card-title">Finished</div>
+                <div class="dashboard-card-value">@finishedCount</div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card text-white bg-danger mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Cancelled</h5>
-                    <p class="card-text fs-4">@canceledCount</p>
-                </div>
+        <div class="dashboard-card glass missed">
+            <div class="dashboard-card-icon"><i class="fas fa-exclamation-circle"></i></div>
+            <div>
+                <div class="dashboard-card-title">Missed</div>
+                <div class="dashboard-card-value">@missedCount</div>
             </div>
         </div>
-
-        <div class="col-md-3">
-            <div class="card text-white bg-danger mb-3">
-                <div class="card-body">
-                    <h5 class="card-title">Declined</h5>
-                    <p class="card-text fs-4">@declinedCount</p>
-                </div>
+        <div class="dashboard-card glass cancelled">
+            <div class="dashboard-card-icon"><i class="fas fa-times-circle"></i></div>
+            <div>
+                <div class="dashboard-card-title">Cancelled</div>
+                <div class="dashboard-card-value">@canceledCount</div>
             </div>
         </div>
+        <div class="dashboard-card glass declined">
+            <div class="dashboard-card-icon"><i class="fas fa-ban"></i></div>
+            <div>
+                <div class="dashboard-card-title">Declined</div>
+                <div class="dashboard-card-value">@declinedCount</div>
+            </div>
+        </div>
+        
+        
     </div>
 
     <h4>📅 Upcoming Appointments</h4>
@@ -76,7 +79,13 @@ else
                 @foreach (var appt in upcomingAppointments)
                 {
                     <tr>
-                        <td>@appt.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                        <td>
+                            @{
+                                var start = appt.AppointmentDate.ToLocalTime();
+                                var end = start.AddMinutes(40);
+                            }
+                            @start.ToString("dd/MM/yyyy HH:mm") - @end.ToString("HH:mm")
+                        </td>
                         <td>@appt.Member?.Username</td>
                         <td>@appt.Topic</td>
                         <td>@appt.Status</td>
@@ -99,6 +108,7 @@ else
     private int finishedCount;
     private int canceledCount;
     private int declinedCount;
+    private int missedCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -108,18 +118,34 @@ else
         if (!string.IsNullOrEmpty(userId))
         {
             allAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(userId);
-            todayCount = allAppointments.Count(a => a.AppointmentDate.Date == DateTime.Today);
+
+            var todayLocal = DateTime.Now.Date;
+            var tomorrowLocal = todayLocal.AddDays(1);
+
+            todayCount = allAppointments.Count(a =>
+            {
+                var localTime = a.AppointmentDate.ToLocalTime();
+                Console.WriteLine($"[CHECK] Appt Local: {localTime}");
+                return localTime >= todayLocal
+                    && localTime < tomorrowLocal
+                    && (a.Status == "Accepted" || a.Status == "Pending");
+            });
+
+            var nowUtc = DateTime.UtcNow;
             upcomingAppointments = allAppointments
-                .Where(a => a.AppointmentDate > DateTime.Now && (a.Status == "Accepted" || a.Status == "Pending"))
+                .Where(a => a.AppointmentDate > nowUtc && (a.Status == "Accepted" || a.Status == "Pending"))
                 .OrderBy(a => a.AppointmentDate)
                 .Take(5)
                 .ToList();
+
             upcomingCount = upcomingAppointments.Count;
             finishedCount = allAppointments.Count(a => a.Status == "Finished");
             canceledCount = allAppointments.Count(a => a.Status == "Cancel");
             declinedCount = allAppointments.Count(a => a.Status == "Declined");
+            missedCount = allAppointments.Count(a => a.Status == "Missed");
         }
 
         isLoading = false;
     }
+
 }

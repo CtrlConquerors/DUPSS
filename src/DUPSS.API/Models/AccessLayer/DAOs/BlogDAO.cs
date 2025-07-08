@@ -26,6 +26,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 Content = blog.Content,
                 Status = blog.Status,
                 BlogTopicId = blog.BlogTopicId,
+                ImageUrl = blog.ImageUrl // Pass through ImageUrl from the 'blog' parameter (for client-side use)
             };
         }
 
@@ -55,7 +56,10 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         BlogTopicId = b.BlogTopic.BlogTopicId,
                         BlogTopicName = b.BlogTopic.BlogTopicName,
                     } : null,
-                    ImageUrl = $"/images/{b.BlogId}.jpg"
+                    // ImageUrl is NOT stored in the database.
+                    // The DAO cannot determine the correct extension.
+                    // It will be populated by the Blazor component after fetching.
+                    ImageUrl = null // Explicitly set to null, or omit for default null
                 })
                 .FirstOrDefaultAsync();
         }
@@ -85,7 +89,10 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         BlogTopicId = b.BlogTopic.BlogTopicId,
                         BlogTopicName = b.BlogTopic.BlogTopicName,
                     } : null,
-                    ImageUrl = $"/images/{b.BlogId}.jpg"
+                    // ImageUrl is NOT stored in the database.
+                    // The DAO cannot determine the correct extension.
+                    // It will be populated by the Blazor component after fetching.
+                    ImageUrl = null // Explicitly set to null, or omit for default null
                 })
                 .ToListAsync();
         }
@@ -101,6 +108,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingBlog.Content = blog.Content;
             existingBlog.Status = blog.Status;
             existingBlog.BlogTopicId = blog.BlogTopicId;
+            // ImageUrl is NOT mapped to the database, so it's not updated on existingBlog.
+            // The client-side (Blazor component) handles the file system updates.
 
             await _context.SaveChangesAsync();
             return new BlogDTO
@@ -111,6 +120,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 Content = existingBlog.Content,
                 Status = existingBlog.Status,
                 BlogTopicId = existingBlog.BlogTopicId,
+                ImageUrl = blog.ImageUrl // Pass through ImageUrl from the 'blog' parameter (for client-side use)
             };
         }
 

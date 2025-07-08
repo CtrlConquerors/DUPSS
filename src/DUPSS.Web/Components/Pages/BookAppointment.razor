@@ -39,28 +39,51 @@
                         <DataAnnotationsValidator />
                         <ValidationSummary class="vangogh-validation" />
 
-                        <div class="mb-3">
-                            <InputCheckbox @bind-Value="autoSelectConsultant" />
+                        <div class="mb-2">
                             <label class="form-label ms-2">Let system auto-assign consultant</label>
+                            <InputCheckbox @bind-Value="autoSelectConsultant" />                       
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Choose Consultant</label>
-                            <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" @onchange="HandleConsultantChange" disabled="@autoSelectConsultant">
+                            <InputSelect @bind-Value="newAppointment.ConsultantId" class="form-select" disabled="@autoSelectConsultant">
                                 <option value="">-- Choose Consultant --</option>
                                 @foreach (var consultant in consultants)
                                 {
-                                    <option value="@consultant.UserId">
-                                        @consultant.Username
-                                    </option>
+                                    <option value="@consultant.UserId">@consultant.Username</option>
                                 }
                             </InputSelect>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label">Appointment Date</label>
-                            <input type="datetime-local" class="form-control" @bind="newAppointment.AppointmentDate" />
+                            <label class="form-label">Choose date</label>
+                            <select class="form-select" value="@selectedDateString" @onchange="OnDateChanged">
+
+                                <option value="">-- Choose date --</option>
+                                @foreach (var day in allAvailableSlots.Select(s => s.Date).Distinct())
+                                {
+                                    <option value="@day.ToString("yyyy-MM-dd")">@day.ToString("dddd, dd/MM/yyyy")</option>
+                                }
+                            </select>
                         </div>
+
+                        @if (availableSlotsInDay.Any())
+                        {
+                            <div class="mb-3">
+                                <label class="form-label">Choose time slot</label>
+                                <select class="form-select" @bind="selectedSlotString">
+                                    <option value="">-- Choose a slot --</option>
+                                    @foreach (var slot in availableSlotsInDay)
+                                    {
+                                        <option value="@slot.ToString("o")">
+                                            @slot.ToLocalTime().ToString("HH:mm")
+                                            -
+                                            @slot.AddMinutes(40).ToLocalTime().ToString("HH:mm")
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                        }
 
                         <div class="mb-3">
                             <label class="form-label">Topic (Describe what you'd like to discuss)</label>
@@ -85,6 +108,11 @@
     private const int MaxActiveAppointments = 1;
     private bool canBook = true;
     private bool autoSelectConsultant = false;
+
+    private List<DateTime> allAvailableSlots = new(); // all slot in 7 days
+    private List<DateTime> availableSlotsInDay = new(); // slots in selected day
+    private string? selectedDateString;
+    private string? selectedSlotString;
 
     private AppointmentDTO newAppointment = new()
         {
@@ -112,11 +140,8 @@
             if (!string.IsNullOrEmpty(memberId))
             {
                 newAppointment.MemberId = memberId;
-
                 existingAppointments = await AppointmentApiService.GetAppointmentsForMemberAsync(memberId);
-                var activeCount = existingAppointments
-                    .Count(a => a.Status is "Pending" or "Accepted" );
-
+                var activeCount = existingAppointments.Count(a => a.Status is "Pending" or "Accepted");
                 canBook = activeCount < MaxActiveAppointments;
             }
         }
@@ -124,15 +149,87 @@
         {
             Navigation.NavigateTo("/login", true);
         }
+
+        GenerateAvailableSlots();
+    }
+
+    private void OnDateChanged(ChangeEventArgs e)
+    {
+        selectedDateString = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(selectedDateString))
+        {
+            DateTime selectedDate = DateTime.Parse(selectedDateString);
+            availableSlotsInDay = allAvailableSlots
+                .Where(s => s.Date == selectedDate.Date)
+                .OrderBy(s => s)
+                .ToList();
+        }
+        else
+        {
+            availableSlotsInDay.Clear();
+        }
+    }
+
+    private void GenerateAvailableSlots()
+    {
+        allAvailableSlots.Clear();
+        DateTime now = DateTime.Now;
+        DateTime minTime = now.AddHours(12);
+        DateTime endDate = now.Date.AddDays(7);
+
+        TimeSpan slotDuration = TimeSpan.FromMinutes(40);
+        TimeSpan slotStep = TimeSpan.FromMinutes(45);
+
+        TimeSpan eveningStart = TimeSpan.FromHours(17.5); // 17:30
+        TimeSpan eveningEnd = TimeSpan.FromHours(21.5);   // 21:30
+
+        TimeSpan morningStart = TimeSpan.FromHours(9);
+        TimeSpan morningEnd = TimeSpan.FromHours(11.5);
+
+        for (DateTime day = now.Date; day <= endDate; day = day.AddDays(1))
+        {
+            var dayOfWeek = day.DayOfWeek;
+
+            if (dayOfWeek >= DayOfWeek.Monday && dayOfWeek <= DayOfWeek.Friday)
+            {
+                AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
+            }
+            else
+            {
+                AddSlotsForPeriod(day, morningStart, morningEnd, slotDuration, slotStep, minTime);
+                AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
+            }
+        }
+    }
+
+    private void AddSlotsForPeriod(DateTime day, TimeSpan periodStart, TimeSpan periodEnd,
+        TimeSpan slotDuration, TimeSpan slotStep, DateTime minTime)
+    {
+        for (var t = periodStart; t + slotDuration <= periodEnd; t += slotStep)
+        {
+            DateTime slot = day.Add(t);
+            if (slot > minTime)
+            {
+                allAvailableSlots.Add(slot);
+            }
+        }
     }
 
     private async Task HandleBooking()
     {
         if (string.IsNullOrWhiteSpace(newAppointment.Topic))
         {
-            await JS.InvokeVoidAsync("alert", "Please enter the topic for the appointment.");
+            await JS.InvokeVoidAsync("alert", "Please enter the topic.");
             return;
         }
+
+        if (string.IsNullOrEmpty(selectedSlotString))
+        {
+            await JS.InvokeVoidAsync("alert", "Please choose a time slot.");
+            return;
+        }
+
+        newAppointment.AppointmentDate = DateTime.Parse(selectedSlotString).ToUniversalTime();
 
         if (autoSelectConsultant)
         {
@@ -145,30 +242,24 @@
 
                 bool hasConflict = consultantAppointments.Any(a =>
                 {
-                    TimeSpan duration = TimeSpan.FromMinutes(30);
+                    if (a.Status == "Cancel") return false;
 
                     var existingStart = a.AppointmentDate;
-                    var existingEnd = existingStart.Add(duration);
+                    var existingEnd = existingStart.AddMinutes(40);
+                    var requestedStart = newAppointment.AppointmentDate;
+                    var requestedEnd = requestedStart.AddMinutes(40);
 
-                    var requestedStart = newAppointment.AppointmentDate.ToUniversalTime();
-                    var requestedEnd = requestedStart.Add(duration);
-
-                    return requestedStart < existingEnd && existingStart < requestedEnd && a.Status == "Accepted";
+                    return requestedStart < existingEnd && existingStart < requestedEnd;
                 });
 
                 if (!hasConflict)
                 {
-                    int active = consultantAppointments.Count(a =>
-                        a.Status is "Pending" or "Accepted");
-
+                    int active = consultantAppointments.Count(a => a.Status is "Pending" or "Accepted");
                     consultantLoad.Add((c, active));
                 }
             }
 
-            var best = consultantLoad
-                .OrderBy(x => x.Load)
-                .ThenBy(_ => Guid.NewGuid())
-                .FirstOrDefault();
+            var best = consultantLoad.OrderBy(x => x.Load).ThenBy(_ => Guid.NewGuid()).FirstOrDefault();
 
             if (best.Consultant != null)
             {
@@ -176,7 +267,7 @@
             }
             else
             {
-                await JS.InvokeVoidAsync("alert", "No available consultant at selected time. Please try another time.");
+                await JS.InvokeVoidAsync("alert", "No available consultant at selected time.");
                 return;
             }
         }
@@ -190,22 +281,21 @@
 
             var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(newAppointment.ConsultantId);
 
-            bool hasConflict = consultantAppointments.Any(a =>
+            bool slotAlreadyTaken = consultantAppointments.Any(a =>
             {
-                TimeSpan duration = TimeSpan.FromMinutes(30);
+                if (a.Status == "Cancel") return false;
 
                 var existingStart = a.AppointmentDate;
-                var existingEnd = existingStart.Add(duration);
+                var existingEnd = existingStart.AddMinutes(40);
+                var requestedStart = newAppointment.AppointmentDate;
+                var requestedEnd = requestedStart.AddMinutes(40);
 
-                var requestedStart = newAppointment.AppointmentDate.ToUniversalTime();
-                var requestedEnd = requestedStart.Add(duration);
-
-                return requestedStart < existingEnd && existingStart < requestedEnd && a.Status == "Accepted";
+                return requestedStart < existingEnd && existingStart < requestedEnd;
             });
 
-            if (hasConflict)
+            if (slotAlreadyTaken)
             {
-                await JS.InvokeVoidAsync("alert", "This consultant already has an accepted appointment at the selected time. Please choose a different time or consultant.");
+                await JS.InvokeVoidAsync("alert", "Consultant already has an appointment at this time.");
                 return;
             }
         }
@@ -214,50 +304,13 @@
 
         if (success)
         {
-            var member = await UserService.GetUserByIdAsync(newAppointment.MemberId);
-
-            var consultant = consultants?.FirstOrDefault(c => c.UserId == newAppointment.ConsultantId);
-
-            if (member != null && !string.IsNullOrEmpty(member.Email))
-            {
-                var subject = "Appointment booked successfully";
-                var body = $"Hello {member.Username},\n\n" +
-                             $"You have successfully booked an appointment about '{newAppointment.Topic}' at {newAppointment.AppointmentDate} with Consultant: {(consultant != null ? consultant.Username : "Unknown")}\n" ;
-
-                await EmailService.SendEmailAsync(member.Email, subject, body);
-            }
-
-            if (consultant != null && !string.IsNullOrEmpty(consultant.Email))
-            {
-                var subject = "New appointment assigned";
-                var body = $"Hello {consultant.Username},\n\n" +
-                           $"You have been assigned a new appointment from member '{member?.Username}' " +
-                           $"about '{newAppointment.Topic}' at {newAppointment.AppointmentDate.ToString("f")}.";
-
-                await EmailService.SendEmailAsync(consultant.Email, subject, body);
-            }
-
             await JS.InvokeVoidAsync("alert", "Appointment booked successfully!");
-            Navigation.NavigateTo("/Appointment", forceLoad: true);
+            Navigation.NavigateTo("/Appointment", true);
         }
         else
         {
-            await JS.InvokeVoidAsync("alert", "Failed to book appointment. Please try again.");
+            await JS.InvokeVoidAsync("alert", "Failed to book appointment.");
         }
     }
-
-
-
-
-
-    private void HandleConsultantChange(ChangeEventArgs e)
-    {
-        var selectedValue = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(selectedValue))
-        {
-            newAppointment.ConsultantId = selectedValue;
-        }
-    }
-
-
 }
+

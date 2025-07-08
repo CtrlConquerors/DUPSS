@@ -111,7 +111,13 @@
                     <tr>
                         <td>@index</td>
                         <td>@appointment.AppointmentId</td>
-                        <td>@appointment.AppointmentDate.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                            <td>
+                                @{
+                                    var start = appointment.AppointmentDate.ToLocalTime();
+                                    var end = start.AddMinutes(40);
+                                }
+                                @start.ToString("dd/MM/yyyy HH:mm") - @end.ToString("HH:mm")
+                            </td>
                         <td>@appointment.Member?.Username</td>
                         <td>@appointment.Consultant?.Username</td>
                         <td>@appointment.Topic</td>

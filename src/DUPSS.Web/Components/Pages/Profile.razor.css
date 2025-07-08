@@ -1,0 +1,370 @@
+﻿.profile-bg {
+    min-height: 100vh;
+    background: linear-gradient(120deg, #eaf0ff 0%, #fffbe6 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 0;
+}
+
+.profile-main-card {
+    background: #fff;
+    border-radius: 28px;
+    box-shadow: 0 8px 48px 0 rgba(55,102,255,0.10);
+    max-width: 900px;
+    width: 100%;
+    padding: 0 0 32px 0;
+    margin: 0 16px;
+    transition: box-shadow 0.25s, transform 0.18s;
+}
+
+    .profile-main-card:hover {
+        box-shadow: 0 16px 64px 0 rgba(55,102,255,0.18);
+        transform: translateY(-4px) scale(1.01);
+    }
+
+.profile-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 32px 40px 0 40px;
+}
+
+.profile-welcome {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: #222b45;
+    margin-bottom: 0.2rem;
+    transition: color 0.18s;
+}
+
+    .profile-welcome:hover {
+        color: #3766ff;
+        cursor: pointer;
+    }
+
+.profile-date {
+    font-size: 1rem;
+    color: #b0b8c9;
+    transition: color 0.18s;
+}
+
+    .profile-date:hover {
+        color: #3766ff;
+        cursor: pointer;
+    }
+
+.profile-edit-btn {
+    background: #3766ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.18s, box-shadow 0.18s, transform 0.13s;
+}
+
+    .profile-edit-btn:hover {
+        background: #2546b8;
+        box-shadow: 0 4px 16px #3766ff33;
+        transform: translateY(-2px) scale(1.04);
+    }
+
+.profile-content {
+    margin-top: 32px;
+    padding: 0 40px 0 40px;
+}
+
+.profile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    margin-bottom: 32px;
+}
+
+.profile-avatar-lg {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: #f0f4fa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 72px;
+    color: #b0b8c9;
+    overflow: hidden;
+    transition: box-shadow 0.2s, border 0.2s, transform 0.18s;
+}
+
+    .profile-avatar-lg img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        transition: box-shadow 0.2s, border 0.2s, transform 0.18s;
+    }
+
+        .profile-avatar-lg:hover,
+        .profile-avatar-lg img:hover {
+            box-shadow: 0 0 0 6px #3766ff33, 0 2px 16px #3766ff22;
+            border: 2px solid #3766ff;
+            transform: scale(1.07) rotate(-2deg);
+            cursor: pointer;
+        }
+
+.profile-user-name {
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: #222b45;
+    transition: color 0.18s;
+}
+
+    .profile-user-name:hover {
+        color: #3766ff;
+        cursor: pointer;
+    }
+
+.profile-user-email {
+    font-size: 1rem;
+    color: #b0b8c9;
+    transition: color 0.18s;
+}
+
+    .profile-user-email:hover {
+        color: #3766ff;
+        cursor: pointer;
+    }
+
+.profile-fields {
+    display: flex;
+    gap: 32px;
+}
+
+.profile-fields-col {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+    .profile-fields-col label {
+        font-size: 0.98rem;
+        color: #888;
+        margin-bottom: 0.2rem;
+        margin-top: 0.7rem;
+        transition: color 0.18s;
+    }
+
+        .profile-fields-col label:hover {
+            color: #3766ff;
+            cursor: pointer;
+        }
+
+    .profile-fields-col input {
+        background: #f7f8fa;
+        border: none;
+        border-radius: 8px;
+        padding: 0.7rem 1rem;
+        font-size: 1.05rem;
+        color: darkgrey;
+        margin-bottom: 0.2rem;
+        outline: none;
+        box-shadow: 0 1px 2px #eaf0ff;
+        transition: box-shadow 0.18s, background 0.18s, color 0.18s;
+    }
+
+        .profile-fields-col input:disabled {
+            color: black;
+        }
+
+            .profile-fields-col input:disabled:hover {
+                background: #eaf0ff;
+                color: #3766ff;
+                box-shadow: 0 2px 8px #3766ff22;
+                cursor: pointer;
+            }
+
+.profile-email-box {
+    display: flex;
+    align-items: center;
+    background: #f7f8fa;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    gap: 12px;
+    margin-bottom: 0.2rem;
+    transition: box-shadow 0.18s, background 0.18s;
+}
+
+    .profile-email-box:hover {
+        background: #eaf0ff;
+        box-shadow: 0 2px 12px #3766ff22;
+        cursor: pointer;
+    }
+
+.profile-email-icon {
+    color: #3766ff;
+    font-size: 1.2rem;
+    transition: color 0.18s;
+}
+
+.profile-email-box:hover .profile-email-icon {
+    color: #2546b8;
+}
+
+.profile-email-date {
+    margin-left: auto;
+    font-size: 0.95rem;
+    color: #b0b8c9;
+    transition: color 0.18s;
+}
+
+.profile-email-box:hover .profile-email-date {
+    color: #3766ff;
+}
+
+.profile-add-email-btn {
+    background: #eaf0ff;
+    color: #3766ff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.5rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+}
+
+    .profile-add-email-btn:hover:enabled {
+        background: #3766ff;
+        color: #fff;
+        box-shadow: 0 4px 16px #3766ff33;
+        transform: translateY(-2px) scale(1.04);
+    }
+
+/* --- Profile Table Styles (for enrollments & campaigns) --- */
+.profile-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-top: 1.5rem;
+    background: #f7f8fa;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 12px #eaf0ff;
+    font-size: 1rem;
+    margin-bottom: 2rem;
+}
+
+    .profile-table th, .profile-table td {
+        padding: 0.85rem 1.1rem;
+        text-align: left;
+    }
+
+    .profile-table th {
+        background: #eaf0ff;
+        color: #3766ff;
+        font-weight: 600;
+        border-bottom: 2px solid #d6e4ff;
+        letter-spacing: 0.02em;
+    }
+
+    .profile-table tr {
+        transition: background 0.15s;
+    }
+
+    .profile-table tbody tr:hover {
+        background: #eaf0ff;
+    }
+
+    .profile-table td {
+        color: #222b45;
+        border-bottom: 1px solid #f0f4fa;
+        vertical-align: middle;
+    }
+
+    .profile-table .profile-link {
+        color: #3766ff;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.18s;
+    }
+
+        .profile-table .profile-link:hover {
+            color: #2546b8;
+            text-decoration: underline;
+        }
+
+@media (max-width: 900px) {
+    .profile-main-card {
+        padding: 0 0 24px 0;
+    }
+
+    .profile-header, .profile-content {
+        padding: 24px 12px 0 12px;
+    }
+
+    .profile-fields {
+        flex-direction: column;
+        gap: 0;
+    }
+
+    .profile-table th, .profile-table td {
+        padding: 0.6rem 0.5rem;
+        font-size: 0.98rem;
+    }
+
+    .profile-table {
+        font-size: 0.98rem;
+    }
+}
+.profile-section-collapse {
+    margin-bottom: 1.5rem;
+}
+
+.profile-collapse-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #eaf0ff;
+    color: #3766ff;
+    border: none;
+    border-radius: 8px;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.08rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 2px 8px #eaf0ff;
+    transition: background 0.18s, color 0.18s, box-shadow 0.18s, transform 0.13s;
+    outline: none;
+    user-select: none;
+}
+
+    .profile-collapse-btn:hover, .profile-collapse-btn:focus {
+        background: #3766ff;
+        color: #fff;
+        box-shadow: 0 4px 16px #3766ff33;
+        transform: translateY(-2px) scale(1.03);
+    }
+
+    .profile-collapse-btn span {
+        font-size: 1.2em;
+        font-weight: bold;
+        transition: transform 0.18s;
+    }
+.profile-collapse-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    pointer-events: none;
+}
+
+    .profile-collapse-content.expanded {
+        max-height: 1000px; /* Large enough for your content */
+        opacity: 1;
+        pointer-events: auto;
+    }

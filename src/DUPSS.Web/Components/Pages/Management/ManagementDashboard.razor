@@ -1,6 +1,7 @@
 ﻿@page "/Management/Dashboard"
 @using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
+@using DUPSS.API.Models.DTOs
 @inject JwtAuthenticationStateProvider authStateProvider
 @inject AppointmentApiService AppointmentApiService
 @inject CampaignApiService CampaignApiService
@@ -43,7 +44,9 @@ else
                 <div class="dashboard-card-icon bg-purple"><i class="fas fa-chart-line"></i></div>
                 <div>
                     <div class="dashboard-card-title">User Growth</div>
-                    <div class="dashboard-card-value" style="font-size:1.3rem;">+8.2% <span style="font-size:1rem;color:#22c55e;">this month</span></div>
+                    <div class="dashboard-card-value" style="font-size:1.3rem;">
+                        @growthDisplay <span style="font-size:1rem;color:#22c55e;">this month</span>
+                    </div>
                 </div>
             </div>
             <div class="dashboard-sparkline">
@@ -150,20 +153,31 @@ else
         <!-- Profile Quick Card -->
         <div class="dashboard-profile-card">
             <div class="profile-avatar">
-                <i class="fas fa-user-circle"></i>
+                @if (!string.IsNullOrEmpty(currentUser?.ImageUrl))
+                {
+                    @* <img src="@currentUser.ImageUrl" alt="Profile Picture" style="width:48px;height:48px;border-radius:50%;" /> *@
+                }
+                else
+                {
+                    <i class="fas fa-user-circle"></i>
+                }
             </div>
             <div>
-                <div class="profile-name">@userName</div>
+                <div class="profile-name">@currentUser?.Username</div>
             </div>
             <div class="profile-expand-container @(isProfileExpanded ? "expanded" : "")">
                 <button class="dashboard-action-btn bg-blue profile-expand-btn"
                         @onclick="() => isProfileExpanded = !isProfileExpanded">
                     <i class="fas fa-cog"></i> Profile
                 </button>
-                @if (isProfileExpanded)
+                @if (isProfileExpanded && currentUser != null)
                 {
                     <div class="profile-expanded-content">
-                        <p>Profile expanded! (Add details here.)</p>
+                        <p><b>Email:</b> @currentUser.Email</p>
+                        <p><b>Phone:</b> @(string.IsNullOrEmpty(currentUser.PhoneNumber) ? "N/A" : currentUser.PhoneNumber)</p>
+                        <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>
+                        <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p>
+                        <p><b>Role:</b> @currentUser.Role?.RoleName</p>
                     </div>
                 }
             </div>
@@ -202,15 +216,27 @@ else
             <div class="system-usage-track">
                 <div class="system-usage-fill" style="width: 72%;"></div>
             </div>
-            <div class="system-usage-percent">72%</div>
+            <div class="system-usage-percent">@((systemUsagePercent > 100 ? 100 : systemUsagePercent))%</div>
         </div>
     </div>
     <div class="dashboard-section dashboard-top-course">
         <h2>Top Performing Course</h2>
-        <div class="top-course-info">
-            <div class="top-course-title"><i class="fas fa-book-open"></i> "Healthy Living 101"</div>
-            <div class="top-course-meta">Enrollments: <span class="top-course-enroll">58</span> | Completion Rate: <span class="top-course-complete">92%</span></div>
-        </div>
+         @if (topCourse != null)
+            {
+                <div class="top-course-info">
+                    <div class="top-course-title">
+                        <i class="fas fa-book-open"></i> "@topCourse.CourseName"
+                    </div>
+                    <div class="top-course-meta">
+                        Enrollments: <span class="top-course-enroll">@topCourseEnrollments</span> |
+                        Completion Rate: <span class="top-course-complete">@($"{topCourseCompletionRate:F0}%")</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div>No course enrollments yet.</div>
+            }
     </div>
     <div class="dashboard-section dashboard-messages">
         <h2>Recent Messages</h2>
@@ -247,6 +273,15 @@ else
     private int totalCourses;
     private int totalUsers;
     private List<int> appointmentsPerDay = new();
+    private string growthDisplay = "+0.0%";
+    private CourseDTO? topCourse;
+    private UserDTO? currentUser;
+    private int topCourseEnrollments = 0;
+    private double topCourseCompletionRate = 0.0;
+    private int maxUsers = 1000; // Set your system's user capacity here
+    private int systemUsagePercent => maxUsers > 0
+    ? (int)Math.Round((totalUsers / (double)maxUsers) * 100)
+    : 0;
 
     private class DashboardCard
     {
@@ -277,6 +312,9 @@ else
         // Fetch all users and count
         var allUsers = await UserApiService.GetAllAsync();
         totalUsers = allUsers.Count;
+
+        // Find the current user details
+        currentUser = allUsers.FirstOrDefault(u => u.Username == userName);
 
         // Update the Users card value
         var usersCard = dashboardCards.FirstOrDefault(c => c.Title == "Users");
@@ -342,27 +380,61 @@ else
         {
             appointmentCard.Value = totalAllAppointments.ToString();
         }
+        // Get the first day of this month and last month
+            var now = DateTime.UtcNow;
+            var thisMonth = new DateTime(now.Year, now.Month, 1);
+            var lastMonth = thisMonth.AddMonths(-1);
+
+            // Count users registered in each month
+            int usersThisMonth = allUsers.Count(u => u.CreatedDate >= thisMonth);
+            int usersLastMonth = allUsers.Count(u => u.CreatedDate >= lastMonth && u.CreatedDate < thisMonth);
+
+            // Calculate growth percentage
+            double growthPercent = usersLastMonth == 0
+                ? (usersThisMonth > 0 ? 100 : 0)
+                : ((usersThisMonth - usersLastMonth) / (double)usersLastMonth) * 100;
+
+            // Format for display
+            growthDisplay = $"{(growthPercent >= 0 ? "+" : "")}{growthPercent:F1}%";
+
+            // Fetch all courses and enrollments--------------------------------------------
+            var allCourses = await CourseApiService.GetAllAsync();
+            var allEnrollments = await CourseEnrollApiService.GetAllAsync();
+
+            // Group enrollments by CourseId and find the course with the most enrollments
+            var top = allEnrollments
+                .GroupBy(e => e.CourseId)
+                .OrderByDescending(g => g.Count())
+                .FirstOrDefault();
+
+            if (top != null)
+            {
+                topCourse = allCourses.FirstOrDefault(c => c.CourseId == top.Key);
+                topCourseEnrollments = top.Count();
+                int completed = top.Count(e => e.Status == "Completed");
+                topCourseCompletionRate = topCourseEnrollments > 0 ? (completed * 100.0 / topCourseEnrollments) : 0.0;
+            }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            // Pass a .NET object reference for callback
-            await JS.InvokeVoidAsync("dashboardDnD.init", DotNetObjectReference.Create(this));
-        }
-    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         Pass a .NET object reference for callback
+    //         await JS.InvokeVoidAsync("dashboardDnD.init", DotNetObjectReference.Create(this));
+    //     }
+    // }
 
-    [JSInvokable]
-    public void UpdateCardOrder(int[] newOrder)
-    {
-        // Reorder dashboardCards based on newOrder array
-        var reordered = new List<DashboardCard>();
-        foreach (var idx in newOrder)
-        {
-            reordered.Add(dashboardCards[idx]);
-        }
-        dashboardCards = reordered;
-        StateHasChanged();
-    }
+    // [JSInvokable]
+    // public void UpdateCardOrder(int[] newOrder)
+    // {
+    //     Reorder dashboardCards based on newOrder array
+    //     var reordered = new List<DashboardCard>();
+    //     foreach (var idx in newOrder)
+    //     {
+    //         reordered.Add(dashboardCards[idx]);
+    //     }
+    //     dashboardCards = reordered;
+    //     StateHasChanged();
+    // }
 }

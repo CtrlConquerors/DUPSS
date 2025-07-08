@@ -2,6 +2,7 @@
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 
+@using System.IO 
 
 
 <div class="course-page-container">
@@ -28,7 +29,7 @@
         </div>
     }
     else if (!filteredCourses.Any())
- @* Use filteredCourses here *@
+    @* Use filteredCourses here *@
     {
         <div class="no-courses-message">
             <p>No courses found matching your criteria. Please try a different search term or filters.</p> @* Updated message *@
@@ -106,9 +107,8 @@
     private NavigationManager NavigationManager { get; set; } = default!;
     [Inject]
     private CourseApiService CourseApiService { get; set; } = default!;
-
-    // Removed IJSRuntime JSRuntime as it's not directly used for scrolling or popups in this component
-    // If you plan to add custom message boxes, re-add it.
+    [Inject]
+    private IWebHostEnvironment WebHostEnvironment { get; set; } = default!; // Inject IWebHostEnvironment
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,6 +118,33 @@
             courses = await CourseApiService.GetAllAsync();
             Console.WriteLine($"Loaded {courses?.Count} courses.");
             hasError = false;
+
+            // After fetching courses, try to find their corresponding images in wwwroot/images
+            if (courses != null && courses.Any())
+            {
+                var wwwrootPath = WebHostEnvironment.WebRootPath;
+                var imagesPath = Path.Combine(wwwrootPath, "images");
+                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" }; // Common image extensions
+
+                foreach (var course in courses)
+                {
+                    if (!string.IsNullOrEmpty(course.CourseId))
+                    {
+                        // Try to find the image file with any supported extension
+                        foreach (var ext in supportedExtensions)
+                        {
+                            var potentialFileName = $"{course.CourseId}{ext}";
+                            var fullPath = Path.Combine(imagesPath, potentialFileName);
+
+                            if (System.IO.File.Exists(fullPath))
+                            {
+                                course.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                                break; // Found the image, no need to check other extensions
+                            }
+                        }
+                    }
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -169,8 +196,6 @@
     {
         showAllCourses = !showAllCourses;
         Console.WriteLine($"ToggleShowAllCourses called. showAllCourses is now: {showAllCourses}");
-        // No need to call StateHasChanged() explicitly here, as the UI will react to showAllCourses changing.
-        // If you had scrolling logic like in CampaignManagement, you'd put it here.
     }
 
     // Method to navigate to Course Detail page

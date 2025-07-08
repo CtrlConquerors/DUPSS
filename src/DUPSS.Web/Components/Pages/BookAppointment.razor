@@ -39,6 +39,7 @@
                         <DataAnnotationsValidator />
                         <ValidationSummary class="vangogh-validation" />
 
+                        @* OLD CODE: Manual or auto-select consultant
                         <div class="mb-2">
                             <label class="form-label ms-2">Let system auto-assign consultant</label>
                             <InputCheckbox @bind-Value="autoSelectConsultant" />                       
@@ -54,11 +55,11 @@
                                 }
                             </InputSelect>
                         </div>
+                        *@
 
                         <div class="mb-3">
                             <label class="form-label">Choose date</label>
                             <select class="form-select" value="@selectedDateString" @onchange="OnDateChanged">
-
                                 <option value="">-- Choose date --</option>
                                 @foreach (var day in allAvailableSlots.Select(s => s.Date).Distinct())
                                 {
@@ -107,7 +108,9 @@
     private List<AppointmentDTO> existingAppointments = new();
     private const int MaxActiveAppointments = 1;
     private bool canBook = true;
-    private bool autoSelectConsultant = false;
+
+    // OLD CODE: used when allowing user to choose consultant manually
+    // private bool autoSelectConsultant = true;
 
     private List<DateTime> allAvailableSlots = new(); // all slot in 7 days
     private List<DateTime> availableSlotsInDay = new(); // slots in selected day
@@ -231,53 +234,54 @@
 
         newAppointment.AppointmentDate = DateTime.Parse(selectedSlotString).ToUniversalTime();
 
-        if (autoSelectConsultant)
+        // Always auto-assign consultant
+        var availableConsultants = await UserService.GetConsultantsAsync();
+        var consultantLoad = new List<(UserDTO Consultant, int Load)>();
+
+        foreach (var c in availableConsultants)
         {
-            var availableConsultants = await UserService.GetConsultantsAsync();
-            var consultantLoad = new List<(UserDTO Consultant, int Load)>();
+            var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(c.UserId);
 
-            foreach (var c in availableConsultants)
+            bool hasConflict = consultantAppointments.Any(a =>
             {
-                var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(c.UserId);
+                if (a.Status == "Cancel") return false;
 
-                bool hasConflict = consultantAppointments.Any(a =>
-                {
-                    if (a.Status == "Cancel") return false;
+                var existingStart = a.AppointmentDate;
+                var existingEnd = existingStart.AddMinutes(40);
+                var requestedStart = newAppointment.AppointmentDate;
+                var requestedEnd = requestedStart.AddMinutes(40);
 
-                    var existingStart = a.AppointmentDate;
-                    var existingEnd = existingStart.AddMinutes(40);
-                    var requestedStart = newAppointment.AppointmentDate;
-                    var requestedEnd = requestedStart.AddMinutes(40);
+                return requestedStart < existingEnd && existingStart < requestedEnd;
+            });
 
-                    return requestedStart < existingEnd && existingStart < requestedEnd;
-                });
-
-                if (!hasConflict)
-                {
-                    int active = consultantAppointments.Count(a => a.Status is "Pending" or "Accepted");
-                    consultantLoad.Add((c, active));
-                }
-            }
-
-            var best = consultantLoad.OrderBy(x => x.Load).ThenBy(_ => Guid.NewGuid()).FirstOrDefault();
-
-            if (best.Consultant != null)
+            if (!hasConflict)
             {
-                newAppointment.ConsultantId = best.Consultant.UserId;
-            }
-            else
-            {
-                await JS.InvokeVoidAsync("alert", "No available consultant at selected time.");
-                return;
+                int active = consultantAppointments.Count(a => a.Status is "Pending" or "Accepted");
+                consultantLoad.Add((c, active));
             }
         }
+
+        var best = consultantLoad.OrderBy(x => x.Load).ThenBy(_ => Guid.NewGuid()).FirstOrDefault();
+
+        if (best.Consultant != null)
+        {
+            newAppointment.ConsultantId = best.Consultant.UserId;
+        }
         else
+        {
+            await JS.InvokeVoidAsync("alert", "No available consultant at selected time.");
+            return;
+        }
+
+            // OLD CODE: manual consultant selection validation
+            /*
+            else
         {
             if (string.IsNullOrEmpty(newAppointment.ConsultantId))
             {
                 await JS.InvokeVoidAsync("alert", "Please pick a consultant.");
                 return;
-            }
+                }
 
             var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(newAppointment.ConsultantId);
 
@@ -291,16 +295,17 @@
                 var requestedEnd = requestedStart.AddMinutes(40);
 
                 return requestedStart < existingEnd && existingStart < requestedEnd;
-            });
+                });
 
             if (slotAlreadyTaken)
             {
                 await JS.InvokeVoidAsync("alert", "Consultant already has an appointment at this time.");
                 return;
+                }
             }
-        }
+        */
 
-        var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
+                    var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
 
         if (success)
         {
@@ -313,4 +318,3 @@
         }
     }
 }
-

@@ -313,6 +313,14 @@
         users = await UserApiService.GetAllAsync();
         availableRoles = await RoleApiService.GetAllAsync();
         Console.WriteLine($"LoadAllDataAsync: Fetched {users?.Count ?? 0} users and {availableRoles?.Count ?? 0} roles.");
+
+        if (users != null)
+        {
+            foreach (var user in users)
+            {
+                Console.WriteLine($"User ID: {user.UserId}, Username: {user.Username}");
+            }
+        }
     }
 
     private void SortUsers()

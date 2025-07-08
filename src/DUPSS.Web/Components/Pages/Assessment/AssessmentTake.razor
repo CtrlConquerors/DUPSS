@@ -550,50 +550,58 @@
 
     private void NextQuestion()
     {
-        if (currentQuestionIndex < questions.Count - 1 && IsAnswerSelected())
+        if (currentQuestionIndex >= questions.Count - 1 || !IsAnswerSelected())
+            return;
+        SaveCurrentAnswer();
+
+        // Skip Q2–Q8 if Q1 is "No" for the current substance
+        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"))
         {
-            SaveCurrentAnswer();
-
-            // Skip Q2–Q8 if Q1 is "No" for the current substance
-            if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"))
+            int substanceIndex = currentQuestionIndex / 8;
+            currentQuestionIndex = (substanceIndex + 1) * 8 - 1; // Move to last question of current substance
+            // Ensure index doesn't exceed bounds
+            if (currentQuestionIndex >= questions.Count)
             {
-                int substanceIndex = currentQuestionIndex / 8;
-                currentQuestionIndex = (substanceIndex + 1) * 8 - 1; // Move to last question of current substance
+                currentQuestionIndex = questions.Count - 1;
             }
-
-            currentQuestionIndex++;
-            LoadCurrentQuestionAnswers();
-            StateHasChanged();
         }
+
+        currentQuestionIndex++;
+        // Final bounds check
+        if (currentQuestionIndex >= questions.Count)
+        {
+            currentQuestionIndex = questions.Count - 1;
+        }
+
+        LoadCurrentQuestionAnswers();
+        StateHasChanged();
     }
 
     private void PreviousQuestion()
     {
-        if (currentQuestionIndex > 0)
-        {
-            SaveCurrentAnswer();
+        if (currentQuestionIndex <= 0)
+            return;
+        SaveCurrentAnswer();
 
-            // If moving back from Q1 of next substance, go to Q8 of previous substance
-            if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1"))
+        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"))
+        {   
+            int substanceIndex = currentQuestionIndex / 8;
+            if (substanceIndex > 0)
             {
-                int substanceIndex = currentQuestionIndex / 8;
-                if (substanceIndex > 0)
-                {
-                    currentQuestionIndex = (substanceIndex * 8) - 1; // Move to Q8 of previous substance
-                }
-                else
-                {
-                    currentQuestionIndex--;
-                }
+                currentQuestionIndex = ((substanceIndex - 1) * 8) + 7; // Move to Q8 of previous substance
             }
             else
             {
-                currentQuestionIndex--;
+                currentQuestionIndex = 0; // Stay at first question if at first substance
             }
-
-            LoadCurrentQuestionAnswers();
-            StateHasChanged();
         }
+        else
+        {
+            currentQuestionIndex--; // Normal single-step decrement
+        }
+
+        LoadCurrentQuestionAnswers();
+        StateHasChanged();
     }
 
     private async Task SubmitAssessment()

@@ -210,7 +210,24 @@
                         Previous
                     </button>
 
-                    @if (currentQuestionIndex < questions.Count - 1)
+                    @if (AssessmentId == "CRAFFT" && currentQuestion.QuestionId == "CRAFFT_Q4" && IsCrafftQ1ToQ3AllZero())
+                    {
+                        <button class="submit-button"
+                                @onclick="SubmitAssessment"
+                                disabled="@(!IsAnswerSelected() || isSubmitting)">
+                            @if (isSubmitting)
+                            {
+                                <span class="button-spinner"></span>
+                                <span>Submitting...</span>
+                            }
+                            else
+                            {
+                                <span class="button-icon">✓</span>
+                                <span>Submit Assessment</span>
+                            }
+                        </button>
+                    }
+                    else if (currentQuestionIndex < questions.Count - 1)
                     {
                         <button class="primary-button"
                                 @onclick="NextQuestion"
@@ -579,6 +596,13 @@
 
         StateHasChanged();
     }
+    
+    private bool IsCrafftQ1ToQ3AllZero()
+    {
+        return userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
+            userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
+            userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+    }
 
     private bool IsAnswerSelected()
     {
@@ -590,7 +614,7 @@
         userAnswers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault() ?? string.Empty;
     }
 
-    private void NextQuestion()
+    private async Task NextQuestion()
     {
         if (currentQuestionIndex >= questions.Count - 1 || !IsAnswerSelected())
             return;
@@ -608,13 +632,19 @@
                 }
                 break;
             }
-            case "CRAFFT" when currentQuestion.QuestionId == "CRAFFT_Q3":
+            case "CRAFFT" when currentQuestion.QuestionId == "CRAFFT_Q4":
             {
                 bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
                     userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
                     userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
-                currentQuestionIndex = allZero ? 3 : 4; // Q4 if all 0, else Q5
-                Console.WriteLine($"CRAFFT Q3 answered. All zero: {allZero}, Navigating to index: {currentQuestionIndex}, QuestionId: {questions[currentQuestionIndex].QuestionId}");
+                if (allZero)
+                {
+                    Console.WriteLine("CRAFFT Q1-Q3 all '0', submitting after Q4");
+                    await SubmitAssessment();
+                    return;
+                }
+                currentQuestionIndex++;
+                Console.WriteLine($"CRAFFT Q4 answered, Q1-Q3 not all '0', navigating to Q5, Index: {currentQuestionIndex}, QuestionId: {questions[currentQuestionIndex].QuestionId}");
                 break;
             }
             default:
@@ -675,13 +705,13 @@
 
                 if (user.Identity?.IsAuthenticated == true)
                 {
-                    CurrentMemberId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value
-                        ?? user.FindFirst("sub")?.Value
-                        ?? user.FindFirst("MemberId")?.Value;
+                        CurrentMemberId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                    Console.WriteLine($"Retrieved MemberId: {CurrentMemberId}");
                 }
 
                 if (string.IsNullOrEmpty(CurrentMemberId))
                 {
+                    Console.WriteLine("Failed to retrieve MemberId. Redirecting to login.");
                     await JS.InvokeVoidAsync("alert", "Failed to retrieve Member ID. Please login again.");
                     NavigationManager.NavigateTo("/login");
                     return;
@@ -695,8 +725,6 @@
             switch (AssessmentId)
             {
                 case "ASSIST":
-                {
-                    // Existing ASSIST logic unchanged
                     var substanceScores = new Dictionary<string, int>();
                     foreach (var substance in substances)
                     {
@@ -719,7 +747,10 @@
                                 continue;
                             var answer = questionAnswers[questionId].FirstOrDefault(a => a.AnswerId == answerId);
                             if (answer == null)
+                            {
+                                Console.WriteLine($"Invalid AnswerId for {questionId}: {answerId}");
                                 continue;
+                            }
                             substanceScore += answer.ScoreValue;
                             substanceDetails.Add($"Q{i}:{answer.Answer}");
                         }
@@ -730,17 +761,15 @@
 
                         var substanceRecommendation = substanceScore switch
                         {
-                            <= 10 => "Low risk: Brief education recommended. Please consider discussing your use with a healthcare provider.",
-                            <= 26 => "Moderate risk: Brief intervention recommended. Please consider discussing your use with a healthcare provider.",
-                            _ => "High risk: Referral to treatment recommended. Please contact a healthcare provider."
+                            <= 10 => "Low risk: Brief education recommended.",
+                            <= 26 => "Moderate risk: Brief intervention recommended.",
+                            _ => "High risk: Referral to treatment recommended."
                         };
                         recommendations.Add($"{substance}: {substanceRecommendation}");
                     }
                     break;
-                }
                 case "CRAFFT":
-                {
-                    Console.WriteLine($"Submitting CRAFFT assessment. Q1-Q3 answers: Q1={userAnswers.GetValueOrDefault("CRAFFT_Q1", "None")}, Q2={userAnswers.GetValueOrDefault("CRAFFT_Q2", "None")}, Q3={userAnswers.GetValueOrDefault("CRAFFT_Q3", "None")}");
+                    Console.WriteLine($"CRAFFT Submission - Q1: {userAnswers.GetValueOrDefault("CRAFFT_Q1", "None")}, Q2: {userAnswers.GetValueOrDefault("CRAFFT_Q2", "None")}, Q3: {userAnswers.GetValueOrDefault("CRAFFT_Q3", "None")}");
                     bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
                         userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
                         userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
@@ -752,19 +781,18 @@
                             if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
                             {
                                 var answer = questionAnswers[question.QuestionId].FirstOrDefault(a => a.AnswerId == answerId);
-                                if (answer != null)
+                                if (answer == null)
                                 {
-                                    totalScore += answer.ScoreValue;
-                                    scoreDetails.Add($"{question.QuestionId}:{answer.Answer}");
+                                    Console.WriteLine($"Invalid AnswerId for {question.QuestionId}: {answerId}");
+                                    continue;
                                 }
+                                totalScore += answer.ScoreValue;
+                                scoreDetails.Add($"{question.QuestionId}: {answer.Answer}");
                             }
                         }
                     }
-                    recommendations.Add(totalScore >= 2
-                        ? "Score ≥ 2: Further assessment recommended. Please contact a healthcare provider."
-                        : "Score < 2: No further action needed.");
+                    recommendations.Add(totalScore >= 2 ? "Further evaluation recommended." : "Low risk.");
                     break;
-                }
             }
 
             var submission = new AssessmentSubmissionDTO
@@ -779,12 +807,26 @@
             {
                 if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
                 {
-                    submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
+                    if (questionAnswers[question.QuestionId].Any(a => a.AnswerId == answerId))
+                    {
+                        submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
+                    }
+                    else
+                    {
+                        Console.WriteLine($"Skipping invalid AnswerId: {answerId} for QuestionId: {question.QuestionId}");
+                        }
+                    }
                 }
+
+            if (!submission.Answers.Any())
+            {
+                Console.WriteLine("No valid answers to submit.");
+                hasError = true;
+                errorMessage = "No valid answers provided.";
+                return;
             }
 
-            Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers, Total Score: {totalScore}, Details: {string.Join(";", scoreDetails)}");
-
+            Console.WriteLine($"Submission Payload: MemberId={submission.MemberId}, Answers={string.Join(",", submission.Answers.Select(a => a.AnswerId))}");
             assessmentResult = new AssessmentResultDTO
             {
                 ResultId = Guid.NewGuid().ToString(),
@@ -800,17 +842,18 @@
             if (result != null)
             {
                 showResults = true;
-                Console.WriteLine($"Assessment submitted successfully. Total Score: {totalScore}");
+                Console.WriteLine($"Assessment submitted successfully. ResultId: {result.ResultId}");
             }
             else
             {
                 hasError = true;
-                errorMessage = "Failed to submit assessment. Please try again.";
+                errorMessage = "Failed to submit assessment. Please check your answers and try again.";
+                Console.WriteLine("Submission failed. Check API response logs for details.");
             }
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error submitting assessment: {ex.Message}");
+            Console.WriteLine($"Submission Exception: {ex.Message}, StackTrace: {ex.StackTrace}");
             hasError = true;
             errorMessage = $"Failed to submit assessment: {ex.Message}";
         }

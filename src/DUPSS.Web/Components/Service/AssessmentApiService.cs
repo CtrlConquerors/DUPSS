@@ -1,5 +1,6 @@
 ﻿using DUPSS.API.Models.DTOs;
-using System.Buffers.Text;
+using System.Net.Http.Json;
+
 namespace DUPSS.Web.Components.Service
 {
     public class AssessmentApiService : GenericApiService<AssessmentDTO>
@@ -11,7 +12,8 @@ namespace DUPSS.Web.Components.Service
         {
             _httpClient = httpClient;
         }
-        public async Task<AssessmentResultDTO?> SubmitAssessmentAsync(string assessmentId, AssessmentSubmissionDTO submission)
+
+        public async Task<AssessmentResultDTO?> SubmitAssessmentAsync(string assessmentId, AssessmentResultDTO submission)
         {
             try
             {

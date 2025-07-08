@@ -625,7 +625,7 @@
             case "ASSIST" when currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"):
             {
                 int substanceIndex = currentQuestionIndex / 8;
-                currentQuestionIndex = (substanceIndex + 1) * 8 - 1;
+                currentQuestionIndex = (substanceIndex + 1) * 8;
                 if (currentQuestionIndex >= questions.Count)
                 {
                     currentQuestionIndex = questions.Count - 1;
@@ -776,57 +776,24 @@
 
                     foreach (var question in questions)
                     {
-                        if (question.QuestionId.StartsWith("CRAFFT_Q") && (allZero && question.QuestionId == "CRAFFT_Q4" || !allZero))
+                        if (!question.QuestionId.StartsWith("CRAFFT_Q") || ((!allZero || question.QuestionId != "CRAFFT_Q4") && allZero))
+                            continue;
+                        if (!userAnswers.TryGetValue(question.QuestionId, out var answerId) || string.IsNullOrEmpty(answerId))
+                            continue;
+                        var answer = questionAnswers[question.QuestionId].FirstOrDefault(a => a.AnswerId == answerId);
+                        if (answer == null)
                         {
-                            if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
-                            {
-                                var answer = questionAnswers[question.QuestionId].FirstOrDefault(a => a.AnswerId == answerId);
-                                if (answer == null)
-                                {
-                                    Console.WriteLine($"Invalid AnswerId for {question.QuestionId}: {answerId}");
-                                    continue;
-                                }
-                                totalScore += answer.ScoreValue;
-                                scoreDetails.Add($"{question.QuestionId}: {answer.Answer}");
-                            }
+                            Console.WriteLine($"Invalid AnswerId for {question.QuestionId}: {answerId}");
+                            continue;
                         }
+                        totalScore += answer.ScoreValue;
+                        scoreDetails.Add($"{question.QuestionId}: {answer.Answer}");
                     }
                     recommendations.Add(totalScore >= 2 ? "Further evaluation recommended." : "Low risk.");
                     break;
             }
 
-            var submission = new AssessmentSubmissionDTO
-            {
-                MemberId = CurrentMemberId,
-                Answers = new List<AnswerSubmissionDTO>(),
-                TextAnswers = new List<TextAnswerSubmissionDTO>(),
-                EarlyTextScore = 0
-            };
-
-            foreach (var question in questions)
-            {
-                if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
-                {
-                    if (questionAnswers[question.QuestionId].Any(a => a.AnswerId == answerId))
-                    {
-                        submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
-                    }
-                    else
-                    {
-                        Console.WriteLine($"Skipping invalid AnswerId: {answerId} for QuestionId: {question.QuestionId}");
-                        }
-                    }
-                }
-
-            if (!submission.Answers.Any())
-            {
-                Console.WriteLine("No valid answers to submit.");
-                hasError = true;
-                errorMessage = "No valid answers provided.";
-                return;
-            }
-
-            Console.WriteLine($"Submission Payload: MemberId={submission.MemberId}, Answers={string.Join(",", submission.Answers.Select(a => a.AnswerId))}");
+            // Ensure assessmentResult is populated before submission
             assessmentResult = new AssessmentResultDTO
             {
                 ResultId = Guid.NewGuid().ToString(),
@@ -838,7 +805,18 @@
                 CompletedOn = DateOnly.FromDateTime(DateTime.Now)
             };
 
-            var result = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
+            // Validate required fields
+            if (string.IsNullOrEmpty(assessmentResult.MemberId) || string.IsNullOrEmpty(assessmentResult.AssessmentId) || string.IsNullOrEmpty(assessmentResult.ResultId))
+            {
+                Console.WriteLine("Invalid submission: Missing required fields.");
+                hasError = true;
+                errorMessage = "Invalid submission details.";
+                return;
+            }
+
+            Console.WriteLine($"Submission Payload: MemberId={assessmentResult.MemberId}, ResultId={assessmentResult.ResultId}, TotalScore={assessmentResult.TotalScore}");
+            var result = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, assessmentResult);
+            
             if (result != null)
             {
                 showResults = true;

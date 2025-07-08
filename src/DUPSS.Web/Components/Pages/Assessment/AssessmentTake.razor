@@ -3,8 +3,6 @@
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 @inject AssessmentApiService AssessmentApiService
-@inject AssessmentQuestionApiService AssessmentQuestionApiService
-@inject AssessmentAnswerApiService AssessmentAnswerApiService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
@@ -67,7 +65,7 @@
                 </div>
 
                 <div class="recommendation-section">
-                    <h4>Recommendation</h4>
+                    <h4>Recommendations</h4>
                     <div class="recommendation-text">
                         @assessmentResult.Recommendation
                     </div>
@@ -109,15 +107,19 @@
             <div class="assessment-info">
                 <h1>@assessment.AssessmentType</h1>
                 <p class="assessment-description">@assessment.Description</p>
+                @if (AssessmentId == "ASSIST")
+                {
+                    <p class="substance-info">Current Section: @GetCurrentSubstance()</p>
+                }
             </div>
 
             <div class="progress-container">
                 <div class="progress-info">
-                    <span class="progress-text">Question @(currentQuestionIndex + 1) of @GetEffectiveQuestionCount()</span>
-                    <span class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100, 0)%</span>
+                    <span class="progress-text">Question @(currentQuestionIndex + 1) of @questions.Count</span>
+                    <span class="progress-percentage">@Math.Round(((double)(currentQuestionIndex + 1) / questions.Count) * 100, 0)%</span>
                 </div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: @(((double)(currentQuestionIndex + 1) / GetEffectiveQuestionCount()) * 100)%"></div>
+                    <div class="progress-fill" style="width: @(((double)(currentQuestionIndex + 1) / questions.Count) * 100)%"></div>
                 </div>
             </div>
         </div>
@@ -139,14 +141,14 @@
                             @foreach (var answer in currentAnswers)
                             {
                                 <div class="answer-option">
-                                    <div class="answer-checkbox">
-                                        <input type="checkbox"
+                                    <div class="answer-radio">
+                                        <input type="radio"
                                                name="answer-@currentQuestion.QuestionId"
                                                value="@answer.AnswerId"
                                                checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
-                                               @onchange="() => ToggleAnswer(answer.AnswerId)"/>
+                                               @onchange="() => SelectSingleAnswer(answer.AnswerId)"/>
                                         <span
-                                            class="checkbox-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
+                                            class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
                                     </div>
                                     <div class="answer-content">
                                         <div class="answer-text">@answer.Answer</div>
@@ -181,31 +183,6 @@
                                 </div>
                             }
                             break;
-                        case "Scale":
-                            <div class="answer-option">
-                                <div class="answer-scale">
-                                    <input type="number"
-                                           name="answer-@currentQuestion.QuestionId"
-                                           min="1"
-                                           max="10"
-                                           value="@(answers.ContainsKey(currentQuestion.QuestionId + "_text") ? answers[currentQuestion.QuestionId + "_text"] : string.Empty)"
-                                           @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)" />
-                                    <span class="scale-label"> (1 = Lowest, 10 = Highest)</span>
-                                </div>
-                            </div>
-                            break;
-                        case "Text":
-                            <div class="answer-option">
-                                <div class="answer-textarea">
-                                    <input type="number"
-                                           name="answer-@currentQuestion.QuestionId"
-                                           min="0"
-                                           value="@(answers.ContainsKey(currentQuestion.QuestionId + "_text") ? answers[currentQuestion.QuestionId + "_text"] : string.Empty)"
-                                           @oninput="e => SaveAnswerOnInput(currentQuestion.QuestionId, e)"
-                                           placeholder="Enter a number (0 for none)" />
-                                </div>
-                            </div>
-                            break;
                     }
                 </div>
 
@@ -217,7 +194,7 @@
                         Previous
                     </button>
 
-                    @if (currentQuestionIndex < GetEffectiveQuestionCount() - 1)
+                    @if (currentQuestionIndex < questions.Count - 1)
                     {
                         <button class="primary-button"
                                 @onclick="NextQuestion"
@@ -281,7 +258,7 @@
     private AssessmentDTO? assessment;
     private List<AssessmentQuestionDTO> questions = new();
     private Dictionary<string, List<AssessmentAnswerDTO>> questionAnswers = new();
-    private Dictionary<string, List<string>> userAnswers = new(); // QuestionId -> List<AnswerId> for MultipleChoice/YesNo, or text/scale value
+    private Dictionary<string, string> userAnswers = new(); // QuestionId -> AnswerId
     private AssessmentResultDTO? assessmentResult;
 
     private bool isLoading = true;
@@ -297,182 +274,16 @@
     private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
     private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
 
-    private Dictionary<string, string> answers = new();
-    private bool stopAtFourthQuestion = false;
-    private int earlyTextScore = 0;
-
-    // New property to track if early termination logic has been triggered
-    private bool earlyTerminationTriggered = false;
-
-    private async Task SaveAnswerOnInput(string questionId, ChangeEventArgs e)
+    private readonly List<string> substances = new()
     {
-        if (e?.Value != null)
-        {
-            string input = e.Value.ToString();
-            if (currentQuestion.QuestionType == "Text")
-            {
-                if (!string.IsNullOrEmpty(input.Trim()))
-                {
-                    answers[questionId] = input; // Store input temporarily (will be replaced with AnswerId during submission)
-                    userAnswers[questionId] = new List<string> { input }; // Store input temporarily in userAnswers
-                    answers[questionId + "_text"] = input; // Store text input for display and early termination
-                }
-                else
-                {
-                    answers[questionId] = string.Empty;
-                    userAnswers[questionId] = new List<string>();
-                    answers[questionId + "_text"] = string.Empty;
-                }
-                // Re-evaluate early termination logic after any text answer change
-                CheckEarlyTerminationLogic();
-            }
-            else if (currentQuestion.QuestionType == "Scale")
-            {
-                if (int.TryParse(input, out int value) && value >= 1 && value <= 10)
-                {
-                    var answerDto = new AssessmentAnswerDTO
-                    {
-                        AnswerId = string.Empty,
-                        QuestionId = questionId,
-                        Answer = input,
-                        AnswerDetails = null,
-                        ScoreValue = value,
-                        ScoreDescription = null
-                    };
-                    var createdAnswer = await AssessmentAnswerApiService.CreateAnswerAsync(answerDto);
-                    if (createdAnswer != null)
-                    {
-                        answers[questionId] = createdAnswer.AnswerId; // Store AnswerId for submission
-                        userAnswers[questionId] = new List<string> { createdAnswer.AnswerId }; // Store AnswerId for submission
-                        answers[questionId + "_text"] = input; // Store input for display
-                    }
-                    else
-                    {
-                        answers[questionId] = string.Empty;
-                        userAnswers[questionId] = new List<string>();
-                        answers[questionId + "_text"] = string.Empty;
-                        await JS.InvokeVoidAsync("alert", "Failed to save scale answer.");
-                    }
-                }
-                else
-                {
-                    answers[questionId] = string.Empty;
-                    userAnswers[questionId] = new List<string>();
-                    answers[questionId + "_text"] = string.Empty;
-                    if (!string.IsNullOrEmpty(input.Trim()))
-                    {
-                        await JS.InvokeVoidAsync("alert", "Please enter a number between 1 and 10.");
-                    }
-                }
-            }
-            else
-            {
-                answers[questionId] = input;
-            }
-        }
-        else
-        {
-            answers[questionId] = string.Empty;
-            userAnswers[questionId] = new List<string>();
-            answers[questionId + "_text"] = string.Empty;
-            // Re-evaluate early termination logic if answer is cleared
-            if (currentQuestion.QuestionType == "Text")
-            {
-                CheckEarlyTerminationLogic();
-            }
-        }
+        "Tobacco", "Alcohol", "Cannabis", "Cocaine", "Amphetamines",
+        "Inhalants", "Sedatives", "Hallucinogens", "Opioids", "Other"
+    };
 
-        await SaveAnswersToLocalStorage();
-        StateHasChanged();
-    }
-
-    private void NextQuestion()
+    private string GetCurrentSubstance()
     {
-        if (currentQuestionIndex < GetEffectiveQuestionCount() - 1 && IsAnswerSelected())
-        {
-            SaveCurrentAnswer();
-            CheckEarlyTerminationLogic();
-            currentQuestionIndex++;
-            LoadCurrentQuestionAnswers();
-            StateHasChanged();
-        }
-    }
-
-    private void PreviousQuestion()
-    {
-        if (currentQuestionIndex > 0)
-        {
-            SaveCurrentAnswer();
-            currentQuestionIndex--;
-            LoadCurrentQuestionAnswers();
-            CheckEarlyTerminationLogic(); // Re-evaluate early termination when going back
-            StateHasChanged();
-        }
-    }
-
-    private void CheckEarlyTerminationLogic()
-    {
-        if (questions.Count >= 4)
-        {
-            // Check if all of the first three questions are Text type and answered with 0
-            bool allTextAndZero = questions.Take(3).All(q =>
-                q.QuestionType == "Text" &&
-                answers.TryGetValue(q.QuestionId + "_text", out var val) &&
-                val == "0");
-
-            // Calculate earlyTextScore: 1 point for each non-zero Text answer
-            earlyTextScore = 0;
-            foreach (var q in questions.Take(3))
-            {
-                if (q.QuestionType == "Text" &&
-                    answers.TryGetValue(q.QuestionId + "_text", out var val) &&
-                    val != "0")
-                {
-                    earlyTextScore += 1;
-                }
-            }
-
-            // Update early termination flags
-            if (allTextAndZero && currentQuestionIndex >= 2) // Only stop at fourth question if all are 0
-            {
-                stopAtFourthQuestion = true;
-                earlyTerminationTriggered = true;
-            }
-            else
-            {
-                // Reset early termination if any answer is non-zero
-                stopAtFourthQuestion = false;
-                earlyTerminationTriggered = false;
-            }
-        }
-        else
-        {
-            stopAtFourthQuestion = false;
-            earlyTerminationTriggered = false;
-        }
-    }
-
-    private int GetEffectiveQuestionCount()
-    {
-        if (stopAtFourthQuestion && earlyTerminationTriggered)
-        {
-            return Math.Min(4, questions.Count); // Show only first 4 questions if early termination is active
-        }
-        return questions.Count; // Show all questions otherwise
-    }
-
-    private async Task SaveAnswersToLocalStorage()
-    {
-        var storageData = new Dictionary<string, List<string>>();
-        foreach (var kvp in userAnswers)
-        {
-            storageData[kvp.Key] = kvp.Value;
-        }
-        foreach (var kvp in answers)
-        {
-            storageData[kvp.Key] = new List<string> { kvp.Value };
-        }
-        await JS.InvokeVoidAsync("localStorage.setItem", $"assessment_{AssessmentId}_answers", System.Text.Json.JsonSerializer.Serialize(storageData));
+        int substanceIndex = currentQuestionIndex / 8;
+        return substances[substanceIndex];
     }
 
     protected override async Task OnInitializedAsync()
@@ -490,7 +301,7 @@
         {
             Console.WriteLine($"Loading assessment with ID: {AssessmentId}");
 
-            // Load assessment details
+            // Load assessment metadata
             assessment = await AssessmentApiService.GetByIdAsync(AssessmentId);
             if (assessment == null)
             {
@@ -499,53 +310,44 @@
                 return;
             }
 
-            // Load all questions for this assessment
-            var allQuestions = await AssessmentQuestionApiService.GetAllAsync();
-            questions = allQuestions.Where(q => q.AssessmentId == AssessmentId).ToList();
+            // Load questions and answers
+            if (AssessmentId == "ASSIST")
+            {
+                LoadAssistQuestions();
+            }
+            else if (AssessmentId == "CRAFFT")
+            {
+                LoadCrafftQuestions();
+            }
+            else
+            {
+                hasError = true;
+                errorMessage = "Unsupported assessment type.";
+                return;
+            }
 
             if (!questions.Any())
             {
                 hasError = true;
-                errorMessage = "No questions found for this assessment.";
+                errorMessage = "No questions defined for this assessment.";
                 return;
             }
 
-            // Load all answers and group by question
-            var allAnswers = await AssessmentAnswerApiService.GetAllAsync();
-            questionAnswers = allAnswers
-                .Where(a => questions.Any(q => q.QuestionId == a.QuestionId))
-                .GroupBy(a => a.QuestionId)
-                .ToDictionary(g => g.Key, g => g.ToList());
-
-            // Validate that all questions have answers for MultipleChoice and YesNo
-            var questionsWithoutAnswers = questions
-                .Where(q => (q.QuestionType == "MultipleChoice" || q.QuestionType == "YesNo") &&
-                    (!questionAnswers.ContainsKey(q.QuestionId) || !questionAnswers[q.QuestionId].Any()))
-                .ToList();
-            if (questionsWithoutAnswers.Any())
-            {
-                hasError = true;
-                errorMessage = $"Some questions are missing answer options: {string.Join(", ", questionsWithoutAnswers.Select(q => q.QuestionId))}";
-                return;
-            }
-
-            // Initialize user answers dictionary
+            // Initialize user answers with default "No" for Q1 to allow skipping
             foreach (var question in questions)
             {
-                if (!userAnswers.ContainsKey(question.QuestionId))
+                if (question.QuestionId.EndsWith("_Q1"))
                 {
-                    userAnswers[question.QuestionId] = new List<string>();
+                    userAnswers[question.QuestionId] = $"{question.QuestionId}_NO";
+                }
+                else
+                {
+                    userAnswers[question.QuestionId] = string.Empty;
                 }
             }
 
-            // Try to load saved answers from localStorage
-            await LoadAnswersFromLocalStorage();
-
-            // Initialize selected answers for current question
             LoadCurrentQuestionAnswers();
-            CheckEarlyTerminationLogic(); // Initial check after loading answers
-
-            Console.WriteLine($"Successfully loaded assessment with {questions.Count} questions");
+            Console.WriteLine($"Successfully loaded {assessment.AssessmentType} with {questions.Count} questions");
         }
         catch (Exception ex)
         {
@@ -560,122 +362,240 @@
         }
     }
 
-    private async Task LoadAnswersFromLocalStorage()
+    private void LoadAssistQuestions()
     {
-        try
+        questions = new List<AssessmentQuestionDTO>();
+        questionAnswers = new Dictionary<string, List<AssessmentAnswerDTO>>();
+
+        var frequencyAnswers = new List<AssessmentAnswerDTO>
         {
-            var storedData = await JS.InvokeAsync<string>("localStorage.getItem", $"assessment_{AssessmentId}_answers");
-            if (!string.IsNullOrEmpty(storedData))
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_0", Answer = "Never", ScoreValue = 0 },
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_2", Answer = "Once or twice", ScoreValue = 2 },
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_3", Answer = "Monthly", ScoreValue = 3 },
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_4", Answer = "Weekly", ScoreValue = 4 },
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_6", Answer = "Daily or almost daily", ScoreValue = 6 }
+        };
+
+        var yesNoAnswers = new List<AssessmentAnswerDTO>
+        {
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_yNA_yes", Answer = "Yes", ScoreValue = 0 }, // Score set per question
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_yNA_no", Answer = "No", ScoreValue = 0 }
+        };
+
+        var injectionAnswers = new List<AssessmentAnswerDTO>
+        {
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_iA_0", Answer = "Never", ScoreValue = 0 },
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_iA_6", Answer = "Yes, in the past 3 months", ScoreValue = 6 },
+            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_iA_3", Answer = "Yes, but not in the past 3 months", ScoreValue = 3 }
+        };
+
+        foreach (var substance in substances)
+        {
+            var substanceId = substance.ToUpper().Replace(" ", "_");
+            var substanceQuestions = new List<AssessmentQuestionDTO>
             {
-                var storageData = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, List<string>>>(storedData);
-                if (storageData != null)
+                new() { QuestionId = $"ASSIST_{substanceId}_Q1", AssessmentId = AssessmentId, Question = $"In your life, have you ever used {substance.ToLower()}?", QuestionType = "YesNo" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q2", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often have you used {substance.ToLower()}?", QuestionType = "MultipleChoice" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q3", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often have you had a strong desire or urge to use {substance.ToLower()}?", QuestionType = "MultipleChoice" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q4", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often has {substance.ToLower()} use led to health, social, legal, or financial problems?", QuestionType = "MultipleChoice" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q5", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often have you failed to do what was normally expected of you because of {substance.ToLower()}?", QuestionType = "MultipleChoice" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q6", AssessmentId = AssessmentId, Question = $"Has a friend or relative or anyone else ever expressed concern about your use of {substance.ToLower()}?", QuestionType = "YesNo" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q7", AssessmentId = AssessmentId, Question = $"Have you ever tried and failed to control, cut down, or stop using {substance.ToLower()}?", QuestionType = "YesNo" },
+                new() { QuestionId = $"ASSIST_{substanceId}_Q8", AssessmentId = AssessmentId, Question = $"Have you ever used {substance.ToLower()} by injection?", QuestionType = "MultipleChoice" }
+            };
+
+            questions.AddRange(substanceQuestions);
+
+            questionAnswers[$"ASSIST_{substanceId}_Q1"] = yesNoAnswers.Select(a => new AssessmentAnswerDTO
+            {
+                AnswerId = $"ASSIST_{substanceId}_Q1_{a.Answer.ToUpper()}",
+                QuestionId = $"ASSIST_{substanceId}_Q1",
+                Answer = a.Answer,
+                ScoreValue = a.ScoreValue
+            }).ToList();
+
+            for (int i = 2; i <= 5; i++)
+            {
+                questionAnswers[$"ASSIST_{substanceId}_Q{i}"] = frequencyAnswers.Select(a => new AssessmentAnswerDTO
                 {
-                    foreach (var kvp in storageData)
-                    {
-                        if (kvp.Key.EndsWith("_text"))
-                        {
-                            answers[kvp.Key] = kvp.Value.FirstOrDefault() ?? string.Empty;
-                        }
-                        else if (userAnswers.ContainsKey(kvp.Key))
-                        {
-                            userAnswers[kvp.Key] = kvp.Value ?? new List<string>();
-                        }
-                    }
+                    AnswerId = $"ASSIST_{substanceId}_Q{i}_{a.Answer.ToUpper().Replace(" ", "_")}",
+                    QuestionId = $"ASSIST_{substanceId}_Q{i}",
+                    Answer = a.Answer,
+                    ScoreValue = a.ScoreValue
+                }).ToList();
+            }
+
+            questionAnswers[$"ASSIST_{substanceId}_Q6"] = yesNoAnswers.Select(a => new AssessmentAnswerDTO
+            {
+                AnswerId = $"ASSIST_{substanceId}_Q6_{a.Answer.ToUpper()}",
+                QuestionId = $"ASSIST_{substanceId}_Q6",
+                Answer = a.Answer,
+                ScoreValue = a.Answer == "Yes" ? 7 : 0
+            }).ToList();
+
+            questionAnswers[$"ASSIST_{substanceId}_Q7"] = yesNoAnswers.Select(a => new AssessmentAnswerDTO
+            {
+                AnswerId = $"ASSIST_{substanceId}_Q7_{a.Answer.ToUpper()}",
+                QuestionId = $"ASSIST_{substanceId}_Q7",
+                Answer = a.Answer,
+                ScoreValue = a.Answer == "Yes" ? 4 : 0
+            }).ToList();
+
+            questionAnswers[$"ASSIST_{substanceId}_Q8"] = injectionAnswers.Select(a => new AssessmentAnswerDTO
+            {
+                AnswerId = $"ASSIST_{substanceId}_Q8_{a.Answer.ToUpper().Replace(" ", "_").Replace(",", "")}",
+                QuestionId = $"ASSIST_{substanceId}_Q8",
+                Answer = a.Answer,
+                ScoreValue = a.ScoreValue
+            }).ToList();
+        }
+
+        Console.WriteLine($"Loaded ASSIST questions: {questions.Count} total, {questionAnswers.Count} question-answer sets");
+    }
+
+    private void LoadCrafftQuestions()
+    {
+        questions = new List<AssessmentQuestionDTO>
+        {
+            new() { QuestionId = "CRAFFT_Q1", AssessmentId = AssessmentId, Question = "Have you ever ridden in a CAR driven by someone (including yourself) who was high or had been using alcohol or drugs?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q2", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs to RELAX, feel better about yourself, or fit in?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q3", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs while you are by yourself, ALONE?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q4", AssessmentId = AssessmentId, Question = "Do you ever FORGET things you did while using alcohol or drugs?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q5", AssessmentId = AssessmentId, Question = "Do your family or FRIENDS ever tell you that you should cut down on your drinking or drug use?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q6", AssessmentId = AssessmentId, Question = "Have you ever gotten into TROUBLE while you were using alcohol or drugs?", QuestionType = "YesNo" }
+        };
+
+        questionAnswers = new Dictionary<string, List<AssessmentAnswerDTO>>
+        {
+            {
+                "CRAFFT_Q1", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q1_YES", QuestionId = "CRAFFT_Q1", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q1_NO", QuestionId = "CRAFFT_Q1", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q2", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q2_YES", QuestionId = "CRAFFT_Q2", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q2_NO", QuestionId = "CRAFFT_Q2", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q3", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q3_YES", QuestionId = "CRAFFT_Q3", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q3_NO", QuestionId = "CRAFFT_Q3", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q4", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q4_YES", QuestionId = "CRAFFT_Q4", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q4_NO", QuestionId = "CRAFFT_Q4", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q5", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q5_YES", QuestionId = "CRAFFT_Q5", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q5_NO", QuestionId = "CRAFFT_Q5", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q6", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q6_YES", QuestionId = "CRAFFT_Q6", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q6_NO", QuestionId = "CRAFFT_Q6", Answer = "No", ScoreValue = 0 }
                 }
             }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Error loading answers from localStorage: {ex.Message}");
-        }
+        };
     }
 
     private void LoadCurrentQuestionAnswers()
     {
-        selectedAnswerIds = userAnswers.ContainsKey(currentQuestion.QuestionId)
-            ? new List<string>(userAnswers[currentQuestion.QuestionId])
+        selectedAnswerIds = userAnswers.ContainsKey(currentQuestion.QuestionId) && !string.IsNullOrEmpty(userAnswers[currentQuestion.QuestionId])
+            ? new List<string> { userAnswers[currentQuestion.QuestionId] }
             : new List<string>();
-        
-        // For display purposes, set the main answer field
-        if (selectedAnswerIds.Any())
-        {
-            answers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault();
-        }
-    }
-
-    private void ToggleAnswer(string answerId)
-    {
-        if (selectedAnswerIds.Contains(answerId))
-        {
-            selectedAnswerIds.Remove(answerId);
-        }
-        else
-        {
-            selectedAnswerIds.Add(answerId);
-        }
-        userAnswers[currentQuestion.QuestionId] = new List<string>(selectedAnswerIds);
-        StateHasChanged();
     }
 
     private void SelectSingleAnswer(string answerId)
     {
         selectedAnswerIds = new List<string> { answerId };
-        userAnswers[currentQuestion.QuestionId] = new List<string> { answerId };
+        userAnswers[currentQuestion.QuestionId] = answerId;
+
+        // If Q1 is "No", auto-set "No"/"Never" for Q2–Q8 of the same substance
+        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && answerId.EndsWith("_NO"))
+        {
+            var substanceId = currentQuestion.QuestionId.Split('_')[1];
+            for (int i = 2; i <= 7; i++)
+            {
+                userAnswers[$"ASSIST_{substanceId}_Q{i}"] = $"ASSIST_{substanceId}_Q{i}_NO";
+            }
+            userAnswers[$"ASSIST_{substanceId}_Q8"] = $"ASSIST_{substanceId}_Q8_NEVER";
+        }
+
         StateHasChanged();
     }
 
     private bool IsAnswerSelected()
     {
-        return currentQuestion.QuestionType switch
-        {
-            "MultipleChoice" => selectedAnswerIds.Any(),
-            "YesNo" => selectedAnswerIds.Any(),
-            "Scale" => userAnswers[currentQuestion.QuestionId].Any() &&
-                       answers.ContainsKey(currentQuestion.QuestionId + "_text") &&
-                       int.TryParse(answers[currentQuestion.QuestionId + "_text"], out int value) &&
-                       value >= 1 && value <= 10,
-            "Text" => userAnswers[currentQuestion.QuestionId].Any() &&
-                      answers.ContainsKey(currentQuestion.QuestionId + "_text") &&
-                      !string.IsNullOrEmpty(answers[currentQuestion.QuestionId + "_text"]),
-            _ => false
-        };
+        return userAnswers.ContainsKey(currentQuestion.QuestionId) && !string.IsNullOrEmpty(userAnswers[currentQuestion.QuestionId]);
     }
 
     private void SaveCurrentAnswer()
     {
-        if (currentQuestion.QuestionType == "Scale")
+        userAnswers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault() ?? string.Empty;
+    }
+
+    private void NextQuestion()
+    {
+        if (currentQuestionIndex < questions.Count - 1 && IsAnswerSelected())
         {
-            userAnswers[currentQuestion.QuestionId] = new List<string> { answers[currentQuestion.QuestionId] ?? "" };
-        }
-        else if (currentQuestion.QuestionType == "Text")
-        {
-            userAnswers[currentQuestion.QuestionId] = new List<string> { answers[currentQuestion.QuestionId + "_text"] ?? "" }; // Store text input
-        }
-        else
-        {
-            userAnswers[currentQuestion.QuestionId] = new List<string>(selectedAnswerIds);
+            SaveCurrentAnswer();
+
+            // Skip Q2–Q8 if Q1 is "No" for the current substance
+            if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"))
+            {
+                int substanceIndex = currentQuestionIndex / 8;
+                currentQuestionIndex = (substanceIndex + 1) * 8 - 1; // Move to last question of current substance
+            }
+
+            currentQuestionIndex++;
+            LoadCurrentQuestionAnswers();
+            StateHasChanged();
         }
     }
 
-    private async Task RetryLoadAssessment()
+    private void PreviousQuestion()
     {
-        await LoadAssessmentAsync();
-    }
-    
-    private string ProcessAndReturnDetail(string detail, int index)
-    {
-        var trimmedDetail = detail.Trim();
-        
-        if (!string.IsNullOrEmpty(trimmedDetail) && trimmedDetail.Contains(':'))
+        if (currentQuestionIndex > 0)
         {
-            return "Question " + (index + 1) + ": " + trimmedDetail.Substring(trimmedDetail.IndexOf(':') + 1);
-        }
-        else
-        {
-            return "Question " + (index + 1) + ": " + trimmedDetail;
+            SaveCurrentAnswer();
+
+            // If moving back from Q1 of next substance, go to Q8 of previous substance
+            if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1"))
+            {
+                int substanceIndex = currentQuestionIndex / 8;
+                if (substanceIndex > 0)
+                {
+                    currentQuestionIndex = (substanceIndex * 8) - 1; // Move to Q8 of previous substance
+                }
+                else
+                {
+                    currentQuestionIndex--;
+                }
+            }
+            else
+            {
+                currentQuestionIndex--;
+            }
+
+            LoadCurrentQuestionAnswers();
+            StateHasChanged();
         }
     }
-    
+
     private async Task SubmitAssessment()
     {
         if (!IsAnswerSelected() || isSubmitting)
@@ -707,58 +627,111 @@
                 }
             }
 
-            // Prepare submission data
+            // Calculate scores and recommendations per substance
+            var substanceScores = new Dictionary<string, int>();
+            var scoreDetails = new List<string>();
+            var recommendations = new List<string>();
+            int totalScore = 0;
+
+            if (AssessmentId == "ASSIST")
+            {
+                foreach (var substance in substances)
+                {
+                    var substanceId = substance.ToUpper().Replace(" ", "_");
+                    if (userAnswers[$"ASSIST_{substanceId}_Q1"] == $"ASSIST_{substanceId}_Q1_NO")
+                    {
+                        substanceScores[substance] = 0;
+                        scoreDetails.Add($"{substance}: No use reported");
+                        recommendations.Add($"{substance}: No intervention needed.");
+                        continue;
+                    }
+
+                    int substanceScore = 0;
+                    var substanceDetails = new List<string>();
+
+                    for (int i = 2; i <= 8; i++)
+                    {
+                        var questionId = $"ASSIST_{substanceId}_Q{i}";
+                        if (userAnswers.TryGetValue(questionId, out var answerId) && !string.IsNullOrEmpty(answerId))
+                        {
+                            var answer = questionAnswers[questionId].FirstOrDefault(a => a.AnswerId == answerId);
+                            if (answer != null)
+                            {
+                                substanceScore += answer.ScoreValue;
+                                substanceDetails.Add($"Q{i}:{answer.Answer}");
+                            }
+                        }
+                    }
+
+                    substanceScores[substance] = substanceScore;
+                    totalScore += substanceScore;
+                    scoreDetails.Add($"{substance}: Score={substanceScore}; {string.Join(", ", substanceDetails)}");
+
+                    var substanceRecommendation = substanceScore switch
+                    {
+                        <= 10 => "Low risk: Brief education recommended. Please consider discussing your use with a healthcare provider.",
+                        <= 26 => "Moderate risk: Brief intervention recommended. Please consider discussing your use with a healthcare provider.",
+                        _ => "High risk: Referral to treatment recommended. Please contact a healthcare provider."
+                    };
+                    recommendations.Add($"{substance}: {substanceRecommendation}");
+                }
+            }
+            else if (AssessmentId == "CRAFFT")
+            {
+                foreach (var question in questions)
+                {
+                    if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
+                    {
+                        var answer = questionAnswers[question.QuestionId].FirstOrDefault(a => a.AnswerId == answerId);
+                        if (answer != null)
+                        {
+                            totalScore += answer.ScoreValue;
+                            scoreDetails.Add($"{question.QuestionId}:{answer.Answer}");
+                        }
+                    }
+                }
+                recommendations.Add(totalScore >= 2
+                    ? "Score ≥ 2: Further assessment recommended. Please contact a healthcare provider."
+                    : "Score < 2: No further action needed.");
+            }
+
+            // Prepare submission
             var submission = new AssessmentSubmissionDTO
             {
                 MemberId = CurrentMemberId,
                 Answers = new List<AnswerSubmissionDTO>(),
                 TextAnswers = new List<TextAnswerSubmissionDTO>(),
-                EarlyTextScore = earlyTextScore
+                EarlyTextScore = 0
             };
 
-            // Process answers - only include answers for questions that were actually presented
-            var questionsToSubmit = stopAtFourthQuestion && earlyTerminationTriggered 
-                ? questions.Take(4).ToList() 
-                : questions;
-
-            foreach (var question in questionsToSubmit)
+            foreach (var question in questions)
             {
-                if (userAnswers.ContainsKey(question.QuestionId) && userAnswers[question.QuestionId].Any())
+                if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
                 {
-                    if (question.QuestionType == "Text" && !string.IsNullOrEmpty(userAnswers[question.QuestionId][0]))
-                    {
-                        // Add Text answer directly to TextAnswers
-                        submission.TextAnswers.Add(new TextAnswerSubmissionDTO
-                        {
-                            QuestionId = question.QuestionId,
-                            Answer = userAnswers[question.QuestionId][0]
-                        });
-                    }
-                    else
-                    {
-                        // For non-Text questions (Scale, MultipleChoice, YesNo)
-                        foreach (var answerId in userAnswers[question.QuestionId])
-                        {
-                            if (!string.IsNullOrEmpty(answerId))
-                            {
-                                submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
-                            }
-                        }
-                    }
+                    submission.Answers.Add(new AnswerSubmissionDTO { AnswerId = answerId });
                 }
             }
 
-            Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers, {submission.TextAnswers.Count} text answers, EarlyTextScore: {submission.EarlyTextScore}");
+            Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers, Total Score: {totalScore}, Details: {string.Join(";", scoreDetails)}");
 
-            // Submit assessment
-            assessmentResult = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
+            // Create AssessmentResultDTO
+            assessmentResult = new AssessmentResultDTO
+            {
+                ResultId = Guid.NewGuid().ToString(),
+                AssessmentId = AssessmentId,
+                MemberId = CurrentMemberId,
+                TotalScore = totalScore,
+                ScoreDetails = string.Join(";", scoreDetails),
+                Recommendation = string.Join(" ", recommendations),
+                CompletedOn = DateOnly.FromDateTime(DateTime.Now)
+            };
 
-            if (assessmentResult != null)
+            // Submit to API
+            var result = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
+            if (result != null)
             {
                 showResults = true;
-                Console.WriteLine($"Assessment submitted successfully. Score: {assessmentResult.TotalScore}");
-                // Clear localStorage after successful submission
-                await JS.InvokeVoidAsync("localStorage.removeItem", $"assessment_{AssessmentId}_answers");
+                Console.WriteLine($"Assessment submitted successfully. Total Score: {totalScore}, Substances Scored: {string.Join(", ", substanceScores.Select(s => $"{s.Key}: {s.Value}"))}");
             }
             else
             {
@@ -776,6 +749,24 @@
         {
             isSubmitting = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task RetryLoadAssessment()
+    {
+        await LoadAssessmentAsync();
+    }
+
+    private string ProcessAndReturnDetail(string detail, int index)
+    {
+        var trimmedDetail = detail.Trim();
+        if (!string.IsNullOrEmpty(trimmedDetail) && trimmedDetail.Contains(':'))
+        {
+            return trimmedDetail;
+        }
+        else
+        {
+            return $"Detail {index + 1}: {trimmedDetail}";
         }
     }
 

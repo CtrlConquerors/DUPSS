@@ -147,8 +147,7 @@
                                                value="@answer.AnswerId"
                                                checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
                                                @onchange="() => SelectSingleAnswer(answer.AnswerId)"/>
-                                        <span
-                                            class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
+                                        <span class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
                                     </div>
                                     <div class="answer-content">
                                         <div class="answer-text">@answer.Answer</div>
@@ -170,8 +169,7 @@
                                                value="@answer.AnswerId"
                                                checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
                                                @onchange="() => SelectSingleAnswer(answer.AnswerId)"/>
-                                        <span
-                                            class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
+                                        <span class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
                                     </div>
                                     <div class="answer-content">
                                         <div class="answer-text">@answer.Answer</div>
@@ -179,6 +177,24 @@
                                         {
                                             <div class="answer-details">@answer.AnswerDetails</div>
                                         }
+                                    </div>
+                                </div>
+                            }
+                            break;
+                        case "Numeric":
+                            @foreach (var answer in currentAnswers)
+                            {
+                                <div class="answer-option">
+                                    <div class="answer-radio">
+                                        <input type="radio"
+                                               name="answer-@currentQuestion.QuestionId"
+                                               value="@answer.AnswerId"
+                                               checked="@(selectedAnswerIds.Contains(answer.AnswerId))"
+                                               @onchange="() => SelectSingleAnswer(answer.AnswerId)"/>
+                                        <span class="radio-checkmark @(selectedAnswerIds.Contains(answer.AnswerId) ? "selected" : "")"></span>
+                                    </div>
+                                    <div class="answer-content">
+                                        <div class="answer-text">@answer.Answer</div>
                                     </div>
                                 </div>
                             }
@@ -457,12 +473,15 @@
     {
         questions = new List<AssessmentQuestionDTO>
         {
-            new() { QuestionId = "CRAFFT_Q1", AssessmentId = AssessmentId, Question = "Have you ever ridden in a CAR driven by someone (including yourself) who was high or had been using alcohol or drugs?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q2", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs to RELAX, feel better about yourself, or fit in?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q3", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs while you are by yourself, ALONE?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q4", AssessmentId = AssessmentId, Question = "Do you ever FORGET things you did while using alcohol or drugs?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q5", AssessmentId = AssessmentId, Question = "Do your family or FRIENDS ever tell you that you should cut down on your drinking or drug use?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q6", AssessmentId = AssessmentId, Question = "Have you ever gotten into TROUBLE while you were using alcohol or drugs?", QuestionType = "YesNo" }
+            new() { QuestionId = "CRAFFT_Q1", AssessmentId = AssessmentId, Question = "During the PAST 12 MONTHS, on how many days did you drink more than a few sips of beer, wine, or any drink containing alcohol? Put '0' if none.", QuestionType = "Numeric" },
+            new() { QuestionId = "CRAFFT_Q2", AssessmentId = AssessmentId, Question = "During the PAST 12 MONTHS, on how many days did you use any marijuana (cannabis, weed, oil, wax, or hash by smoking, vaping, dabbing, or in edibles) or 'synthetic marijuana' (like 'K2,' 'Spice')? Put '0' if none.", QuestionType = "Numeric" },
+            new() { QuestionId = "CRAFFT_Q3", AssessmentId = AssessmentId, Question = "During the PAST 12 MONTHS, on how many days did you use anything else to get high (like other illegal drugs, pills, prescription or over-the-counter medications, and things that you sniff, huff, vape, or inject)? Put '0' if none.", QuestionType = "Numeric" },
+            new() { QuestionId = "CRAFFT_Q4", AssessmentId = AssessmentId, Question = "Have you ever ridden in a CAR driven by someone (including yourself) who was high or had been using alcohol or drugs?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q5", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs to RELAX, feel better about yourself, or fit in?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q6", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs while you are by yourself, ALONE?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q7", AssessmentId = AssessmentId, Question = "Do you ever FORGET things you did while using alcohol or drugs?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q8", AssessmentId = AssessmentId, Question = "Do your family or FRIENDS ever tell you that you should cut down on your drinking or drug use?", QuestionType = "YesNo" },
+            new() { QuestionId = "CRAFFT_Q9", AssessmentId = AssessmentId, Question = "Have you ever gotten into TROUBLE while you were using alcohol or drugs?", QuestionType = "YesNo" }
         };
 
         questionAnswers = new Dictionary<string, List<AssessmentAnswerDTO>>
@@ -470,22 +489,22 @@
             {
                 "CRAFFT_Q1", new List<AssessmentAnswerDTO>
                 {
-                    new() { AnswerId = "CRAFFT_Q1_YES", QuestionId = "CRAFFT_Q1", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q1_NO", QuestionId = "CRAFFT_Q1", Answer = "No", ScoreValue = 0 }
+                    new() { AnswerId = "CRAFFT_Q1_0", QuestionId = "CRAFFT_Q1", Answer = "0", ScoreValue = 0 },
+                    new() { AnswerId = "CRAFFT_Q1_1PLUS", QuestionId = "CRAFFT_Q1", Answer = "1 or more", ScoreValue = 0 } // No score impact
                 }
             },
             {
                 "CRAFFT_Q2", new List<AssessmentAnswerDTO>
                 {
-                    new() { AnswerId = "CRAFFT_Q2_YES", QuestionId = "CRAFFT_Q2", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q2_NO", QuestionId = "CRAFFT_Q2", Answer = "No", ScoreValue = 0 }
+                    new() { AnswerId = "CRAFFT_Q2_0", QuestionId = "CRAFFT_Q2", Answer = "0", ScoreValue = 0 },
+                    new() { AnswerId = "CRAFFT_Q2_1PLUS", QuestionId = "CRAFFT_Q2", Answer = "1 or more", ScoreValue = 0 }
                 }
             },
             {
                 "CRAFFT_Q3", new List<AssessmentAnswerDTO>
                 {
-                    new() { AnswerId = "CRAFFT_Q3_YES", QuestionId = "CRAFFT_Q3", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q3_NO", QuestionId = "CRAFFT_Q3", Answer = "No", ScoreValue = 0 }
+                    new() { AnswerId = "CRAFFT_Q3_0", QuestionId = "CRAFFT_Q3", Answer = "0", ScoreValue = 0 },
+                    new() { AnswerId = "CRAFFT_Q3_1PLUS", QuestionId = "CRAFFT_Q3", Answer = "1 or more", ScoreValue = 0 }
                 }
             },
             {
@@ -508,8 +527,31 @@
                     new() { AnswerId = "CRAFFT_Q6_YES", QuestionId = "CRAFFT_Q6", Answer = "Yes", ScoreValue = 1 },
                     new() { AnswerId = "CRAFFT_Q6_NO", QuestionId = "CRAFFT_Q6", Answer = "No", ScoreValue = 0 }
                 }
+            },
+            {
+                "CRAFFT_Q7", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q7_YES", QuestionId = "CRAFFT_Q7", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q7_NO", QuestionId = "CRAFFT_Q7", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q8", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q8_YES", QuestionId = "CRAFFT_Q8", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q8_NO", QuestionId = "CRAFFT_Q8", Answer = "No", ScoreValue = 0 }
+                }
+            },
+            {
+                "CRAFFT_Q9", new List<AssessmentAnswerDTO>
+                {
+                    new() { AnswerId = "CRAFFT_Q9_YES", QuestionId = "CRAFFT_Q9", Answer = "Yes", ScoreValue = 1 },
+                    new() { AnswerId = "CRAFFT_Q9_NO", QuestionId = "CRAFFT_Q9", Answer = "No", ScoreValue = 0 }
+                }
             }
         };
+
+        Console.WriteLine($"Loaded {questions.Count} CRAFFT questions, {questionAnswers.Count} answer sets.");
     }
 
     private void LoadCurrentQuestionAnswers()
@@ -554,25 +596,33 @@
             return;
         SaveCurrentAnswer();
 
-        // Skip Q2–Q8 if Q1 is "No" for the current substance
-        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"))
+        switch (AssessmentId)
         {
-            int substanceIndex = currentQuestionIndex / 8;
-            currentQuestionIndex = (substanceIndex + 1) * 8 - 1; // Move to last question of current substance
-            // Ensure index doesn't exceed bounds
-            if (currentQuestionIndex >= questions.Count)
+            case "ASSIST" when currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"):
             {
-                currentQuestionIndex = questions.Count - 1;
+                int substanceIndex = currentQuestionIndex / 8;
+                currentQuestionIndex = (substanceIndex + 1) * 8 - 1;
+                if (currentQuestionIndex >= questions.Count)
+                {
+                    currentQuestionIndex = questions.Count - 1;
+                }
+                break;
             }
+            case "CRAFFT" when currentQuestion.QuestionId == "CRAFFT_Q3":
+            {
+                bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
+                    userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
+                    userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+                currentQuestionIndex = allZero ? 3 : 4; // Q4 if all 0, else Q5
+                Console.WriteLine($"CRAFFT Q3 answered. All zero: {allZero}, Navigating to index: {currentQuestionIndex}, QuestionId: {questions[currentQuestionIndex].QuestionId}");
+                break;
+            }
+            default:
+                currentQuestionIndex++;
+                break;
         }
 
-        currentQuestionIndex++;
-        // Final bounds check
-        if (currentQuestionIndex >= questions.Count)
-        {
-            currentQuestionIndex = questions.Count - 1;
-        }
-
+        Console.WriteLine($"Navigating to QuestionId: {questions[currentQuestionIndex].QuestionId}, Index: {currentQuestionIndex}");
         LoadCurrentQuestionAnswers();
         StateHasChanged();
     }
@@ -638,75 +688,85 @@
                 }
             }
 
-            // Calculate scores and recommendations per substance
-            var substanceScores = new Dictionary<string, int>();
             var scoreDetails = new List<string>();
             var recommendations = new List<string>();
             int totalScore = 0;
 
-            if (AssessmentId == "ASSIST")
+            switch (AssessmentId)
             {
-                foreach (var substance in substances)
+                case "ASSIST":
                 {
-                    var substanceId = substance.ToUpper().Replace(" ", "_");
-                    if (userAnswers[$"ASSIST_{substanceId}_Q1"] == $"ASSIST_{substanceId}_Q1_NO")
+                    // Existing ASSIST logic unchanged
+                    var substanceScores = new Dictionary<string, int>();
+                    foreach (var substance in substances)
                     {
-                        substanceScores[substance] = 0;
-                        scoreDetails.Add($"{substance}: No use reported");
-                        recommendations.Add($"{substance}: No intervention needed.");
-                        continue;
-                    }
-
-                    int substanceScore = 0;
-                    var substanceDetails = new List<string>();
-
-                    for (int i = 2; i <= 8; i++)
-                    {
-                        var questionId = $"ASSIST_{substanceId}_Q{i}";
-                        if (userAnswers.TryGetValue(questionId, out var answerId) && !string.IsNullOrEmpty(answerId))
+                        var substanceId = substance.ToUpper().Replace(" ", "_");
+                        if (userAnswers[$"ASSIST_{substanceId}_Q1"] == $"ASSIST_{substanceId}_Q1_NO")
                         {
+                            substanceScores[substance] = 0;
+                            scoreDetails.Add($"{substance}: No use reported");
+                            recommendations.Add($"{substance}: No intervention needed.");
+                            continue;
+                        }
+
+                        int substanceScore = 0;
+                        var substanceDetails = new List<string>();
+
+                        for (int i = 2; i <= 8; i++)
+                        {
+                            var questionId = $"ASSIST_{substanceId}_Q{i}";
+                            if (!userAnswers.TryGetValue(questionId, out var answerId) || string.IsNullOrEmpty(answerId))
+                                continue;
                             var answer = questionAnswers[questionId].FirstOrDefault(a => a.AnswerId == answerId);
-                            if (answer != null)
+                            if (answer == null)
+                                continue;
+                            substanceScore += answer.ScoreValue;
+                            substanceDetails.Add($"Q{i}:{answer.Answer}");
+                        }
+
+                        substanceScores[substance] = substanceScore;
+                        totalScore += substanceScore;
+                        scoreDetails.Add($"{substance}: Score={substanceScore}; {string.Join(", ", substanceDetails)}");
+
+                        var substanceRecommendation = substanceScore switch
+                        {
+                            <= 10 => "Low risk: Brief education recommended. Please consider discussing your use with a healthcare provider.",
+                            <= 26 => "Moderate risk: Brief intervention recommended. Please consider discussing your use with a healthcare provider.",
+                            _ => "High risk: Referral to treatment recommended. Please contact a healthcare provider."
+                        };
+                        recommendations.Add($"{substance}: {substanceRecommendation}");
+                    }
+                    break;
+                }
+                case "CRAFFT":
+                {
+                    Console.WriteLine($"Submitting CRAFFT assessment. Q1-Q3 answers: Q1={userAnswers.GetValueOrDefault("CRAFFT_Q1", "None")}, Q2={userAnswers.GetValueOrDefault("CRAFFT_Q2", "None")}, Q3={userAnswers.GetValueOrDefault("CRAFFT_Q3", "None")}");
+                    bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
+                        userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
+                        userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+
+                    foreach (var question in questions)
+                    {
+                        if (question.QuestionId.StartsWith("CRAFFT_Q") && (allZero && question.QuestionId == "CRAFFT_Q4" || !allZero))
+                        {
+                            if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
                             {
-                                substanceScore += answer.ScoreValue;
-                                substanceDetails.Add($"Q{i}:{answer.Answer}");
+                                var answer = questionAnswers[question.QuestionId].FirstOrDefault(a => a.AnswerId == answerId);
+                                if (answer != null)
+                                {
+                                    totalScore += answer.ScoreValue;
+                                    scoreDetails.Add($"{question.QuestionId}:{answer.Answer}");
+                                }
                             }
                         }
                     }
-
-                    substanceScores[substance] = substanceScore;
-                    totalScore += substanceScore;
-                    scoreDetails.Add($"{substance}: Score={substanceScore}; {string.Join(", ", substanceDetails)}");
-
-                    var substanceRecommendation = substanceScore switch
-                    {
-                        <= 10 => "Low risk: Brief education recommended. Please consider discussing your use with a healthcare provider.",
-                        <= 26 => "Moderate risk: Brief intervention recommended. Please consider discussing your use with a healthcare provider.",
-                        _ => "High risk: Referral to treatment recommended. Please contact a healthcare provider."
-                    };
-                    recommendations.Add($"{substance}: {substanceRecommendation}");
+                    recommendations.Add(totalScore >= 2
+                        ? "Score ≥ 2: Further assessment recommended. Please contact a healthcare provider."
+                        : "Score < 2: No further action needed.");
+                    break;
                 }
             }
-            else if (AssessmentId == "CRAFFT")
-            {
-                foreach (var question in questions)
-                {
-                    if (userAnswers.TryGetValue(question.QuestionId, out var answerId) && !string.IsNullOrEmpty(answerId))
-                    {
-                        var answer = questionAnswers[question.QuestionId].FirstOrDefault(a => a.AnswerId == answerId);
-                        if (answer != null)
-                        {
-                            totalScore += answer.ScoreValue;
-                            scoreDetails.Add($"{question.QuestionId}:{answer.Answer}");
-                        }
-                    }
-                }
-                recommendations.Add(totalScore >= 2
-                    ? "Score ≥ 2: Further assessment recommended. Please contact a healthcare provider."
-                    : "Score < 2: No further action needed.");
-            }
 
-            // Prepare submission
             var submission = new AssessmentSubmissionDTO
             {
                 MemberId = CurrentMemberId,
@@ -725,7 +785,6 @@
 
             Console.WriteLine($"Submitting assessment with {submission.Answers.Count} answers, Total Score: {totalScore}, Details: {string.Join(";", scoreDetails)}");
 
-            // Create AssessmentResultDTO
             assessmentResult = new AssessmentResultDTO
             {
                 ResultId = Guid.NewGuid().ToString(),
@@ -737,12 +796,11 @@
                 CompletedOn = DateOnly.FromDateTime(DateTime.Now)
             };
 
-            // Submit to API
             var result = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, submission);
             if (result != null)
             {
                 showResults = true;
-                Console.WriteLine($"Assessment submitted successfully. Total Score: {totalScore}, Substances Scored: {string.Join(", ", substanceScores.Select(s => $"{s.Key}: {s.Value}"))}");
+                Console.WriteLine($"Assessment submitted successfully. Total Score: {totalScore}");
             }
             else
             {

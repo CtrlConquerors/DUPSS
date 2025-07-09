@@ -271,7 +271,7 @@ body {
     right: 50%;
     transform: translateX(-50%);
     height: 500px;
-    background: url('/images/giphy.gif') no-repeat center ;
+    background: url('/images/Others/giphy.gif') no-repeat center ;
     background-size:1500px 540px;
     image-rendering: auto;
     display: flex;

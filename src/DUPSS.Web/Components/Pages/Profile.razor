@@ -22,11 +22,12 @@
                 <div class="profile-avatar-lg">
                     @if (!string.IsNullOrEmpty(user?.ImageUrl))
                     {
-                        <img src="\images\avatar2.png" alt="Profile Picture" />
+                        <img src="@user.ImageUrl" alt="User Avatar" />
                     }
                     else
                     {
                         <i class="fas fa-user-circle"></i>
+                        <img src="/images/Users/avatar2.png" alt="User Avatar" />
                     }
                 </div>
                 <div>

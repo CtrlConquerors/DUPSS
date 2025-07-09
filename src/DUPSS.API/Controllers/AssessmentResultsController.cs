@@ -55,6 +55,20 @@ namespace DUPSS.API.Controllers
             }
         }
 
+        [HttpGet("ByMember/{memberId}")]
+        public async Task<ActionResult<IEnumerable<AssessmentResultDTO>>> GetByMember(string memberId)
+        {
+            try
+            {
+                var results = await _assessmentResultDAO.GetByMemberIdAsync(memberId);
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpPost("Create")]
         public async Task<ActionResult<AssessmentResultDTO>> Create([FromBody] AssessmentResultDTO assessmentResultDTO)
         {

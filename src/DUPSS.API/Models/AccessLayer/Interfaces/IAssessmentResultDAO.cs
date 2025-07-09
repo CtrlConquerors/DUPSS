@@ -10,5 +10,6 @@ namespace DUPSS.API.Models.AccessLayer.Interfaces
         Task<List<AssessmentResultDTO>> GetAllAsync();
         Task<AssessmentResultDTO> UpdateAsync(AssessmentResult assessmentResult);
         Task<bool> DeleteAsync(string resultId);
+        Task<List<AssessmentResultDTO>> GetByMemberIdAsync(string memberId);
     }
 }

@@ -103,6 +103,25 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 .ToListAsync();
         }
 
+        public async Task<List<AssessmentResultDTO>> GetByMemberIdAsync(string memberId)
+        {
+            return await _context.AssessmentResult
+                .Where(r => r.MemberId == memberId)
+                .OrderByDescending(r => r.CompletedOn)
+                .Select(r => new AssessmentResultDTO
+                {
+                    ResultId = r.ResultId,
+                    AssessmentId = r.AssessmentId,
+                    MemberId = r.MemberId,
+                    TotalScore = r.TotalScore,
+                    ScoreDetails = r.ScoreDetails,
+                    Recommendation = r.Recommendation,
+                    CompletedOn = r.CompletedOn,
+                    // Optionally include Assessment info
+                })
+                .ToListAsync();
+        }
+
         public async Task<AssessmentResultDTO> UpdateAsync(AssessmentResult assessmentResult)
         {
             var existingResult = await _context.AssessmentResult.FindAsync(assessmentResult.ResultId);

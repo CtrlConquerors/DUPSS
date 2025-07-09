@@ -16,56 +16,75 @@
         <div class="appointment-home-icon">📅</div>
         <h2 class="appointment-home-title">Welcome to the Appointment Center</h2>
         <p class="appointment-home-subtitle">
-            Book confidential 1-on-1 sessions with our professional consultants
+            Book confidential 1-on-1 online sessions with our professional consultants
         </p>
     </header>
 
     <section class="about-section">
-        <h3>💡 What is this feature?</h3>
+        <h3>💡 About this feature</h3>
         <p>
-            The Appointment feature allows members to schedule confidential 1-on-1 online consultation sessions.
-            Each session lasts approximately <strong>30 minutes</strong>. You can:
+            This feature lets you schedule private online consultation sessions.
+            Each session lasts about <strong>40 minutes</strong>. You can:
         </p>
         <ul>
-            <li>🔍 <strong>Choose a consultant manually</strong> from our list</li>
-            <li>🤖 <strong>Let the system auto-assign</strong> one based on your selected time</li>
+            <li>🔍 <strong>Choose a consultant manually</strong> based on your preference</li>
+            <li>🤖 <strong>Let the system auto-assign</strong> the most suitable consultant who is available at your chosen time</li>
         </ul>
         <p>
-            Before confirming, feel free to describe your topic so our consultant can better assist you.
+            Before confirming, describe your topic so consultants can prepare better.
         </p>
     </section>
 
     <section class="about-section">
-        <h3>🕐 Consultant Availability</h3>
-        <p>Most consultants are available at these time slots:</p>
+        <h3>📌 Important Booking Rules</h3>
         <ul>
-            <li><strong>Morning:</strong> 09:00 – 11:30</li>
-            <li><strong>Afternoon:</strong> 13:30 – 17:00</li>
-            <li><strong>Evening (most popular):</strong> 19:00 – 21:00</li>
+            <li>✅ You can have up to <strong>1 active appointment</strong> (Pending or Accepted) at a time</li>
+            <li>⏰ You can cancel or reschedule <strong>at least 4 hours</strong> before the scheduled time</li>
+            <li>⚠️ Each time slot is exclusive: once someone books it, others can't book the same time</li>
         </ul>
-        <p>Choose time slots in these ranges for faster approval.</p>
+        <p>
+            These rules help ensure fairness and availability for everyone.
+        </p>
     </section>
+
+    <section class="about-section">
+        <h3>🕐 Typical Consultant Availability</h3>
+        <p>Our consultants typically offer appointments during these periods:</p>
+        <ul>
+            <li><strong>Weekdays (Monday to Friday):</strong></li>
+            <ul>       
+                <li>Evening: 17:30 – 21:30</li>
+            </ul>
+            <li><strong>Weekends (Saturday & Sunday):</strong></li>
+            <ul>
+                <li>Morning: 09:00 – 11:30</li>
+                <li>Evening: 17:30 – 21:30</li>
+            </ul>
+        </ul>
+  
+    </section>
+
 
     <section class="about-section">
         <h3>🧠 Popular Consultation Topics</h3>
         <ul>
-            <li>🚭 Preventing Drug Use</li>
-            <li>💬 Mental Health & Stress Management</li>
-            <li>🏫 School and Academic Guidance</li>
-            <li>👥 Peer Pressure & Social Relationships</li>
+            <li>🚭 Drug Use Prevention & Awareness</li>
+            <li>💬 Stress & Mental Health Support</li>
+            <li>🏫 School or Study Challenges</li>
+            <li>👥 Peer Relationships & Social Skills</li>
             <li>🏠 Family Communication</li>
         </ul>
     </section>
 
     <section>
-        <h3 class="mb-4">👨‍⚕️ Our Available Consultants</h3>
+        <h3 class="mb-4">👨‍⚕️ Meet Our Consultants</h3>
         @if (consultants == null)
         {
             <p>Loading consultants...</p>
         }
         else if (!consultants.Any())
         {
-            <p>No consultants available at the moment.</p>
+            <p>No consultants are currently available. Please check back later.</p>
         }
         else
         {
@@ -73,9 +92,9 @@
                 @foreach (var consultant in consultants)
                 {
                     <div class="card">
-                        <h5 style="margin-bottom:0.5rem;">@consultant.Username</h5>
+                        <h5>@consultant.Username</h5>
                         <div>
-                            <strong>Email:</strong> @consultant.Email <br />
+                            <strong>Email:</strong> @consultant.Email<br />
                             <strong>Phone:</strong> @consultant.PhoneNumber
                         </div>
                     </div>
@@ -93,6 +112,8 @@
             📌 Book an Appointment Now
         </a>
     </footer>
+
+
 </main>
 
 @code {

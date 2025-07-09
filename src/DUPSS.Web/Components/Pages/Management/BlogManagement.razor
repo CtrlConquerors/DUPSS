@@ -218,12 +218,8 @@
 
             <div class="mb-3">
                 <label class="form-label">Content (Markdown)</label>
-                <textarea class="form-control" id="markdownEditor" rows="10"></textarea>
-                @if (!isSimpleMDELoaded)
-                {
-                    <p class="text-warning mt-2">Warning: Rich text editor failed to load. Using plain text input.</p>
-                    <textarea class="form-control" @bind="blogToEdit.Content" rows="10" placeholder="SimpleMDE failed to load. Enter Markdown content here."></textarea>
-                }
+                @* Removed SimpleMDE integration. Using a plain textarea. *@
+                <textarea class="form-control" @bind="blogToEdit.Content" rows="10" placeholder="Enter Markdown content here."></textarea>
             </div>
 
             <div class="mb-3">
@@ -248,26 +244,7 @@
                 </select>
             </div>
 
-            <div class="mb-3">
-                <label class="form-label">Blog Image</label>
-                <InputFile OnChange="HandleFileSelection" accept="image/*" class="form-control" />
-                @if (!string.IsNullOrEmpty(imagePreviewUrl))
-                {
-                    <div class="image-preview mt-2">
-                        <img src="@imagePreviewUrl" alt="Image Preview" class="img-thumbnail" />
-                    </div>
-                }
-                else if (!string.IsNullOrEmpty(blogToEdit.ImageUrl))
-                {
-                    <div class="image-preview mt-2">
-                        <img src="@blogToEdit.ImageUrl" alt="Current Image" class="img-thumbnail" />
-                    </div>
-                }
-                else
-                {
-                    <div class="no-image-placeholder mt-2">No Image Selected</div>
-                }
-            </div>
+           
 
             <div>
                 <button class="btn btn-success me-2" @onclick="SaveBlog">Save</button>
@@ -286,8 +263,7 @@
     private int currentPage = 1;
     private int itemsPerPage = 8;
     private string validationMessage = string.Empty;
-    private bool isSimpleMDELoaded = false;
-    private bool shouldInitSimpleMDE = false;
+
 
     private string searchTerm = string.Empty;
     private string selectedTopicId = string.Empty;
@@ -312,8 +288,7 @@
     private bool showNewTopicInput = false;
     private string newTopicName = string.Empty;
 
-    private IBrowserFile? selectedImageFile;
-    private string? imagePreviewUrl;
+   
 
     private List<BlogDTO> filteredBlogs = new List<BlogDTO>();
 
@@ -340,14 +315,7 @@
     {
         Console.WriteLine("BlogManagement: OnInitializedAsync: Starting data load.");
 
-        // Hard reload check (if still desired for cache-busting)
-        var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        if (!currentUri.Query.Contains("t="))
-        {
-            Console.WriteLine("BlogManagement: OnInitializedAsync: Initial load without cache-busting parameter. Forcing hard reload.");
-            PerformHardReload();
-            return; // Exit to prevent further initialization on this "old" load
-        }
+       
 
         try
         {
@@ -386,7 +354,7 @@
         if (blogs != null && blogs.Any())
         {
             var wwwrootPath = WebHostEnvironment.WebRootPath;
-            var imagesPath = Path.Combine(wwwrootPath, "images");
+            var imagesPath = Path.Combine(wwwrootPath, "images", "Blogs");
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
             Console.WriteLine($"BlogManagement: LoadAllDataAsync: wwwrootPath: {wwwrootPath}");
             Console.WriteLine($"BlogManagement: LoadAllDataAsync: imagesPath: {imagesPath}");
@@ -403,7 +371,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            blog.ImageUrl = $"images/{potentialFileName}";
+                            blog.ImageUrl = $"images/Blogs/{potentialFileName}";
                             Console.WriteLine($"BlogManagement: LoadAllDataAsync: Found image for BlogId {blog.BlogId}: {blog.ImageUrl}");
                             imageFound = true;
                             break;
@@ -433,35 +401,7 @@
     }
 
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (showEditForm && shouldInitSimpleMDE)
-        {
-            try
-            {
-                var isSimpleMDEAvailable = await JS.InvokeAsync<bool>("eval", "typeof SimpleMDE !== 'undefined'");
-                if (isSimpleMDEAvailable)
-                {
-                    await JS.InvokeVoidAsync("initializeSimpleMDE", "#markdownEditor");
-                    isSimpleMDELoaded = true;
-                    await JS.InvokeVoidAsync("setSimpleMDEContent", "#markdownEditor", blogToEdit.Content);
-                }
-                else
-                {
-                    Console.WriteLine("SimpleMDE not available. Falling back to plain textarea.");
-                    validationMessage = "Markdown editor failed to load. Using plain text input.";
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error initializing SimpleMDE: {ex.Message}");
-                validationMessage = "Failed to initialize Markdown editor.";
-                isSimpleMDELoaded = false;
-            }
-            shouldInitSimpleMDE = false;
-            StateHasChanged();
-        }
-    }
+
 
     private void FilterAndSortBlogs()
     {
@@ -592,8 +532,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null;
-        imagePreviewUrl = null;
+    
 
         blogToEdit = new BlogDTO
         {
@@ -607,8 +546,7 @@
         };
         isNewBlog = true;
         showEditForm = true;
-        isSimpleMDELoaded = false;
-        shouldInitSimpleMDE = true;
+  
         StateHasChanged();
     }
 
@@ -617,8 +555,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null;
-        imagePreviewUrl = null;
+    
 
         var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
         if (blog != null)
@@ -639,60 +576,16 @@
                 } : null,
                 ImageUrl = blog.ImageUrl
             };
-            if (!string.IsNullOrEmpty(blogToEdit.ImageUrl))
-            {
-                imagePreviewUrl = blogToEdit.ImageUrl;
-            }
+   
 
             isNewBlog = false;
             showEditForm = true;
-            isSimpleMDELoaded = false;
-            shouldInitSimpleMDE = true;
+          
             StateHasChanged();
         }
     }
 
-    private async Task HandleFileSelection(InputFileChangeEventArgs e)
-    {
-        Console.WriteLine("BlogManagement: HandleFileSelection: File selection initiated.");
-        validationMessage = string.Empty;
-        selectedImageFile = e.File;
 
-        if (selectedImageFile != null)
-        {
-            Console.WriteLine($"BlogManagement: HandleFileSelection: Selected file: {selectedImageFile.Name}, Type: {selectedImageFile.ContentType}, Size: {selectedImageFile.Size} bytes.");
-            if (selectedImageFile.Size > 5 * 1024 * 1024)
-            {
-                validationMessage = "File size too large. Maximum 5MB allowed.";
-                selectedImageFile = null;
-                imagePreviewUrl = null;
-                Console.WriteLine("BlogManagement: HandleFileSelection: File size exceeded 5MB. Clearing selection and preview.");
-                StateHasChanged();
-                return;
-            }
-
-            try
-            {
-                var imageBytes = new byte[selectedImageFile.Size];
-                await selectedImageFile.OpenReadStream().ReadAsync(imageBytes);
-                imagePreviewUrl = $"data:{selectedImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
-                Console.WriteLine("BlogManagement: HandleFileSelection: Image preview URL generated successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"BlogManagement: HandleFileSelection: Error generating image preview: {ex.Message}");
-                validationMessage = $"Error generating image preview: {ex.Message}";
-                imagePreviewUrl = null;
-            }
-            StateHasChanged();
-        }
-        else
-        {
-            imagePreviewUrl = null;
-            Console.WriteLine("BlogManagement: HandleFileSelection: No file selected or selection cleared.");
-            StateHasChanged();
-        }
-    }
 
 
     private void PromptAddNewTopic()
@@ -771,17 +664,7 @@
             validationMessage = "Blog Title cannot be empty.";
             return;
         }
-        if (isSimpleMDELoaded)
-        {
-            try
-            {
-                blogToEdit.Content = await JS.InvokeAsync<string>("getSimpleMDEContent", "#markdownEditor");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error getting SimpleMDE content: {ex.Message}");
-            }
-        }
+ 
         if (string.IsNullOrWhiteSpace(blogToEdit.Content))
         {
             validationMessage = "Blog Content cannot be empty.";
@@ -835,69 +718,7 @@
 
         try
         {
-            if (selectedImageFile != null)
-            {
-                Console.WriteLine("BlogManagement: SaveBlog: Image file selected. Starting image upload process.");
-                var wwwrootPath = WebHostEnvironment.WebRootPath;
-                var imagesPath = Path.Combine(wwwrootPath, "images");
-                Console.WriteLine($"BlogManagement: SaveBlog: wwwrootPath: {wwwrootPath}");
-                Console.WriteLine($"BlogManagement: SaveBlog: imagesPath: {imagesPath}");
-
-                if (!Directory.Exists(imagesPath))
-                {
-                    Directory.CreateDirectory(imagesPath);
-                    Console.WriteLine($"BlogManagement: SaveBlog: Created images directory at: {imagesPath}");
-                }
-                else
-                {
-                    Console.WriteLine($"BlogManagement: SaveBlog: Images directory already exists at: {imagesPath}");
-                }
-
-                var fileExtension = Path.GetExtension(selectedImageFile.Name);
-                var newFileName = $"{blogToEdit.BlogId}{fileExtension}";
-                var filePath = Path.Combine(imagesPath, newFileName);
-                Console.WriteLine($"BlogManagement: SaveBlog: New image filename: {newFileName}");
-                Console.WriteLine($"BlogManagement: SaveBlog: Full target file path: {filePath}");
-
-                Console.WriteLine($"BlogManagement: SaveBlog: Checking for existing image for BlogId {blogToEdit.BlogId} to delete...");
-                foreach (var ext in new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" })
-                {
-                    var existingFilePath = Path.Combine(imagesPath, $"{blogToEdit.BlogId}{ext}");
-                    if (System.IO.File.Exists(existingFilePath))
-                    {
-                        System.IO.File.Delete(existingFilePath);
-                        Console.WriteLine($"BlogManagement: SaveBlog: Deleted existing image file: {existingFilePath}");
-                    }
-                }
-                Console.WriteLine("BlogManagement: SaveBlog: Finished checking and deleting old images.");
-
-                Console.WriteLine($"BlogManagement: SaveBlog: Attempting to save new image to: {filePath}");
-                try
-                {
-                    await using FileStream fs = new(filePath, FileMode.Create);
-                    await selectedImageFile.OpenReadStream().CopyToAsync(fs);
-                    Console.WriteLine($"BlogManagement: SaveBlog: Image successfully saved to: {filePath}");
-                }
-                catch (Exception fileEx)
-                {
-                    Console.WriteLine($"BlogManagement: SaveBlog: ERROR during file stream copy: {fileEx.Message}");
-                    validationMessage = $"Error saving image file: {fileEx.Message}";
-                    return;
-                }
-
-                blogToEdit.ImageUrl = $"images/{newFileName}";
-                Console.WriteLine($"BlogManagement: SaveBlog: blogToEdit.ImageUrl set to: {blogToEdit.ImageUrl}");
-            }
-            else if (isNewBlog)
-            {
-                blogToEdit.ImageUrl = "";
-                Console.WriteLine("BlogManagement: SaveBlog: No image selected for new blog. ImageUrl set to empty.");
-            }
-            else
-            {
-                Console.WriteLine("BlogManagement: SaveBlog: No new image selected for existing blog. Keeping existing ImageUrl.");
-            }
-
+           
 
             if (isNewBlog)
             {
@@ -920,8 +741,7 @@
             FilterAndSortBlogs();
             showEditForm = false;
             GoToPage(1);
-            selectedImageFile = null;
-            imagePreviewUrl = null;
+      
         }
         catch (Exception ex)
         {
@@ -935,8 +755,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null;
-        imagePreviewUrl = null;
+        
 
         blogToEdit = new BlogDTO
         {
@@ -950,8 +769,7 @@
         };
         isNewBlog = false;
         showEditForm = false;
-        isSimpleMDELoaded = false;
-        shouldInitSimpleMDE = false;
+      
     }
 
     private async Task DeleteBlog(string blogId)
@@ -973,22 +791,7 @@
                 {
                     Console.WriteLine($"Blog '{blogToDelete.Title}' (ID: {blogId}) deleted successfully.");
 
-                    var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images");
-                    var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
-                    Console.WriteLine($"BlogManagement: DeleteBlog: Checking for associated image file for BlogId {blogId} in {imagesPath}...");
-
-                    foreach (var ext in supportedExtensions)
-                    {
-                        var potentialFilePath = Path.Combine(imagesPath, $"{blogId}{ext}");
-                        if (System.IO.File.Exists(potentialFilePath))
-                        {
-                            System.IO.File.Delete(potentialFilePath);
-                            Console.WriteLine($"BlogManagement: DeleteBlog: Deleted image file: {potentialFilePath}");
-                            break;
-                        }
-                    }
-                    Console.WriteLine("BlogManagement: DeleteBlog: Finished checking and deleting associated image.");
+                 
 
                     await LoadAllDataAsync();
                     FilterAndSortBlogs();
@@ -1006,21 +809,5 @@
         }
     }
 
-    private void PerformHardReload()
-    {
-        var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        var newUri = $"{currentUri.GetLeftPart(UriPartial.Path)}?t={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-        Console.WriteLine($"BlogManagement: PerformHardReload: Forcing hard reload to: {newUri}");
-        try
-        {
-            NavigationManager.NavigateTo(newUri, forceLoad: true);
-        }
-        catch (Microsoft.AspNetCore.Components.NavigationException)
-        {
-            // This exception is expected and harmless when forceLoad: true is used.
-            // It indicates that Blazor is gracefully stopping the current render cycle
-            // because a full page reload is about to occur.
-            Console.WriteLine("BlogManagement: NavigationException caught during hard reload. This is expected.");
-        }
-    }
+
 }

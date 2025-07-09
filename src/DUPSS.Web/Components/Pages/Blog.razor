@@ -145,7 +145,7 @@
             if (blogs != null && blogs.Any())
             {
                 var wwwrootPath = WebHostEnvironment.WebRootPath;
-                var imagesPath = Path.Combine(wwwrootPath, "images");
+                var imagesPath = Path.Combine(wwwrootPath, "images", "Blogs");
                 var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
                 Console.WriteLine($"Blog.razor: LoadBlogsAsync: wwwrootPath: {wwwrootPath}");
                 Console.WriteLine($"Blog.razor: LoadBlogsAsync: imagesPath: {imagesPath}");
@@ -162,7 +162,7 @@
 
                             if (System.IO.File.Exists(fullPath))
                             {
-                                blog.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                                blog.ImageUrl = $"images/Blogs/{potentialFileName}"; // Set the relative URL for display
                                 Console.WriteLine($"Blog.razor: LoadBlogsAsync: Found image for BlogId {blog.BlogId}: {blog.ImageUrl}");
                                 imageFound = true;
                                 break;

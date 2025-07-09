@@ -107,7 +107,7 @@ else
                             var hoursBefore = (appt.AppointmentDate - DateTime.UtcNow).TotalHours;
                             if (hoursBefore >= 4)
                             {
-                                <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button>
+                                @* <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button> *@
                                 <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>
                             }
                             else
@@ -143,67 +143,67 @@ else
         </tbody>
     </table>
 
-    @if (reschedulingAppointment != null)
-    {
-        <div class="modal-backdrop fade show" style="z-index: 1040;"></div>
+    @* @if (reschedulingAppointment != null) *@
+    @* { *@
+    @*     <div class="modal-backdrop fade show" style="z-index: 1040;"></div> *@
 
-        <div class="modal"
-        style="z-index: 1050; display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Reschedule Appointment</h5>
-                        <button type="button" class="btn-close" @onclick="CancelReschedule"></button>
-                    </div>
-                    <div class="modal-body">
-                        @if (allAvailableSlots.Any())
-                        {
-                            <div class="mb-3">
-                                <label>Choose date:</label>
-                                <select class="form-select" value="@selectedDateString" @onchange="OnDateChanged">
-                                    <option value="">-- Choose date --</option>
-                                    @foreach (var day in allAvailableSlots.Select(s => s.Date).Distinct())
-                                    {
-                                        <option value="@day.ToString("yyyy-MM-dd")">@day.ToString("dddd, dd/MM/yyyy")</option>
-                                    }
-                                </select>
-                            </div>
+    @*     <div class="modal" *@
+    @*     style="z-index: 1050; display: block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);"> *@
+    @*         <div class="modal-dialog"> *@
+    @*             <div class="modal-content"> *@
+    @*                 <div class="modal-header"> *@
+    @*                     <h5 class="modal-title">Reschedule Appointment</h5> *@
+    @*                     <button type="button" class="btn-close" @onclick="CancelReschedule"></button> *@
+    @*                 </div> *@
+    @*                 <div class="modal-body"> *@
+    @*                     @if (allAvailableSlots.Any()) *@
+    @*                     { *@
+    @*                         <div class="mb-3"> *@
+    @*                             <label>Choose date:</label> *@
+    @*                             <select class="form-select" value="@selectedDateString" @onchange="OnDateChanged"> *@
+    @*                                 <option value="">-- Choose date --</option> *@
+    @*                                 @foreach (var day in allAvailableSlots.Select(s => s.Date).Distinct()) *@
+    @*                                 { *@
+    @*                                     <option value="@day.ToString("yyyy-MM-dd")">@day.ToString("dddd, dd/MM/yyyy")</option> *@
+    @*                                 } *@
+    @*                             </select> *@
+    @*                         </div> *@
 
-                            @if (availableSlotsInDay.Any())
-                            {
-                                <div class="mb-3">
-                                    <label>Choose time slot:</label>
-                                    <select class="form-select" @bind="selectedSlotString">
-                                        <option value="">-- Choose a slot --</option>
-                                        @foreach (var slot in availableSlotsInDay)
-                                        {
-                                            <option value="@slot.ToString("o")">
-                                                @slot.ToLocalTime().ToString("HH:mm") - @slot.AddMinutes(40).ToLocalTime().ToString("HH:mm")
-                                            </option>
-                                        }
-                                    </select>
-                                </div>
-                            }
-                            else if (!string.IsNullOrEmpty(selectedDateString))
-                            {
-                                <p class="text-danger">No available slots on selected day.</p>
-                            }
-                        }
-                        else
-                        {
-                            <p class="text-danger">No available slots found. Please try again later.</p>
-                        }
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" @onclick="CancelReschedule">Cancel</button>
-                        <button class="btn btn-primary"
-                        @onclick="ConfirmReschedule"
-                        disabled="@(string.IsNullOrEmpty(selectedSlotString))">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
+    @*                         @if (availableSlotsInDay.Any()) *@
+    @*                         { *@
+    @*                             <div class="mb-3"> *@
+    @*                                 <label>Choose time slot:</label> *@
+    @*                                 <select class="form-select" @bind="selectedSlotString"> *@
+    @*                                     <option value="">-- Choose a slot --</option> *@
+    @*                                     @foreach (var slot in availableSlotsInDay) *@
+    @*                                     { *@
+    @*                                         <option value="@slot.ToString("o")"> *@
+    @*                                             @slot.ToLocalTime().ToString("HH:mm") - @slot.AddMinutes(40).ToLocalTime().ToString("HH:mm") *@
+    @*                                         </option> *@
+    @*                                     } *@
+    @*                                 </select> *@
+    @*                             </div> *@
+    @*                         } *@
+    @*                         else if (!string.IsNullOrEmpty(selectedDateString)) *@
+    @*                         { *@
+    @*                             <p class="text-danger">No available slots on selected day.</p> *@
+    @*                         } *@
+    @*                     } *@
+    @*                     else *@
+    @*                     { *@
+    @*                         <p class="text-danger">No available slots found. Please try again later.</p> *@
+    @*                     } *@
+    @*                 </div> *@
+    @*                 <div class="modal-footer"> *@
+    @*                     <button class="btn btn-secondary" @onclick="CancelReschedule">Cancel</button> *@
+    @*                     <button class="btn btn-primary" *@
+    @*                     @onclick="ConfirmReschedule" *@
+    @*                     disabled="@(string.IsNullOrEmpty(selectedSlotString))">Confirm</button> *@
+    @*                 </div> *@
+    @*             </div> *@
+    @*         </div> *@
+    @*     </div> *@
+    @* } *@
 
 
 }
@@ -212,7 +212,7 @@ else
     private List<AppointmentDTO>? appointments;
     private List<AppointmentDTO> filteredAppointments = new();
     private AppointmentDTO? nextAppointment;
-    private AppointmentDTO? reschedulingAppointment;
+    // private AppointmentDTO? reschedulingAppointment;
 
     private List<UserDTO>? consultants;
 
@@ -314,56 +314,56 @@ else
 
 
 
-    private async void StartReschedule(AppointmentDTO appt)
-    {
-        reschedulingAppointment = appt;
-        autoSelectConsultant = false;
-        selectedDateString = null;
-        selectedSlotString = null;
-        availableSlotsInDay.Clear();
-        await GenerateAvailableSlots();
-    }
+    // private async void StartReschedule(AppointmentDTO appt)
+    // {
+    //     reschedulingAppointment = appt;
+    //     autoSelectConsultant = false;
+    //     selectedDateString = null;
+    //     selectedSlotString = null;
+    //     availableSlotsInDay.Clear();
+    //     await GenerateAvailableSlots();
+    // }
 
-    private void CancelReschedule()
-    {
-        reschedulingAppointment = null;
-    }
+    // private void CancelReschedule()
+    // {
+    //     reschedulingAppointment = null;
+    // }
 
-    private async Task ConfirmReschedule()
-    {
-        if (reschedulingAppointment == null || string.IsNullOrEmpty(selectedSlotString))
-            return;
+    // private async Task ConfirmReschedule()
+    // {
+    //     if (reschedulingAppointment == null || string.IsNullOrEmpty(selectedSlotString))
+    //         return;
 
-        var newDateUtc = DateTime.Parse(selectedSlotString).ToUniversalTime();
+    //     var newDateUtc = DateTime.Parse(selectedSlotString).ToUniversalTime();
 
-        var consultantAppointments = await AppointmentService.GetAppointmentsForConsultantAsync(reschedulingAppointment.ConsultantId);
+    //     var consultantAppointments = await AppointmentService.GetAppointmentsForConsultantAsync(reschedulingAppointment.ConsultantId);
 
-        bool slotTaken = consultantAppointments.Any(a =>
-            a.AppointmentId != reschedulingAppointment.AppointmentId &&
-            a.Status != "Cancel" &&
-            newDateUtc < a.AppointmentDate.AddMinutes(40) &&
-            a.AppointmentDate < newDateUtc.AddMinutes(40));
+    //     bool slotTaken = consultantAppointments.Any(a =>
+    //         a.AppointmentId != reschedulingAppointment.AppointmentId &&
+    //         a.Status != "Cancel" &&
+    //         newDateUtc < a.AppointmentDate.AddMinutes(40) &&
+    //         a.AppointmentDate < newDateUtc.AddMinutes(40));
 
-        if (slotTaken)
-        {
-            await JS.InvokeVoidAsync("alert", "Consultant already has an appointment at this time.");
-            return;
-        }
+    //     if (slotTaken)
+    //     {
+    //         await JS.InvokeVoidAsync("alert", "Consultant already has an appointment at this time.");
+    //         return;
+    //     }
 
-        var updated = await AppointmentService.RescheduleAppointmentAsync(reschedulingAppointment.AppointmentId, newDateUtc);
+    //     var updated = await AppointmentService.RescheduleAppointmentAsync(reschedulingAppointment.AppointmentId, newDateUtc);
 
-        if (updated)
-        {
-            await JS.InvokeVoidAsync("alert", "Reschedule successful!");
-            reschedulingAppointment.AppointmentDate = newDateUtc;
-            reschedulingAppointment = null;
-            ApplyFilter();
-        }
-        else
-        {
-            await JS.InvokeVoidAsync("alert", "Reschedule failed.");
-        }
-    }
+    //     if (updated)
+    //     {
+    //         await JS.InvokeVoidAsync("alert", "Reschedule successful!");
+    //         reschedulingAppointment.AppointmentDate = newDateUtc;
+    //         reschedulingAppointment = null;
+    //         ApplyFilter();
+    //     }
+    //     else
+    //     {
+    //         await JS.InvokeVoidAsync("alert", "Reschedule failed.");
+    //     }
+    // }
 
 
     private async Task GenerateAvailableSlots()

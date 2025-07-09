@@ -70,9 +70,10 @@
                 }
             </button>
 
-            <a href="https://docs.google.com/forms/d/1B5D9HmpeqaLFPhCVAKgrESUhrUndYZvL2Jpq0fzr7Uc/edit" class="btn">Edit Survey before campaign</a>
-            <a href="https://docs.google.com/forms/d/1yuuH_Z6OvJK-fOdL7vJH_wf3bkwG7lTT_-qvgWTN0No/edit" class="btn">Edit Survey after campaign</a>
-            <a href="https://docs.google.com/spreadsheets/d/1OuSVpHf3uKSlDQ_5URN_AEE45YRXw6vKPVbLXcEZFiI/edit?resourcekey=&gid=996327744#gid=996327744" class="btn">Answer Report</a>
+         
+            <a href="https://docs.google.com/forms/d/1B5D9HmpeqaLFPhCVAKgrESUhrUndYZvL2Jpq0fzr7Uc/edit" class="btn">Edit Survey before campaign</a> 
+             <a href="https://docs.google.com/forms/d/1yuuH_Z6OvJK-fOdL7vJH_wf3bkwG7lTT_-qvgWTN0No/edit" class="btn">Edit Survey after campaign</a> 
+             <a href="https://docs.google.com/spreadsheets/d/1OuSVpHf3uKSlDQ_5URN_AEE45YRXw6vKPVbLXcEZFiI/edit?resourcekey=&gid=996327744#gid=996327744" class="btn">Answer Report</a>
         </div>
     </div>
 
@@ -105,7 +106,7 @@
                     <th>Location</th>
                     <th>Introduction</th>
                     <th>Staff Name</th>
-                    <th>Image</th> @* NEW: Image Column Header *@
+                    <th>Image</th> @* Image Column Header *@
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -131,7 +132,7 @@
                         <td>@campaign.Location</td>
                         <td>@(campaign.Introduction?.Length > 100 ? campaign.Introduction.Substring(0, 100) + "..." : campaign.Introduction)</td>
                         <td>@campaign.Staff?.Username</td>
-                        <td> @* NEW: Image Column Cell *@
+                        <td> @* Image Column Cell *@
                             @if (!string.IsNullOrEmpty(campaign.ImageUrl))
                             {
                                 <img src="@campaign.ImageUrl" alt="Campaign Image" class="table-campaign-image" />
@@ -238,27 +239,7 @@
                 </select>
             </div>
 
-            @* NEW: Image Upload Section *@
-            <div class="mb-3">
-                <label class="form-label">Campaign Image</label>
-                <InputFile OnChange="HandleFileSelection" accept="image/*" class="form-control" />
-                @if (!string.IsNullOrEmpty(imagePreviewUrl))
-                {
-                    <div class="image-preview mt-2">
-                        <img src="@imagePreviewUrl" alt="Image Preview" class="img-thumbnail" />
-                    </div>
-                }
-                else if (!string.IsNullOrEmpty(campaignToEdit.ImageUrl))
-                {
-                    <div class="image-preview mt-2">
-                        <img src="@campaignToEdit.ImageUrl" alt="Current Image" class="img-thumbnail" />
-                    </div>
-                }
-                else
-                {
-                    <div class="no-image-placeholder mt-2">No Image Selected</div>
-                }
-            </div>
+           
 
             <div>
                 <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
@@ -305,9 +286,9 @@
     private bool showEditForm = false;
     private bool isNewCampaign = false;
 
-    // NEW: Image Upload Properties
-    private IBrowserFile? selectedImageFile;
-    private string? imagePreviewUrl;
+    // REMOVED: Image Upload Properties
+    // private IBrowserFile? selectedImageFile;
+    // private string? imagePreviewUrl;
 
     private IEnumerable<CampaignDTO> PaginatedCampaigns =>
         filteredCampaigns?
@@ -334,14 +315,7 @@
         {
             Console.WriteLine("CampaignManagement: OnInitializedAsync: Starting data load.");
 
-            // Check if this is the initial load without the cache-busting parameter
-            var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-            if (!currentUri.Query.Contains("t="))
-            {
-                Console.WriteLine("CampaignManagement: OnInitializedAsync: Initial load without cache-busting parameter. Forcing hard reload.");
-                PerformHardReload();
-                return; // Exit to prevent further initialization on this "old" load
-            }
+           
 
             await LoadAllDataAsync();
             FilterAndSortCampaigns();
@@ -378,7 +352,7 @@
         if (campaigns != null && campaigns.Any())
         {
             var wwwrootPath = WebHostEnvironment.WebRootPath;
-            var imagesPath = Path.Combine(wwwrootPath, "images");
+            var imagesPath = Path.Combine(wwwrootPath, "images", "Campaigns");
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
             Console.WriteLine($"CampaignManagement: LoadAllDataAsync: wwwrootPath: {wwwrootPath}");
             Console.WriteLine($"CampaignManagement: LoadAllDataAsync: imagesPath: {imagesPath}");
@@ -395,7 +369,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            campaign.ImageUrl = $"images/{potentialFileName}";
+                            campaign.ImageUrl = $"images/Campaigns/{potentialFileName}";
                             Console.WriteLine($"CampaignManagement: LoadAllDataAsync: Found image for CampaignId {campaign.CampaignId}: {campaign.ImageUrl}");
                             imageFound = true;
                             break;
@@ -404,7 +378,10 @@
                     if (!imageFound)
                     {
                         Console.WriteLine($"CampaignManagement: LoadAllDataAsync: No image found for CampaignId {campaign.CampaignId} in {imagesPath}");
+                        campaign.ImageUrl = ""; // Ensure it's empty if no image is found
                     }
+                } else {
+                    campaign.ImageUrl = ""; // Ensure it's empty if CampaignId is null/empty
                 }
 
                 // Also calculate duration during load for all campaigns
@@ -555,8 +532,8 @@
     {
         Console.WriteLine("CampaignManagement: AddCampaign: Initializing for new campaign creation.");
         validationMessage = string.Empty;
-        selectedImageFile = null; // Clear selected image
-        imagePreviewUrl = null; // Clear image preview
+        // selectedImageFile = null; // REMOVED
+        // imagePreviewUrl = null; // REMOVED
 
         campaignToEdit = new CampaignDTO
         {
@@ -580,8 +557,8 @@
     {
         Console.WriteLine($"CampaignManagement: EditCampaign: Attempting to edit campaign with ID: {campaignId}");
         validationMessage = string.Empty;
-        selectedImageFile = null; // Clear selected image
-        imagePreviewUrl = null; // Clear image preview
+        // selectedImageFile = null; // REMOVED
+        // imagePreviewUrl = null; // REMOVED
 
         var campaign = campaigns?.FirstOrDefault(c => c.CampaignId == campaignId);
         if (campaign != null)
@@ -610,51 +587,7 @@
         }
     }
 
-    // NEW: Handle file selection for image upload
-    private async Task HandleFileSelection(InputFileChangeEventArgs e)
-    {
-        Console.WriteLine("CampaignManagement: HandleFileSelection: File selection initiated.");
-        validationMessage = string.Empty;
-        selectedImageFile = e.File;
-
-        if (selectedImageFile != null)
-        {
-            Console.WriteLine($"CampaignManagement: HandleFileSelection: Selected file: {selectedImageFile.Name}, Type: {selectedImageFile.ContentType}, Size: {selectedImageFile.Size} bytes.");
-            // Limit file size (e.g., 5MB)
-            if (selectedImageFile.Size > 5 * 1024 * 1024)
-            {
-                validationMessage = "File size too large. Maximum 5MB allowed.";
-                selectedImageFile = null;
-                imagePreviewUrl = null;
-                Console.WriteLine("CampaignManagement: HandleFileSelection: File size exceeded 5MB. Clearing selection and preview.");
-                StateHasChanged();
-                return;
-            }
-
-            try
-            {
-                // Generate a temporary URL for preview
-                var imageBytes = new byte[selectedImageFile.Size];
-                await selectedImageFile.OpenReadStream().ReadAsync(imageBytes);
-                imagePreviewUrl = $"data:{selectedImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
-                Console.WriteLine("CampaignManagement: HandleFileSelection: Image preview URL generated successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"CampaignManagement: HandleFileSelection: Error generating image preview: {ex.Message}");
-                validationMessage = $"Error generating image preview: {ex.Message}";
-                imagePreviewUrl = null;
-            }
-            StateHasChanged();
-        }
-        else
-        {
-            imagePreviewUrl = null;
-            Console.WriteLine("CampaignManagement: HandleFileSelection: No file selected or selection cleared.");
-            StateHasChanged();
-        }
-    }
-
+    
     private async Task SaveCampaign()
     {
         Console.WriteLine("CampaignManagement: SaveCampaign: Starting save process.");
@@ -717,74 +650,7 @@
 
         try
         {
-            // Handle image upload before saving campaign data
-            if (selectedImageFile != null)
-            {
-                Console.WriteLine("CampaignManagement: SaveCampaign: Image file selected. Starting image upload process.");
-                var wwwrootPath = WebHostEnvironment.WebRootPath;
-                var imagesPath = Path.Combine(wwwrootPath, "images");
-                Console.WriteLine($"CampaignManagement: SaveCampaign: wwwrootPath: {wwwrootPath}");
-                Console.WriteLine($"CampaignManagement: SaveCampaign: imagesPath: {imagesPath}");
-
-                if (!Directory.Exists(imagesPath))
-                {
-                    Directory.CreateDirectory(imagesPath);
-                    Console.WriteLine($"CampaignManagement: SaveCampaign: Created images directory at: {imagesPath}");
-                }
-                else
-                {
-                    Console.WriteLine($"CampaignManagement: SaveCampaign: Images directory already exists at: {imagesPath}");
-                }
-
-                var fileExtension = Path.GetExtension(selectedImageFile.Name);
-                var newFileName = $"{campaignToEdit.CampaignId}{fileExtension}";
-                var filePath = Path.Combine(imagesPath, newFileName);
-                Console.WriteLine($"CampaignManagement: SaveCampaign: New image filename: {newFileName}");
-                Console.WriteLine($"CampaignManagement: SaveCampaign: Full target file path: {filePath}");
-
-                // Delete existing image with any extension if it exists for this CampaignId
-                Console.WriteLine($"CampaignManagement: SaveCampaign: Checking for existing image for CampaignId {campaignToEdit.CampaignId} to delete...");
-                foreach (var ext in new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" })
-                {
-                    var existingFilePath = Path.Combine(imagesPath, $"{campaignToEdit.CampaignId}{ext}");
-                    if (System.IO.File.Exists(existingFilePath))
-                    {
-                        System.IO.File.Delete(existingFilePath);
-                        Console.WriteLine($"CampaignManagement: SaveCampaign: Deleted existing image file: {existingFilePath}");
-                    }
-                }
-                Console.WriteLine("CampaignManagement: SaveCampaign: Finished checking and deleting old images.");
-
-                // Save the new file
-                Console.WriteLine($"CampaignManagement: SaveCampaign: Attempting to save new image to: {filePath}");
-                try
-                {
-                    await using FileStream fs = new(filePath, FileMode.Create);
-                    await selectedImageFile.OpenReadStream().CopyToAsync(fs);
-                    Console.WriteLine($"CampaignManagement: SaveCampaign: Image successfully saved to: {filePath}");
-                }
-                catch (Exception fileEx)
-                {
-                    Console.WriteLine($"CampaignManagement: SaveCampaign: ERROR during file stream copy: {fileEx.Message}");
-                    validationMessage = $"Error saving image file: {fileEx.Message}";
-                    return; // Stop the save process if image saving fails
-                }
-
-                // Update the ImageUrl in the DTO with the relative path for display
-                campaignToEdit.ImageUrl = $"images/{newFileName}";
-                Console.WriteLine($"CampaignManagement: SaveCampaign: campaignToEdit.ImageUrl set to: {campaignToEdit.ImageUrl}");
-            }
-            else if (isNewCampaign)
-            {
-                // If it's a new campaign and no image is selected, ensure ImageUrl is empty/null
-                campaignToEdit.ImageUrl = "";
-                Console.WriteLine("CampaignManagement: SaveCampaign: No image selected for new campaign. ImageUrl set to empty.");
-            }
-            else
-            {
-                // If it's an existing campaign and no new image is selected, keep the existing ImageUrl
-                Console.WriteLine("CampaignManagement: SaveCampaign: No new image selected for existing campaign. Keeping existing ImageUrl.");
-            }
+          
 
             if (isNewCampaign)
             {
@@ -805,8 +671,8 @@
             FilterAndSortCampaigns();
             showEditForm = false;
             GoToPage(1);
-            selectedImageFile = null; // Clear selected file
-            imagePreviewUrl = null; // Clear preview
+            // selectedImageFile = null; // REMOVED
+            // imagePreviewUrl = null; // REMOVED
             Console.WriteLine("CampaignManagement: SaveCampaign: Save process complete. Form reset.");
         }
         catch (Exception ex)
@@ -820,8 +686,7 @@
     {
         Console.WriteLine("CampaignManagement: CancelEdit: Cancelling edit/add operation.");
         validationMessage = string.Empty;
-        selectedImageFile = null; // Clear selected image
-        imagePreviewUrl = null; // Clear image preview
+      
         campaignToEdit = new CampaignDTO
         {
             CampaignId = "",
@@ -860,23 +725,7 @@
                 if (success)
                 {
                     Console.WriteLine($"CampaignManagement: Campaign '{campaignToDelete.Title}' (ID: {campaignId}) deleted successfully.");
-                    // Delete the associated image file from wwwroot/images
-                    var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images");
-                    var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
-                    Console.WriteLine($"CampaignManagement: DeleteCampaign: Checking for associated image file for CampaignId {campaignId} in {imagesPath}...");
-
-                    foreach (var ext in supportedExtensions)
-                    {
-                        var potentialFilePath = Path.Combine(imagesPath, $"{campaignId}{ext}");
-                        if (System.IO.File.Exists(potentialFilePath))
-                        {
-                            System.IO.File.Delete(potentialFilePath);
-                            Console.WriteLine($"CampaignManagement: DeleteCampaign: Deleted image file: {potentialFilePath}");
-                            break;
-                        }
-                    }
-                    Console.WriteLine("CampaignManagement: DeleteCampaign: Finished checking and deleting associated image.");
+                  
 
                     // Refresh data after successful deletion
                     Console.WriteLine("CampaignManagement: DeleteCampaign: Reloading all data after deletion...");
@@ -909,14 +758,4 @@
         };
     }
 
-    // NEW: Method to force a hard reload of the current page
-    private void PerformHardReload()
-    {
-        // Get the current URI without any existing query parameters
-        var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        // Append a unique timestamp to bust the cache
-        var newUri = $"{currentUri.GetLeftPart(UriPartial.Path)}?t={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-        Console.WriteLine($"CampaignManagement: PerformHardReload: Forcing hard reload to: {newUri}");
-        NavigationManager.NavigateTo(newUri, forceLoad: true);
-    }
 }

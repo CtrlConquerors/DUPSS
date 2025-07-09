@@ -239,7 +239,7 @@
                 if (!string.IsNullOrEmpty(course.CourseId))
                 {
                     var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images");
+                    var imagesPath = Path.Combine(wwwrootPath, "images", "Courses");
                     var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
 
                     foreach (var ext in supportedExtensions)
@@ -249,7 +249,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            course.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL
+                            course.ImageUrl = $"images/Courses/{potentialFileName}"; // Set the relative URL
                             break;
                         }
                     }

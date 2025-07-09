@@ -176,7 +176,7 @@
                 if (!string.IsNullOrEmpty(fetchedCourse.CourseId))
                 {
                     var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images");
+                    var imagesPath = Path.Combine(wwwrootPath, "images", "Courses");
                     var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
 
                     foreach (var ext in supportedExtensions)
@@ -186,7 +186,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            fetchedCourse.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL
+                            fetchedCourse.ImageUrl = $"images/Courses/{potentialFileName}"; // Set the relative URL
                             break;
                         }
                     }
@@ -196,7 +196,7 @@
                 if (!string.IsNullOrEmpty(fetchedCourse.Consultant.UserId))
                 {
                     var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images"); // Assuming consultant images are also in wwwroot/images
+                    var imagesPath = Path.Combine(wwwrootPath, "images", "Users"); // Assuming consultant images are also in wwwroot/images
                     var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
 
                     foreach (var ext in supportedExtensions)
@@ -206,7 +206,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            fetchedCourse.Consultant.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL
+                            fetchedCourse.Consultant.ImageUrl = $"images/Users/{potentialFileName}"; // Set the relative URL
                             break;
                         }
                     }

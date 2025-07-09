@@ -119,7 +119,7 @@
                     <th>Staff Name</th>
                     <th>Consultant Name</th>
                     <th>Description</th>
-                    <th>Image</th> @* NEW: Image Column Header *@
+                    <th>Image</th> 
                     <th>Action</th>
                 </tr>
                 </thead>
@@ -289,27 +289,7 @@
                 </select>
             </div>
 
-            @* Image Upload Section - NEW *@
-            <div class="mb-3">
-                <label class="form-label">Course Image</label>
-                <InputFile OnChange="HandleFileSelection" accept="image/*" class="form-control" />
-                @if (!string.IsNullOrEmpty(imagePreviewUrl))
-                {
-                    <div class="image-preview mt-2">
-                        <img src="@imagePreviewUrl" alt="Image Preview" class="img-thumbnail" />
-                    </div>
-                }
-                else if (!string.IsNullOrEmpty(courseToEdit.ImageUrl))
-                {
-                    <div class="image-preview mt-2">
-                        <img src="@courseToEdit.ImageUrl" alt="Current Image" class="img-thumbnail" />
-                    </div>
-                }
-                else
-                {
-                    <div class="no-image-placeholder mt-2">No Image Selected</div>
-                }
-            </div>
+           
 
 
             <div>
@@ -358,9 +338,7 @@
     private bool showNewTopicInput = false; // Controls visibility of new topic input
     private string newTopicName = string.Empty; // Binds to the new topic input field
 
-    // Image Upload Properties - NEW
-    private IBrowserFile? selectedImageFile;
-    private string? imagePreviewUrl; // Used to display the selected image before saving
+ 
 
     private List<CourseDTO> filteredCourses = new List<CourseDTO>();
 
@@ -389,14 +367,7 @@
         {
             Console.WriteLine("OnInitializedAsync: Starting data load.");
 
-            // Check if this is the initial load without the cache-busting parameter
-            var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-            if (!currentUri.Query.Contains("t="))
-            {
-                Console.WriteLine("OnInitializedAsync: Initial load without cache-busting parameter. Forcing hard reload.");
-                PerformHardReload();
-                return; // Exit to prevent further initialization on this "old" load
-            }
+          
 
             await LoadAllDataAsync(); // Consolidated data loading
             FilterAndSortCourses(); // Apply initial filter and sort
@@ -424,13 +395,14 @@
         Console.WriteLine($"LoadAllDataAsync: Fetched {courses?.Count ?? 0} courses.");
 
         // After fetching courses, try to find their corresponding images in wwwroot/images
+        // THIS SECTION IS KEPT TO POPULATE ImageUrl FOR DISPLAY
         if (courses != null && courses.Any())
         {
-            var wwwrootPath = WebHostEnvironment.WebRootPath;
-            var imagesPath = Path.Combine(wwwrootPath, "images");
+            var wwwrootPath = WebHostEnvironment.WebRootPath; // RE-ENABLED
+            var imagesPath = Path.Combine(wwwrootPath, "images", "Courses"); // RE-ENABLED
             var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" }; // Common image extensions
-            Console.WriteLine($"LoadAllDataAsync: wwwrootPath: {wwwrootPath}");
-            Console.WriteLine($"LoadAllDataAsync: imagesPath: {imagesPath}");
+            Console.WriteLine($"LoadAllDataAsync: wwwrootPath: {wwwrootPath}"); // RE-ENABLED
+            Console.WriteLine($"LoadAllDataAsync: imagesPath: {imagesPath}"); // RE-ENABLED
 
             foreach (var course in courses)
             {
@@ -445,7 +417,7 @@
 
                         if (System.IO.File.Exists(fullPath))
                         {
-                            course.ImageUrl = $"images/{potentialFileName}"; // Set the relative URL for display
+                            course.ImageUrl = $"images/Courses/{potentialFileName}"; // Set the relative URL for display
                             Console.WriteLine($"LoadAllDataAsync: Found image for CourseId {course.CourseId}: {course.ImageUrl}");
                             imageFound = true;
                             break; // Found the image, no need to check other extensions
@@ -454,7 +426,10 @@
                     if (!imageFound)
                     {
                         Console.WriteLine($"LoadAllDataAsync: No image found for CourseId {course.CourseId} in {imagesPath}");
+                        course.ImageUrl = ""; // Ensure it's empty if no image is found
                     }
+                } else {
+                    course.ImageUrl = ""; // Ensure it's empty if CourseId is null/empty
                 }
             }
         }
@@ -638,8 +613,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null; // Clear selected image
-        imagePreviewUrl = null; // Clear image preview
+        
 
         courseToEdit = new CourseDTO
         {
@@ -663,8 +637,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null; // Clear selected image
-        imagePreviewUrl = null; // Clear image preview
+        
 
         var course = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (course != null)
@@ -777,50 +750,7 @@
         }
     }
 
-    // NEW: Handle file selection for image upload
-    private async Task HandleFileSelection(InputFileChangeEventArgs e)
-    {
-        Console.WriteLine("HandleFileSelection: File selection initiated.");
-        validationMessage = string.Empty;
-        selectedImageFile = e.File;
-
-        if (selectedImageFile != null)
-        {
-            Console.WriteLine($"HandleFileSelection: Selected file: {selectedImageFile.Name}, Type: {selectedImageFile.ContentType}, Size: {selectedImageFile.Size} bytes.");
-            // Limit file size (e.g., 5MB)
-            if (selectedImageFile.Size > 5 * 1024 * 1024)
-            {
-                validationMessage = "File size too large. Maximum 5MB allowed.";
-                selectedImageFile = null;
-                imagePreviewUrl = null;
-                Console.WriteLine("HandleFileSelection: File size exceeded 5MB. Clearing selection and preview.");
-                StateHasChanged();
-                return;
-            }
-
-            try
-            {
-                // Generate a temporary URL for preview
-                var imageBytes = new byte[selectedImageFile.Size];
-                await selectedImageFile.OpenReadStream().ReadAsync(imageBytes);
-                imagePreviewUrl = $"data:{selectedImageFile.ContentType};base64,{Convert.ToBase64String(imageBytes)}";
-                Console.WriteLine("HandleFileSelection: Image preview URL generated successfully.");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"HandleFileSelection: Error generating image preview: {ex.Message}");
-                validationMessage = $"Error generating image preview: {ex.Message}";
-                imagePreviewUrl = null;
-            }
-            StateHasChanged();
-        }
-        else
-        {
-            imagePreviewUrl = null;
-            Console.WriteLine("HandleFileSelection: No file selected or selection cleared.");
-            StateHasChanged();
-        }
-    }
+   
 
     private async Task SaveCourse()
     {
@@ -903,80 +833,7 @@
 
         try
         {
-            // Handle image upload before saving course data
-            if (selectedImageFile != null)
-            {
-                Console.WriteLine("SaveCourse: Image file selected. Starting image upload process.");
-                var wwwrootPath = WebHostEnvironment.WebRootPath;
-                var imagesPath = Path.Combine(wwwrootPath, "images");
-                Console.WriteLine($"SaveCourse: wwwrootPath: {wwwrootPath}");
-                Console.WriteLine($"SaveCourse: imagesPath: {imagesPath}");
-
-                // Ensure the directory exists
-                if (!Directory.Exists(imagesPath))
-                {
-                    Directory.CreateDirectory(imagesPath);
-                    Console.WriteLine($"SaveCourse: Created images directory at: {imagesPath}");
-                }
-                else
-                {
-                    Console.WriteLine($"SaveCourse: Images directory already exists at: {imagesPath}");
-                }
-
-                // Get file extension
-                var fileExtension = Path.GetExtension(selectedImageFile.Name);
-                // Construct new file name based on CourseId (e.g., C0001.png)
-                var newFileName = $"{courseToEdit.CourseId}{fileExtension}";
-                var filePath = Path.Combine(imagesPath, newFileName);
-                Console.WriteLine($"SaveCourse: New image filename: {newFileName}");
-                Console.WriteLine($"SaveCourse: Full target file path: {filePath}");
-
-                // Delete existing image with any extension if it exists for this CourseId
-                Console.WriteLine($"SaveCourse: Checking for existing image for CourseId {courseToEdit.CourseId} to delete...");
-                foreach (var ext in new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" })
-                {
-                    var existingFilePath = Path.Combine(imagesPath, $"{courseToEdit.CourseId}{ext}");
-                    if (System.IO.File.Exists(existingFilePath))
-                    {
-                        System.IO.File.Delete(existingFilePath);
-                        Console.WriteLine($"SaveCourse: Deleted existing image file: {existingFilePath}");
-                    }
-                }
-                Console.WriteLine("SaveCourse: Finished checking and deleting old images.");
-
-                // Save the new file
-                Console.WriteLine($"SaveCourse: Attempting to save new image to: {filePath}");
-                try
-                {
-                    await using FileStream fs = new(filePath, FileMode.Create);
-                    await selectedImageFile.OpenReadStream().CopyToAsync(fs);
-                    Console.WriteLine($"SaveCourse: Image successfully saved to: {filePath}");
-                }
-                catch (Exception fileEx)
-                {
-                    Console.WriteLine($"SaveCourse: ERROR during file stream copy: {fileEx.Message}");
-                    validationMessage = $"Error saving image file: {fileEx.Message}";
-                    // Re-throw or handle as appropriate if you want to stop the course save
-                    // throw;
-                    return; // Stop the save process if image saving fails
-                }
-
-
-                // Update the ImageUrl in the DTO with the relative path for display
-                courseToEdit.ImageUrl = $"images/{newFileName}";
-                Console.WriteLine($"SaveCourse: courseToEdit.ImageUrl set to: {courseToEdit.ImageUrl}");
-            }
-            else if (isNewCourse)
-            {
-                // If it's a new course and no image is selected, ensure ImageUrl is empty/null
-                courseToEdit.ImageUrl = "";
-                Console.WriteLine("SaveCourse: No image selected for new course. ImageUrl set to empty.");
-            }
-            // If it's an existing course and no new image is selected, keep the existing ImageUrl
-            else
-            {
-                Console.WriteLine("SaveCourse: No new image selected for existing course. Keeping existing ImageUrl.");
-            }
+         
 
             if (isNewCourse)
             {
@@ -997,8 +854,7 @@
             FilterAndSortCourses();
             showEditForm = false;
             GoToPage(1); // Go back to the first page
-            selectedImageFile = null; // Clear selected file
-            imagePreviewUrl = null; // Clear preview
+           
             Console.WriteLine("SaveCourse: Save process complete. Form reset.");
         }
         catch (Exception ex)
@@ -1014,8 +870,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        selectedImageFile = null; // Clear selected image
-        imagePreviewUrl = null; // Clear image preview
+      
         courseToEdit = new CourseDTO
         {
             CourseId = "",
@@ -1054,26 +909,7 @@
                 if (success)
                 {
                     Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseId}) deleted successfully.");
-                    // Optional: Delete the associated image file from wwwroot/images
-                    // Find and delete any image file matching the CourseId, regardless of extension
-                    var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images");
-                    var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
-                    Console.WriteLine($"DeleteCourse: Checking for associated image file for CourseId {courseId} in {imagesPath}...");
-
-                    foreach (var ext in supportedExtensions)
-                    {
-                        var potentialFilePath = Path.Combine(imagesPath, $"{courseId}{ext}");
-                        if (System.IO.File.Exists(potentialFilePath))
-                        {
-                            System.IO.File.Delete(potentialFilePath);
-                            Console.WriteLine($"DeleteCourse: Deleted image file: {potentialFilePath}");
-                            break; // Assuming only one image per course ID
-                        }
-                    }
-                    Console.WriteLine("DeleteCourse: Finished checking and deleting associated image.");
-
-                    // Refresh data after successful deletion
+                  
                     Console.WriteLine("DeleteCourse: Reloading all data after deletion...");
                     await LoadAllDataAsync(); // Reload all data including courses
                     FilterAndSortCourses();
@@ -1095,14 +931,5 @@
         }
     }
 
-    // NEW: Method to force a hard reload of the current page
-    private void PerformHardReload()
-    {
-        // Get the current URI without any existing query parameters
-        var currentUri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
-        // Append a unique timestamp to bust the cache
-        var newUri = $"{currentUri.GetLeftPart(UriPartial.Path)}?t={DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}";
-        Console.WriteLine($"PerformHardReload: Forcing hard reload to: {newUri}");
-        NavigationManager.NavigateTo(newUri, forceLoad: true);
-    }
+  
 }

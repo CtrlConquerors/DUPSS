@@ -15,22 +15,17 @@
     ]
   },
   {
-    "Name": "WPF",
+    "Name": "test",
     "Projects": [
       {
         "Path": "DUPSS.API\\DUPSS.API.csproj",
-        "Action": "StartWithoutDebugging",
-        "DebugTarget": "wpf"
+        "Action": "Start",
+        "DebugTarget": "test"
       },
       {
         "Path": "DUPSS.Web\\DUPSS.Web.csproj",
-        "Action": "StartWithoutDebugging",
-        "DebugTarget": "wpf"
-      },
-      {
-        "Path": "DUPSS.App\\DUPSS.App.csproj",
         "Action": "Start",
-        "DebugTarget": "DUPSS.App"
+        "DebugTarget": "test"
       }
     ]
   }

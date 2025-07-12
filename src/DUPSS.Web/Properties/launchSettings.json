@@ -19,7 +19,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "wpf": {
+    "test": {
       "commandName": "Project",
       "dotnetRunMessages": false,
       "launchBrowser": false,

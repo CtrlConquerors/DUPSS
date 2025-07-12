@@ -60,25 +60,19 @@
     private async Task HandleLogin()
     {
         errorMessage = null;
-        Console.WriteLine($"Login attempt: Email={email}");
         try
         {
             await AuthStateProvider.LoginAsync(email, password);
-            Console.WriteLine("Navigating to /");
             message = "Login Successfully";
-            StateHasChanged();          // Force UI to update immediately
-            await Task.Yield();         // Yield control back to renderer
-            await Task.Delay(2000);
+            await Task.Delay(2000); // Keep delay for user feedback
             NavigationManager.NavigateTo("/", forceLoad: true);
         }
-        catch (HttpRequestException ex)
+        catch (HttpRequestException)
         {
-            // Network or API unreachable
             errorMessage = "Unable to reach the server. Please check your network connection.";
         }
         catch (UnauthorizedAccessException)
         {
-            // Custom: thrown for invalid credentials
             errorMessage = "Invalid email or password.";
         }
         catch (Exception ex)

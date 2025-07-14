@@ -88,7 +88,10 @@
     color: #1976d2;
     margin-bottom: 0.5em;
 }
-
+.recommendation-text{
+    font-weight:bold;
+    font-size: 1.6rem;
+}
 .question-text {
     font-size: 1.15rem;
     color: #222;
@@ -200,7 +203,19 @@
         color: #b3c6e6;
         cursor: not-allowed;
     }
+.primary-button:hover:not(:disabled),
+.primary-button:focus-visible:not(:disabled) {
+    background: #1251a3;
+    color: #fff;
+    box-shadow: 0 4px 16px 0 rgba(25, 118, 210, 0.13);
+}
 
+.secondary-button:hover:not(:disabled),
+.secondary-button:focus-visible:not(:disabled) {
+    background: #c7d2ee;
+    color: #1251a3;
+    box-shadow: 0 4px 16px 0 rgba(25, 118, 210, 0.09);
+}
 .submit-button {
     background: #43a047;
     color: #fff;
@@ -229,8 +244,9 @@
 }
 
 .button-icon {
-    font-size: 1.2em;
+    font-size: 2em;
     margin-right: 2px;
+    font-weight:bold;
 }
 
 .assessment-footer {
@@ -272,7 +288,7 @@
     box-shadow: 0 4px 24px 0 rgba(60,72,88,0.10);
     padding: 32px 28px 24px 28px;
     width: 100%;
-    max-width: 480px;
+    max-width: 680px;
     margin: 40px auto 0 auto;
     text-align: center;
 }

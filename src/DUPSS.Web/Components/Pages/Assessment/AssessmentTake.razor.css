@@ -91,6 +91,7 @@
 .recommendation-text{
     font-weight:bold;
     font-size: 1.6rem;
+    text-align:justify;
 }
 .question-text {
     font-size: 1.15rem;
@@ -194,7 +195,7 @@
     }
 
 .secondary-button {
-    background: #e3e7f1;
+    background: white;
     color: #1976d2;
 }
 
@@ -245,7 +246,7 @@
 
 .button-icon {
     font-size: 2em;
-    margin-right: 2px;
+    margin-left: 30px;
     font-weight:bold;
 }
 
@@ -283,123 +284,135 @@
 }
 
 .results-container {
-    background: #fff;
-    border-radius: 18px;
-    box-shadow: 0 4px 24px 0 rgba(60,72,88,0.10);
-    padding: 32px 28px 24px 28px;
+    background: linear-gradient(135deg, #fafdff 0%, #f0f6ff 100%);
+    border: 1.5px solid #e3e7f1;
+    border-radius: 22px;
+    box-shadow: 0 8px 32px 0 rgba(60, 72, 120, 0.10), 0 1.5px 6px 0 rgba(60, 72, 120, 0.06);
+    padding: 44px 38px 32px 38px;
     width: 100%;
-    max-width: 680px;
-    margin: 40px auto 0 auto;
+    max-width: 700px;
+    margin: 48px auto 0 auto;
     text-align: center;
+    animation: resultFadeIn 0.7s cubic-bezier(.4,0,.2,1);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+@keyframes resultFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(32px);
+    }
+
+    to {
+        opacity: 1;
+        transform: none;
+    }
 }
 
 .results-header h2 {
-    color: #43a047;
-    font-size: 2rem;
-    font-weight: 700;
+    color: #2e7d32;
+    font-size: 2.3rem;
+    font-weight: 900;
+    margin-bottom: 0.2em;
+    letter-spacing: -1px;
 }
 
 .results-header h3 {
     color: #1976d2;
-    font-size: 1.2rem;
-    font-weight: 600;
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 18px;
 }
 
 .score-section {
-    margin: 18px 0 8px 0;
+    margin: 24px 0 12px 0;
 }
 
 .score-label {
     color: #888;
-    font-size: 1.1rem;
+    font-size: 1.13rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 
 .score-value {
-    font-size: 2.2rem;
-    font-weight: 700;
+    font-size: 2.5rem;
+    font-weight: 900;
     color: #1976d2;
-    margin-left: 8px;
+    margin-left: 12px;
+    letter-spacing: -1px;
+    vertical-align: middle;
+}
+
+.results-container hr {
+    border: none;
+    border-top: 1.5px solid #e0e7ff;
+    margin: 28px 0 24px 0;
 }
 
 .recommendation-section h4,
 .details-section h4 {
     color: #1976d2;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    font-size: 1.13rem;
+    font-weight: 800;
+    letter-spacing: 0.2px;
 }
 
 .recommendation-text,
 .score-details {
     color: #333;
-    font-size: 1.08rem;
-    margin-bottom: 10px;
+    font-size: 1.13rem;
+    margin-bottom: 12px;
+    font-weight: 500;
+    text-align: justify;
+    text-align:center;
 }
 
 .detail-item {
     background: #f4f7fb;
-    border-radius: 6px;
-    padding: 6px 10px;
-    margin-bottom: 4px;
+    border-radius: 8px;
+    padding: 8px 14px;
+    margin-bottom: 6px;
     text-align: left;
+    font-size: 1.05rem;
+    font-weight: 500;
+    border-left: 4px solid #6366f1;
+    box-shadow: 0 1.5px 6px 0 rgba(60,72,120,0.04);
 }
 
 .completion-info {
     color: #888;
-    font-size: 0.98rem;
-    margin-top: 10px;
+    font-size: 1.01rem;
+    margin-top: 16px;
+    font-weight: 600;
 }
 
 .results-actions {
     display: flex;
     justify-content: center;
-    gap: 16px;
-    margin-top: 18px;
+    gap: 22px;
+    margin-top: 32px;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(30, 34, 50, 0.25);
-    z-index: 1000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+    .results-actions .primary-button,
+    .results-actions .secondary-button {
+        min-width: 180px;
+        font-size: 1.13rem;
+        font-weight: 700;
+        padding: 12px 0;
+        box-shadow: 0 2px 8px 0 rgba(60,72,88,0.10);
+        border-radius: 10px;
+    }
 
-.modal-content {
-    background: #fff;
-    border-radius: 14px;
-    box-shadow: 0 4px 24px 0 rgba(60,72,88,0.18);
-    padding: 32px 28px 24px 28px;
-    min-width: 320px;
-    max-width: 90vw;
-}
-
-.modal-header h3 {
-    color: #d32f2f;
-    font-size: 1.3rem;
-    font-weight: 700;
-}
-
-.modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 18px;
-}
-
-@media (max-width: 600px) {
-    .take-assessment-container,
-    .results-container,
-    .question-card,
-    .modal-content {
-        padding: 16px 4px;
+@media (max-width: 700px) {
+    .results-container {
+        padding: 18px 4vw 18px 4vw;
         max-width: 98vw;
     }
 
-    .assessment-header {
-        margin-bottom: 18px;
+    .results-actions {
+        flex-direction: column;
+        gap: 12px;
     }
 }

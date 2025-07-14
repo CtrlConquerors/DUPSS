@@ -55,7 +55,9 @@ else
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">Assessment Details</h5>
-                    <button type="button" class="btn-close" @onclick="() => selectedResult = null"></button>
+                    <button type="button" class="btn-close" @onclick="() => selectedResult = null" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
                 </div>
                 <div class="modal-body">
                     <p><strong>Assessment:</strong> @selectedResult.AssessmentId</p>

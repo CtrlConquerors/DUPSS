@@ -214,19 +214,27 @@ h2 {
 }
 
 .btn-close {
-    background: none;
+    background: transparent;
     border: none;
-    font-size: 1.7rem;
+    font-size: 2rem;
     color: #888;
     cursor: pointer;
-    transition: color 0.15s;
+    transition: color 0.15s, background 0.15s;
     border-radius: 6px;
-    padding: 2px 8px;
+    padding: 0 8px;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 36px;
 }
 
-    .btn-close:hover {
+    .btn-close:hover, .btn-close:focus {
         color: #d32f2f;
         background: #ffeaea;
+        outline: none;
+        border-radius:200px;
     }
 
 .modal-body {

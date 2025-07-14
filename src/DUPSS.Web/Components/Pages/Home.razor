@@ -24,7 +24,7 @@
     </section>
 
     <div class="row ">
-        <div class="col-md-3 blog-topics">
+        <div class="col-md-3 blog-topics fade-in-on-scroll">
             <h5 class="fw-semibold mb-5" style="color: #1b6ec2">Blog Topics</h5>
             @if (isLoadingBlogTopics)
             {
@@ -51,7 +51,7 @@
             }
         </div>
 
-        <div class="col-md-9 blog-card">
+        <div class="col-md-9 blog-card fade-in-on-scroll">
             <h6 class="text-primary mb-3">Trending Topics</h6>
             <div class="d-flex flex-column gap-5 ">
 
@@ -104,7 +104,7 @@
     </div>
 
 
-    <section class="new-hero-section">
+    <section class="new-hero-section fade-in-on-scroll">
         <div class="container new-hero-container">
             <h1 class="typewrite">
                 @*put letter r to enable effect*@
@@ -141,7 +141,7 @@
     </section>
 
 
-    <div class="subscribe-container">
+    <div class="subscribe-container fade-in-on-scroll">
         <div class="left">
             <h4>Stay up to date</h4>
             <h2>Get Started</h2>
@@ -204,6 +204,7 @@
         if (firstRender)
         {
             await JS.InvokeVoidAsync("initCarousel");
+            await JS.InvokeVoidAsync("initFadeInOnScroll");
         }
     }
     

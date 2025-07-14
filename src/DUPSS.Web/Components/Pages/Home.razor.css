@@ -26,6 +26,7 @@ body {
     background: white;
     border: 1px solid #f8f9fa;
     border-radius: 10px;
+    margin-top:100px;
 }
 
 .subscribe-container .left {
@@ -725,6 +726,7 @@ body {
     overflow: hidden;
     margin-bottom: 50px;
     border-radius: 100px;
+    margin-top:100px;
 }
 
     .new-hero-section .new-hero-container h1 {
@@ -1040,3 +1042,15 @@ body {
         margin-bottom: 24px;
     }
 }
+
+.fade-in-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 1s cubic-bezier(.4,0,.2,1), transform 1s cubic-bezier(.4,0,.2,1);
+    will-change: opacity, transform;
+}
+
+    .fade-in-on-scroll.visible {
+        opacity: 1;
+        transform: none;
+    }

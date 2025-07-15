@@ -15,7 +15,7 @@
                 <div class="profile-welcome">Welcome, @user?.Username</div>
                 <div class="profile-date">@DateTime.Now</div>
             </div>
-            <button class="profile-edit-btn" @onclick="() => isEdit = !isEdit">Edit</button>
+            <button class="profile-edit-btn" @onclick="ToggleEdit">@((isEdit ? "Cancel" : "Edit"))</button>
         </div>
         <div class="profile-content">
             <div class="profile-user-info">
@@ -39,28 +39,61 @@
             <div class="profile-fields">
                 <div class="profile-fields-col">
                     <label>Full Name</label>
-                    <input disabled value="@user?.Username" />
-                    <label>Number of Course Enrollment</label>
-                    <input disabled value="@enrollments?.Count()" />
-                    <label>Language</label>
-                    <input disabled value="English" />
+                    @if (isEdit)
+                    {
+                        <input @bind="userEdit.Username" />
+                    }
+                    else
+                    {
+                        <input disabled value="@user?.Username" />
+                    }
                     <label>My email Address</label>
                     <div class="profile-email-box">
                         <span class="profile-email-icon"><i class="fas fa-envelope"></i></span>
-                        <span>@user?.Email</span>
+                        @if (isEdit)
+                        {
+                            <input @bind="userEdit.Email" />
+                        }
+                        else
+                        {
+                            <span>@user?.Email</span>
+                        }
                         <span class="profile-email-date">@user?.CreatedDate.ToString("MMMM yyyy")</span>
                     </div>
                     <button class="profile-add-email-btn" disabled>+ Add Email Address</button>
                 </div>
                 <div class="profile-fields-col">
                     <label>Phone Number</label>
-                    <input disabled value="@user?.PhoneNumber" />
+                    @if (isEdit)
+                    {
+                        <input @bind="userEdit.PhoneNumber" />
+                    }
+                    else
+                    {
+                        <input disabled value="@user?.PhoneNumber" />
+                    }
                     <label>Birthday</label>
-                    <input disabled value="@user?.DoB" />
+                    @if (isEdit)
+                    {
+                        <input type="date" @bind="userEdit.DoB" />
+                    }
+                    else
+                    {
+                        <input disabled value="@user?.DoB" />
+                    }
                     <label>Time Zone</label>
                     <input disabled value="@timeZoneDisplay" />
                 </div>
             </div>
+
+            @if (isEdit)
+            {
+                <button class="btn btn-success mt-3" @onclick="SaveProfile">Save</button>
+                @if (!string.IsNullOrEmpty(editMessage))
+                {
+                    <div class="alert alert-info mt-2">@editMessage</div>
+                }
+            }
 
             <hr />
 
@@ -153,7 +186,9 @@
 
 @code {
     private UserDTO? user;
+    private UserDTO? userEdit;
     private bool isEdit = false;
+    private string editMessage = string.Empty;
     private DateTime currentTime = DateTime.Now;
     private Timer? timer;
     private string timeZoneDisplay = "UTC+0";
@@ -172,6 +207,10 @@
         {
             var users = await UserApiService.GetAllAsync();
             user = users.FirstOrDefault(u => u.Username == username);
+            if (user != null)
+            {
+                userEdit = CloneUser(user);
+            }
         }
 
         // Fetch course enrollments for this user
@@ -204,6 +243,48 @@
         var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.Now);
         var sign = offset.TotalHours >= 0 ? "+" : "-";
         timeZoneDisplay = $"UTC{sign}{offset:hh\\:mm}";
+    }
+
+    private void ToggleEdit()
+    {
+        isEdit = !isEdit;
+        editMessage = string.Empty;
+        if (isEdit && user != null)
+        {
+            userEdit = CloneUser(user);
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        if (userEdit == null) return;
+        try
+        {
+            var updatedUser = await UserApiService.UpdateAsync(userEdit);
+            user = updatedUser;
+            isEdit = false;
+            editMessage = "Profile updated successfully!";
+        }
+        catch (Exception ex)
+        {
+            editMessage = $"Error updating profile: {ex.Message}";
+        }
+    }
+
+    private UserDTO CloneUser(UserDTO source)
+    {
+        return new UserDTO
+        {
+            UserId = source.UserId,
+            Username = source.Username,
+            DoB = source.DoB,
+            PhoneNumber = source.PhoneNumber,
+            Email = source.Email,
+            ImageUrl = source.ImageUrl,
+            RoleId = source.RoleId,
+            CreatedDate = source.CreatedDate,
+            Password = source.Password
+        };
     }
 
     public void Dispose()

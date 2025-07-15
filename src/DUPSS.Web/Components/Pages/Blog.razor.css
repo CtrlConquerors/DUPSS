@@ -1,4 +1,4 @@
-﻿/* === CAMPAIGN PAGE STYLES === */
+﻿/* === BLOG PAGE STYLES === */
 
 .blog-page-container {
     max-width: 1200px;
@@ -130,6 +130,23 @@
         opacity: 0.6;
         cursor: not-allowed;
     }
+.blog-status {
+    display: inline-block;
+    padding: 0.18em 0.75em;
+    font-size: 0.95em;
+    font-weight: 600;
+    color: #2563eb;
+    background: #e6f0ff;
+    border-radius: 999px;
+    border: 1.5px solid #2563eb;
+    letter-spacing: 0.02em;
+    margin-bottom: 6px;
+    margin-right: 8px;
+    vertical-align: middle;
+    box-shadow: 0 1px 4px #2563eb22;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
 /* Glassmorphism style for filters container */
 .filters-container {
     display: flex;

@@ -36,16 +36,15 @@
             <div class="blog-hero-image" style="background-image: url('@(blog.ImageUrl ?? "https://placehold.co/1200x400/F0F0F0/000000?text=Blog+Image")');"></div>
             <div class="blog-hero-title">
                 <span class="title-letters">
-                    @foreach (var c in blog.Title)
+                    @foreach (var word in blog.Title.Split(' '))
                     {
-                        if (c == ' ')
-                        {
-                            <span class="title-letter" style="width:0.4em;display:inline-block;"> </span>
-                        }
-                        else
-                        {
-                            <span class="title-letter">@c</span>
-                        }
+                        <span class="title-word">
+                            @foreach (var c in word)
+                            {
+                                <span class="title-letter">@c</span>
+                            }
+                        </span>
+                        <span> </span>
                     }
                 </span>
                 <div class="blog-hero-meta">

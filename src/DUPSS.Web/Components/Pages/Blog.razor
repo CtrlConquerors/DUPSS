@@ -64,7 +64,7 @@
                     </div>
                     <div class="card-content">
                         <h3 class="blog-name">@item.Title</h3>
-                        <p class="blog-status">Topic: @(item.BlogTopic?.BlogTopicName ?? "-")</p>
+                        <p class="blog-status">@(item.BlogTopic?.BlogTopicName ?? "-")</p>
                         <p>@(item.Content.Length > 100 ? item.Content.Substring(0, 100) + "..." : item.Content)</p>
                     </div>
                 </div>

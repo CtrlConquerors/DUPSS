@@ -297,6 +297,15 @@
             text-decoration: underline;
         }
 
+.btn-link {
+    text-decoration: none !important;
+}
+
+    .btn-link:hover,
+    .btn-link:focus {
+        text-decoration: underline !important;
+    }
+
 @media (max-width: 900px) {
     .profile-main-card {
         padding: 0 0 24px 0;

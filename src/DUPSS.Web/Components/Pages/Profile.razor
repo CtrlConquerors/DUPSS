@@ -6,6 +6,7 @@
 @inject CourseEnrollApiService CourseEnrollApiService
 @inject CampaignRegistrationApiService CampaignRegistrationApiService
 @inject CampaignApiService CampaignApiService
+@inject AssessmentApiService AssessmentApiService
 @inject JwtAuthenticationStateProvider AuthStateProvider
 
 <div class="profile-bg">
@@ -140,6 +141,50 @@
             </div>
 
             <div class="profile-section-collapse">
+                <button class="profile-collapse-btn" @onclick="() => showAssessmentHistory = !showAssessmentHistory">
+                    <span>@(showAssessmentHistory ? "▼" : "►")</span> My Assessment Histories
+                </button>
+                <div class="profile-collapse-content @(showAssessmentHistory ? "expanded" : "")">
+                    @if (assessmentHistories is null)
+                    {
+                        <div>Loading...</div>
+                    }
+                    else if (!assessmentHistories.Any())
+                    {
+                        <div>No history was found.</div>
+                    }
+                    else
+                    {
+                        <table class="profile-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Assessment</th>
+                                    <th>Score</th>
+                                    <th>Recommendation</th>
+                                    <th>Details</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var result in assessmentHistories)
+                                {
+                                    <tr>
+                                        <td>@result.CompletedOn?.ToString("yyyy-MM-dd")</td>
+                                        <td>@result.AssessmentId</td>
+                                        <td>@result.TotalScore</td>
+                                        <td>@((MarkupString)(result.Recommendation?.Replace(". ", ". <br />") ?? ""))</td>
+                                        <td>
+                                            <button class="btn btn-link" @onclick="() => ShowDetails(result)">View</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                </div>
+            </div>
+
+            <div class="profile-section-collapse">
                 <button class="profile-collapse-btn" @onclick="() => showCampaigns = !showCampaigns">
                     <span>@(showCampaigns ? "▼" : "►")</span> My Campaign Participations
                 </button>
@@ -194,8 +239,11 @@
     private string timeZoneDisplay = "UTC+0";
     private List<CourseEnrollDTO>? enrollments;
     private List<CampaignDTO>? campaigns;
+    private List<AssessmentResultDTO>? assessmentHistories;
+    private AssessmentResultDTO? selectedResult;
     private bool showCourses = false;
     private bool showCampaigns = false;
+    private bool showAssessmentHistory = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -229,6 +277,10 @@
                 .Select(r => allCampaigns.FirstOrDefault(c => c.CampaignId == r.CampaignId))
                 .Where(c => c != null)
                 .ToList()!;
+
+
+            //Fetch assessment histories for this user
+            assessmentHistories = await AssessmentApiService.GetResultsByMemberAsync(userId);
         }
 
         timer = new Timer(1000); // 1 second interval
@@ -290,5 +342,9 @@
     public void Dispose()
     {
         timer?.Dispose();
+    }
+    private void ShowDetails(AssessmentResultDTO result)
+    {
+        selectedResult = result;
     }
 }

@@ -13,5 +13,9 @@ namespace DUPSS.Web.Components.Service
         {
             _httpClient = httpClient;
         }
+        public async Task<int> GetCountAsync()
+        {
+            return await _httpClient.GetFromJsonAsync<int>("api/Blogs/Count");
+        }
     }
 }

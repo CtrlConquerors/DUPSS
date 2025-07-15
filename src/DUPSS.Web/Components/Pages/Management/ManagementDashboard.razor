@@ -8,6 +8,7 @@
 @inject UserApiService UserApiService
 @inject CourseApiService CourseApiService
 @inject CourseEnrollApiService CourseEnrollApiService
+@inject BlogApiService BlogApiService
 @layout ManagementLayout
 @inject IJSRuntime JS
 
@@ -175,7 +176,7 @@ else
                     <div class="profile-expanded-content">
                         <p><b>Email:</b> @currentUser.Email</p>
                         <p><b>Phone:</b> @(string.IsNullOrEmpty(currentUser.PhoneNumber) ? "N/A" : currentUser.PhoneNumber)</p>
-                        <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>
+                        <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>vl
                         <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p>
                         <p><b>Role:</b> @currentUser.Role?.RoleName</p>
                     </div>
@@ -271,9 +272,10 @@ else
     private int totalAllAppointments;
     private int totalCampaigns;
     private int totalCourses;
+    private int totalBlogs;
     private int totalUsers;
     private List<int> appointmentsPerDay = new();
-    private string growthDisplay = "+0.0%";
+    private string growthDisplay = "Loading";
     private CourseDTO? topCourse;
     private UserDTO? currentUser;
     private int topCourseEnrollments = 0;
@@ -293,12 +295,13 @@ else
 
     private List<DashboardCard> dashboardCards = new()
     {
-        new DashboardCard { BootstrapIcon = "bi-people-fill", IconBg = "bg-blue", Title = "Users", Value = "Loading..." },
-        new DashboardCard { BootstrapIcon = "bi-calendar-check-fill", IconBg = "bg-green", Title = "Appointments", Value = "Loading..." },
-        new DashboardCard { BootstrapIcon = "bi-megaphone-fill", IconBg = "bg-yellow", Title = "Campaigns", Value = "Loading..." },
-        // new DashboardCard { BootstrapIcon = "bi-bell-fill", IconBg = "bg-purple", Title = "Notifications", Value = "5" },
-        new DashboardCard { BootstrapIcon = "bi-journal-bookmark-fill", IconBg = "bg-green", Title = "Courses", Value = "Loading..." },
-        new DashboardCard { BootstrapIcon = "bi-mortarboard-fill", IconBg = "bg-blue", Title = "Enrollments", Value = "Loading..." }
+            new DashboardCard { BootstrapIcon = "bi-people-fill", IconBg = "bg-blue", Title = "Users", Value = "Loading..." },
+            new DashboardCard { BootstrapIcon = "bi-calendar-check-fill", IconBg = "bg-green", Title = "Appointments", Value = "Loading..." },
+            new DashboardCard { BootstrapIcon = "bi-megaphone-fill", IconBg = "bg-yellow", Title = "Campaigns", Value = "Loading..." },
+            new DashboardCard { BootstrapIcon = "bi-journal-bookmark-fill", IconBg = "bg-purple", Title = "Courses", Value = "Loading..." },
+            new DashboardCard { BootstrapIcon = "bi-mortarboard-fill", IconBg = "bg-orange", Title = "Enrollments", Value = "Loading..." },
+            new DashboardCard { BootstrapIcon = "bi-journal-richtext", IconBg = "bg-red", Title = "Blogs", Value = "Loading..." }
+
     };
 
     protected override async Task OnInitializedAsync()
@@ -322,7 +325,13 @@ else
         {
             usersCard.Value = totalUsers.ToString();
         }
-
+        // Fetch total blog count
+            int totalBlogs = await BlogApiService.GetCountAsync();
+            var blogsCard = dashboardCards.FirstOrDefault(c => c.Title == "Blogs");
+            if (blogsCard != null)
+            {
+                blogsCard.Value = totalBlogs.ToString();
+            }
         // Efficient course count
         totalCourses = await CourseApiService.GetCountAsync();
         var coursesCard = dashboardCards.FirstOrDefault(c => c.Title == "Courses");
@@ -388,6 +397,7 @@ else
             // Count users registered in each month
             int usersThisMonth = allUsers.Count(u => u.CreatedDate >= thisMonth);
             int usersLastMonth = allUsers.Count(u => u.CreatedDate >= lastMonth && u.CreatedDate < thisMonth);
+
 
             // Calculate growth percentage
             double growthPercent = usersLastMonth == 0

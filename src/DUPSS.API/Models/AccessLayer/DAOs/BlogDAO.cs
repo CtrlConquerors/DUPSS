@@ -63,7 +63,10 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 })
                 .FirstOrDefaultAsync();
         }
-
+        public async Task<int> CountAsync()
+        {
+            return await _context.Blog.CountAsync();
+        }
         public async Task<List<BlogDTO>> GetAllAsync()
         {
             return await _context.Blog

@@ -71,7 +71,19 @@ namespace DUPSS.API.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
+        [HttpGet("Count")]
+        public async Task<ActionResult<int>> GetCount()
+        {
+            try
+            {
+                var count = await _blogDAO.CountAsync();
+                return Ok(count);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
         [HttpPut("Update")]
         public async Task<ActionResult<BlogDTO>> Update([FromBody] BlogDTO blogDto)
         {

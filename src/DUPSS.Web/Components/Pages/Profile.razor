@@ -182,29 +182,7 @@
                             </tbody>
                         </table>
                     }
-                    @if (selectedResult != null)
-                    {
-                        <div class="modal show d-block" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Assessment Details</h5>
-                                        <button type="button" class="btn-close" @onclick="() => selectedResult = null" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <p><strong>Assessment:</strong> @selectedResult.AssessmentId</p>
-                                        <p><strong>Date:</strong> @selectedResult.CompletedOn?.ToString("yyyy-MM-dd")</p>
-                                        <p><strong>Score:</strong> @selectedResult.TotalScore</p>
-                                        <p><strong>Recommendation:</strong><br /> @((MarkupString)(selectedResult.Recommendation?.Replace(". ", ". <br />") ?? ""))</p>
-                                        <p><strong>Details:</strong></p>
-                                        <pre>@FormatScoreDetails(selectedResult.ScoreDetails)</pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
+                    
                 </div>
             </div>
 
@@ -252,7 +230,29 @@
         </div>
     </div>
 </div>
-
+@if (selectedResult != null)
+{
+    <div class="profile-modal-overlay">
+        <div class="profile-modal-dialog">
+            <div class="profile-modal-content">
+                <div class="profile-modal-header">
+                    <h5 class="profile-modal-title">Assessment Details</h5>
+                    <button type="button" class="profile-modal-close" @onclick="() => selectedResult = null" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="profile-modal-body">
+                    <p><strong>Assessment:</strong> @selectedResult.AssessmentId</p>
+                    <p><strong>Date:</strong> @selectedResult.CompletedOn?.ToString("yyyy-MM-dd")</p>
+                    <p><strong>Score:</strong> @selectedResult.TotalScore</p>
+                    <p><strong>Recommendation:</strong><br /> @((MarkupString)(selectedResult.Recommendation?.Replace(". ", ". <br />") ?? ""))</p>
+                    <p><strong>Details:</strong></p>
+                    <pre>@FormatScoreDetails(selectedResult.ScoreDetails)</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 @code {
     private UserDTO? user;
     private UserDTO? userEdit;

@@ -761,9 +761,9 @@
 
                         var substanceRecommendation = substanceScore switch
                         {
-                            <= 10 => "Low risk: Brief education recommended.",
-                            <= 26 => "Moderate risk: Brief intervention recommended.",
-                            _ => "High risk: Referral to treatment recommended."
+                            <= 10 => "Low risk: Reading blogs recommended.",
+                            <= 26 => "Moderate risk: Reading blogs and enroll courses recommended.",
+                            _ => "High risk: Reading blogs, enroll courses and make an appointment recommended."
                         };
                         recommendations.Add($"{substance}: {substanceRecommendation}");
                     }
@@ -789,7 +789,15 @@
                         totalScore += answer.ScoreValue;
                         scoreDetails.Add($"{question.QuestionId}: {answer.Answer}");
                     }
-                    recommendations.Add(totalScore >= 2 ? "Further evaluation recommended." : "Low risk.");
+                    var recommendationString = totalScore switch
+                    {
+                        0 => "No risk: No further action needed.",
+                        1 => "Low risk: Reading blogs recommended.",
+                        _ => "Moderate to high risk: Reading blogs, enrolling in courses, and making an appointment recommended."
+                    };
+                    
+                    recommendations.Add(recommendationString);
+                    
                     break;
             }
 

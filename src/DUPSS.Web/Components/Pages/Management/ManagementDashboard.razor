@@ -10,9 +10,13 @@
 @inject CourseEnrollApiService CourseEnrollApiService
 @inject BlogApiService BlogApiService
 @layout ManagementLayout
+@using System.Text
 @inject IJSRuntime JS
 
 <h1>Management Dashboard</h1>
+<button class="btn btn-primary mb-3" @onclick="ExportDashboardReport">
+    <i class="bi bi-download"></i> Export Report
+</button>
 @if (userName == null)
 {
     <p>Loading...</p>
@@ -424,8 +428,38 @@ else
                 int completed = top.Count(e => e.Status == "Completed");
                 topCourseCompletionRate = topCourseEnrollments > 0 ? (completed * 100.0 / topCourseEnrollments) : 0.0;
             }
-    }
 
+    }
+    private async Task ExportDashboardReport()
+    {
+        string Quote(string value) =>
+            value.Contains(",") ? $"\"{value}\"" : value;
+
+        var csv = new StringBuilder();
+        csv.AppendLine("Metric,Value");
+        csv.AppendLine($"{Quote("Total Users")},{Quote(totalUsers.ToString())}");
+        csv.AppendLine($"{Quote("User Growth This Month")},{Quote(growthDisplay)}");
+        csv.AppendLine($"{Quote("Total Appointments")},{Quote(totalAllAppointments.ToString())}");
+        csv.AppendLine($"{Quote("Appointments (Last 7 Days)")},{Quote(totalAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("- Completed")},{Quote(completedAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("- Scheduled")},{Quote(scheduledAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("- Pending")},{Quote(pendingAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("- Finished")},{Quote(finishedAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("- Cancelled")},{Quote(cancelledAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("- Declined")},{Quote(declinedAppointments7d.ToString())}");
+        csv.AppendLine($"{Quote("Total Courses")},{Quote(totalCourses.ToString())}");
+        csv.AppendLine($"{Quote("Total Enrollments")},{Quote(totalCourseEnrollments.ToString())}");
+        csv.AppendLine($"{Quote("Total Campaigns")},{Quote(totalCampaigns.ToString())}");
+        if (topCourse != null)
+        {
+            csv.AppendLine($"{Quote("Top Course")},{Quote(topCourse.CourseName)}");
+            csv.AppendLine($"{Quote("Top Course Enrollments")},{Quote(topCourseEnrollments.ToString())}");
+            csv.AppendLine($"{Quote("Top Course Completion Rate")},{Quote($"{topCourseCompletionRate:F1}%")}");
+        }
+        csv.AppendLine($"{Quote("System Usage")},{Quote($"{systemUsagePercent}%")}");
+
+        await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv.ToString());
+    }
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (firstRender)

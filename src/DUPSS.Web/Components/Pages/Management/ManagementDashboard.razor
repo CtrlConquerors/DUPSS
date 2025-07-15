@@ -330,7 +330,7 @@ else
             usersCard.Value = totalUsers.ToString();
         }
         // Fetch total blog count
-            int totalBlogs = await BlogApiService.GetCountAsync();
+            totalBlogs = await BlogApiService.GetCountAsync();
             var blogsCard = dashboardCards.FirstOrDefault(c => c.Title == "Blogs");
             if (blogsCard != null)
             {
@@ -431,47 +431,95 @@ else
 
     }
 
-    private async Task ExportDashboardReport()
+private async Task ExportDashboardReport()
 {
+    // Helper for quoting values with commas/hyphens
     string Quote(string value)
     {
-        // Prefix hyphens with tab to prevent Excel formula interpretation
         if (value.StartsWith("-"))
-        {
             value = "\t" + value;
-        }
         return value.Contains(",") ? $"\"{value}\"" : value;
     }
+    
+    // Get breakdown by role
+    var allUsers = await UserApiService.GetAllAsync();
+    int adminCount = allUsers.Count(u => u.RoleId == "AD");
+    int staffCount = allUsers.Count(u => u.RoleId == "ST");
+    int consultantCount = allUsers.Count(u => u.RoleId == "CS" || u.RoleId == "CO");
+    int memberCount = allUsers.Count(u => u.RoleId == "MB");
 
+    // Get campaign status breakdown
+    var allCampaigns = await CampaignApiService.GetAllAsync();
+    int activeCampaigns = allCampaigns.Count(c => c.Status == "Active");
+    int completedCampaigns = allCampaigns.Count(c => c.Status == "Completed");
+
+    // Get top 3 courses by enrollments
+    var allCourses = await CourseApiService.GetAllAsync();
+    var allEnrollments = await CourseEnrollApiService.GetAllAsync();
+    var topCourses = allEnrollments
+        .GroupBy(e => e.CourseId)
+        .OrderByDescending(g => g.Count())
+        .Take(3)
+        .Select(g => new
+        {
+            Course = allCourses.FirstOrDefault(c => c.CourseId == g.Key),
+            Enrollments = g.Count(),
+            CompletionRate = g.Count() > 0 ? (g.Count(e => e.Status == "Completed") * 100.0 / g.Count()) : 0.0
+        })
+        .ToList();
+
+    // Fix: Remove trailing commas in section headers, use clear labels, and ensure all values are quoted
     var lines = new List<string>
     {
-        "Metric,Value",
-        $"{Quote("Total Users")},{Quote(totalUsers.ToString())}",
-        $"{Quote("User Growth This Month")},{Quote(growthDisplay)}",
-        $"{Quote("Total Appointments")},{Quote(totalAllAppointments.ToString())}",
-        $"{Quote("Appointments (Last 7 Days)")},{Quote(totalAppointments7d.ToString())}",
-        $"{Quote("- Completed")},{Quote(completedAppointments7d.ToString())}",
-        $"{Quote("- Scheduled")},{Quote(scheduledAppointments7d.ToString())}",
-        $"{Quote("- Pending")},{Quote(pendingAppointments7d.ToString())}",
-        $"{Quote("- Finished")},{Quote(finishedAppointments7d.ToString())}",
-        $"{Quote("- Cancelled")},{Quote(cancelledAppointments7d.ToString())}",
-        $"{Quote("- Declined")},{Quote(declinedAppointments7d.ToString())}",
-        $"{Quote("Total Courses")},{Quote(totalCourses.ToString())}",
-        $"{Quote("Total Enrollments")},{Quote(totalCourseEnrollments.ToString())}",
-        $"{Quote("Total Campaigns")},{Quote(totalCampaigns.ToString())}"
+        "User Metrics",
+        $"Total Users,{Quote(totalUsers.ToString())}",
+        $"Admins,{Quote(adminCount.ToString())}",
+        $"Staff,{Quote(staffCount.ToString())}",
+        $"Consultants,{Quote(consultantCount.ToString())}",
+        $"Members,{Quote(memberCount.ToString())}",
+        $"User Growth This Month,{Quote(growthDisplay)}",
+        "",
+        "Course Metrics",
+        $"Total Courses,{Quote(totalCourses.ToString())}",
+        $"Total Enrollments,{Quote(totalCourseEnrollments.ToString())}",
+        $"Top Course,{Quote(topCourse?.CourseName ?? "N/A")}",
+        $"Top Course Enrollments,{Quote(topCourseEnrollments.ToString())}",
+        $"Top Course Completion Rate,{Quote($"{topCourseCompletionRate:F1}%")}",
     };
 
-    if (topCourse != null)
+    for (int i = 0; i < topCourses.Count; i++)
     {
-        lines.Add($"{Quote("Top Course")},{Quote(topCourse.CourseName)}");
-        lines.Add($"{Quote("Top Course Enrollments")},{Quote(topCourseEnrollments.ToString())}");
-        lines.Add($"{Quote("Top Course Completion Rate")},{Quote($"{topCourseCompletionRate:F1}%")}");
+        var tc = topCourses[i];
+        lines.Add($"Top {i + 1} Course,{Quote(tc.Course?.CourseName ?? "N/A")}");
+        lines.Add($"Top {i + 1} Enrollments,{Quote(tc.Enrollments.ToString())}");
+        lines.Add($"Top {i + 1} Completion Rate,{Quote($"{tc.CompletionRate:F1}%")}");
     }
 
-    var csv = string.Join("\r\n", lines); // Use CRLF for Excel compatibility
+    lines.AddRange(new[]
+    {
+        "",
+        "Appointment Metrics",
+        $"Total Appointments,{Quote(totalAllAppointments.ToString())}",
+        $"Appointments (Last 7 Days),{Quote(totalAppointments7d.ToString())}",
+        $"Completed,{Quote(completedAppointments7d.ToString())}",
+        $"Scheduled,{Quote(scheduledAppointments7d.ToString())}",
+        $"Pending,{Quote(pendingAppointments7d.ToString())}",
+        $"Finished,{Quote(finishedAppointments7d.ToString())}",
+        $"Cancelled,{Quote(cancelledAppointments7d.ToString())}",
+        $"Declined,{Quote(declinedAppointments7d.ToString())}",
+        "",
+        "Campaign Metrics",
+        $"Total Campaigns,{Quote(totalCampaigns.ToString())}",
+        $"Active Campaigns,{Quote(activeCampaigns.ToString())}",
+        $"Completed Campaigns,{Quote(completedCampaigns.ToString())}",
+        "",
+        "Other Metrics",
+        $"Total Blogs,{Quote(totalBlogs.ToString())}"
+    });
+
+    var csv = string.Join("\r\n", lines);
     await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv);
 }
-
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (firstRender)

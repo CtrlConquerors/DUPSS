@@ -11,13 +11,7 @@
 @inject IWebHostEnvironment WebHostEnvironment
 
 @* Custom Message Box for alerts/confirms instead of alert() *@
-@if (!string.IsNullOrEmpty(message))
-{
-    <div class="alert @messageCssClass alert-dismissible fade show" role="alert">
-        @message
-        <button type="button" class="btn-close" @onclick="ClearMessage" aria-label="Close"></button>
-    </div>
-}
+
 
 
 @if (campaign == null)
@@ -70,6 +64,14 @@ else
         </div>
     </div>
 
+
+    @if (!string.IsNullOrEmpty(message))
+    {
+        <div class="alert @messageCssClass alert-dismissible fade show" role="alert">
+            @message
+            <button type="button" class="btn-close" @onclick="ClearMessage" aria-label="Close"></button>
+        </div>
+    }
 
 
     @if (campaign.Status == "Active" || campaign.Status == "Planned")

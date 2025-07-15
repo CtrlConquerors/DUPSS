@@ -213,12 +213,28 @@ else
         if (success)
         {
             await JS.InvokeVoidAsync("alert", "Note saved successfully.");
+
+            var member = await UserApiService.GetUserByIdAsync(appt.MemberId);
+
+            // Gửi email cho member
+            if (member != null && !string.IsNullOrEmpty(member.Email))
+            {
+                var subject = $"New Note From Your Consultant";
+                var body = $"Hello {member.Username},\n\n" +
+                           $"Your consultant has added a new note for your appointment on " +
+                           $"{appt.AppointmentDate.ToLocalTime():dd/MM/yyyy HH:mm}.\n\n" +
+                           $"Note: {appt.Notes}\n\n" +
+                           $"Please remember to join the appointment on time."
+    ;
+                await EmailService.SendEmailAsync(member.Email, subject, body);
+            }
         }
         else
         {
             await JS.InvokeVoidAsync("alert", "Failed to save note.");
         }
     }
+
 
     private void ApplyFilter()
     {

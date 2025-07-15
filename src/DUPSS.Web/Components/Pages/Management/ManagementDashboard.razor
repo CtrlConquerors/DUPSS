@@ -430,10 +430,10 @@ else
             }
 
     }
+
     private async Task ExportDashboardReport()
     {
-        string Quote(string value) =>
-            value.Contains(",") ? $"\"{value}\"" : value;
+        string Quote(string value) => value.Contains(",") ? $"\"{value}\"" : value;
 
         var csv = new StringBuilder();
         csv.AppendLine("Metric,Value");
@@ -460,6 +460,7 @@ else
 
         await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv.ToString());
     }
+
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (firstRender)

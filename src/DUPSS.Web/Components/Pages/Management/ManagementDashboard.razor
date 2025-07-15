@@ -432,34 +432,38 @@ else
     }
 
     private async Task ExportDashboardReport()
+{
+    string Quote(string value) => value.Contains(",") ? $"\"{value}\"" : value;
+
+    var lines = new List<string>
     {
-        string Quote(string value) => value.Contains(",") ? $"\"{value}\"" : value;
-
-        var csv = new StringBuilder();
-        csv.AppendLine("Metric,Value");
-        csv.AppendLine($"{Quote("Total Users")},{Quote(totalUsers.ToString())}");
-        csv.AppendLine($"{Quote("User Growth This Month")},{Quote(growthDisplay)}");
-        csv.AppendLine($"{Quote("Total Appointments")},{Quote(totalAllAppointments.ToString())}");
-        csv.AppendLine($"{Quote("Appointments (Last 7 Days)")},{Quote(totalAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("- Completed")},{Quote(completedAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("- Scheduled")},{Quote(scheduledAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("- Pending")},{Quote(pendingAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("- Finished")},{Quote(finishedAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("- Cancelled")},{Quote(cancelledAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("- Declined")},{Quote(declinedAppointments7d.ToString())}");
-        csv.AppendLine($"{Quote("Total Courses")},{Quote(totalCourses.ToString())}");
-        csv.AppendLine($"{Quote("Total Enrollments")},{Quote(totalCourseEnrollments.ToString())}");
-        csv.AppendLine($"{Quote("Total Campaigns")},{Quote(totalCampaigns.ToString())}");
-        if (topCourse != null)
-        {
-            csv.AppendLine($"{Quote("Top Course")},{Quote(topCourse.CourseName)}");
-            csv.AppendLine($"{Quote("Top Course Enrollments")},{Quote(topCourseEnrollments.ToString())}");
-            csv.AppendLine($"{Quote("Top Course Completion Rate")},{Quote($"{topCourseCompletionRate:F1}%")}");
-        }
-        csv.AppendLine($"{Quote("System Usage")},{Quote($"{systemUsagePercent}%")}");
-
-        await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv.ToString());
+        "Metric,Value",
+        $"{Quote("Total Users")},{Quote(totalUsers.ToString())}",
+        $"{Quote("User Growth This Month")},{Quote(growthDisplay)}",
+        $"{Quote("Total Appointments")},{Quote(totalAllAppointments.ToString())}",
+        $"{Quote("Appointments (Last 7 Days)")},{Quote(totalAppointments7d.ToString())}",
+        $"{Quote("- Completed")},{Quote(completedAppointments7d.ToString())}",
+        $"{Quote("- Scheduled")},{Quote(scheduledAppointments7d.ToString())}",
+        $"{Quote("- Pending")},{Quote(pendingAppointments7d.ToString())}",
+        $"{Quote("- Finished")},{Quote(finishedAppointments7d.ToString())}",
+        $"{Quote("- Cancelled")},{Quote(cancelledAppointments7d.ToString())}",
+        $"{Quote("- Declined")},{Quote(declinedAppointments7d.ToString())}",
+        $"{Quote("Total Courses")},{Quote(totalCourses.ToString())}",
+        $"{Quote("Total Enrollments")},{Quote(totalCourseEnrollments.ToString())}",
+        $"{Quote("Total Campaigns")},{Quote(totalCampaigns.ToString())}"
+    };
+    if (topCourse != null)
+    {
+        lines.Add($"{Quote("Top Course")},{Quote(topCourse.CourseName)}");
+        lines.Add($"{Quote("Top Course Enrollments")},{Quote(topCourseEnrollments.ToString())}");
+        lines.Add($"{Quote("Top Course Completion Rate")},{Quote($"{topCourseCompletionRate:F1}%")}");
     }
+    
+
+    var csv = string.Join("\r\n", lines); // Use CRLF for Excel compatibility
+
+    await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv);
+}
 
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {

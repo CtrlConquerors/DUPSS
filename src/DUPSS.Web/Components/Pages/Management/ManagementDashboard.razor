@@ -433,7 +433,15 @@ else
 
     private async Task ExportDashboardReport()
 {
-    string Quote(string value) => value.Contains(",") ? $"\"{value}\"" : value;
+    string Quote(string value)
+    {
+        // Prefix hyphens with tab to prevent Excel formula interpretation
+        if (value.StartsWith("-"))
+        {
+            value = "\t" + value;
+        }
+        return value.Contains(",") ? $"\"{value}\"" : value;
+    }
 
     var lines = new List<string>
     {
@@ -452,16 +460,15 @@ else
         $"{Quote("Total Enrollments")},{Quote(totalCourseEnrollments.ToString())}",
         $"{Quote("Total Campaigns")},{Quote(totalCampaigns.ToString())}"
     };
+
     if (topCourse != null)
     {
         lines.Add($"{Quote("Top Course")},{Quote(topCourse.CourseName)}");
         lines.Add($"{Quote("Top Course Enrollments")},{Quote(topCourseEnrollments.ToString())}");
         lines.Add($"{Quote("Top Course Completion Rate")},{Quote($"{topCourseCompletionRate:F1}%")}");
     }
-    
 
     var csv = string.Join("\r\n", lines); // Use CRLF for Excel compatibility
-
     await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv);
 }
 

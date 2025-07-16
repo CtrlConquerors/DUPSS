@@ -7,7 +7,8 @@
 @inject UserApiService UserService
 @inject AppointmentApiService AppointmentService
 @inject EmailService EmailService
-
+<AuthorizeView Roles="AD,ST,MA,ME">
+    <Authorized>
 <h3>My appointment</h3>
 
 @if (nextAppointment != null)
@@ -207,7 +208,17 @@ else
 
 
 }
-
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     private List<AppointmentDTO>? appointments;
     private List<AppointmentDTO> filteredAppointments = new();

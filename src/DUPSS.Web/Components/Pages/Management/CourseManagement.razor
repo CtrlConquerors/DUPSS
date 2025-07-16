@@ -14,7 +14,8 @@
 
 @* We can nest AuthorizeView but make sure to add Context to the innerAuthorizeView *@
 @*Example below*@
-
+<AuthorizeView Roles="AD,ST,MA">
+    <Authorized>
 <div class="course-management-container">
     <div class="header-section">
         <h1 class="page-title">Course Management</h1>
@@ -299,7 +300,17 @@
         </div>
     }
 </div>
-
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     private List<CourseDTO>? courses;
     private List<CourseTopic>? topics;

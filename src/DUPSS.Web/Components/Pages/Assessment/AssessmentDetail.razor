@@ -1,8 +1,11 @@
 ﻿@page "/Assessment/Info/{AssessmentId}"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
+@using System.Security.Claims @* Added for AuthenticationStateProvider *@
 @inject AssessmentApiService AssessmentApiService
 @inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider 
+@inject IJSRuntime JSRuntime 
 
 <div class="assessment-info-container">
     @if (isLoading)
@@ -77,7 +80,7 @@
                 <div class="info-section">
                     <h2>About CRAFFT</h2>
                     <p>The CRAFFT is a validated screening tool designed to identify adolescents and young adults who may have a substance use disorder or are at risk of developing one.</p>
-                    
+
                     <h3>What CRAFFT Stands For:</h3>
                     <ul class="crafft-acronym">
                         <li><strong>C</strong> - Have you ever ridden in a CAR driven by someone (including yourself) who was "high" or had been using alcohol or drugs?</li>
@@ -94,7 +97,7 @@
                 <div class="info-section">
                     <h2>About ASSIST</h2>
                     <p>The Alcohol, Smoking and Substance Involvement Screening Test (ASSIST) was developed by the World Health Organization (WHO) to detect and manage substance use and related problems in primary and general medical care settings.</p>
-                    
+
                     <h3>What ASSIST Covers:</h3>
                     <ul class="assist-substances">
                         <li>Tobacco products</li>
@@ -130,6 +133,12 @@
             </div>
         </div>
 
+        @* Message display for login check *@
+        @if (!string.IsNullOrEmpty(infoMessage))
+        {
+            <div class="@infoMessageClass mt-3">@infoMessage</div>
+        }
+
         <div class="assessment-actions">
             <button class="btn-primary start-assessment" @onclick="StartAssessment">
                 <i class="icon-play"></i>
@@ -153,8 +162,19 @@
     private bool isLoading = true;
     private bool hasError = false;
 
+    // New state variables for login check and messages
+    private string? currentLoggedInUserId;
+    private string infoMessage = string.Empty;
+    private string infoMessageClass = string.Empty;
+
     protected override async Task OnInitializedAsync()
     {
+        // Fetch current logged-in user ID
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        currentLoggedInUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        Console.WriteLine($"[AssessmentDetail Page] Current User ID: {currentLoggedInUserId ?? "Not logged in"}");
+
         await LoadAssessmentAsync();
     }
 
@@ -188,9 +208,16 @@
         await LoadAssessmentAsync();
     }
 
-    private void StartAssessment()
+    private async Task StartAssessment() // Changed to async Task
     {
-        Console.WriteLine($"Starting assessment: AssessmentId={AssessmentId}");
+        // Check if the user is logged in
+        if (string.IsNullOrEmpty(currentLoggedInUserId))
+        {
+            await ShowInfoMessage("Authorization Required", "Please log in to take assessments.", "alert-danger");
+            return; // Stop execution if not logged in
+        }
+
+        Console.WriteLine($"Starting assessment: AssessmentId={AssessmentId} for User={currentLoggedInUserId}");
         NavigationManager.NavigateTo($"/Assessment/Take/{AssessmentId}", forceLoad: true);
     }
 
@@ -198,6 +225,18 @@
     {
         Console.WriteLine("Navigating back to /Assessment");
         NavigationManager.NavigateTo("/Assessment", forceLoad: true);
+    }
+
+    // Helper method to display temporary messages, similar to Assessment.razor
+    private async Task ShowInfoMessage(string title, string message, string cssClass)
+    {
+        infoMessage = message;
+        infoMessageClass = cssClass;
+        await JSRuntime.InvokeVoidAsync("console.log", $"{title}: {message}");
+        StateHasChanged();
+        await Task.Delay(5000); // Display message for 5 seconds
+        infoMessage = string.Empty;
+        StateHasChanged();
     }
 
     private string GetLanguageDisplay(string language)

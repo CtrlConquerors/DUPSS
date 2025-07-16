@@ -13,6 +13,8 @@
 @using System.Text
 @inject IJSRuntime JS
 
+<AuthorizeView Roles="AD,MA">
+    <Authorized>
 <h1>Management Dashboard</h1>
 <button class="btn btn-primary mb-3" @onclick="ExportDashboardReport">
     <i class="bi bi-download"></i> Export Report
@@ -261,6 +263,17 @@ else
         <li>Keep your profile updated for better communication.</li>
     </ul>
 </div>
+ </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private bool isProfileExpanded = false;

@@ -2,7 +2,8 @@
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 @inject UserApiService UserService
-
+<AuthorizeView Roles="AD,ST,MA,ME">
+    <Authorized>
 <div class="animated-bg-shapes">
     <span></span>
     <span></span>
@@ -115,7 +116,17 @@
 
 
 </main>
-
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     private List<UserDTO>? consultants;
 

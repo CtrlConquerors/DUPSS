@@ -194,11 +194,24 @@
     display: flex;
     gap: 1.2rem;
     justify-content: flex-end;
-    align-items:center;
-    
+    align-items: center; /* Added for vertical alignment with the message box */
 }
 
-::deep .btn-primary, ::deep .btn-secondary {
+/* NEW: Styling for the alert-danger message */
+.alert-danger {
+    background: #fee2e2; /* Light red background */
+    color: #b91c1c; /* Dark red text */
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin: 2rem 0; /* Adjusted margin to fit better with buttons */
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 1.5px 6px 0 rgba(185, 28, 28, 0.08);
+    text-align: center; /* Center the text */
+    flex-grow: 1; /* Allow it to take available space */
+}
+
+.btn-primary, .btn-secondary {
     border-width: 15px;
     border: none;
     outline: none;
@@ -219,7 +232,6 @@
 .btn-primary {
     background: linear-gradient(90deg, #6366f1 60%, #0ea5e9 100%);
     color: #fff;
-    
 }
 
     .btn-primary:hover, .btn-primary:focus {
@@ -231,7 +243,6 @@
     background: #f1f5f9;
     color: #6366f1;
     border: 1.5px solid #c7d2fe;
-    
 }
 
     .btn-secondary:hover, .btn-secondary:focus {

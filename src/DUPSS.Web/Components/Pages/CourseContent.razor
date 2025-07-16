@@ -7,160 +7,173 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@using System.IO 
-
-<div class="course-page-layout">
-    @if (course == null && !hasError)
-    {
-        <div class="loading-indicator-full">
-            <p>Loading course content...</p>
-            <div class="spinner"></div>
-        </div>
-    }
-    else if (hasError)
-    {
-        <div class="error-message-full">
-            <p>Oops! Something went wrong while loading course content. Please try again later.</p>
-            <button class="btn btn-primary" @onclick="GoBackToCourses">Back to Courses</button>
-        </div>
-    }
-    else if (course == null) // Should not happen if hasError is false, but as a fallback
-    {
-        <div class="no-course-message-full">
-            <p>No course content found for this ID. It might not exist or there was a navigation issue.</p>
-            <button class="btn btn-primary" @onclick="GoBackToCourses">Back to Courses</button>
-        </div>
-    }
-    else
-    {
-        <div class="sidebar-column">
-            <div class="course-branding">
-                @* UPDATED: Changed logo to course picture with fallback *@
-                <img src="@(course.ImageUrl ?? "https://placehold.co/80x80/F0F0F0/000000?text=Course")" alt="Course Image" class="course-sidebar-image"/>
-                <h2 class="sidebar-course-title">@course.CourseName</h2>
-                <p class="sidebar-course-topic">@(course.Topic?.TopicName ?? "General Topic")</p>
-            </div>
-
-            <div class="course-material-section">
-                <h3>Course Material</h3>
-                <div class="module-list">
-                    @foreach (var module in modules)
-                    {
-                        <div class="module-item @(module.IsComplete ? "module-complete" : "")"
-                             @onclick="() => ToggleModule(module)">
-                            <i class="bi bi-check-circle-fill"></i>
-                            <span>@module.Title</span>
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-
-        <div class="main-content-column">
-            <h1 class="main-course-title">@course.CourseName</h1>
-
-            @foreach (var module in modules)
+@using System.IO
+<AuthorizeView Roles="AD,ST,MA,ME">
+    <Authorized>
+        <div class="course-page-layout">
+            @if (course == null && !hasError)
             {
-                <div class="module-section @(module.IsExpanded ? "expanded" : "")">
-                    <div class="module-header" @onclick="() => ToggleModule(module)">
-                        <span class="module-title-text">
-                            @module.Title
-                            <i class="bi @(module.IsExpanded ? "bi-chevron-up" : "bi-chevron-down") chevron-icon"></i>
-                        </span>
-                        @if (module.IsComplete)
-                        {
-                            <span class="module-status-badge complete">
-                                <i class="bi bi-check-circle-fill"></i> Complete
-                            </span>
-                        }
-                    </div>
-
-
-                        <div class="module-body">
-                            <div class="learning-objectives-toggle-container">
-                                <div class="learning-objectives-toggle" @onclick="() => ToggleLearningObjectives(module)">
-                                    <span class="toggle-text">Show Learning Objectives</span>
-                                    <i class="bi @(module.AreObjectivesExpanded ? "bi-chevron-up" : "bi-chevron-down") chevron-icon-objectives"></i>
-                                </div>
-                                @if (module.AreObjectivesExpanded)
-                                {
-                                    <ul class="learning-objectives-list">
-                                        @foreach (var obj in module.LearningObjectives)
-                                        {
-                                            <li>@obj</li>
-                                        }
-                                    </ul>
-                                }
-                            </div>
-
-                            <p class="module-description">
-                                @module.Description
-                            </p>
-
-                            <div class="lessons-list">
-                                @foreach (var lesson in module.Lessons)
-                                {
-                                    <div class="lesson-item @(lesson.IsComplete ? "lesson-complete" : "")"
-                                         @onclick="() => ToggleLessonContent(lesson)"> @* Added onclick to lesson item *@
-                                        <i class="bi bi-check-circle-fill lesson-check-icon"></i>
-                                        <div class="lesson-details">
-                                            <span class="lesson-title">@lesson.Title</span>
-                                            @if (!string.IsNullOrEmpty(lesson.DurationText))
-                                            {
-                                                <span class="lesson-duration">@lesson.Type @lesson.DurationText</span>
-                                            }
-                                        </div>
-                                    </div>
-
-                                    @* NEW: Display lesson content if it's a reading and expanded *@
-                                    @if (lesson.Type == "Reading" && !string.IsNullOrEmpty(lesson.Content) && lesson.IsContentExpanded)
-                                    {
-                                        <div class="lesson-content-display">
-                                            <p>@lesson.Content</p>
-                                        </div>
-                                    }
-                                    @* NEW: Display video player if it's a video and expanded *@
-                                    else if (lesson.Type == "Video" && !string.IsNullOrEmpty(lesson.VideoUrl) && lesson.IsContentExpanded)
-                                    {
-                                        <div class="lesson-video-display">
-                                            <iframe class="embed-responsive-item" src="@lesson.VideoUrl" allowfullscreen></iframe>
-                                        </div>
-                                    }
-                                }
-                            </div>
-                        </div>
-
+                <div class="loading-indicator-full">
+                    <p>Loading course content...</p>
+                    <div class="spinner"></div>
                 </div>
             }
-            <div class="bottom-navigation">
-                @if (currentEnrollment != null && currentEnrollment.Status != "Completed")
-                {
-                    <button class="btn btn-success complete-course-button" @onclick="CompleteCourse" disabled="@isCompletingCourse">
-                        @if (isCompletingCourse)
-                        {
-                            <span>
-                                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                Completing...
-                            </span>
-                        }
-                        else
-                        {
-                            <span>
-                                <i class="bi bi-check-lg"></i> Complete Course
-                            </span>
-                        }
-                    </button>
-                }
-                <button class="btn btn-primary" @onclick="GoBackToCourses">Back to All Courses</button>
-                @if (!string.IsNullOrEmpty(completionMessage))
-                {
-                    <div class="@completionMessageClass mt-3">@completionMessage</div>
-                }
-            </div>
-        </div>
-    }
-</div>
+            else if (hasError)
+            {
+                <div class="error-message-full">
+                    <p>Oops! Something went wrong while loading course content. Please try again later.</p>
+                    <button class="btn btn-primary" @onclick="GoBackToCourses">Back to Courses</button>
+                </div>
+            }
+            else if (course == null)
+ @* Should not happen if hasError is false, but as a fallback *@
+            {
+                <div class="no-course-message-full">
+                    <p>No course content found for this ID. It might not exist or there was a navigation issue.</p>
+                    <button class="btn btn-primary" @onclick="GoBackToCourses">Back to Courses</button>
+                </div>
+            }
+            else
+            {
+                <div class="sidebar-column">
+                    <div class="course-branding">
+                        @* UPDATED: Changed logo to course picture with fallback *@
+                        <img src="@(course.ImageUrl ?? "https://placehold.co/80x80/F0F0F0/000000?text=Course")" alt="Course Image" class="course-sidebar-image" />
+                        <h2 class="sidebar-course-title">@course.CourseName</h2>
+                        <p class="sidebar-course-topic">@(course.Topic?.TopicName ?? "General Topic")</p>
+                    </div>
 
+                    <div class="course-material-section">
+                        <h3>Course Material</h3>
+                        <div class="module-list">
+                            @foreach (var module in modules)
+                            {
+                                <div class="module-item @(module.IsComplete ? "module-complete" : "")"
+                                     @onclick="() => ToggleModule(module)">
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>@module.Title</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="main-content-column">
+                    <h1 class="main-course-title">@course.CourseName</h1>
+
+                    @foreach (var module in modules)
+                    {
+                        <div class="module-section @(module.IsExpanded ? "expanded" : "")">
+                            <div class="module-header" @onclick="() => ToggleModule(module)">
+                                <span class="module-title-text">
+                                    @module.Title
+                                    <i class="bi @(module.IsExpanded ? "bi-chevron-up" : "bi-chevron-down") chevron-icon"></i>
+                                </span>
+                                @if (module.IsComplete)
+                                {
+                                    <span class="module-status-badge complete">
+                                        <i class="bi bi-check-circle-fill"></i> Complete
+                                    </span>
+                                }
+                            </div>
+
+
+                            <div class="module-body">
+                                <div class="learning-objectives-toggle-container">
+                                    <div class="learning-objectives-toggle" @onclick="() => ToggleLearningObjectives(module)">
+                                        <span class="toggle-text">Show Learning Objectives</span>
+                                        <i class="bi @(module.AreObjectivesExpanded ? "bi-chevron-up" : "bi-chevron-down") chevron-icon-objectives"></i>
+                                    </div>
+                                    @if (module.AreObjectivesExpanded)
+                                    {
+                                        <ul class="learning-objectives-list">
+                                            @foreach (var obj in module.LearningObjectives)
+                                            {
+                                                <li>@obj</li>
+                                            }
+                                        </ul>
+                                    }
+                                </div>
+
+                                <p class="module-description">
+                                    @module.Description
+                                </p>
+
+                                <div class="lessons-list">
+                                    @foreach (var lesson in module.Lessons)
+                                    {
+                                        <div class="lesson-item @(lesson.IsComplete ? "lesson-complete" : "")"
+                                             @onclick="() => ToggleLessonContent(lesson)">
+                                            @* Added onclick to lesson item *@
+                                            <i class="bi bi-check-circle-fill lesson-check-icon"></i>
+                                            <div class="lesson-details">
+                                                <span class="lesson-title">@lesson.Title</span>
+                                                @if (!string.IsNullOrEmpty(lesson.DurationText))
+                                                {
+                                                    <span class="lesson-duration">@lesson.Type @lesson.DurationText</span>
+                                                }
+                                            </div>
+                                        </div>
+
+                                        @* NEW: Display lesson content if it's a reading and expanded *@
+                                        @if (lesson.Type == "Reading" && !string.IsNullOrEmpty(lesson.Content) && lesson.IsContentExpanded)
+                                        {
+                                            <div class="lesson-content-display">
+                                                <p>@lesson.Content</p>
+                                            </div>
+                                        }
+                                        @* NEW: Display video player if it's a video and expanded *@
+                                        else if (lesson.Type == "Video" && !string.IsNullOrEmpty(lesson.VideoUrl) && lesson.IsContentExpanded)
+                                        {
+                                            <div class="lesson-video-display">
+                                                <iframe class="embed-responsive-item" src="@lesson.VideoUrl" allowfullscreen></iframe>
+                                            </div>
+                                        }
+                                    }
+                                </div>
+                            </div>
+
+                        </div>
+                    }
+                    <div class="bottom-navigation">
+                        @if (currentEnrollment != null && currentEnrollment.Status != "Completed")
+                        {
+                            <button class="btn btn-success complete-course-button" @onclick="CompleteCourse" disabled="@isCompletingCourse">
+                                @if (isCompletingCourse)
+                                {
+                                    <span>
+                                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                                        Completing...
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span>
+                                        <i class="bi bi-check-lg"></i> Complete Course
+                                    </span>
+                                }
+                            </button>
+                        }
+                        <button class="btn btn-primary" @onclick="GoBackToCourses">Back to All Courses</button>
+                        @if (!string.IsNullOrEmpty(completionMessage))
+                        {
+                            <div class="@completionMessageClass mt-3">@completionMessage</div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     [Parameter]
     public string CourseId { get; set; } = string.Empty;
@@ -226,59 +239,79 @@
             var user = authState.User;
             currentLoggedInUserId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
+            // Ensure user is logged in (though AuthorizeView typically handles this at page load)
+            if (string.IsNullOrEmpty(currentLoggedInUserId))
+            {
+                // If not logged in, redirect to login. AuthorizeView handles the initial block.
+                // This is a safeguard if this method is called directly without a full page load.
+                Console.WriteLine("User not logged in. Redirecting to login.");
+                NavigationManager.NavigateTo("/login", forceLoad: true);
+                return;
+            }
+
             course = await CourseApiService.GetByIdAsync(CourseId);
 
             if (course == null)
             {
                 hasError = true;
                 Console.WriteLine($"Course with ID {CourseId} not found.");
+                return; // Exit if course not found
             }
-            else
+
+            // Resolve Course Image URL from wwwroot/images
+            if (!string.IsNullOrEmpty(course.CourseId))
             {
-                // Resolve Course Image URL from wwwroot/images
-                if (!string.IsNullOrEmpty(course.CourseId))
+                var wwwrootPath = WebHostEnvironment.WebRootPath;
+                var imagesPath = Path.Combine(wwwrootPath, "images", "Courses");
+                var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+
+                foreach (var ext in supportedExtensions)
                 {
-                    var wwwrootPath = WebHostEnvironment.WebRootPath;
-                    var imagesPath = Path.Combine(wwwrootPath, "images", "Courses");
-                    var supportedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp" };
+                    var potentialFileName = $"{course.CourseId}{ext}";
+                    var fullPath = Path.Combine(imagesPath, potentialFileName);
 
-                    foreach (var ext in supportedExtensions)
+                    if (System.IO.File.Exists(fullPath))
                     {
-                        var potentialFileName = $"{course.CourseId}{ext}";
-                        var fullPath = Path.Combine(imagesPath, potentialFileName);
-
-                        if (System.IO.File.Exists(fullPath))
-                        {
-                            course.ImageUrl = $"images/Courses/{potentialFileName}"; // Set the relative URL
-                            break;
-                        }
+                        course.ImageUrl = $"images/Courses/{potentialFileName}"; // Set the relative URL
+                        break;
                     }
                 }
+            }
 
-                // Check if the current user is enrolled in this course
-                if (!string.IsNullOrEmpty(currentLoggedInUserId))
-                {
-                    var enrollments = await CourseEnrollApiService.GetEnrollmentsByMemberAndCourse(currentLoggedInUserId, CourseId);
-                    currentEnrollment = enrollments?.FirstOrDefault(); // Get the specific enrollment if it exists
-                }
+            // Check if the current user is enrolled in this course
+            var enrollments = await CourseEnrollApiService.GetEnrollmentsByMemberAndCourse(currentLoggedInUserId, CourseId);
+            currentEnrollment = enrollments?.FirstOrDefault(); // Get the specific enrollment if it exists
 
-                PopulateMockModules(course.CourseId);
-                // Expand the first module by default
-                if (modules.Any())
-                {
-                    modules.First().IsExpanded = true;
-                }
+            // *** NEW ENROLLMENT CHECK: Redirect if user is not enrolled ***
+            if (currentEnrollment == null)
+            {
+                Console.WriteLine($"User {currentLoggedInUserId} is not enrolled in course {CourseId}. Redirecting to Course Detail page.");
+                // Redirect to the CourseDetailPage for this specific course, where they can enroll
+                NavigationManager.NavigateTo($"/CourseDetailPage/{CourseId}", forceLoad: true);
+                return; // Stop further processing of course content
+            }
 
-                // NEW: If the course is completed, mark all modules and lessons as complete
-                if (currentEnrollment != null && currentEnrollment.Status == "Completed")
+            // If enrolled, proceed to populate mock modules and update UI
+            PopulateMockModules(course.CourseId);
+            // Expand the first module by default
+            if (modules.Any())
+            {
+                modules.First().IsExpanded = true;
+            }
+
+            // If the course is completed, mark all modules and lessons as complete
+            if (currentEnrollment != null && currentEnrollment.Status == "Completed")
+            {
+                foreach (var module in modules)
                 {
-                    foreach (var module in modules)
+                    module.IsComplete = true;
+                    // Optionally collapse objectives and modules after completion
+                    module.AreObjectivesExpanded = false;
+                    module.IsExpanded = false; // Collapse modules if desired after completion
+                    foreach (var lesson in module.Lessons)
                     {
-                        module.IsComplete = true;
-                        foreach (var lesson in module.Lessons)
-                        {
-                            lesson.IsComplete = true;
-                        }
+                        lesson.IsComplete = true;
+                        lesson.IsContentExpanded = false; // Collapse reading/video content on course completion
                     }
                 }
             }
@@ -287,6 +320,10 @@
         {
             Console.WriteLine($"Error loading course content for ID {CourseId}: {ex.Message}");
             hasError = true;
+        }
+        finally
+        {
+            StateHasChanged(); // Ensure UI updates after all checks and data loading
         }
     }
 
@@ -407,7 +444,7 @@
                 },
                 Lessons = new List<CourseLesson>
                 {
-                   
+
                     new CourseLesson { Title = "Navigating Social Scenarios", Type = "Video", DurationText = "12 min", IsComplete = false, VideoUrl = "https://www.youtube.com/embed/NO5-tFfuZAA?si=DxhtLKtwx6CxQQxt" }
                 }
             });

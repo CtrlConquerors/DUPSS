@@ -284,6 +284,19 @@
     align-items: flex-start;
 }
 
+/* NEW: Styling for the alert-danger message */
+.alert-danger {
+    background: #fee2e2; /* Light red background */
+    color: #b91c1c; /* Dark red text */
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin: 2rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    box-shadow: 0 1.5px 6px 0 rgba(185, 28, 28, 0.08);
+    text-align: center; /* Center the text */
+}
+
 .retry-button {
     background: #fff;
     color: #b91c1c;

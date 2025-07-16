@@ -6,7 +6,8 @@
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
-
+<AuthorizeView Roles="AD,ST,MA,ME">
+    <Authorized>
 <div class="take-assessment-container">
     @if (isLoading)
     {
@@ -283,7 +284,17 @@
         </div>
     </div>
 }
-
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     [Parameter]
     public string AssessmentId { get; set; } = string.Empty;

@@ -11,7 +11,8 @@
 @inject IJSRuntime JS
 @inject IWebHostEnvironment WebHostEnvironment
 @layout ManagementLayout
-
+<AuthorizeView Roles="AD,ST,MA">
+    <Authorized>
 <div class="blog-management-container">
     <div class="header-section">
         <h1 class="page-title">Blog Management</h1>
@@ -253,7 +254,17 @@
         </div>
     }
 </div>
-
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     private List<BlogDTO>? blogs;
     private List<BlogTopic>? blogTopics;

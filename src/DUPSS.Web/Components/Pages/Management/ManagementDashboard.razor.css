@@ -54,10 +54,9 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     border: none;
     position: relative;
     overflow: hidden;
-    transition:
-        box-shadow 0.25s cubic-bezier(.4,2,.6,1),
-        transform 0.22s cubic-bezier(.4,2,.6,1),
-        background 0.22s cubic-bezier(.4,2,.6,1);
+    transition: box-shadow 0.25s cubic-bezier(.4, 2, .6, 1),
+    transform 0.22s cubic-bezier(.4, 2, .6, 1),
+    background 0.22s cubic-bezier(.4, 2, .6, 1);
     will-change: transform, box-shadow;
     cursor: pointer;
     z-index: 1;
@@ -67,8 +66,10 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
 .dashboard-card::before {
     content: "";
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 8px;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px;
     background: linear-gradient(90deg, #2563eb 0%, #22c55e 100%);
     border-radius: 22px 22px 0 0;
     opacity: 0.18;
@@ -88,7 +89,7 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     box-shadow: 0 16px 40px #2563eb44, 0 0 0 4px #2563eb33;
     border-color: #3766ff;
     background: linear-gradient(120deg, #e0e7ef 60%, #f3f6fa 100%);
-    transition: box-shadow 0.18s cubic-bezier(.4,2,.6,1), transform 0.18s cubic-bezier(.4,2,.6,1), border 0.18s, background 0.18s;
+    transition: box-shadow 0.18s cubic-bezier(.4, 2, .6, 1), transform 0.18s cubic-bezier(.4, 2, .6, 1), border 0.18s, background 0.18s;
 }
 
 .dashboard-card.dragover {
@@ -96,17 +97,24 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     background: linear-gradient(120deg, #f3f6fa 60%, #e0e7ef 100%);
     transform: scale(1.04) rotate(1deg);
     box-shadow: 0 8px 32px #3766ff33;
-    transition: box-shadow 0.18s cubic-bezier(.4,2,.6,1), transform 0.18s cubic-bezier(.4,2,.6,1), border 0.18s, background 0.18s;
+    transition: box-shadow 0.18s cubic-bezier(.4, 2, .6, 1), transform 0.18s cubic-bezier(.4, 2, .6, 1), border 0.18s, background 0.18s;
 }
 
 /* Optional: "pop" effect when dropped */
 @keyframes card-pop {
-    0%   { transform: scale(1.08) rotate(-2deg);}
-    60%  { transform: scale(0.96) rotate(1deg);}
-    100% { transform: scale(1) rotate(0);}
+    0% {
+        transform: scale(1.08) rotate(-2deg);
+    }
+    60% {
+        transform: scale(0.96) rotate(1deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+    }
 }
+
 .dashboard-card.card-pop {
-    animation: card-pop 0.35s cubic-bezier(.4,2,.6,1);
+    animation: card-pop 0.35s cubic-bezier(.4, 2, .6, 1);
 }
 
 .dashboard-card-icon {
@@ -179,6 +187,7 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
         align-items: flex-start;
         padding: 16px 10px;
     }
+
     .dashboard-card-icon {
         margin-right: 0;
         margin-bottom: 12px;
@@ -263,9 +272,9 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     background: #2563eb;
     box-shadow: 0 2px 8px #e5e7eb;
     cursor: pointer;
-    transition: background 0.18s, transform 0.18s cubic-bezier(.4,2,.6,1), box-shadow 0.18s, filter 0.18s;
+    transition: background 0.18s, transform 0.18s cubic-bezier(.4, 2, .6, 1), box-shadow 0.18s, filter 0.18s;
     will-change: transform, box-shadow;
-    text-decoration:none;
+    text-decoration: none;
 }
 
 .dashboard-action-btn.bg-green {
@@ -461,14 +470,17 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
         grid-template-columns: 1fr;
         gap: 18px;
     }
+
     .dashboard-side {
         flex-direction: row;
         gap: 10px;
     }
+
     .dashboard-quick-actions {
         flex-direction: row;
         gap: 8px;
     }
+
     .dashboard-section {
         margin-bottom: 18px;
     }
@@ -478,18 +490,23 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     .dashboard-header h1 {
         font-size: 1.3rem;
     }
+
     .dashboard-card-value {
         font-size: 1.1rem;
     }
+
     .dashboard-card-title {
         font-size: 0.98rem;
     }
+
     .dashboard-section h2 {
         font-size: 1.05rem;
     }
+
     .dashboard-section, .dashboard-card, .dashboard-chart-card {
         padding: 10px 8px;
     }
+
     .dashboard-appointment-stats {
         display: flex;
         gap: 18px;
@@ -514,16 +531,19 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     .stat-red {
         color: #ef4444;
     }
+
     .dashboard-card {
         flex-direction: column;
         align-items: flex-start;
         padding: 16px 10px;
     }
+
     .dashboard-card-icon {
         margin-right: 0;
         margin-bottom: 12px;
     }
 }
+
 .profile-expanded-card {
     margin-top: 10px;
     padding: 16px;
@@ -533,11 +553,12 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     min-width: 220px;
     transition: all 0.2s;
 }
+
 .profile-expand-container {
     display: flex;
     flex-direction: column;
     align-items: center;
-    transition: all 0.3s cubic-bezier(.4,2,.6,1);
+    transition: all 0.3s cubic-bezier(.4, 2, .6, 1);
     width: 180px;
     min-height: 48px;
     border-radius: 24px;
@@ -547,28 +568,28 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     margin-top: 12px;
 }
 
-    .profile-expand-container .profile-expand-btn {
-        display:inline-block;
-        width: 100%;
-        border-radius: 24px;
-        transition: all 0.3s cubic-bezier(.4,2,.6,1);
-        font-size:1.2rem;
+.profile-expand-container .profile-expand-btn {
+    display: inline-block;
+    width: 100%;
+    border-radius: 24px;
+    transition: all 0.3s cubic-bezier(.4, 2, .6, 1);
+    font-size: 1.2rem;
 
-    }
+}
 
-    .profile-expand-container.expanded {
-        background: #f8fafc;
-        box-shadow: 0 2px 12px #0002;
-        min-height: 170px;
-        border-radius: 16px;
-        padding: 16px 12px 12px 12px;
-        width: 460px;
-    }
+.profile-expand-container.expanded {
+    background: #f8fafc;
+    box-shadow: 0 2px 12px #0002;
+    min-height: 170px;
+    border-radius: 16px;
+    padding: 16px 12px 12px 12px;
+    width: 460px;
+}
 
-        .profile-expand-container.expanded .profile-expand-btn {
-            border-radius: 12px 12px 0 0;
-            margin-bottom: 8px;
-        }
+.profile-expand-container.expanded .profile-expand-btn {
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 8px;
+}
 
 .profile-expanded-content {
     width: 100%;

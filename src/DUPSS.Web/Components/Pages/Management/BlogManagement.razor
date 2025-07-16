@@ -13,188 +13,25 @@
 @layout ManagementLayout
 <AuthorizeView Roles="AD,ST,MA">
     <Authorized>
-<div class="blog-management-container">
-    <div class="header-section">
-        <h1 class="page-title">Blog Management</h1>
-        <div class="actions">
-            <button class="add-blog-button" @onclick="AddBlog">
-                <i class="bi bi-plus-circle"></i> ADD BLOG
-            </button>
-        </div>
-    </div>
-    <div class="filter-sort-section">
-        <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by Blog Title, Topic, Staff, ID, Content"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortBlogs"/>
-        </div>
-
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnTopicFilterChanged">
-                <option value="">All Topics</option>
-                @if (blogTopics != null)
-                {
-                    @foreach (var topic in blogTopics)
-                    {
-                        <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnStaffFilterChanged">
-                <option value="">All Staff</option>
-                @if (staffUsers != null)
-                {
-                    @foreach (var staff in staffUsers)
-                    {
-                        <option value="@staff.UserId">@staff.Username</option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="sort-controls">
-            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortBlogs">
-                <option value="BlogId">Sort: Blog ID</option>
-                <option value="Title">Sort: Title</option>
-                <option value="TopicName">Sort: Topic Name</option>
-                <option value="StaffName">Sort: Staff Name</option>
-                <option value="Status">Sort: Status</option>
-            </select>
-            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                @if (sortDirection == SortDirection.Ascending)
-                {
-                    <i class="bi bi-sort-alpha-down"></i>
-                }
-                else
-                {
-                    <i class="bi bi-sort-alpha-down-alt"></i>
-                }
-            </button>
-        </div>
-    </div>
-
-    @if (blogs == null || blogTopics == null || staffUsers == null || roles == null)
-    {
-        <div class="loading-indicator">Loading blogs and related data...</div>
-    }
-    else if (hasError)
-    {
-        <div class="error-message">Error loading data. Please try again later.</div>
-    }
-    else if (!filteredBlogs.Any())
-    {
-        <div class="no-data-message">No blogs found matching your criteria.</div>
-    }
-    else
-    {
-        <div class="table-container">
-            <table class="blog-table">
-                <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Blog ID</th>
-                    <th>Title</th>
-                    <th>Topic Name</th>
-                    <th>Status</th>
-                    <th>Staff Name</th>
-                    <th>Content</th>
-                    <th>Image</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                @{
-                    var index = (currentPage - 1) * itemsPerPage + 1;
-                }
-                @foreach (var blog in PaginatedBlogs)
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@blog.BlogId</td>
-                        <td>@blog.Title</td>
-                        <td>@blog.BlogTopic?.BlogTopicName</td>
-                        <td>
-                            @if (blog.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
-                            {
-                                <span class="published-indicator" title="Published Blog"></span>
-                            }
-                            else if (blog.Status?.Equals("Draft", StringComparison.OrdinalIgnoreCase) == true)
-                            {
-                                <span class="draft-indicator" title="Draft Blog"></span>
-                            }
-                            @blog.Status
-                        </td>
-                        <td>@blog.Staff?.Username</td>
-                        <td>@(blog.Content?.Length > 100 ? blog.Content.Substring(0, 100) + "..." : blog.Content)</td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(blog.ImageUrl))
-                            {
-                                <img src="@blog.ImageUrl" alt="Blog Image" class="table-blog-image" />
-                            }
-                            else
-                            {
-                                <span class="no-image-available">N/A</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary me-2" @onclick="() => EditBlog(blog.BlogId)">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.BlogId)">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    index++;
-                }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex justify-content-center mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageIndex = i;
-                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
-                    @pageIndex
-                </button>
-            }
-        </div>
-    }
-
-    @if (showEditForm)
-    {
-        <div class="card p-3 my-4 edit-form-card">
-            <h5>@(isNewBlog ? "Add New Blog" : "Edit Blog: " + blogToEdit.Title)</h5>
-
-            @if (!string.IsNullOrEmpty(validationMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @validationMessage
+        <div class="blog-management-container">
+            <div class="header-section">
+                <h1 class="page-title">Blog Management</h1>
+                <div class="actions">
+                    <button class="add-blog-button" @onclick="AddBlog">
+                        <i class="bi bi-plus-circle"></i> ADD BLOG
+                    </button>
                 </div>
-            }
-
-            <div class="mb-3">
-                <label class="form-label">Blog Title</label>
-                <input class="form-control" @bind="blogToEdit.Title"/>
             </div>
+            <div class="filter-sort-section">
+                <div class="search-input-container">
+                    <input type="text" class="form-control"
+                           placeholder="Search by Blog Title, Topic, Staff, ID, Content"
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortBlogs"/>
+                </div>
 
-            <div class="mb-3">
-                <label class="form-label">Topic</label>
-                @if (showNewTopicInput)
-                {
-                    <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name"/>
-                    <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New Topic</button>
-                }
-                else
-                {
-                    <select class="form-select" @bind="blogToEdit.BlogTopicId">
-                        <option value="">Select Topic</option>
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnTopicFilterChanged">
+                        <option value="">All Topics</option>
                         @if (blogTopics != null)
                         {
                             @foreach (var topic in blogTopics)
@@ -202,58 +39,230 @@
                                 <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
                             }
                         }
-                        else
+                    </select>
+                </div>
+
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnStaffFilterChanged">
+                        <option value="">All Staff</option>
+                        @if (staffUsers != null)
                         {
-                            Console.WriteLine("No blog topics available.");
+                            @foreach (var staff in staffUsers)
+                            {
+                                <option value="@staff.UserId">@staff.Username</option>
+                            }
                         }
                     </select>
-                    <div class="d-flex justify-content-between mt-2">
-                        <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
-                        @if (!string.IsNullOrWhiteSpace(blogToEdit.BlogTopicId))
+                </div>
+
+                <div class="sort-controls">
+                    <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortBlogs">
+                        <option value="BlogId">Sort: Blog ID</option>
+                        <option value="Title">Sort: Title</option>
+                        <option value="TopicName">Sort: Topic Name</option>
+                        <option value="StaffName">Sort: Staff Name</option>
+                        <option value="Status">Sort: Status</option>
+                    </select>
+                    <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                        @if (sortDirection == SortDirection.Ascending)
                         {
-                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTopic(blogToEdit.BlogTopicId)">Delete Selected Topic</button>
+                            <i class="bi bi-sort-alpha-down"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-sort-alpha-down-alt"></i>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            @if (blogs == null || blogTopics == null || staffUsers == null || roles == null)
+            {
+                <div class="loading-indicator">Loading blogs and related data...</div>
+            }
+            else if (hasError)
+            {
+                <div class="error-message">Error loading data. Please try again later.</div>
+            }
+            else if (!filteredBlogs.Any())
+            {
+                <div class="no-data-message">No blogs found matching your criteria.</div>
+            }
+            else
+            {
+                <div class="table-container">
+                    <table class="blog-table">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Blog ID</th>
+                            <th>Title</th>
+                            <th>Topic Name</th>
+                            <th>Status</th>
+                            <th>Staff Name</th>
+                            <th>Content</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @{
+                            var index = (currentPage - 1) * itemsPerPage + 1;
+                        }
+                        @foreach (var blog in PaginatedBlogs)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@blog.BlogId</td>
+                                <td>@blog.Title</td>
+                                <td>@blog.BlogTopic?.BlogTopicName</td>
+                                <td>
+                                    @if (blog.Status?.Equals("Published", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="published-indicator" title="Published Blog"></span>
+                                    }
+                                    else if (blog.Status?.Equals("Draft", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="draft-indicator" title="Draft Blog"></span>
+                                    }
+                                    @blog.Status
+                                </td>
+                                <td>@blog.Staff?.Username</td>
+                                <td>@(blog.Content?.Length > 100 ? blog.Content.Substring(0, 100) + "..." : blog.Content)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(blog.ImageUrl))
+                                    {
+                                        <img src="@blog.ImageUrl" alt="Blog Image" class="table-blog-image"/>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-image-available">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary me-2"
+                                                @onclick="() => EditBlog(blog.BlogId)">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteBlog(blog.BlogId)">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-center mt-3">
+                    @for (var i = 1; i <= TotalPages; i++)
+                    {
+                        var pageIndex = i;
+                        <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                                @onclick="() => GoToPage(pageIndex)">
+                            @pageIndex
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (showEditForm)
+            {
+                <div class="card p-3 my-4 edit-form-card">
+                    <h5>@(isNewBlog ? "Add New Blog" : "Edit Blog: " + blogToEdit.Title)</h5>
+
+                    @if (!string.IsNullOrEmpty(validationMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @validationMessage
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Blog Title</label>
+                        <input class="form-control" @bind="blogToEdit.Title"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Topic</label>
+                        @if (showNewTopicInput)
+                        {
+                            <input type="text" class="form-control" @bind="newTopicName"
+                                   placeholder="Enter new topic name"/>
+                            <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel
+                                New Topic
+                            </button>
+                        }
+                        else
+                        {
+                            <select class="form-select" @bind="blogToEdit.BlogTopicId">
+                                <option value="">Select Topic</option>
+                                @if (blogTopics != null)
+                                {
+                                    @foreach (var topic in blogTopics)
+                                    {
+                                        <option value="@topic.BlogTopicId">@topic.BlogTopicName</option>
+                                    }
+                                }
+                                else
+                                {
+                                    Console.WriteLine("No blog topics available.");
+                                }
+                            </select>
+                            <div class="d-flex justify-content-between mt-2">
+                                <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic
+                                </button>
+                                @if (!string.IsNullOrWhiteSpace(blogToEdit.BlogTopicId))
+                                {
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => DeleteTopic(blogToEdit.BlogTopicId)">Delete Selected Topic
+                                    </button>
+                                }
+                            </div>
                         }
                     </div>
-                }
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label">Content (Markdown)</label>
-                @* Removed SimpleMDE integration. Using a plain textarea. *@
-                <textarea class="form-control" @bind="blogToEdit.Content" rows="10" placeholder="Enter Markdown content here."></textarea>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Content (Markdown)</label>
+                        @* Removed SimpleMDE integration. Using a plain textarea. *@
+                        <textarea class="form-control" @bind="blogToEdit.Content" rows="10"
+                                  placeholder="Enter Markdown content here."></textarea>
+                    </div>
 
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" @bind="blogToEdit.Status">
-                    <option value="Draft">Draft</option>
-                    <option value="Published">Published</option>
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" @bind="blogToEdit.Status">
+                            <option value="Draft">Draft</option>
+                            <option value="Published">Published</option>
+                        </select>
+                    </div>
 
-            <div class="mb-3">
-                <label class="form-label">Staff</label>
-                <select class="form-select" @bind="blogToEdit.StaffId">
-                    <option value="">Select Staff</option>
-                    @if (staffUsers != null)
-                    {
-                        @foreach (var staff in staffUsers)
-                        {
-                            <option value="@staff.UserId">@staff.Username</option>
-                        }
-                    }
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Staff</label>
+                        <select class="form-select" @bind="blogToEdit.StaffId">
+                            <option value="">Select Staff</option>
+                            @if (staffUsers != null)
+                            {
+                                @foreach (var staff in staffUsers)
+                                {
+                                    <option value="@staff.UserId">@staff.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
 
-           
 
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveBlog">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-            </div>
+
+                    <div>
+                        <button class="btn btn-success me-2" @onclick="SaveBlog">Save</button>
+                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                </div>
+            }
         </div>
-    }
-</div>
     </Authorized>
     <NotAuthorized>
         <div class="access-denied">
@@ -265,6 +274,7 @@
         </div>
     </NotAuthorized>
 </AuthorizeView>
+
 @code {
     private List<BlogDTO>? blogs;
     private List<BlogTopic>? blogTopics;
@@ -299,7 +309,7 @@
     private bool showNewTopicInput = false;
     private string newTopicName = string.Empty;
 
-   
+
 
     private List<BlogDTO> filteredBlogs = new List<BlogDTO>();
 
@@ -326,7 +336,7 @@
     {
         Console.WriteLine("BlogManagement: OnInitializedAsync: Starting data load.");
 
-       
+
 
         try
         {
@@ -506,7 +516,8 @@
         if (blogs != null && blogs.Any())
         {
             maxIdNum = blogs
-                .Select(b => {
+                .Select(b =>
+                {
                     if (b.BlogId != null && b.BlogId.StartsWith("B") && b.BlogId.Length == 5 && int.TryParse(b.BlogId.Substring(1), out var num))
                     {
                         return num;
@@ -525,7 +536,8 @@
         if (blogTopics != null && blogTopics.Any())
         {
             maxIdNum = blogTopics
-                .Select(t => {
+                .Select(t =>
+                {
                     if (t.BlogTopicId != null && t.BlogTopicId.StartsWith("BTP") && t.BlogTopicId.Length == 7 && int.TryParse(t.BlogTopicId.Substring(3), out var num))
                     {
                         return num;
@@ -543,7 +555,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-    
+
 
         blogToEdit = new BlogDTO
         {
@@ -557,7 +569,7 @@
         };
         isNewBlog = true;
         showEditForm = true;
-  
+
         StateHasChanged();
     }
 
@@ -566,7 +578,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-    
+
 
         var blog = blogs?.FirstOrDefault(b => b.BlogId == blogId);
         if (blog != null)
@@ -587,11 +599,11 @@
                 } : null,
                 ImageUrl = blog.ImageUrl
             };
-   
+
 
             isNewBlog = false;
             showEditForm = true;
-          
+
             StateHasChanged();
         }
     }
@@ -675,7 +687,7 @@
             validationMessage = "Blog Title cannot be empty.";
             return;
         }
- 
+
         if (string.IsNullOrWhiteSpace(blogToEdit.Content))
         {
             validationMessage = "Blog Content cannot be empty.";
@@ -729,7 +741,7 @@
 
         try
         {
-           
+
 
             if (isNewBlog)
             {
@@ -752,7 +764,7 @@
             FilterAndSortBlogs();
             showEditForm = false;
             GoToPage(1);
-      
+
         }
         catch (Exception ex)
         {
@@ -766,7 +778,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        
+
 
         blogToEdit = new BlogDTO
         {
@@ -780,7 +792,7 @@
         };
         isNewBlog = false;
         showEditForm = false;
-      
+
     }
 
     private async Task DeleteBlog(string blogId)
@@ -802,7 +814,7 @@
                 {
                     Console.WriteLine($"Blog '{blogToDelete.Title}' (ID: {blogId}) deleted successfully.");
 
-                 
+
 
                     await LoadAllDataAsync();
                     FilterAndSortBlogs();

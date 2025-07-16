@@ -16,224 +16,27 @@
 @*Example below*@
 <AuthorizeView Roles="AD,ST,MA">
     <Authorized>
-<div class="course-management-container">
-    <div class="header-section">
-        <h1 class="page-title">Course Management</h1>
+        <div class="course-management-container">
+            <div class="header-section">
+                <h1 class="page-title">Course Management</h1>
 
-        <div class="actions">
-            <button class="add-course-button" @onclick="AddCourse">
-                <i class="bi bi-plus-circle"></i> ADD COURSE
-            </button>
-            @* Removed: Hard Reload Button for Development Testing - now automatic *@
-        </div>
-    </div>
-    <div class="filter-sort-section">
-        <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by Course Name, Topic, Staff, Consultant, ID, Description"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCourses"/>
-        </div>
-
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnTopicFilterChanged">
-                <option value="">All Topics</option>
-                @if (topics != null)
-                {
-                    @foreach (var topic in topics)
-                    {
-                        <option value="@topic.TopicId">@topic.TopicName</option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnStaffFilterChanged">
-                <option value="">All Staff</option>
-                @if (staffUsers != null)
-                {
-                    @foreach (var staff in staffUsers)
-                    {
-                        <option value="@staff.UserId">@staff.Username</option>
-                    }
-                }
-            </select>
-        </div>
-
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnConsultantFilterChanged">
-                <option value="">All Consultants</option>
-                @if (consultantUsers != null)
-                {
-                    @foreach (var consultant in consultantUsers)
-                    {
-                        <option value="@consultant.UserId">@consultant.Username</option>
-                    }
-                }
-            </select>
-        </div>
-
-        @* Sort controls *@
-        <div class="sort-controls">
-            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
-                <option value="CourseId">Sort: Course ID</option>
-                <option value="CourseName">Sort: Course Name</option>
-                <option value="TopicName">Sort: Topic Name</option>
-                <option value="StaffName">Sort: Staff Name</option>
-                <option value="ConsultantName">Sort: Consultant Name</option>
-            </select>
-            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                @if (sortDirection == SortDirection.Ascending)
-                {
-                    <i class="bi bi-sort-alpha-down"></i>
-                }
-                else
-                {
-                    <i class="bi bi-sort-alpha-down-alt"></i>
-                }
-            </button>
-        </div>
-    </div>
-
-    @if (courses == null || topics == null || staffUsers == null || roles == null || consultantUsers == null)
-    {
-        <div class="loading-indicator">Loading courses and related data...</div>
-    }
-    else if (hasError)
-    {
-        <div class="error-message">Error loading data. Please try again later.</div>
-    }
-    else if (!filteredCourses.Any())
-    {
-        <div class="no-data-message">No courses found matching your criteria.</div>
-    }
-    else
-    {
-        <div class="table-container">
-            <table class="course-table">
-                <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Course ID</th>
-                    <th>Course Name</th>
-                    <th>Course Type</th>
-                    <th>Topic Name</th>
-                    <th>Staff Name</th>
-                    <th>Consultant Name</th>
-                    <th>Description</th>
-                    <th>Image</th> 
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                @{
-                    var index = (currentPage - 1) * itemsPerPage + 1;
-                }
-                @foreach (var course in PaginatedCourses)
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@course.CourseId</td>
-                        <td>@course.CourseName</td>
-                        <td>
-                            @if (course.CourseType?.Equals("Online", StringComparison.OrdinalIgnoreCase) == true)
-                            {
-                                <span class="online-indicator" title="Online Course"></span>
-                            }
-                            else if (course.CourseType?.Equals("Offline", StringComparison.OrdinalIgnoreCase) == true)
-                            {
-                                <span class="offline-indicator" title="Offline Course"></span>
-                            }
-                            else if (course.CourseType?.Equals("Hybrid", StringComparison.OrdinalIgnoreCase) == true)
-                            {
-                                <span class="hybrid-indicator" title="Hybrid Course"></span>
-                            }
-                            @course.CourseType
-                        </td>
-                        <td>@course.Topic?.TopicName</td>
-                        <td>@course.Staff?.Username</td>
-                        <td>@course.Consultant?.Username</td>
-                        <td>@(course.Description?.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)</td>
-                        <td> @* NEW: Image Column Cell *@
-                            @if (!string.IsNullOrEmpty(course.ImageUrl))
-                            {
-                                <img src="@course.ImageUrl" alt="Course Image" class="table-course-image" />
-                            }
-                            else
-                            {
-                                <span class="no-image-available">N/A</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary me-2"
-                                        @onclick="() => EditCourse(course.CourseId)">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger" @onclick="() => DeleteCourse(course.CourseId)">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    index++;
-                }
-                </tbody>
-            </table>
-        </div>
-
-        <div class="d-flex justify-content-center mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageIndex = i;
-                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
-                    @pageIndex
-                </button>
-            }
-        </div>
-    }
-
-    @if (showEditForm)
-    {
-        <div class="card p-3 my-4 edit-form-card">
-            <h5>@(isNewCourse ? "Add New Course" : "Edit Course: " + courseToEdit.CourseName)</h5>
-
-            @* Validation Message Display *@
-            @if (!string.IsNullOrEmpty(validationMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @validationMessage
-                </div>
-            }
-
-            <div class="mb-3">
-                <label class="form-label">Course Name</label>
-                <input class="form-control" @bind="courseToEdit.CourseName"/>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Course Type</label>
-                <select class="form-select" @bind="courseToEdit.CourseType">
-                    <option value="Online">Online</option>
-                    <option value="Hybrid">Hybrid</option>
-                    <option value="Offline">Offline</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Topic</label>
-                @* Conditional rendering for Topic input/select *@
-                @if (showNewTopicInput)
-                {
-                    <input type="text" class="form-control" @bind="newTopicName" placeholder="Enter new topic name"/>
-                    <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel New
-                        Topic
+                <div class="actions">
+                    <button class="add-course-button" @onclick="AddCourse">
+                        <i class="bi bi-plus-circle"></i> ADD COURSE
                     </button>
-                }
-                else
-                {
-                    <select class="form-select" @bind="courseToEdit.TopicId">
-                        <option value="">Select Topic</option>
+                    @* Removed: Hard Reload Button for Development Testing - now automatic *@
+                </div>
+            </div>
+            <div class="filter-sort-section">
+                <div class="search-input-container">
+                    <input type="text" class="form-control"
+                           placeholder="Search by Course Name, Topic, Staff, Consultant, ID, Description"
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCourses"/>
+                </div>
+
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnTopicFilterChanged">
+                        <option value="">All Topics</option>
                         @if (topics != null)
                         {
                             @foreach (var topic in topics)
@@ -242,64 +45,267 @@
                             }
                         }
                     </select>
-                    <div class="d-flex justify-content-between mt-2">
-                        <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic</button>
-                        @* Delete Topic button (visible if a topic is selected) *@
-                        @if (!string.IsNullOrWhiteSpace(courseToEdit.TopicId))
+                </div>
+
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnStaffFilterChanged">
+                        <option value="">All Staff</option>
+                        @if (staffUsers != null)
                         {
-                            <button class="btn btn-sm btn-outline-danger"
-                                    @onclick="() => DeleteTopic(courseToEdit.TopicId)">Delete Selected Topic
+                            @foreach (var staff in staffUsers)
+                            {
+                                <option value="@staff.UserId">@staff.Username</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnConsultantFilterChanged">
+                        <option value="">All Consultants</option>
+                        @if (consultantUsers != null)
+                        {
+                            @foreach (var consultant in consultantUsers)
+                            {
+                                <option value="@consultant.UserId">@consultant.Username</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                @* Sort controls *@
+                <div class="sort-controls">
+                    <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCourses">
+                        <option value="CourseId">Sort: Course ID</option>
+                        <option value="CourseName">Sort: Course Name</option>
+                        <option value="TopicName">Sort: Topic Name</option>
+                        <option value="StaffName">Sort: Staff Name</option>
+                        <option value="ConsultantName">Sort: Consultant Name</option>
+                    </select>
+                    <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                        @if (sortDirection == SortDirection.Ascending)
+                        {
+                            <i class="bi bi-sort-alpha-down"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-sort-alpha-down-alt"></i>
+                        }
+                    </button>
+                </div>
+            </div>
+
+            @if (courses == null || topics == null || staffUsers == null || roles == null || consultantUsers == null)
+            {
+                <div class="loading-indicator">Loading courses and related data...</div>
+            }
+            else if (hasError)
+            {
+                <div class="error-message">Error loading data. Please try again later.</div>
+            }
+            else if (!filteredCourses.Any())
+            {
+                <div class="no-data-message">No courses found matching your criteria.</div>
+            }
+            else
+            {
+                <div class="table-container">
+                    <table class="course-table">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Course ID</th>
+                            <th>Course Name</th>
+                            <th>Course Type</th>
+                            <th>Topic Name</th>
+                            <th>Staff Name</th>
+                            <th>Consultant Name</th>
+                            <th>Description</th>
+                            <th>Image</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @{
+                            var index = (currentPage - 1) * itemsPerPage + 1;
+                        }
+                        @foreach (var course in PaginatedCourses)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@course.CourseId</td>
+                                <td>@course.CourseName</td>
+                                <td>
+                                    @if (course.CourseType?.Equals("Online", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="online-indicator" title="Online Course"></span>
+                                    }
+                                    else if (course.CourseType?.Equals("Offline", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="offline-indicator" title="Offline Course"></span>
+                                    }
+                                    else if (course.CourseType?.Equals("Hybrid", StringComparison.OrdinalIgnoreCase) == true)
+                                    {
+                                        <span class="hybrid-indicator" title="Hybrid Course"></span>
+                                    }
+                                    @course.CourseType
+                                </td>
+                                <td>@course.Topic?.TopicName</td>
+                                <td>@course.Staff?.Username</td>
+                                <td>@course.Consultant?.Username</td>
+                                <td>@(course.Description?.Length > 100 ? course.Description.Substring(0, 100) + "..." : course.Description)</td>
+                                <td> @* NEW: Image Column Cell *@
+                                    @if (!string.IsNullOrEmpty(course.ImageUrl))
+                                    {
+                                        <img src="@course.ImageUrl" alt="Course Image" class="table-course-image"/>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-image-available">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary me-2"
+                                                @onclick="() => EditCourse(course.CourseId)">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger"
+                                                @onclick="() => DeleteCourse(course.CourseId)">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-center mt-3">
+                    @for (var i = 1; i <= TotalPages; i++)
+                    {
+                        var pageIndex = i;
+                        <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                                @onclick="() => GoToPage(pageIndex)">
+                            @pageIndex
+                        </button>
+                    }
+                </div>
+            }
+
+            @if (showEditForm)
+            {
+                <div class="card p-3 my-4 edit-form-card">
+                    <h5>@(isNewCourse ? "Add New Course" : "Edit Course: " + courseToEdit.CourseName)</h5>
+
+                    @* Validation Message Display *@
+                    @if (!string.IsNullOrEmpty(validationMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @validationMessage
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Course Name</label>
+                        <input class="form-control" @bind="courseToEdit.CourseName"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Course Type</label>
+                        <select class="form-select" @bind="courseToEdit.CourseType">
+                            <option value="Online">Online</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Offline">Offline</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Topic</label>
+                        @* Conditional rendering for Topic input/select *@
+                        @if (showNewTopicInput)
+                        {
+                            <input type="text" class="form-control" @bind="newTopicName"
+                                   placeholder="Enter new topic name"/>
+                            <button class="btn btn-sm btn-outline-secondary mt-2" @onclick="CancelNewTopicInput">Cancel
+                                New
+                                Topic
                             </button>
                         }
+                        else
+                        {
+                            <select class="form-select" @bind="courseToEdit.TopicId">
+                                <option value="">Select Topic</option>
+                                @if (topics != null)
+                                {
+                                    @foreach (var topic in topics)
+                                    {
+                                        <option value="@topic.TopicId">@topic.TopicName</option>
+                                    }
+                                }
+                            </select>
+                            <div class="d-flex justify-content-between mt-2">
+                                <button class="btn btn-sm btn-outline-info" @onclick="PromptAddNewTopic">Add New Topic
+                                </button>
+                                @* Delete Topic button (visible if a topic is selected) *@
+                                @if (!string.IsNullOrWhiteSpace(courseToEdit.TopicId))
+                                {
+                                    <button class="btn btn-sm btn-outline-danger"
+                                            @onclick="() => DeleteTopic(courseToEdit.TopicId)">Delete Selected Topic
+                                    </button>
+                                }
+                            </div>
+                        }
                     </div>
-                }
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label">Staff</label>
-                <select class="form-select" @bind="courseToEdit.StaffId">
-                    <option value="">Select Staff</option>
-                    @if (staffUsers != null)
-                    {
-                        @foreach (var staff in staffUsers)
-                        {
-                            <option value="@staff.UserId">@staff.Username</option>
-                        }
-                    }
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Staff</label>
+                        <select class="form-select" @bind="courseToEdit.StaffId">
+                            <option value="">Select Staff</option>
+                            @if (staffUsers != null)
+                            {
+                                @foreach (var staff in staffUsers)
+                                {
+                                    <option value="@staff.UserId">@staff.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
 
-            @* Description input *@
-            <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" @bind="courseToEdit.Description" rows="5" placeholder="Enter detailed course description"></textarea>
-            </div>
+                    @* Description input *@
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" @bind="courseToEdit.Description" rows="5"
+                                  placeholder="Enter detailed course description"></textarea>
+                    </div>
 
-            @* Consultant dropdown *@
-            <div class="mb-3">
-                <label class="form-label">Consultant</label>
-                <select class="form-select" @bind="courseToEdit.ConsultantId">
-                    <option value="">Select Consultant</option>
-                    @if (consultantUsers != null)
-                    {
-                        @foreach (var consultant in consultantUsers)
-                        {
-                            <option value="@consultant.UserId">@consultant.Username</option>
-                        }
-                    }
-                </select>
-            </div>
-
-           
+                    @* Consultant dropdown *@
+                    <div class="mb-3">
+                        <label class="form-label">Consultant</label>
+                        <select class="form-select" @bind="courseToEdit.ConsultantId">
+                            <option value="">Select Consultant</option>
+                            @if (consultantUsers != null)
+                            {
+                                @foreach (var consultant in consultantUsers)
+                                {
+                                    <option value="@consultant.UserId">@consultant.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
 
 
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveCourse">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-            </div>
+
+
+                    <div>
+                        <button class="btn btn-success me-2" @onclick="SaveCourse">Save</button>
+                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                </div>
+            }
         </div>
-    }
-</div>
     </Authorized>
     <NotAuthorized>
         <div class="access-denied">
@@ -311,6 +317,7 @@
         </div>
     </NotAuthorized>
 </AuthorizeView>
+
 @code {
     private List<CourseDTO>? courses;
     private List<CourseTopic>? topics;
@@ -349,7 +356,7 @@
     private bool showNewTopicInput = false; // Controls visibility of new topic input
     private string newTopicName = string.Empty; // Binds to the new topic input field
 
- 
+
 
     private List<CourseDTO> filteredCourses = new List<CourseDTO>();
 
@@ -378,7 +385,7 @@
         {
             Console.WriteLine("OnInitializedAsync: Starting data load.");
 
-          
+
 
             await LoadAllDataAsync(); // Consolidated data loading
             FilterAndSortCourses(); // Apply initial filter and sort
@@ -439,7 +446,9 @@
                         Console.WriteLine($"LoadAllDataAsync: No image found for CourseId {course.CourseId} in {imagesPath}");
                         course.ImageUrl = ""; // Ensure it's empty if no image is found
                     }
-                } else {
+                }
+                else
+                {
                     course.ImageUrl = ""; // Ensure it's empty if CourseId is null/empty
                 }
             }
@@ -581,7 +590,8 @@
         if (courses != null && courses.Any())
         {
             maxIdNum = courses
-                .Select(c => {
+                .Select(c =>
+                {
                     if (c.CourseId != null && c.CourseId.StartsWith("C") && int.TryParse(c.CourseId.Substring(1), out var num))
                     {
                         return num;
@@ -603,7 +613,8 @@
         if (topics != null && topics.Any())
         {
             maxIdNum = topics
-                .Select(t => {
+                .Select(t =>
+                {
                     if (t.TopicId != null && t.TopicId.StartsWith("TP") && int.TryParse(t.TopicId.Substring(2), out var num))
                     {
                         return num;
@@ -624,7 +635,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        
+
 
         courseToEdit = new CourseDTO
         {
@@ -648,7 +659,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-        
+
 
         var course = courses?.FirstOrDefault(c => c.CourseId == courseId);
         if (course != null)
@@ -761,7 +772,7 @@
         }
     }
 
-   
+
 
     private async Task SaveCourse()
     {
@@ -844,7 +855,7 @@
 
         try
         {
-         
+
 
             if (isNewCourse)
             {
@@ -865,7 +876,7 @@
             FilterAndSortCourses();
             showEditForm = false;
             GoToPage(1); // Go back to the first page
-           
+
             Console.WriteLine("SaveCourse: Save process complete. Form reset.");
         }
         catch (Exception ex)
@@ -881,7 +892,7 @@
         validationMessage = string.Empty;
         showNewTopicInput = false;
         newTopicName = string.Empty;
-      
+
         courseToEdit = new CourseDTO
         {
             CourseId = "",
@@ -920,7 +931,7 @@
                 if (success)
                 {
                     Console.WriteLine($"Course '{courseToDelete.CourseName}' (ID: {courseId}) deleted successfully.");
-                  
+
                     Console.WriteLine("DeleteCourse: Reloading all data after deletion...");
                     await LoadAllDataAsync(); // Reload all data including courses
                     FilterAndSortCourses();
@@ -942,5 +953,5 @@
         }
     }
 
-  
+
 }

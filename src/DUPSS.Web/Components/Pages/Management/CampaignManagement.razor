@@ -1,6 +1,7 @@
 ﻿@page "/Management/Campaign"
 @using DUPSS.API.Models.DTOs;
-@using DUPSS.API.Models.Objects; @* Added for Campaign model if needed for CreateAsync in DAO, though DTOs are preferred for UI *@
+@using DUPSS.API.Models.Objects;
+@* Added for Campaign model if needed for CreateAsync in DAO, though DTOs are preferred for UI *@
 @using DUPSS.Web.Components.Layout
 @using DUPSS.Web.Components.Service
 @inject CampaignApiService CampaignApiService
@@ -12,244 +13,248 @@
 @layout ManagementLayout
 <AuthorizeView Roles="AD,ST,MA">
     <Authorized>
-<div class="campaign-management-container">
-    <div class="header-section">
-        <h1 class="page-title">Campaign Management</h1>
-        <div class="actions">
-            <button class="add-campaign-button" @onclick="AddCampaign">
-                <i class="bi bi-plus-circle"></i> ADD CAMPAIGN
-            </button>
-        </div>
-    </div>
+        <div class="campaign-management-container">
+            <div class="header-section">
+                <h1 class="page-title">Campaign Management</h1>
+                <div class="actions">
+                    <button class="add-campaign-button" @onclick="AddCampaign">
+                        <i class="bi bi-plus-circle"></i> ADD CAMPAIGN
+                    </button>
+                </div>
+            </div>
 
-    <div class="filter-sort-section">
-        <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by ID, Title, Description, Staff"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCampaigns"/>
-        </div>
+            <div class="filter-sort-section">
+                <div class="search-input-container">
+                    <input type="text" class="form-control" placeholder="Search by ID, Title, Description, Staff"
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortCampaigns"/>
+                </div>
 
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnStaffFilterChanged">
-                <option value="">All Staff</option>
-                @if (staffUsers != null)
-                {
-                    @foreach (var staff in staffUsers)
-                    {
-                        <option value="@staff.UserId">@staff.Username</option>
-                    }
-                }
-            </select>
-        </div>
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnStaffFilterChanged">
+                        <option value="">All Staff</option>
+                        @if (staffUsers != null)
+                        {
+                            @foreach (var staff in staffUsers)
+                            {
+                                <option value="@staff.UserId">@staff.Username</option>
+                            }
+                        }
+                    </select>
+                </div>
 
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnStatusFilterChanged">
-                <option value="">All Statuses</option>
-                <option value="Active">Active</option>
-                <option value="Planned">Planned</option>
-                <option value="Completed">Completed</option>
-            </select>
-        </div>
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnStatusFilterChanged">
+                        <option value="">All Statuses</option>
+                        <option value="Active">Active</option>
+                        <option value="Planned">Planned</option>
+                        <option value="Completed">Completed</option>
+                    </select>
+                </div>
 
-        <div class="sort-controls">
-            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCampaigns">
-                <option value="CampaignId">Sort by Campaign ID</option>
-                <option value="Title">Sort by Title</option>
-                <option value="StartDate">Sort by Start Date</option>
-                <option value="EndDate">Sort by End Date</option>
-                <option value="Duration">Sort by Duration</option>
-                <option value="Status">Sort by Status</option>
-                <option value="StaffName">Sort by Staff Name</option>
-            </select>
-            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                @if (sortDirection == SortDirection.Ascending)
-                {
-                    <i class="bi bi-sort-alpha-down"></i>
-                }
-                else
-                {
-                    <i class="bi bi-sort-alpha-down-alt"></i>
-                }
-            </button>
+                <div class="sort-controls">
+                    <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortCampaigns">
+                        <option value="CampaignId">Sort by Campaign ID</option>
+                        <option value="Title">Sort by Title</option>
+                        <option value="StartDate">Sort by Start Date</option>
+                        <option value="EndDate">Sort by End Date</option>
+                        <option value="Duration">Sort by Duration</option>
+                        <option value="Status">Sort by Status</option>
+                        <option value="StaffName">Sort by Staff Name</option>
+                    </select>
+                    <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                        @if (sortDirection == SortDirection.Ascending)
+                        {
+                            <i class="bi bi-sort-alpha-down"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-sort-alpha-down-alt"></i>
+                        }
+                    </button>
 
-         
-            <a href="https://docs.google.com/forms/d/1B5D9HmpeqaLFPhCVAKgrESUhrUndYZvL2Jpq0fzr7Uc/edit" class="btn">Edit Survey before campaign</a> 
-             <a href="https://docs.google.com/forms/d/1yuuH_Z6OvJK-fOdL7vJH_wf3bkwG7lTT_-qvgWTN0No/edit" class="btn">Edit Survey after campaign</a> 
-             <a href="https://docs.google.com/spreadsheets/d/1OuSVpHf3uKSlDQ_5URN_AEE45YRXw6vKPVbLXcEZFiI/edit?resourcekey=&gid=996327744#gid=996327744" class="btn">Answer Report</a>
-        </div>
-    </div>
 
-    @if (campaigns == null || staffUsers == null || roles == null)
-    {
-        <div class="loading-indicator">Loading campaigns and related data...</div>
-    }
-    else if (hasError)
-    {
-        <div class="error-message">Error loading data. Please try again later.</div>
-    }
-    else if (!filteredCampaigns.Any())
-    {
-        <div class="no-data-message">No campaigns found matching your criteria.</div>
-    }
-    else
-    {
-        <div class="table-container">
-            <table class="campaign-table">
-                <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Campaign ID</th>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Duration</th>
-                    <th>Status</th>
-                    <th>Location</th>
-                    <th>Introduction</th>
-                    <th>Staff Name</th>
-                    <th>Image</th> @* Image Column Header *@
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                @{
-                    var index = (currentPage - 1) * itemsPerPage + 1;
-                }
-                @foreach (var campaign in PaginatedCampaigns)
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@campaign.CampaignId</td>
-                        <td>@campaign.Title</td>
-                        <td>@campaign.Description</td>
-                        <td>@campaign.StartDate.ToString("yyyy-MM-dd")</td>
-                        <td>@campaign.EndDate?.ToString("yyyy-MM-dd")</td>
-                        <td>@(campaign.Duration.HasValue ? $"{campaign.Duration.Value.Days} days" : "-")</td>
-                        <td>
+                    <a href="https://docs.google.com/forms/d/1B5D9HmpeqaLFPhCVAKgrESUhrUndYZvL2Jpq0fzr7Uc/edit"
+                       class="btn">Edit Survey before campaign</a>
+                    <a href="https://docs.google.com/forms/d/1yuuH_Z6OvJK-fOdL7vJH_wf3bkwG7lTT_-qvgWTN0No/edit"
+                       class="btn">Edit Survey after campaign</a>
+                    <a href="https://docs.google.com/spreadsheets/d/1OuSVpHf3uKSlDQ_5URN_AEE45YRXw6vKPVbLXcEZFiI/edit?resourcekey=&gid=996327744#gid=996327744"
+                       class="btn">Answer Report</a>
+                </div>
+            </div>
+
+            @if (campaigns == null || staffUsers == null || roles == null)
+            {
+                <div class="loading-indicator">Loading campaigns and related data...</div>
+            }
+            else if (hasError)
+            {
+                <div class="error-message">Error loading data. Please try again later.</div>
+            }
+            else if (!filteredCampaigns.Any())
+            {
+                <div class="no-data-message">No campaigns found matching your criteria.</div>
+            }
+            else
+            {
+                <div class="table-container">
+                    <table class="campaign-table">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Campaign ID</th>
+                            <th>Title</th>
+                            <th>Description</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Duration</th>
+                            <th>Status</th>
+                            <th>Location</th>
+                            <th>Introduction</th>
+                            <th>Staff Name</th>
+                            <th>Image</th> @* Image Column Header *@
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @{
+                            var index = (currentPage - 1) * itemsPerPage + 1;
+                        }
+                        @foreach (var campaign in PaginatedCampaigns)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@campaign.CampaignId</td>
+                                <td>@campaign.Title</td>
+                                <td>@campaign.Description</td>
+                                <td>@campaign.StartDate.ToString("yyyy-MM-dd")</td>
+                                <td>@campaign.EndDate?.ToString("yyyy-MM-dd")</td>
+                                <td>@(campaign.Duration.HasValue ? $"{campaign.Duration.Value.Days} days" : "-")</td>
+                                <td>
                             <span class="status-badge @GetStatusClass(campaign.Status)">
                                 @campaign.Status
                             </span>
-                        </td>
-                        <td>@campaign.Location</td>
-                        <td>@(campaign.Introduction?.Length > 100 ? campaign.Introduction.Substring(0, 100) + "..." : campaign.Introduction)</td>
-                        <td>@campaign.Staff?.Username</td>
-                        <td> @* Image Column Cell *@
-                            @if (!string.IsNullOrEmpty(campaign.ImageUrl))
-                            {
-                                <img src="@campaign.ImageUrl" alt="Campaign Image" class="table-campaign-image" />
-                            }
-                            else
-                            {
-                                <span class="no-image-available">N/A</span>
-                            }
-                        </td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary me-2"
-                                        @onclick="() => EditCampaign(campaign.CampaignId)">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger"
-                                        @onclick="() => DeleteCampaign(campaign.CampaignId)">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    index++;
-                }
-                </tbody>
-            </table>
-        </div>
+                                </td>
+                                <td>@campaign.Location</td>
+                                <td>@(campaign.Introduction?.Length > 100 ? campaign.Introduction.Substring(0, 100) + "..." : campaign.Introduction)</td>
+                                <td>@campaign.Staff?.Username</td>
+                                <td> @* Image Column Cell *@
+                                    @if (!string.IsNullOrEmpty(campaign.ImageUrl))
+                                    {
+                                        <img src="@campaign.ImageUrl" alt="Campaign Image"
+                                             class="table-campaign-image"/>
+                                    }
+                                    else
+                                    {
+                                        <span class="no-image-available">N/A</span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary me-2"
+                                                @onclick="() => EditCampaign(campaign.CampaignId)">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger"
+                                                @onclick="() => DeleteCampaign(campaign.CampaignId)">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                        </tbody>
+                    </table>
+                </div>
 
-        <div class="d-flex justify-content-center mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageIndex = i;
-                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
-                    @pageIndex
-                </button>
-            }
-        </div>
-    }
-
-    @if (showEditForm)
-    {
-        <div class="card p-3 my-4 edit-form-card">
-            <h5>@(isNewCampaign ? "Add New Campaign" : "Edit Campaign: " + campaignToEdit.Title)</h5>
-
-            @if (!string.IsNullOrEmpty(validationMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @validationMessage
+                <div class="d-flex justify-content-center mt-3">
+                    @for (var i = 1; i <= TotalPages; i++)
+                    {
+                        var pageIndex = i;
+                        <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                                @onclick="() => GoToPage(pageIndex)">
+                            @pageIndex
+                        </button>
+                    }
                 </div>
             }
 
-            <div class="mb-3">
-                <label class="form-label">Title</label>
-                <input class="form-control" @bind="campaignToEdit.Title"/>
-            </div>
+            @if (showEditForm)
+            {
+                <div class="card p-3 my-4 edit-form-card">
+                    <h5>@(isNewCampaign ? "Add New Campaign" : "Edit Campaign: " + campaignToEdit.Title)</h5>
 
-            <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea class="form-control" @bind="campaignToEdit.Description" rows="3"></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Start Date</label>
-                <input type="date" class="form-control" @bind="campaignToEdit.StartDate"/>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">End Date</label>
-                <input type="date" class="form-control" @bind="campaignToEdit.EndDate"/>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" @bind="campaignToEdit.Status">
-                    <option value="">Select Status</option>
-                    <option value="Active">Active</option>
-                    <option value="Planned">Planned</option>
-                    <option value="Completed">Completed</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Location</label>
-                <input class="form-control" @bind="campaignToEdit.Location" />
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Introduction</label>
-                <textarea class="form-control" @bind="campaignToEdit.Introduction" rows="3"></textarea>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Staff</label>
-                <select class="form-select" @bind="campaignToEdit.StaffId">
-                    <option value="">Select Staff</option>
-                    @if (staffUsers != null)
+                    @if (!string.IsNullOrEmpty(validationMessage))
                     {
-                        @foreach (var staff in staffUsers)
-                        {
-                            <option value="@staff.UserId">@staff.Username</option>
-                        }
+                        <div class="alert alert-danger" role="alert">
+                            @validationMessage
+                        </div>
                     }
-                </select>
-            </div>
 
-           
+                    <div class="mb-3">
+                        <label class="form-label">Title</label>
+                        <input class="form-control" @bind="campaignToEdit.Title"/>
+                    </div>
 
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea class="form-control" @bind="campaignToEdit.Description" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Start Date</label>
+                        <input type="date" class="form-control" @bind="campaignToEdit.StartDate"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">End Date</label>
+                        <input type="date" class="form-control" @bind="campaignToEdit.EndDate"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" @bind="campaignToEdit.Status">
+                            <option value="">Select Status</option>
+                            <option value="Active">Active</option>
+                            <option value="Planned">Planned</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Location</label>
+                        <input class="form-control" @bind="campaignToEdit.Location"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Introduction</label>
+                        <textarea class="form-control" @bind="campaignToEdit.Introduction" rows="3"></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Staff</label>
+                        <select class="form-select" @bind="campaignToEdit.StaffId">
+                            <option value="">Select Staff</option>
+                            @if (staffUsers != null)
+                            {
+                                @foreach (var staff in staffUsers)
+                                {
+                                    <option value="@staff.UserId">@staff.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+
+
+                    <div>
+                        <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
+                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                </div>
+            }
         </div>
-    }
-</div>
- </Authorized>
+    </Authorized>
     <NotAuthorized>
         <div class="access-denied">
             <h2>Access Denied</h2>
@@ -326,7 +331,7 @@
         {
             Console.WriteLine("CampaignManagement: OnInitializedAsync: Starting data load.");
 
-           
+
 
             await LoadAllDataAsync();
             FilterAndSortCampaigns();
@@ -391,7 +396,9 @@
                         Console.WriteLine($"CampaignManagement: LoadAllDataAsync: No image found for CampaignId {campaign.CampaignId} in {imagesPath}");
                         campaign.ImageUrl = ""; // Ensure it's empty if no image is found
                     }
-                } else {
+                }
+                else
+                {
                     campaign.ImageUrl = ""; // Ensure it's empty if CampaignId is null/empty
                 }
 
@@ -524,7 +531,8 @@
         if (campaigns != null && campaigns.Any())
         {
             maxIdNum = campaigns
-                .Select(c => {
+                .Select(c =>
+                {
                     if (c.CampaignId != null && c.CampaignId.StartsWith("CAM", StringComparison.OrdinalIgnoreCase) &&
                         c.CampaignId.Length == 7 && // "CAM" (3 chars) + 4 digits = 7 chars
                         int.TryParse(c.CampaignId.Substring(3), out var num))
@@ -598,7 +606,7 @@
         }
     }
 
-    
+
     private async Task SaveCampaign()
     {
         Console.WriteLine("CampaignManagement: SaveCampaign: Starting save process.");
@@ -661,7 +669,7 @@
 
         try
         {
-          
+
 
             if (isNewCampaign)
             {
@@ -697,7 +705,7 @@
     {
         Console.WriteLine("CampaignManagement: CancelEdit: Cancelling edit/add operation.");
         validationMessage = string.Empty;
-      
+
         campaignToEdit = new CampaignDTO
         {
             CampaignId = "",
@@ -736,7 +744,7 @@
                 if (success)
                 {
                     Console.WriteLine($"CampaignManagement: Campaign '{campaignToDelete.Title}' (ID: {campaignId}) deleted successfully.");
-                  
+
 
                     // Refresh data after successful deletion
                     Console.WriteLine("CampaignManagement: DeleteCampaign: Reloading all data after deletion...");

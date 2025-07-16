@@ -10,229 +10,229 @@
 @layout ManagementLayout
 <AuthorizeView Roles="AD,ST,MA">
     <Authorized>
-<div class="enroll-management-container">
-    <div class="header-section">
-        <h1 class="page-title">Course Enrollment Management</h1>
-        <div class="actions">
-            <button class="add-enrollment-button" @onclick="AddEnrollment">
-                <i class="bi bi-plus-circle"></i> ADD ENROLLMENT
-            </button>
-        </div>
-    </div>
+        <div class="enroll-management-container">
+            <div class="header-section">
+                <h1 class="page-title">Course Enrollment Management</h1>
+                <div class="actions">
+                    <button class="add-enrollment-button" @onclick="AddEnrollment">
+                        <i class="bi bi-plus-circle"></i> ADD ENROLLMENT
+                    </button>
+                </div>
+            </div>
 
-    <div class="filter-sort-section">
-        <div class="search-input-container">
-            <input type="text" class="form-control" placeholder="Search by Enroll ID, Member, Course, Status"
-                   @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortEnrollments"/>
-        </div>
+            <div class="filter-sort-section">
+                <div class="search-input-container">
+                    <input type="text" class="form-control" placeholder="Search by Enroll ID, Member, Course, Status"
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterAndSortEnrollments"/>
+                </div>
 
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnStatusFilterChanged">
-                <option value="">All Statuses</option>
-                <option value="Enrolled">Enrolled</option>
-                <option value="Completed">Completed</option>
-                <option value="Dropped">Dropped</option>
-            </select>
-        </div>
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnStatusFilterChanged">
+                        <option value="">All Statuses</option>
+                        <option value="Enrolled">Enrolled</option>
+                        <option value="Completed">Completed</option>
+                        <option value="Dropped">Dropped</option>
+                    </select>
+                </div>
 
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnMemberFilterChanged">
-                <option value="">All Members</option>
-                @if (members != null)
-                {
-                    @foreach (var member in members)
-                    {
-                        <option value="@member.UserId">@member.Username</option>
-                    }
-                }
-            </select>
-        </div>
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnMemberFilterChanged">
+                        <option value="">All Members</option>
+                        @if (members != null)
+                        {
+                            @foreach (var member in members)
+                            {
+                                <option value="@member.UserId">@member.Username</option>
+                            }
+                        }
+                    </select>
+                </div>
 
-        <div class="filter-dropdown-container">
-            <select class="form-select" @onchange="OnCourseFilterChanged">
-                <option value="">All Courses</option>
-                @if (courses != null)
-                {
-                    @foreach (var course in courses)
-                    {
-                        <option value="@course.CourseId">@course.CourseName</option>
-                    }
-                }
-            </select>
-        </div>
+                <div class="filter-dropdown-container">
+                    <select class="form-select" @onchange="OnCourseFilterChanged">
+                        <option value="">All Courses</option>
+                        @if (courses != null)
+                        {
+                            @foreach (var course in courses)
+                            {
+                                <option value="@course.CourseId">@course.CourseName</option>
+                            }
+                        }
+                    </select>
+                </div>
 
-        <div class="sort-controls">
-            <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortEnrollments">
-                <option value="EnrollId">Sort by Enroll ID</option>
-                <option value="EnrollDate">Sort by Enroll Date</option>
-                <option value="CompleteDate">Sort by Complete Date</option>
-                <option value="MemberName">Sort by Member Name</option>
-                <option value="CourseName">Sort by Course Name</option>
-                <option value="Status">Sort by Status</option>
-            </select>
-            <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
-                @if (sortDirection == SortDirection.Ascending)
-                {
-                    <i class="bi bi-sort-alpha-down"></i>
-                }
-                else
-                {
-                    <i class="bi bi-sort-alpha-down-alt"></i>
-                }
-            </button>
-        </div>
-    </div>
+                <div class="sort-controls">
+                    <select class="form-select" @bind="sortBy" @bind:after="FilterAndSortEnrollments">
+                        <option value="EnrollId">Sort by Enroll ID</option>
+                        <option value="EnrollDate">Sort by Enroll Date</option>
+                        <option value="CompleteDate">Sort by Complete Date</option>
+                        <option value="MemberName">Sort by Member Name</option>
+                        <option value="CourseName">Sort by Course Name</option>
+                        <option value="Status">Sort by Status</option>
+                    </select>
+                    <button class="btn btn-outline-primary sort-direction-button" @onclick="ToggleSortDirection">
+                        @if (sortDirection == SortDirection.Ascending)
+                        {
+                            <i class="bi bi-sort-alpha-down"></i>
+                        }
+                        else
+                        {
+                            <i class="bi bi-sort-alpha-down-alt"></i>
+                        }
+                    </button>
+                </div>
+            </div>
 
-    @if (enrollments == null || members == null || courses == null)
-    {
-        <div class="loading-indicator">Loading enrollments and related data...</div>
-    }
-    else if (hasError)
-    {
-        <div class="error-message">Error loading data. Please try again later.</div>
-    }
-    else if (!filteredEnrollments.Any())
-    {
-        <div class="no-data-message">No enrollments found matching your criteria.</div>
-    }
-    else
-    {
-        <div class="table-container">
-            <table class="enrollment-table">
-                <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Enroll ID</th>
-                    <th>Member Name</th>
-                    <th>Course Name</th>
-                    <th>Status</th>
-                    <th>Enroll Date</th>
-                    <th>Complete Date</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                @{
-                    var index = (currentPage - 1) * itemsPerPage + 1;
-                }
-                @foreach (var enroll in PaginatedEnrollments)
-                {
-                    <tr>
-                        <td>@index</td>
-                        <td>@enroll.EnrollId</td> 
-                        <td>@enroll.Member?.Username</td>
-                        <td>@enroll.Course?.CourseName</td>
-                        <td>
+            @if (enrollments == null || members == null || courses == null)
+            {
+                <div class="loading-indicator">Loading enrollments and related data...</div>
+            }
+            else if (hasError)
+            {
+                <div class="error-message">Error loading data. Please try again later.</div>
+            }
+            else if (!filteredEnrollments.Any())
+            {
+                <div class="no-data-message">No enrollments found matching your criteria.</div>
+            }
+            else
+            {
+                <div class="table-container">
+                    <table class="enrollment-table">
+                        <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Enroll ID</th>
+                            <th>Member Name</th>
+                            <th>Course Name</th>
+                            <th>Status</th>
+                            <th>Enroll Date</th>
+                            <th>Complete Date</th>
+                            <th>Action</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @{
+                            var index = (currentPage - 1) * itemsPerPage + 1;
+                        }
+                        @foreach (var enroll in PaginatedEnrollments)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@enroll.EnrollId</td>
+                                <td>@enroll.Member?.Username</td>
+                                <td>@enroll.Course?.CourseName</td>
+                                <td>
                             <span class="status-badge @GetStatusClass(enroll.Status)">
                                 @enroll.Status
                             </span>
-                        </td>
-                        <td>@enroll.EnrollDate.ToString("yyyy-MM-dd")</td>
-                        <td>@(enroll.CompleteDate?.ToString("yyyy-MM-dd") ?? "-")</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-sm btn-primary me-2"
-                                        @onclick="() => EditEnrollment(enroll.EnrollId)">
-                                    <i class="bi bi-three-dots-vertical"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger"
-                                        @onclick="() => DeleteEnrollment(enroll.EnrollId)">
-                                    <i class="bi bi-trash3-fill"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    index++;
-                }
-                </tbody>
-            </table>
-        </div>
+                                </td>
+                                <td>@enroll.EnrollDate.ToString("yyyy-MM-dd")</td>
+                                <td>@(enroll.CompleteDate?.ToString("yyyy-MM-dd") ?? "-")</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary me-2"
+                                                @onclick="() => EditEnrollment(enroll.EnrollId)">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger"
+                                                @onclick="() => DeleteEnrollment(enroll.EnrollId)">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
+                        </tbody>
+                    </table>
+                </div>
 
-        <div class="d-flex justify-content-center mt-3">
-            @for (var i = 1; i <= TotalPages; i++)
-            {
-                var pageIndex = i;
-                <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
-                        @onclick="() => GoToPage(pageIndex)">
-                    @pageIndex
-                </button>
-            }
-        </div>
-    }
-
-    @if (showEditForm)
-    {
-        <div class="card p-3 my-4 edit-form-card">
-            <h5>@(isNewEnrollment ? "Add New Enrollment" : "Edit Enrollment: " + enrollmentToEdit.EnrollId)</h5>
-
-            @if (!string.IsNullOrEmpty(validationMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @validationMessage
+                <div class="d-flex justify-content-center mt-3">
+                    @for (var i = 1; i <= TotalPages; i++)
+                    {
+                        var pageIndex = i;
+                        <button class="btn btn-outline-primary mx-1 @(pageIndex == currentPage ? "active" : "")"
+                                @onclick="() => GoToPage(pageIndex)">
+                            @pageIndex
+                        </button>
+                    }
                 </div>
             }
 
-            <div class="mb-3">
-                <label class="form-label">Enroll ID</label>
-                @* UPDATED: Always disable the EnrollId input field *@
-                <input class="form-control" @bind="enrollmentToEdit.EnrollId" disabled="true"/>
-            </div>
+            @if (showEditForm)
+            {
+                <div class="card p-3 my-4 edit-form-card">
+                    <h5>@(isNewEnrollment ? "Add New Enrollment" : "Edit Enrollment: " + enrollmentToEdit.EnrollId)</h5>
 
-            <div class="mb-3">
-                <label class="form-label">Member</label>
-                <select class="form-select" @bind="enrollmentToEdit.MemberId">
-                    <option value="">Select Member</option>
-                    @if (members != null)
+                    @if (!string.IsNullOrEmpty(validationMessage))
                     {
-                        @foreach (var member in members)
-                        {
-                            <option value="@member.UserId">@member.Username</option>
-                        }
+                        <div class="alert alert-danger" role="alert">
+                            @validationMessage
+                        </div>
                     }
-                </select>
-            </div>
 
-            <div class="mb-3">
-                <label class="form-label">Course</label>
-                <select class="form-select" @bind="enrollmentToEdit.CourseId">
-                    <option value="">Select Course</option>
-                    @if (courses != null)
-                    {
-                        @foreach (var course in courses)
-                        {
-                            <option value="@course.CourseId">@course.CourseName</option>
-                        }
-                    }
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enroll ID</label>
+                        @* UPDATED: Always disable the EnrollId input field *@
+                        <input class="form-control" @bind="enrollmentToEdit.EnrollId" disabled="true"/>
+                    </div>
 
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" @bind="enrollmentToEdit.Status">
-                    <option value="">Select Status</option>
-                    <option value="Enrolled">Enrolled</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Dropped">Dropped</option>
-                </select>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Member</label>
+                        <select class="form-select" @bind="enrollmentToEdit.MemberId">
+                            <option value="">Select Member</option>
+                            @if (members != null)
+                            {
+                                @foreach (var member in members)
+                                {
+                                    <option value="@member.UserId">@member.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
 
-            <div class="mb-3">
-                <label class="form-label">Enroll Date</label>
-                <input type="date" class="form-control" @bind="enrollmentToEdit.EnrollDate"/>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Course</label>
+                        <select class="form-select" @bind="enrollmentToEdit.CourseId">
+                            <option value="">Select Course</option>
+                            @if (courses != null)
+                            {
+                                @foreach (var course in courses)
+                                {
+                                    <option value="@course.CourseId">@course.CourseName</option>
+                                }
+                            }
+                        </select>
+                    </div>
 
-            <div class="mb-3">
-                <label class="form-label">Complete Date</label>
-                <input type="date" class="form-control" @bind="enrollmentToEdit.CompleteDate"/>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" @bind="enrollmentToEdit.Status">
+                            <option value="">Select Status</option>
+                            <option value="Enrolled">Enrolled</option>
+                            <option value="Completed">Completed</option>
+                            <option value="Dropped">Dropped</option>
+                        </select>
+                    </div>
 
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveEnrollment">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-            </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enroll Date</label>
+                        <input type="date" class="form-control" @bind="enrollmentToEdit.EnrollDate"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Complete Date</label>
+                        <input type="date" class="form-control" @bind="enrollmentToEdit.CompleteDate"/>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-success me-2" @onclick="SaveEnrollment">Save</button>
+                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
+                </div>
+            }
         </div>
-    }
-</div>
     </Authorized>
     <NotAuthorized>
         <div class="access-denied">
@@ -244,10 +244,11 @@
         </div>
     </NotAuthorized>
 </AuthorizeView>
+
 @code {
     private List<CourseEnrollDTO>? enrollments;
     private List<CourseEnrollDTO> filteredEnrollments = new List<CourseEnrollDTO>();
-    private List<UserDTO>? members; 
+    private List<UserDTO>? members;
     private List<CourseDTO>? courses;
     private bool hasError = false;
     private int currentPage = 1;
@@ -446,7 +447,8 @@
         if (enrollments != null && enrollments.Any())
         {
             maxIdNum = enrollments
-                .Select(e => {
+                .Select(e =>
+                {
                     if (e.EnrollId != null && e.EnrollId.StartsWith("CE") && int.TryParse(e.EnrollId.Substring(2), out var num))
                     {
                         return num;

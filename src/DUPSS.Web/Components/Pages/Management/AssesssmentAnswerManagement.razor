@@ -57,11 +57,11 @@
                     </div>
                     <div class="form-group">
                         <label for="scoreValue">Score Value:</label>
-                        <input id="scoreValue" type="number" @bind="newAnswer.ScoreValue" />
+                        <input id="scoreValue" type="number" @bind="newAnswer.ScoreValue"/>
                     </div>
                     <div class="form-group">
                         <label for="scoreDescription">Score Description (Optional):</label>
-                        <input id="scoreDescription" @bind="newAnswer.ScoreDescription" />
+                        <input id="scoreDescription" @bind="newAnswer.ScoreDescription"/>
                     </div>
                     <div class="form-actions">
                         <button type="submit">Create Answer</button>
@@ -77,28 +77,28 @@
             {
                 <table>
                     <thead>
-                        <tr>
-                            <th>Answer Text</th>
-                            <th>Score Value</th>
-                            <th>Score Description</th>
-                            <th>Details</th>
-                            <th>Actions</th>
-                        </tr>
+                    <tr>
+                        <th>Answer Text</th>
+                        <th>Score Value</th>
+                        <th>Score Description</th>
+                        <th>Details</th>
+                        <th>Actions</th>
+                    </tr>
                     </thead>
                     <tbody>
-                        @foreach (var answer in answers)
-                        {
-                            <tr>
-                                <td>@answer.Answer</td>
-                                <td>@answer.ScoreValue</td>
-                                <td>@(answer.ScoreDescription ?? "N/A")</td>
-                                <td>@(answer.AnswerDetails ?? "N/A")</td>
-                                <td>
-                                    <button @onclick="() => EditAnswer(answer)">Edit</button>
-                                    <button @onclick="() => DeleteAnswer(answer.AnswerId)">Delete</button>
-                                </td>
-                            </tr>
-                        }
+                    @foreach (var answer in answers)
+                    {
+                        <tr>
+                            <td>@answer.Answer</td>
+                            <td>@answer.ScoreValue</td>
+                            <td>@(answer.ScoreDescription ?? "N/A")</td>
+                            <td>@(answer.AnswerDetails ?? "N/A")</td>
+                            <td>
+                                <button @onclick="() => EditAnswer(answer)">Edit</button>
+                                <button @onclick="() => DeleteAnswer(answer.AnswerId)">Delete</button>
+                            </td>
+                        </tr>
+                    }
                     </tbody>
                 </table>
             }
@@ -123,11 +123,11 @@
                     </div>
                     <div class="form-group">
                         <label for="editScoreValue">Score Value:</label>
-                        <input id="editScoreValue" type="number" @bind="editingAnswer.ScoreValue" />
+                        <input id="editScoreValue" type="number" @bind="editingAnswer.ScoreValue"/>
                     </div>
                     <div class="form-group">
                         <label for="editScoreDescription">Score Description (Optional):</label>
-                        <input id="editScoreDescription" @bind="editingAnswer.ScoreDescription" />
+                        <input id="editScoreDescription" @bind="editingAnswer.ScoreDescription"/>
                     </div>
                     <div class="form-actions">
                         <button type="submit">Update Answer</button>

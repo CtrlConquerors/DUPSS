@@ -22,14 +22,16 @@
             <div class="header-section">
                 <div class="page-title">User Management</div>
                 <div class="actions">
-                    <button class="create" @onclick="ShowCreateUserForm"><i class="bi bi-plus-circle"></i>Create New User</button>
+                    <button class="create" @onclick="ShowCreateUserForm"><i class="bi bi-plus-circle"></i>Create New
+                        User
+                    </button>
                 </div>
             </div>
 
             <div class="filter-sort-section">
                 <div class="search-input-container">
                     <input type="text" class="form-control" placeholder="Search by Username, Email, or Phone Number"
-                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers" />
+                           @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterUsers"/>
                 </div>
                 <div class="filter-dropdown-container">
                     <select class="form-select" @onchange="OnRoleFilterChanged">
@@ -72,46 +74,47 @@
                 <div class="table-container">
                     <table class="user-table">
                         <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Phone Number</th>
-                                <th>Date of Birth</th>
-                                <th>Role</th>
-                                <th>Action</th>
-                            </tr>
+                        <tr>
+                            <th>No</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Phone Number</th>
+                            <th>Date of Birth</th>
+                            <th>Role</th>
+                            <th>Action</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            @{
-                                var index = (currentPage - 1) * itemsPerPage + 1;
-                            }
-                            @foreach (var user in PaginatedUsers)
-                            {
-                                <tr>
-                                    <td>@index</td>
-                                    <td>@user.Username</td>
-                                    <td>@user.Email</td>
-                                    <td>@user.PhoneNumber</td>
-                                    <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
-                                    <td>@user.Role!.RoleName</td>
-                                    <td>
-                                        <div class="action-buttons">
-                                            <button class="btn btn-sm btn-primary me-2"
-                                                    @onclick="() => EditUser(user.UserId)">
-                                                <i class="bi bi-three-dots-vertical"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">
-                                                <i class="bi bi-trash3-fill"></i>
-                                            </button>
-                                            <button class="btn btn-sm btn-info" @onclick="@(() => ViewCampaignHistory(user.UserId))">
-                                                Campaign History
-                                            </button>
-                                        </div>
-                                    </td>
-                                </tr>
-                                index++;
-                            }
+                        @{
+                            var index = (currentPage - 1) * itemsPerPage + 1;
+                        }
+                        @foreach (var user in PaginatedUsers)
+                        {
+                            <tr>
+                                <td>@index</td>
+                                <td>@user.Username</td>
+                                <td>@user.Email</td>
+                                <td>@user.PhoneNumber</td>
+                                <td>@user.DoB?.ToString("yyyy-MM-dd")</td>
+                                <td>@user.Role!.RoleName</td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn btn-sm btn-primary me-2"
+                                                @onclick="() => EditUser(user.UserId)">
+                                            <i class="bi bi-three-dots-vertical"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteUser(user.UserId)">
+                                            <i class="bi bi-trash3-fill"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-info"
+                                                @onclick="@(() => ViewCampaignHistory(user.UserId))">
+                                            Campaign History
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            index++;
+                        }
                         </tbody>
                     </table>
                 </div>
@@ -132,23 +135,23 @@
                         <h5>Create New User</h5>
                         <div class="mb-3">
                             <label class="form-label">Username <span class="text-danger">*</span></label>
-                            <input class="form-control" @bind="newUser.Username" />
+                            <input class="form-control" @bind="newUser.Username"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input class="form-control" type="email" @bind="newUser.Email" />
+                            <input class="form-control" type="email" @bind="newUser.Email"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Password <span class="text-danger">*</span></label>
-                            <input class="form-control" type="password" @bind="newUserPassword" />
+                            <input class="form-control" type="password" @bind="newUserPassword"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Phone Number</label>
-                            <input class="form-control" @bind="newUser.PhoneNumber" />
+                            <input class="form-control" @bind="newUser.PhoneNumber"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" @bind="newUser.DoB" />
+                            <input type="date" class="form-control" @bind="newUser.DoB"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Role <span class="text-danger">*</span></label>
@@ -178,19 +181,19 @@
                         <h5>Edit User: @editingUser.Username</h5>
                         <div class="mb-3">
                             <label class="form-label">Username <span class="text-danger">*</span></label>
-                            <input class="form-control" @bind="editingUser.Username" />
+                            <input class="form-control" @bind="editingUser.Username"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input class="form-control" type="email" @bind="editingUser.Email" />
+                            <input class="form-control" type="email" @bind="editingUser.Email"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Phone Number</label>
-                            <input class="form-control" @bind="editingUser.PhoneNumber" />
+                            <input class="form-control" @bind="editingUser.PhoneNumber"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" @bind="editingUser.DoB" />
+                            <input type="date" class="form-control" @bind="editingUser.DoB"/>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Role <span class="text-danger">*</span></label>
@@ -222,21 +225,21 @@
                         {
                             <table class="table table-bordered">
                                 <thead>
-                                    <tr>
-                                        <th>Campaign Name</th>
-                                        <th>Name</th>
-                                        <th>Status</th>
-                                    </tr>
+                                <tr>
+                                    <th>Campaign Name</th>
+                                    <th>Name</th>
+                                    <th>Status</th>
+                                </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var campaign in userCampaigns)
-                                    {
-                                        <tr>
-                                            <td>@campaign.Title</td>
-                                            <td>@campaign.StartDate.ToString("dd/MM/yyyy") - @campaign.EndDate?.ToString("dd/MM/yyyy")</td>
-                                            <td>@campaign.Status.ToString()</td>
-                                        </tr>
-                                    }
+                                @foreach (var campaign in userCampaigns)
+                                {
+                                    <tr>
+                                        <td>@campaign.Title</td>
+                                        <td>@campaign.StartDate.ToString("dd/MM/yyyy") - @campaign.EndDate?.ToString("dd/MM/yyyy")</td>
+                                        <td>@campaign.Status.ToString()</td>
+                                    </tr>
+                                }
                                 </tbody>
                             </table>
                         }
@@ -247,7 +250,8 @@
                             </div>
                         }
 
-                        <button class="btn btn-secondary mt-2" @onclick="() => showCampaignHistory = false">Close</button>
+                        <button class="btn btn-secondary mt-2" @onclick="() => showCampaignHistory = false">Close
+                        </button>
                     </div>
                 }
             }
@@ -375,9 +379,9 @@
 
         filteredUsers = users.Where(user =>
             (string.IsNullOrWhiteSpace(searchTerm) ||
-            (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)) &&
+             (user.Username?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+             (user.Email?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false) ||
+             (user.PhoneNumber?.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ?? false)) &&
             (string.IsNullOrWhiteSpace(selectedRoleId) || (user.RoleId == selectedRoleId))
         ).ToList();
 

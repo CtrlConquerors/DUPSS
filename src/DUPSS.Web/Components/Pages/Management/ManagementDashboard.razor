@@ -15,202 +15,211 @@
 
 <AuthorizeView Roles="AD,MA">
     <Authorized>
-<h1>Management Dashboard</h1>
-<button class="btn btn-primary mb-3" @onclick="ExportDashboardReport">
-    <i class="bi bi-download"></i> Export Report
-</button>
-@if (userName == null)
-{
-    <p>Loading...</p>
-}
-else
-{
-    <p>Welcome @userName to the management home page. Here you can manage various aspects of the application.</p>
-}
-
-<div class="dashboard-main-grid">
-    <div id="dashboard-cards" class="dashboard-cards">
-        @for (int i = 0; i < dashboardCards.Count; i++)
+        <h1>Management Dashboard</h1>
+        <button class="btn btn-primary mb-3" @onclick="ExportDashboardReport">
+            <i class="bi bi-download"></i> Export Report
+        </button>
+        @if (userName == null)
         {
-            var card = dashboardCards[i];
-            <div class="dashboard-card"
-                 data-index="@i"
-                 draggable="true">
-                <div class="dashboard-card-icon @card.IconBg">
-                    <i class="@card.BootstrapIcon"></i>
-                </div>
-                <div class="dashboard-card-content">
-                    <div class="dashboard-card-title">@card.Title</div>
-                    <div class="dashboard-card-value">@card.Value</div>
-                </div>
-            </div>
+            <p>Loading...</p>
         }
-        <!-- User Growth Mini Chart (not draggable for simplicity) -->
-        <div class="dashboard-card" style="flex-direction:column; align-items:flex-start;">
-            <div style="display:flex;align-items:center;width:100%;">
-                <div class="dashboard-card-icon bg-purple"><i class="fas fa-chart-line"></i></div>
-                <div>
-                    <div class="dashboard-card-title">User Growth</div>
-                    <div class="dashboard-card-value" style="font-size:1.3rem;">
-                        @growthDisplay <span style="font-size:1rem;color:#22c55e;">this month</span>
+        else
+        {
+            <p>Welcome @userName to the management home page. Here you can manage various aspects of the
+                application.</p>
+        }
+
+        <div class="dashboard-main-grid">
+            <div id="dashboard-cards" class="dashboard-cards">
+                @for (int i = 0; i < dashboardCards.Count; i++)
+                {
+                    var card = dashboardCards[i];
+                    <div class="dashboard-card"
+                         data-index="@i"
+                         draggable="true">
+                        <div class="dashboard-card-icon @card.IconBg">
+                            <i class="@card.BootstrapIcon"></i>
+                        </div>
+                        <div class="dashboard-card-content">
+                            <div class="dashboard-card-title">@card.Title</div>
+                            <div class="dashboard-card-value">@card.Value</div>
+                        </div>
+                    </div>
+                }
+                <!-- User Growth Mini Chart (not draggable for simplicity) -->
+                <div class="dashboard-card" style="flex-direction:column; align-items:flex-start;">
+                    <div style="display:flex;align-items:center;width:100%;">
+                        <div class="dashboard-card-icon bg-purple"><i class="fas fa-chart-line"></i></div>
+                        <div>
+                            <div class="dashboard-card-title">User Growth</div>
+                            <div class="dashboard-card-value" style="font-size:1.3rem;">
+                                @growthDisplay <span style="font-size:1rem;color:#22c55e;">this month</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dashboard-sparkline">
+                        <svg width="100" height="100" viewBox="0 0 100 32">
+                            <polyline fill="none" stroke="#3766ff" stroke-width="3"
+                                      points="0,28 15,22 30,25 45,15 60,18 75,10 90,14 100,8"
+                                      style="filter: drop-shadow(0 1px 3px #3766ff33);"/>
+                        </svg>
                     </div>
                 </div>
             </div>
-            <div class="dashboard-sparkline">
-                <svg width="100" height="100" viewBox="0 0 100 32">
-                    <polyline fill="none" stroke="#3766ff" stroke-width="3"
-                              points="0,28 15,22 30,25 45,15 60,18 75,10 90,14 100,8"
-                              style="filter: drop-shadow(0 1px 3px #3766ff33);" />
-                </svg>
-            </div>
-        </div>
-    </div>
 
-    <!-- Chart & Quick Actions & Profile -->
-    <div class="dashboard-side">
-        <div class="dashboard-chart-card">
-            <div class="dashboard-chart-header">
-                <span>Appointments Trend</span>
-                <span class="dashboard-chart-period">Last 7 days</span>
-            </div>
-            <div class="dashboard-chart-placeholder" style="flex-direction:column;align-items:flex-start;">
+            <!-- Chart & Quick Actions & Profile -->
+            <div class="dashboard-side">
+                <div class="dashboard-chart-card">
+                    <div class="dashboard-chart-header">
+                        <span>Appointments Trend</span>
+                        <span class="dashboard-chart-period">Last 7 days</span>
+                    </div>
+                    <div class="dashboard-chart-placeholder" style="flex-direction:column;align-items:flex-start;">
 
-                <svg width="100%" height="200" viewBox="0 0 250 30">
-                    <!-- Y Axis -->
-                    <line x1="30" y1="-25" x2="30" y2="55" stroke="#bbb" stroke-width="0.5"/>
-                    <!-- X Axis -->
-                    <line x1="30" y1="55" x2="240" y2="55" stroke="#bbb" stroke-width="0.5"/>
-                    <!-- Y Axis Label (at the top) -->
-                    <text x="30" y="-29" font-size="7" fill="#333" text-anchor="middle" font-weight="bold">Appointments</text>
-                    <!-- X Axis Label (at the end of the axis) -->
-                    <text x="235" y="61" font-size="10" fill="#333" text-anchor="middle" font-weight="bold">Day</text>
-                    <!-- Milestone markers at axes -->
-                    <rect x="27" y="18" width="6" height="2" fill="#2563eb" stroke="#fff" stroke-width="1"/>
-                    <!-- Y Axis Labels (0 and max) -->
-                    <text x="15" y="58" font-size="10" fill="#888">0</text>
-                    <text x="15" y="22" font-size="10" fill="#888">5</text>
-                    <text x="15" y="-18" font-size="10" fill="#888">10</text>
-                    @if (appointmentsPerDay.Count == 7)
-                    {
-                        var max = appointmentsPerDay.Max();
-                        @:<text x="5" y="13" font-size="10" fill="#888">@max</text>
-                        // X Axis Day Labels
-                        var days = Enumerable.Range(0, 7)
-                            .Select(offset => DateTime.UtcNow.Date.AddDays(-6 + offset).ToString("ddd")).ToList();
-                        int xStep = 36;
-                        int xStart = 30;
-                        int yBase = 65;
-                        for (int i = 0; i < days.Count; i++)
+                        <svg width="100%" height="200" viewBox="0 0 250 30">
+                            <!-- Y Axis -->
+                            <line x1="30" y1="-25" x2="30" y2="55" stroke="#bbb" stroke-width="0.5"/>
+                            <!-- X Axis -->
+                            <line x1="30" y1="55" x2="240" y2="55" stroke="#bbb" stroke-width="0.5"/>
+                            <!-- Y Axis Label (at the top) -->
+                            <text x="30" y="-29" font-size="7" fill="#333" text-anchor="middle" font-weight="bold">
+                                Appointments
+                            </text>
+                            <!-- X Axis Label (at the end of the axis) -->
+                            <text x="235" y="61" font-size="10" fill="#333" text-anchor="middle" font-weight="bold">
+                                Day
+                            </text>
+                            <!-- Milestone markers at axes -->
+                            <rect x="27" y="18" width="6" height="2" fill="#2563eb" stroke="#fff" stroke-width="1"/>
+                            <!-- Y Axis Labels (0 and max) -->
+                            <text x="15" y="58" font-size="10" fill="#888">0</text>
+                            <text x="15" y="22" font-size="10" fill="#888">5</text>
+                            <text x="15" y="-18" font-size="10" fill="#888">10</text>
+                            @if (appointmentsPerDay.Count == 7)
+                            {
+                                var max = appointmentsPerDay.Max();
+                                @:<text x="5" y="13" font-size="10" fill="#888">@max</text>
+                                // X Axis Day Labels
+                                var days = Enumerable.Range(0, 7)
+                                    .Select(offset => DateTime.UtcNow.Date.AddDays(-6 + offset).ToString("ddd")).ToList();
+                                int xStep = 36;
+                                int xStart = 30;
+                                int yBase = 65;
+                                for (int i = 0; i < days.Count; i++)
+                                {
+                                    @:<text x="@(xStart + i * xStep)" y="@yBase" font-size="10" fill="#888" text-anchor="middle">@days[i]</text>
+                                }
+                                // Polyline points
+                                var points = string.Join(" ",
+                                    appointmentsPerDay.Select((v, idx) =>
+                                        $"{xStart + idx * xStep},{55 - (max == 0 ? 0 : (v * 45 / (max == 0 ? 1 : max)))}"
+                                    )
+                                );
+                                <polyline fill="none"
+                                          stroke="#3766ff"
+                                          stroke-width="4"
+                                          points="@points"
+                                          style="filter: drop-shadow(0 2px 6px #3766ff33);"/>
+                                // Dots and value labels for each point
+                                for (int j = 0; j < appointmentsPerDay.Count; j++)
+                                {
+                                    var px = xStart + j * xStep;
+                                    var py = 55 - (max == 0 ? 0 : (appointmentsPerDay[j] * 45 / (max == 0 ? 1 : max)));
+                                    <circle cx="@px" cy="@py" r="3" fill="#2563eb"/>
+                                    @:<text x="@px" y="@(py - 7)" font-size="10" fill="#2563eb" text-anchor="middle">@appointmentsPerDay[j]</text>
+
+                                }
+                            }
+                        </svg>
+                        <div class="dashboard-appointment-stats">
+                            <span class="stat-label">Total: <b>@totalAppointments7d</b></span>,
+                            <span class="stat-label stat-green">Finished: <b>@finishedAppointments7d</b></span>,
+                            <span class="stat-label stat-blue">Pending: <b>@pendingAppointments7d</b></span>,
+                            <span class="stat-label stat-red">Cancelled: <b>@declinedAppointments7d</b></span>.
+                        </div>
+                    </div>
+                </div>
+                <div class="dashboard-quick-actions">
+                    <a href="/Management/User" class="dashboard-action-btn bg-blue">
+                        <i class="fas fa-user-plus"></i> Add User
+                    </a>
+                    <a href="/Management/Appointment" class="dashboard-action-btn bg-green">
+                        <i class="fas fa-calendar-plus"></i> New Appointment
+                    </a>
+                    <a href="/Management/Campaign" class="dashboard-action-btn bg-yellow">
+                        <i class="fas fa-bullhorn"></i> New Campaign
+                    </a>
+                    <a href="/Management/CourseEnroll" class="dashboard-action-btn bg-purple">
+                        <i class="fas fa-book"></i> New Course
+                    </a>
+                </div>
+                <div class="dashboard-shortcuts">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="/Management/User"><i class="fas fa-users-cog"></i> Manage Users</a></li>
+                        <li><a href="/Management/Appointment"><i class="fas fa-calendar-alt"></i> Manage
+                                Appointments</a></li>
+                        <li><a href="/Management/CourseEnroll"><i class="fas fa-user-graduate"></i> Manage
+                                Enrollments</a></li>
+                        <li><a href="/Management/Campaign"><i class="fas fa-bullhorn"></i> Manage Campaigns</a></li>
+                    </ul>
+                </div>
+                <!-- Profile Quick Card -->
+                <div class="dashboard-profile-card">
+                    <div class="profile-avatar">
+                        @if (!string.IsNullOrEmpty(currentUser?.ImageUrl))
                         {
-                            @:<text x="@(xStart + i * xStep)" y="@yBase" font-size="10" fill="#888" text-anchor="middle">@days[i]</text>
+                            @* <img src="@currentUser.ImageUrl" alt="Profile Picture" style="width:48px;height:48px;border-radius:50%;" /> *@
                         }
-                        // Polyline points
-                        var points = string.Join(" ",
-                            appointmentsPerDay.Select((v, idx) =>
-                                $"{xStart + idx * xStep},{55 - (max == 0 ? 0 : (v * 45 / (max == 0 ? 1 : max)))}"
-                            )
-                        );
-                        <polyline fill="none"
-                                  stroke="#3766ff"
-                                  stroke-width="4"
-                                  points="@points"
-                                  style="filter: drop-shadow(0 2px 6px #3766ff33);" />
-                        // Dots and value labels for each point
-                        for (int j = 0; j < appointmentsPerDay.Count; j++)
+                        else
                         {
-                            var px = xStart + j * xStep;
-                            var py = 55 - (max == 0 ? 0 : (appointmentsPerDay[j] * 45 / (max == 0 ? 1 : max)));
-                            <circle cx="@px" cy="@py" r="3" fill="#2563eb" />
-                            @:<text x="@px" y="@(py - 7)" font-size="10" fill="#2563eb" text-anchor="middle">@appointmentsPerDay[j]</text>
-
+                            <i class="fas fa-user-circle"></i>
                         }
-                    }
-                </svg>
-                <div class="dashboard-appointment-stats">
-                    <span class="stat-label">Total: <b>@totalAppointments7d</b></span>, 
-                    <span class="stat-label stat-green">Finished: <b>@finishedAppointments7d</b></span>, 
-                    <span class="stat-label stat-blue">Pending: <b>@pendingAppointments7d</b></span>, 
-                    <span class="stat-label stat-red">Cancelled: <b>@declinedAppointments7d</b></span>.
+                    </div>
+                    <div>
+                        <div class="profile-name">@currentUser?.Username</div>
+                    </div>
+                    <div class="profile-expand-container @(isProfileExpanded ? "expanded" : "")">
+                        <button class="dashboard-action-btn bg-blue profile-expand-btn"
+                                @onclick="() => isProfileExpanded = !isProfileExpanded">
+                            <i class="fas fa-cog"></i> Profile
+                        </button>
+                        @if (isProfileExpanded && currentUser != null)
+                        {
+                            <div class="profile-expanded-content">
+                                <p><b>Email:</b> @currentUser.Email</p>
+                                <p>
+                                    <b>Phone:</b> @(string.IsNullOrEmpty(currentUser.PhoneNumber) ? "N/A" : currentUser.PhoneNumber)
+                                </p>
+                                <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>vl
+                                <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p>
+                                <p><b>Role:</b> @currentUser.Role?.RoleName</p>
+                            </div>
+                        }
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="dashboard-quick-actions">
-            <a href="/Management/User" class="dashboard-action-btn bg-blue">
-                <i class="fas fa-user-plus"></i> Add User
-            </a>
-            <a href="/Management/Appointment" class="dashboard-action-btn bg-green">
-                <i class="fas fa-calendar-plus"></i> New Appointment
-            </a>
-            <a href="/Management/Campaign" class="dashboard-action-btn bg-yellow">
-                <i class="fas fa-bullhorn"></i> New Campaign
-            </a>
-            <a href="/Management/CourseEnroll" class="dashboard-action-btn bg-purple">
-                <i class="fas fa-book"></i> New Course
-            </a>
-        </div>
-        <div class="dashboard-shortcuts">
-            <h3>Quick Links</h3>
-            <ul>
-                <li><a href="/Management/User"><i class="fas fa-users-cog"></i> Manage Users</a></li>
-                <li><a href="/Management/Appointment"><i class="fas fa-calendar-alt"></i> Manage Appointments</a></li>
-                <li><a href="/Management/CourseEnroll"><i class="fas fa-user-graduate"></i> Manage Enrollments</a></li>
-                <li><a href="/Management/Campaign"><i class="fas fa-bullhorn"></i> Manage Campaigns</a></li>
-            </ul>
-        </div>
-        <!-- Profile Quick Card -->
-        <div class="dashboard-profile-card">
-            <div class="profile-avatar">
-                @if (!string.IsNullOrEmpty(currentUser?.ImageUrl))
-                {
-                    @* <img src="@currentUser.ImageUrl" alt="Profile Picture" style="width:48px;height:48px;border-radius:50%;" /> *@
-                }
-                else
-                {
-                    <i class="fas fa-user-circle"></i>
-                }
-            </div>
-            <div>
-                <div class="profile-name">@currentUser?.Username</div>
-            </div>
-            <div class="profile-expand-container @(isProfileExpanded ? "expanded" : "")">
-                <button class="dashboard-action-btn bg-blue profile-expand-btn"
-                        @onclick="() => isProfileExpanded = !isProfileExpanded">
-                    <i class="fas fa-cog"></i> Profile
-                </button>
-                @if (isProfileExpanded && currentUser != null)
-                {
-                    <div class="profile-expanded-content">
-                        <p><b>Email:</b> @currentUser.Email</p>
-                        <p><b>Phone:</b> @(string.IsNullOrEmpty(currentUser.PhoneNumber) ? "N/A" : currentUser.PhoneNumber)</p>
-                        <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>vl
-                        <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p>
-                        <p><b>Role:</b> @currentUser.Role?.RoleName</p>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Recent Activity & Notifications & System Health & Usage -->
-<div class="dashboard-bottom-grid">
-    <div class="dashboard-section">
-        <h2>Recent Activity</h2>
-        <ul class="dashboard-activity">
-            <li><span class="activity-dot bg-blue"></span> New user registered</li>
-            <li><span class="activity-dot bg-green"></span> Appointment confirmed</li>
-            <li><span class="activity-dot bg-yellow"></span> Campaign launched</li>
-            <li><span class="activity-dot bg-purple"></span> Notification sent</li>
-        </ul>
-    </div>
-    @* <div class="dashboard-section dashboard-notifications">
+        <!-- Recent Activity & Notifications & System Health & Usage -->
+        <div class="dashboard-bottom-grid">
+            <div class="dashboard-section">
+                <h2>Recent Activity</h2>
+                <ul class="dashboard-activity">
+                    <li><span class="activity-dot bg-blue"></span> New user registered</li>
+                    <li><span class="activity-dot bg-green"></span> Appointment confirmed</li>
+                    <li><span class="activity-dot bg-yellow"></span> Campaign launched</li>
+                    <li><span class="activity-dot bg-purple"></span> Notification sent</li>
+                </ul>
+            </div>
+            @* <div class="dashboard-section dashboard-notifications">
         <h2>Notifications</h2>
         <ul class="dashboard-activity">
             <li><span class="activity-dot bg-purple"></span> System update scheduled</li>
             <li><span class="activity-dot bg-blue"></span> New feedback received</li>
         </ul>
     </div> *@
-    @* <div class="dashboard-section dashboard-system-health">
+            @* <div class="dashboard-section dashboard-system-health">
         <h2>System Health</h2>
         <ul class="dashboard-activity">
             <li><span class="activity-dot bg-green"></span> API: <span class="status-label status-ok">Online</span></li>
@@ -226,44 +235,45 @@ else
             <div class="system-usage-percent">@((systemUsagePercent > 100 ? 100 : systemUsagePercent))%</div>
         </div>
     </div> *@
-    <div class="dashboard-section dashboard-top-course">
-        <h2>Top Performing Course</h2>
-         @if (topCourse != null)
-            {
-                <div class="top-course-info">
-                    <div class="top-course-title">
-                        <i class="fas fa-book-open"></i> "@topCourse.CourseName"
+            <div class="dashboard-section dashboard-top-course">
+                <h2>Top Performing Course</h2>
+                @if (topCourse != null)
+                {
+                    <div class="top-course-info">
+                        <div class="top-course-title">
+                            <i class="fas fa-book-open"></i> "@topCourse.CourseName"
+                        </div>
+                        <div class="top-course-meta">
+                            Enrollments: <span class="top-course-enroll">@topCourseEnrollments</span> |
+                            Completion Rate: <span
+                                class="top-course-complete">@($"{topCourseCompletionRate:F0}%")</span>
+                        </div>
                     </div>
-                    <div class="top-course-meta">
-                        Enrollments: <span class="top-course-enroll">@topCourseEnrollments</span> |
-                        Completion Rate: <span class="top-course-complete">@($"{topCourseCompletionRate:F0}%")</span>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div>No course enrollments yet.</div>
-            }
-    </div>
-    <div class="dashboard-section dashboard-messages">
-        <h2>Recent Messages</h2>
-        <ul class="dashboard-activity">
-            <li><span class="activity-dot bg-blue"></span> "Great course content!" - Jane D.</li>
-            <li><span class="activity-dot bg-green"></span> "Appointment system is smooth." - Mark P.</li>
-            <li><span class="activity-dot bg-yellow"></span> "Would love more campaigns." - Alex T.</li>
-        </ul>
-    </div>
-</div>
+                }
+                else
+                {
+                    <div>No course enrollments yet.</div>
+                }
+            </div>
+            @* <div class="dashboard-section dashboard-messages"> *@
+            @*     <h2>Recent Messages</h2> *@
+            @*     <ul class="dashboard-activity"> *@
+            @*         <li><span class="activity-dot bg-blue"></span> "Great course content!" - Jane D.</li> *@
+            @*         <li><span class="activity-dot bg-green"></span> "Appointment system is smooth." - Mark P.</li> *@
+            @*         <li><span class="activity-dot bg-yellow"></span> "Would love more campaigns." - Alex T.</li> *@
+            @*     </ul> *@
+            @* </div> *@
+        </div>
 
-<div class="dashboard-section dashboard-tips">
-    <h2>Tips & Announcements</h2>
-    <ul>
-        <li>Remember to review new enrollments daily for approval.</li>
-        <li>Check the <a href="/Management/Campaign">Campaigns</a> page for upcoming events.</li>
-        <li>Keep your profile updated for better communication.</li>
-    </ul>
-</div>
- </Authorized>
+        <div class="dashboard-section dashboard-tips">
+            <h2>Tips & Announcements</h2>
+            <ul>
+                <li>Remember to review new enrollments daily for approval.</li>
+                <li>Check the <a href="/Management/Campaign">Campaigns</a> page for upcoming events.</li>
+                <li>Keep your profile updated for better communication.</li>
+            </ul>
+        </div>
+    </Authorized>
     <NotAuthorized>
         <div class="access-denied">
             <h2>Access Denied</h2>
@@ -299,8 +309,8 @@ else
     private double topCourseCompletionRate = 0.0;
     private int maxUsers = 1000; // Set your system's user capacity here
     private int systemUsagePercent => maxUsers > 0
-    ? (int)Math.Round((totalUsers / (double)maxUsers) * 100)
-    : 0;
+        ? (int)Math.Round((totalUsers / (double)maxUsers) * 100)
+        : 0;
 
     private class DashboardCard
     {
@@ -312,12 +322,12 @@ else
 
     private List<DashboardCard> dashboardCards = new()
     {
-            new DashboardCard { BootstrapIcon = "bi-people-fill", IconBg = "bg-blue", Title = "Users", Value = "Loading..." },
-            new DashboardCard { BootstrapIcon = "bi-calendar-check-fill", IconBg = "bg-green", Title = "Appointments", Value = "Loading..." },
-            new DashboardCard { BootstrapIcon = "bi-megaphone-fill", IconBg = "bg-yellow", Title = "Campaigns", Value = "Loading..." },
-            new DashboardCard { BootstrapIcon = "bi-journal-bookmark-fill", IconBg = "bg-purple", Title = "Courses", Value = "Loading..." },
-            new DashboardCard { BootstrapIcon = "bi-mortarboard-fill", IconBg = "bg-orange", Title = "Enrollments", Value = "Loading..." },
-            new DashboardCard { BootstrapIcon = "bi-journal-richtext", IconBg = "bg-red", Title = "Blogs", Value = "Loading..." }
+        new DashboardCard { BootstrapIcon = "bi-people-fill", IconBg = "bg-blue", Title = "Users", Value = "Loading..." },
+        new DashboardCard { BootstrapIcon = "bi-calendar-check-fill", IconBg = "bg-green", Title = "Appointments", Value = "Loading..." },
+        new DashboardCard { BootstrapIcon = "bi-megaphone-fill", IconBg = "bg-yellow", Title = "Campaigns", Value = "Loading..." },
+        new DashboardCard { BootstrapIcon = "bi-journal-bookmark-fill", IconBg = "bg-purple", Title = "Courses", Value = "Loading..." },
+        new DashboardCard { BootstrapIcon = "bi-mortarboard-fill", IconBg = "bg-orange", Title = "Enrollments", Value = "Loading..." },
+        new DashboardCard { BootstrapIcon = "bi-journal-richtext", IconBg = "bg-red", Title = "Blogs", Value = "Loading..." }
 
     };
 
@@ -343,12 +353,12 @@ else
             usersCard.Value = totalUsers.ToString();
         }
         // Fetch total blog count
-            totalBlogs = await BlogApiService.GetCountAsync();
-            var blogsCard = dashboardCards.FirstOrDefault(c => c.Title == "Blogs");
-            if (blogsCard != null)
-            {
-                blogsCard.Value = totalBlogs.ToString();
-            }
+        totalBlogs = await BlogApiService.GetCountAsync();
+        var blogsCard = dashboardCards.FirstOrDefault(c => c.Title == "Blogs");
+        if (blogsCard != null)
+        {
+            blogsCard.Value = totalBlogs.ToString();
+        }
         // Efficient course count
         totalCourses = await CourseApiService.GetCountAsync();
         var coursesCard = dashboardCards.FirstOrDefault(c => c.Title == "Courses");
@@ -407,132 +417,132 @@ else
             appointmentCard.Value = totalAllAppointments.ToString();
         }
         // Get the first day of this month and last month
-            var now = DateTime.UtcNow;
-            var thisMonth = new DateTime(now.Year, now.Month, 1);
-            var lastMonth = thisMonth.AddMonths(-1);
+        var now = DateTime.UtcNow;
+        var thisMonth = new DateTime(now.Year, now.Month, 1);
+        var lastMonth = thisMonth.AddMonths(-1);
 
-            // Count users registered in each month
-            int usersThisMonth = allUsers.Count(u => u.CreatedDate >= thisMonth);
-            int usersLastMonth = allUsers.Count(u => u.CreatedDate >= lastMonth && u.CreatedDate < thisMonth);
+        // Count users registered in each month
+        int usersThisMonth = allUsers.Count(u => u.CreatedDate >= thisMonth);
+        int usersLastMonth = allUsers.Count(u => u.CreatedDate >= lastMonth && u.CreatedDate < thisMonth);
 
 
-            // Calculate growth percentage
-            double growthPercent = usersLastMonth == 0
-                ? (usersThisMonth > 0 ? 100 : 0)
-                : ((usersThisMonth - usersLastMonth) / (double)usersLastMonth) * 100;
+        // Calculate growth percentage
+        double growthPercent = usersLastMonth == 0
+            ? (usersThisMonth > 0 ? 100 : 0)
+            : ((usersThisMonth - usersLastMonth) / (double)usersLastMonth) * 100;
 
-            // Format for display
-            growthDisplay = $"{(growthPercent >= 0 ? "+" : "")}{growthPercent:F1}%";
+        // Format for display
+        growthDisplay = $"{(growthPercent >= 0 ? "+" : "")}{growthPercent:F1}%";
 
-            // Fetch all courses and enrollments--------------------------------------------
-            var allCourses = await CourseApiService.GetAllAsync();
-            var allEnrollments = await CourseEnrollApiService.GetAllAsync();
+        // Fetch all courses and enrollments--------------------------------------------
+        var allCourses = await CourseApiService.GetAllAsync();
+        var allEnrollments = await CourseEnrollApiService.GetAllAsync();
 
-            // Group enrollments by CourseId and find the course with the most enrollments
-            var top = allEnrollments
-                .GroupBy(e => e.CourseId)
-                .OrderByDescending(g => g.Count())
-                .FirstOrDefault();
+        // Group enrollments by CourseId and find the course with the most enrollments
+        var top = allEnrollments
+            .GroupBy(e => e.CourseId)
+            .OrderByDescending(g => g.Count())
+            .FirstOrDefault();
 
-            if (top != null)
-            {
-                topCourse = allCourses.FirstOrDefault(c => c.CourseId == top.Key);
-                topCourseEnrollments = top.Count();
-                int completed = top.Count(e => e.Status == "Completed");
-                topCourseCompletionRate = topCourseEnrollments > 0 ? (completed * 100.0 / topCourseEnrollments) : 0.0;
-            }
-
-    }
-
-private async Task ExportDashboardReport()
-{
-    // Helper for quoting values with commas/hyphens
-    string Quote(string value)
-    {
-        if (value.StartsWith("-"))
-            value = "\t" + value;
-        return value.Contains(",") ? $"\"{value}\"" : value;
-    }
-    
-    // Get breakdown by role
-    var allUsers = await UserApiService.GetAllAsync();
-    int adminCount = allUsers.Count(u => u.RoleId == "AD");
-    int staffCount = allUsers.Count(u => u.RoleId == "ST");
-    int consultantCount = allUsers.Count(u => u.RoleId == "CS" || u.RoleId == "CO");
-    int memberCount = allUsers.Count(u => u.RoleId == "MB");
-
-    // Get campaign status breakdown
-    var allCampaigns = await CampaignApiService.GetAllAsync();
-    int activeCampaigns = allCampaigns.Count(c => c.Status == "Active");
-    int completedCampaigns = allCampaigns.Count(c => c.Status == "Completed");
-
-    // Get top 3 courses by enrollments
-    var allCourses = await CourseApiService.GetAllAsync();
-    var allEnrollments = await CourseEnrollApiService.GetAllAsync();
-    var topCourses = allEnrollments
-        .GroupBy(e => e.CourseId)
-        .OrderByDescending(g => g.Count())
-        .Take(3)
-        .Select(g => new
+        if (top != null)
         {
-            Course = allCourses.FirstOrDefault(c => c.CourseId == g.Key),
-            Enrollments = g.Count(),
-            CompletionRate = g.Count() > 0 ? (g.Count(e => e.Status == "Completed") * 100.0 / g.Count()) : 0.0
-        })
-        .ToList();
+            topCourse = allCourses.FirstOrDefault(c => c.CourseId == top.Key);
+            topCourseEnrollments = top.Count();
+            int completed = top.Count(e => e.Status == "Completed");
+            topCourseCompletionRate = topCourseEnrollments > 0 ? (completed * 100.0 / topCourseEnrollments) : 0.0;
+        }
 
-    // Fix: Remove trailing commas in section headers, use clear labels, and ensure all values are quoted
-    var lines = new List<string>
-    {
-        "User Metrics",
-        $"Total Users,{Quote(totalUsers.ToString())}",
-        $"Admins,{Quote(adminCount.ToString())}",
-        $"Staff,{Quote(staffCount.ToString())}",
-        $"Consultants,{Quote(consultantCount.ToString())}",
-        $"Members,{Quote(memberCount.ToString())}",
-        $"User Growth This Month,{Quote(growthDisplay)}",
-        "",
-        "Course Metrics",
-        $"Total Courses,{Quote(totalCourses.ToString())}",
-        $"Total Enrollments,{Quote(totalCourseEnrollments.ToString())}",
-        $"Top Course,{Quote(topCourse?.CourseName ?? "N/A")}",
-        $"Top Course Enrollments,{Quote(topCourseEnrollments.ToString())}",
-        $"Top Course Completion Rate,{Quote($"{topCourseCompletionRate:F1}%")}",
-    };
-
-    for (int i = 0; i < topCourses.Count; i++)
-    {
-        var tc = topCourses[i];
-        lines.Add($"Top {i + 1} Course,{Quote(tc.Course?.CourseName ?? "N/A")}");
-        lines.Add($"Top {i + 1} Enrollments,{Quote(tc.Enrollments.ToString())}");
-        lines.Add($"Top {i + 1} Completion Rate,{Quote($"{tc.CompletionRate:F1}%")}");
     }
 
-    lines.AddRange(new[]
+    private async Task ExportDashboardReport()
     {
-        "",
-        "Appointment Metrics",
-        $"Total Appointments,{Quote(totalAllAppointments.ToString())}",
-        $"Appointments (Last 7 Days),{Quote(totalAppointments7d.ToString())}",
-        $"Completed,{Quote(completedAppointments7d.ToString())}",
-        $"Scheduled,{Quote(scheduledAppointments7d.ToString())}",
-        $"Pending,{Quote(pendingAppointments7d.ToString())}",
-        $"Finished,{Quote(finishedAppointments7d.ToString())}",
-        $"Cancelled,{Quote(cancelledAppointments7d.ToString())}",
-        $"Declined,{Quote(declinedAppointments7d.ToString())}",
-        "",
-        "Campaign Metrics",
-        $"Total Campaigns,{Quote(totalCampaigns.ToString())}",
-        $"Active Campaigns,{Quote(activeCampaigns.ToString())}",
-        $"Completed Campaigns,{Quote(completedCampaigns.ToString())}",
-        "",
-        "Other Metrics",
-        $"Total Blogs,{Quote(totalBlogs.ToString())}"
-    });
+        // Helper for quoting values with commas/hyphens
+        string Quote(string value)
+        {
+            if (value.StartsWith("-"))
+                value = "\t" + value;
+            return value.Contains(",") ? $"\"{value}\"" : value;
+        }
 
-    var csv = string.Join("\r\n", lines);
-    await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv);
-}
+        // Get breakdown by role
+        var allUsers = await UserApiService.GetAllAsync();
+        int adminCount = allUsers.Count(u => u.RoleId == "AD");
+        int staffCount = allUsers.Count(u => u.RoleId == "ST");
+        int consultantCount = allUsers.Count(u => u.RoleId == "CS" || u.RoleId == "CO");
+        int memberCount = allUsers.Count(u => u.RoleId == "MB");
+
+        // Get campaign status breakdown
+        var allCampaigns = await CampaignApiService.GetAllAsync();
+        int activeCampaigns = allCampaigns.Count(c => c.Status == "Active");
+        int completedCampaigns = allCampaigns.Count(c => c.Status == "Completed");
+
+        // Get top 3 courses by enrollments
+        var allCourses = await CourseApiService.GetAllAsync();
+        var allEnrollments = await CourseEnrollApiService.GetAllAsync();
+        var topCourses = allEnrollments
+            .GroupBy(e => e.CourseId)
+            .OrderByDescending(g => g.Count())
+            .Take(3)
+            .Select(g => new
+            {
+                Course = allCourses.FirstOrDefault(c => c.CourseId == g.Key),
+                Enrollments = g.Count(),
+                CompletionRate = g.Count() > 0 ? (g.Count(e => e.Status == "Completed") * 100.0 / g.Count()) : 0.0
+            })
+            .ToList();
+
+        // Fix: Remove trailing commas in section headers, use clear labels, and ensure all values are quoted
+        var lines = new List<string>
+        {
+            "User Metrics",
+            $"Total Users,{Quote(totalUsers.ToString())}",
+            $"Admins,{Quote(adminCount.ToString())}",
+            $"Staff,{Quote(staffCount.ToString())}",
+            $"Consultants,{Quote(consultantCount.ToString())}",
+            $"Members,{Quote(memberCount.ToString())}",
+            $"User Growth This Month,{Quote(growthDisplay)}",
+            "",
+            "Course Metrics",
+            $"Total Courses,{Quote(totalCourses.ToString())}",
+            $"Total Enrollments,{Quote(totalCourseEnrollments.ToString())}",
+            $"Top Course,{Quote(topCourse?.CourseName ?? "N/A")}",
+            $"Top Course Enrollments,{Quote(topCourseEnrollments.ToString())}",
+            $"Top Course Completion Rate,{Quote($"{topCourseCompletionRate:F1}%")}",
+        };
+
+        for (int i = 0; i < topCourses.Count; i++)
+        {
+            var tc = topCourses[i];
+            lines.Add($"Top {i + 1} Course,{Quote(tc.Course?.CourseName ?? "N/A")}");
+            lines.Add($"Top {i + 1} Enrollments,{Quote(tc.Enrollments.ToString())}");
+            lines.Add($"Top {i + 1} Completion Rate,{Quote($"{tc.CompletionRate:F1}%")}");
+        }
+
+        lines.AddRange(new[]
+        {
+            "",
+            "Appointment Metrics",
+            $"Total Appointments,{Quote(totalAllAppointments.ToString())}",
+            $"Appointments (Last 7 Days),{Quote(totalAppointments7d.ToString())}",
+            $"Completed,{Quote(completedAppointments7d.ToString())}",
+            $"Scheduled,{Quote(scheduledAppointments7d.ToString())}",
+            $"Pending,{Quote(pendingAppointments7d.ToString())}",
+            $"Finished,{Quote(finishedAppointments7d.ToString())}",
+            $"Cancelled,{Quote(cancelledAppointments7d.ToString())}",
+            $"Declined,{Quote(declinedAppointments7d.ToString())}",
+            "",
+            "Campaign Metrics",
+            $"Total Campaigns,{Quote(totalCampaigns.ToString())}",
+            $"Active Campaigns,{Quote(activeCampaigns.ToString())}",
+            $"Completed Campaigns,{Quote(completedCampaigns.ToString())}",
+            "",
+            "Other Metrics",
+            $"Total Blogs,{Quote(totalBlogs.ToString())}"
+        });
+
+        var csv = string.Join("\r\n", lines);
+        await JS.InvokeVoidAsync("downloadCsvFile", "dashboard-report.csv", csv);
+    }
     // protected override async Task OnAfterRenderAsync(bool firstRender)
     // {
     //     if (firstRender)

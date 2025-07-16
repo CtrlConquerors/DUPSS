@@ -48,15 +48,15 @@
     box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
 }
 
-    .add-enrollment-button:hover {
-        background-color: #0056b3;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35);
-    }
+.add-enrollment-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35);
+}
 
-    .add-enrollment-button i {
-        font-size: 1.2rem;
-    }
+.add-enrollment-button i {
+    font-size: 1.2rem;
+}
 
 /* Filter and Sort Section */
 .filter-sort-section {
@@ -90,10 +90,10 @@
     min-width: 250px;
 }
 
-    .sort-controls .form-select {
-        flex-grow: 1;
-        min-width: 200px;
-    }
+.sort-controls .form-select {
+    flex-grow: 1;
+    min-width: 200px;
+}
 
 .sort-direction-button {
     padding: 10px 15px;
@@ -105,9 +105,9 @@
     min-width: 50px;
 }
 
-    .sort-direction-button i {
-        font-size: 1.5rem;
-    }
+.sort-direction-button i {
+    font-size: 1.5rem;
+}
 
 /* Table Container Styling */
 .table-container {
@@ -127,60 +127,61 @@
     min-width: 900px; /* Adjust as needed for content */
 }
 
-    .enrollment-table th,
-    .enrollment-table td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #e0e0e0;
-        overflow: hidden;
-        border-right: 1px solid #e0e0e0;
-    }
+.enrollment-table th,
+.enrollment-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    overflow: hidden;
+    border-right: 1px solid #e0e0e0;
+}
 
-        /* Specific styles for 'No' column */
-        .enrollment-table th:first-child,
-        .enrollment-table td:first-child {
-            width: 50px;
-            text-align: center;
-        }
+/* Specific styles for 'No' column */
+.enrollment-table th:first-child,
+.enrollment-table td:first-child {
+    width: 50px;
+    text-align: center;
+}
 
-        /* Specific styles for 'Status' column */
-        .enrollment-table th:nth-child(5),
-        .enrollment-table td:nth-child(5) {
-            width: 120px; /* Adjust width for status badges */
-            text-align: center;
-        }
+/* Specific styles for 'Status' column */
+.enrollment-table th:nth-child(5),
+.enrollment-table td:nth-child(5) {
+    width: 120px; /* Adjust width for status badges */
+    text-align: center;
+}
 
-        /* Specific styles for 'Action' column */
-        .enrollment-table th:last-child,
-        .enrollment-table td:last-child {
-            width: 100px;
-            border-right: none;
-        }
+/* Specific styles for 'Action' column */
+.enrollment-table th:last-child,
+.enrollment-table td:last-child {
+    width: 100px;
+    border-right: none;
+}
 
-    .enrollment-table thead th {
-        background-color: #f2f4f7;
-        font-weight: bold;
-        color: black;
-        text-transform: none;
-        font-size: 1rem;
-        text-align: center; /* Center align all header text by default */
-    }
+.enrollment-table thead th {
+    background-color: #f2f4f7;
+    font-weight: bold;
+    color: black;
+    text-transform: none;
+    font-size: 1rem;
+    text-align: center; /* Center align all header text by default */
+}
 
-        /* Specific alignment for the "Enroll ID", "Member Name", "Course Name" column headers */
-        .enrollment-table thead th:nth-child(2), /* Enroll ID column */
-        .enrollment-table thead th:nth-child(3), /* Member Name column */
-        .enrollment-table thead th:nth-child(4) /* Course Name column */ {
-            text-align: left; /* Keep these left-aligned */
-        }
+/* Specific alignment for the "Enroll ID", "Member Name", "Course Name" column headers */
+.enrollment-table thead th:nth-child(2), /* Enroll ID column */
+.enrollment-table thead th:nth-child(3), /* Member Name column */
+.enrollment-table thead th:nth-child(4) /* Course Name column */
+{
+    text-align: left; /* Keep these left-aligned */
+}
 
 
-    .enrollment-table tbody tr:hover {
-        background-color: #f5f5f5;
-    }
+.enrollment-table tbody tr:hover {
+    background-color: #f5f5f5;
+}
 
-    .enrollment-table tbody tr:last-child td {
-        border-bottom: none;
-    }
+.enrollment-table tbody tr:last-child td {
+    border-bottom: none;
+}
 
 /* Action buttons in table cells */
 .action-buttons {
@@ -203,11 +204,11 @@
     font-size: 15px;
 }
 
-    .btn-primary:hover {
-        background-color: lightgray;
-        border-color: lightgray;
-        transform: translateY(-1px);
-    }
+.btn-primary:hover {
+    background-color: lightgray;
+    border-color: lightgray;
+    transform: translateY(-1px);
+}
 
 .btn-danger {
     background-color: white;
@@ -215,11 +216,11 @@
     color: red;
 }
 
-    .btn-danger:hover {
-        background-color: lightgray;
-        border-color: lightgray;
-        transform: translateY(-1px);
-    }
+.btn-danger:hover {
+    background-color: lightgray;
+    border-color: lightgray;
+    transform: translateY(-1px);
+}
 
 /* Pagination buttons */
 .d-flex.justify-content-center.mt-3 .btn {
@@ -232,10 +233,10 @@
     transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-    .d-flex.justify-content-center.mt-3 .btn.active {
-        background-color: #0056b3;
-        border-color: #0056b3;
-    }
+.d-flex.justify-content-center.mt-3 .btn.active {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
 
 .d-flex.justify-content-center.mt-3 .btn-outline-primary {
     background-color: white !important;
@@ -244,12 +245,12 @@
     border-radius: 50px;
 }
 
-    .d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
-        background-color: #e9f2ff;
-        color: #0056b3;
-        border-color: white;
-        border-radius: 50px;
-    }
+.d-flex.justify-content-center.mt-3 .btn-outline-primary:hover {
+    background-color: #e9f2ff;
+    color: #0056b3;
+    border-color: white;
+    border-radius: 50px;
+}
 
 /* Inline Edit/Add Form */
 .edit-form-card {
@@ -260,48 +261,48 @@
     margin-top: 30px;
 }
 
-    .edit-form-card h5 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #343a40;
-        margin-bottom: 20px;
-    }
+.edit-form-card h5 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #343a40;
+    margin-bottom: 20px;
+}
 
-    .edit-form-card .form-label {
-        font-weight: 500;
-        color: #495057;
-        margin-bottom: 5px;
-    }
+.edit-form-card .form-label {
+    font-weight: 500;
+    color: #495057;
+    margin-bottom: 5px;
+}
 
-    .edit-form-card .form-control,
-    .edit-form-card .form-select {
-        border-radius: 6px;
-        border: 1px solid #ced4da;
-        padding: 10px 15px;
-        font-size: 1rem;
-    }
+.edit-form-card .form-control,
+.edit-form-card .form-select {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 10px 15px;
+    font-size: 1rem;
+}
 
-    .edit-form-card .btn-success {
-        background-color: #28a745;
-        border-color: #28a745;
-        color: white;
-    }
+.edit-form-card .btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+    color: white;
+}
 
-        .edit-form-card .btn-success:hover {
-            background-color: #218838;
-            border-color: #1e7e34;
-        }
+.edit-form-card .btn-success:hover {
+    background-color: #218838;
+    border-color: #1e7e34;
+}
 
-    .edit-form-card .btn-secondary {
-        background-color: #6c757d;
-        border-color: #6c757d;
-        color: white;
-    }
+.edit-form-card .btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
 
-        .edit-form-card .btn-secondary:hover {
-            background-color: #5a6268;
-            border-color: #545b62;
-        }
+.edit-form-card .btn-secondary:hover {
+    background-color: #5a6268;
+    border-color: #545b62;
+}
 
 /* Status Badges for Enrollments */
 .status-badge {

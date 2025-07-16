@@ -141,7 +141,7 @@
                         case "MultipleChoice":
                             @foreach (var answer in currentAnswers)
                             {
-                                <div class="answer-option">
+                                <div class="answer-option" @onclick="() => SelectSingleAnswer(answer.AnswerId)">
                                     <div class="answer-radio">
                                         <input type="radio"
                                                name="answer-@currentQuestion.QuestionId"
@@ -163,7 +163,7 @@
                         case "YesNo":
                             @foreach (var answer in currentAnswers)
                             {
-                                <div class="answer-option">
+                                <div class="answer-option" @onclick="() => SelectSingleAnswer(answer.AnswerId)">
                                     <div class="answer-radio">
                                         <input type="radio"
                                                name="answer-@currentQuestion.QuestionId"
@@ -185,7 +185,7 @@
                         case "Numeric":
                             @foreach (var answer in currentAnswers)
                             {
-                                <div class="answer-option">
+                                <div class="answer-option" @onclick="() => SelectSingleAnswer(answer.AnswerId)">
                                     <div class="answer-radio">
                                         <input type="radio"
                                                name="answer-@currentQuestion.QuestionId"
@@ -232,7 +232,7 @@
                     {
                         <button class="primary-button"
                                 @onclick="NextQuestion"
-                                disabled="@(!IsAnswerSelected())">
+                                disabled="@(currentQuestionIndex == 0 ? !IsFirstQuestionAnswered() : !IsAnswerSelected())">
                             Next
                             <span class="button-icon">→</span>
                         </button>
@@ -314,6 +314,7 @@
     private int currentQuestionIndex = 0;
     private List<string> selectedAnswerIds = new();
     private string? CurrentMemberId;
+    private bool isFirstQuestionAnswered = false; // Track if first question is explicitly answered
 
     private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
     private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
@@ -377,17 +378,10 @@
                 return;
             }
 
-            // Initialize user answers with default "No" for Q1 to allow skipping
+            // Initialize user answers without default "No" for Q1 to enforce explicit selection
             foreach (var question in questions)
             {
-                if (question.QuestionId.EndsWith("_Q1"))
-                {
-                    userAnswers[question.QuestionId] = $"{question.QuestionId}_NO";
-                }
-                else
-                {
-                    userAnswers[question.QuestionId] = string.Empty;
-                }
+                userAnswers[question.QuestionId] = string.Empty;
             }
 
             LoadCurrentQuestionAnswers();
@@ -518,7 +512,7 @@
                 "CRAFFT_Q1", new List<AssessmentAnswerDTO>
                 {
                     new() { AnswerId = "CRAFFT_Q1_0", QuestionId = "CRAFFT_Q1", Answer = "0", ScoreValue = 0 },
-                    new() { AnswerId = "CRAFFT_Q1_1PLUS", QuestionId = "CRAFFT_Q1", Answer = "1 or more", ScoreValue = 0 } // No score impact
+                    new() { AnswerId = "CRAFFT_Q1_1PLUS", QuestionId = "CRAFFT_Q1", Answer = "1 or more", ScoreValue = 0 }
                 }
             },
             {
@@ -594,6 +588,12 @@
         selectedAnswerIds = new List<string> { answerId };
         userAnswers[currentQuestion.QuestionId] = answerId;
 
+        // Track explicit answer for first question
+        if (currentQuestionIndex == 0)
+        {
+            isFirstQuestionAnswered = true;
+        }
+
         // If Q1 is "No", auto-set "No"/"Never" for Q2–Q8 of the same substance
         if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && answerId.EndsWith("_NO"))
         {
@@ -620,6 +620,11 @@
         return userAnswers.ContainsKey(currentQuestion.QuestionId) && !string.IsNullOrEmpty(userAnswers[currentQuestion.QuestionId]);
     }
 
+    private bool IsFirstQuestionAnswered()
+    {
+        return isFirstQuestionAnswered && IsAnswerSelected();
+    }
+
     private void SaveCurrentAnswer()
     {
         userAnswers[currentQuestion.QuestionId] = selectedAnswerIds.FirstOrDefault() ?? string.Empty;
@@ -627,7 +632,7 @@
 
     private async Task NextQuestion()
     {
-        if (currentQuestionIndex >= questions.Count - 1 || !IsAnswerSelected())
+        if (currentQuestionIndex >= questions.Count - 1 || (currentQuestionIndex == 0 ? !IsFirstQuestionAnswered() : !IsAnswerSelected()))
             return;
         SaveCurrentAnswer();
 
@@ -716,7 +721,7 @@
 
                 if (user.Identity?.IsAuthenticated == true)
                 {
-                        CurrentMemberId = user.FindFirstValue(ClaimTypes.NameIdentifier);
+                    CurrentMemberId = user.FindFirstValue(ClaimTypes.NameIdentifier);
                     Console.WriteLine($"Retrieved MemberId: {CurrentMemberId}");
                 }
 
@@ -787,7 +792,7 @@
 
                     foreach (var question in questions)
                     {
-                        if (!question.QuestionId.StartsWith("CRAFFT_Q") || ((!allZero || question.QuestionId != "CRAFFT_Q4") && allZero))
+                        if (!question.QuestionId.StartsWith("CRAFFT_Q") || (allZero && question.QuestionId != "CRAFFT_Q4"))
                             continue;
                         if (!userAnswers.TryGetValue(question.QuestionId, out var answerId) || string.IsNullOrEmpty(answerId))
                             continue;

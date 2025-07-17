@@ -154,6 +154,11 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
     color: #fff;
 }
 
+.bg-red {
+    background: linear-gradient(135deg, #ef4444 60%, #fca5a5 100%);
+    color: #fff;
+}
+
 .dashboard-card-content {
     display: flex;
     flex-direction: column;
@@ -289,7 +294,16 @@ body, .dashboard-main-grid, .dashboard-bottom-grid {
 .dashboard-action-btn.bg-purple {
     background: #a78bfa;
 }
+    .dashboard-action-btn.bg-red {
+        background: linear-gradient(135deg, #ef4444 60%, #fca5a5 100%);
+        color: #fff;
+    }
 
+        .dashboard-action-btn.bg-red:hover,
+        .dashboard-action-btn.bg-red:focus {
+            background: linear-gradient(90deg, #ef4444 0%, #2563eb 100%);
+            color: #fff;
+        }
 .dashboard-action-btn:hover, .dashboard-action-btn:focus {
     background: linear-gradient(90deg, #2563eb 0%, #22c55e 100%);
     box-shadow: 0 8px 32px #2563eb33;

@@ -9,6 +9,7 @@
 @inject CourseApiService CourseApiService
 @inject CourseEnrollApiService CourseEnrollApiService
 @inject BlogApiService BlogApiService
+@inject NavigationManager NavigationManager
 @layout ManagementLayout
 @using System.Text
 @inject IJSRuntime JS
@@ -153,7 +154,7 @@
                     </div>
                 </div>
                 <div class="dashboard-quick-actions">
-                    <a href="/Management/User" class="dashboard-action-btn bg-blue">
+                    <a href="/Management/User?showCreate=true" class="dashboard-action-btn bg-blue">
                         <i class="fas fa-user-plus"></i> Add User
                     </a>
                     <a href="/Management/Appointment" class="dashboard-action-btn bg-green">
@@ -165,6 +166,9 @@
                     <a href="/Management/CourseEnroll" class="dashboard-action-btn bg-purple">
                         <i class="fas fa-book"></i> New Course
                     </a>
+                    <a href="/Management/Blog" class="dashboard-action-btn bg-red">
+                        <i class="fas fa-blog"></i> New Blog
+                    </a>
                 </div>
                 <div class="dashboard-shortcuts">
                     <h3>Quick Links</h3>
@@ -175,6 +179,8 @@
                         <li><a href="/Management/CourseEnroll"><i class="fas fa-user-graduate"></i> Manage
                                 Enrollments</a></li>
                         <li><a href="/Management/Campaign"><i class="fas fa-bullhorn"></i> Manage Campaigns</a></li>
+                        <li><a href="/Management/Blog"><i class="fas fa-blog"></i> Manage Blog</a></li>
+                        <li><a href="/Management/Course"><i class="fas fa-book-open"></i> Manage Course</a></li>
                     </ul>
                 </div>
                 <!-- Profile Quick Card -->
@@ -310,6 +316,7 @@
     private int totalCourses;
     private int totalBlogs;
     private int totalUsers;
+    private bool showCreateForm = false;
     private string reminderText { get; set; } = string.Empty;
     private List<int> appointmentsPerDay = new();
     private string growthDisplay = "Loading";
@@ -460,6 +467,13 @@
             topCourseEnrollments = top.Count();
             int completed = top.Count(e => e.Status == "Completed");
             topCourseCompletionRate = topCourseEnrollments > 0 ? (completed * 100.0 / topCourseEnrollments) : 0.0;
+        }
+        //Navigate to create form
+        var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+        var query = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+        if (query.TryGetValue("showCreate", out var value) && value == "true")
+        {
+            showCreateForm = true;
         }
 
     }

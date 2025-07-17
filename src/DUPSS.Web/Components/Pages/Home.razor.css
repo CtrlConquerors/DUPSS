@@ -719,14 +719,45 @@ body {
 
 /* --- New Hero Section for H1 and Image Slider --- */
 .new-hero-section {
-    background-color: #fbfbff;
+    position: relative;
+    width: 100vw;
+    margin-left: -7px;
+    max-width: none;
+    left: -200px;
+    transform: translateX(-50%);
+    background-color: #ececf6 !important;
     padding: 60px 0;
     text-align: center;
     position: relative;
     overflow: hidden;
     margin-bottom: 50px;
     border-radius: 100px;
-    margin-top:100px;
+    margin-top: 100px;
+}
+.curve-hero-top {
+    width: 99.4vw;
+    position: relative;
+    left: 50%;
+    margin-left: -7px;
+    transform: translateX(-50%);
+    margin-bottom: -100px;
+    z-index: 3;
+    pointer-events: none;
+    
+}
+
+    .curve-hero-top svg {
+        display: block;
+        width: 99.4vw;
+        height: 80px;
+
+    }
+
+.new-hero-section {
+    position: relative;
+    padding: 60px 0 60px 0;
+    border-radius: 0;
+    z-index: 4;
 }
 
     .new-hero-section .new-hero-container h1 {
@@ -1054,3 +1085,4 @@ body {
         opacity: 1;
         transform: none;
     }
+

@@ -90,8 +90,11 @@
                                 Day
                             </text>
                             <!-- Milestone markers at axes -->
-                            <rect x="27" y="18" width="6" height="2" fill="#2563eb" stroke="#fff" stroke-width="1"/>
-                            <rect x="240" y="65" width="6" height="2" fill="#2563eb" stroke="#fff" stroke-width="1"/>
+                            @* <rect x="27" y="18" width="6" height="2" fill="#2563eb" stroke="#fff" stroke-width="1"/> *@
+                            <rect x="215" y="50" width="2" height="6" fill="#2563eb" stroke="#fff" stroke-width="1"/>
+                            <text x="215" y="45" font-size="4" fill="#333" text-anchor="middle" font-weight="bold">
+                                Today
+                            </text>
                             <!-- Y Axis Labels (0 and max) -->
                             <text x="15" y="58" font-size="10" fill="#888">0</text>
                             @* <text x="15" y="22" font-size="10" fill="#888">5</text>
@@ -100,7 +103,12 @@
                             {
                                 
                                 var max = appointmentsPerDay.Max();
-                                <g><text x="15" y="30" font-size="10" fill="#888">@max</text></g>
+                                var maxIndex = appointmentsPerDay.IndexOf(max);
+                                int xSteps = 31;
+                                int xStarts = -140;
+                                var pxs = xStarts + maxIndex * xSteps;
+                                var pys = 55 - (max == 0 ? 0 : (max * 45 / (max == 0 ? 1 : max)));
+                                <g><text x="@pxs" y="@(pys - 1)" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">@max</text></g>
                                 
                                 // X Axis Day Labels
                                 var days = Enumerable.Range(0, 7)
@@ -270,13 +278,9 @@
             @* </div> *@
         </div>
 
-        <div class="dashboard-section dashboard-tips">
-            <h2>Tips & Announcements</h2>
-            <ul>
-                <li>Remember to review new enrollments daily for approval.</li>
-                <li>Check the <a href="/Management/Campaign">Campaigns</a> page for upcoming events.</li>
-                <li>Keep your profile updated for better communication.</li>
-            </ul>
+        <div class="dashboard-section dashboard-reminders">
+            <h2>Reminder</h2>
+            <textarea class="reminder-textarea" @bind="reminderText" placeholder="Write your reminder here..." rows="5"></textarea>
         </div>
     </Authorized>
     <NotAuthorized>
@@ -306,6 +310,7 @@
     private int totalCourses;
     private int totalBlogs;
     private int totalUsers;
+    private string reminderText { get; set; } = string.Empty;
     private List<int> appointmentsPerDay = new();
     private string growthDisplay = "Loading";
     private CourseDTO? topCourse;

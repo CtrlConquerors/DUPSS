@@ -12,5 +12,6 @@ namespace DUPSS.API.Services
         Task<TokenResponseDTO?> RefreshTokenAsync(RefreshTokenRequestDTO request);
         Task<ForgotPasswordResponse?> ForgotPasswordAsync(string? email);
         Task<bool> ResetPasswordAsync(string? email, string? token, string? newPassword);
+        Task<bool> IsUsernameAvailableAsync(string username);
     }
 }

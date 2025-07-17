@@ -102,6 +102,24 @@
             }
         }
 
+        // Check if username is available
+        bool isUsernameAvailable;
+        try
+        {
+            isUsernameAvailable = await AuthApiService.IsUsernameAvailableAsync(newUser.Username);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Could not verify username: {ex.Message}";
+            return;
+        }
+
+        if (!isUsernameAvailable)
+        {
+            errorMessage = "Username is already taken. Please choose another one.";
+            return;
+        }
+
         try
         {
             Console.WriteLine($"Registering user: {newUser.Username}, Email: {newUser.Email}, RoleId: {newUser.RoleId}");

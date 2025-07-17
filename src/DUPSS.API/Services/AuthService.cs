@@ -159,5 +159,9 @@ namespace DUPSS.API.Services
             await context.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> IsUsernameAvailableAsync(string username)
+        {
+            return !await context.User.AnyAsync(u => u.Username == username);
+        }
     }
 }

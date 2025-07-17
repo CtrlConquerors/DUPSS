@@ -18,7 +18,7 @@ namespace DUPSS.API.Controllers
             var user = await authService.RegisterAsync(request);
             if (user is null)
             {
-                return BadRequest("User already exists or registration failed");
+                return BadRequest("Email already exists");
             }
 
             return Ok(user);
@@ -72,6 +72,12 @@ namespace DUPSS.API.Controllers
         public IActionResult AuthenticatedOnlyEndPoint()
         {
             return Ok("You are authenticated");
+        }
+        [HttpGet("IsUsernameAvailable")]
+        public async Task<IActionResult> IsUsernameAvailable([FromQuery] string username)
+        {
+            var available = await authService.IsUsernameAvailableAsync(username);
+            return Ok(available);
         }
 
     }

@@ -96,5 +96,14 @@ namespace DUPSS.Web.Components.Service
             var response = await _httpClient.PostAsJsonAsync("api/Auth/ResetPassword", request);
             return response.IsSuccessStatusCode;
         }
+        public async Task<bool> IsUsernameAvailableAsync(string username)
+        {
+            var response = await _httpClient.GetAsync($"api/Auth/IsUsernameAvailable?username={Uri.EscapeDataString(username)}");
+            if (response.IsSuccessStatusCode)
+            {
+                return await response.Content.ReadFromJsonAsync<bool>();
+            }
+            throw new HttpRequestException("Failed to check username availability.");
+        }
     }
 }

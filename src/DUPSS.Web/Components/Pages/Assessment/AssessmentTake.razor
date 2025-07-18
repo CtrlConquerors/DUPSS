@@ -66,7 +66,7 @@
                 </div>
 
                 <div class="recommendation-section">
-                    <h4>Recommendations</h4>
+                    <h4>Recommendation</h4>
                     <div class="recommendation-text">
                         @assessmentResult.Recommendation
                     </div>
@@ -735,8 +735,9 @@
             }
 
             var scoreDetails = new List<string>();
-            var recommendations = new List<string>();
             int totalScore = 0;
+            string recommendation = string.Empty;
+            bool hasHighRiskIndicator = false;
 
             switch (AssessmentId)
             {
@@ -749,7 +750,6 @@
                         {
                             substanceScores[substance] = 0;
                             scoreDetails.Add($"{substance}: No use reported");
-                            recommendations.Add($"{substance}: No intervention needed.");
                             continue;
                         }
 
@@ -769,26 +769,43 @@
                             }
                             substanceScore += answer.ScoreValue;
                             substanceDetails.Add($"Q{i}:{answer.Answer}");
+                            // Check for high-risk indicators (Q6, Q7 "Yes", or Q8 injection)
+                            if ((i == 6 || i == 7) && answer.Answer == "Yes" || (i == 8 && answer.Answer != "Never"))
+                            {
+                                hasHighRiskIndicator = true;
+                            }
                         }
 
                         substanceScores[substance] = substanceScore;
                         totalScore += substanceScore;
                         scoreDetails.Add($"{substance}: Score={substanceScore}; {string.Join(", ", substanceDetails)}");
-
-                        var substanceRecommendation = substanceScore switch
-                        {
-                            <= 10 => "Low risk: Reading blogs recommended.",
-                            <= 26 => "Moderate risk: Reading blogs and enroll courses recommended.",
-                            _ => "High risk: Reading blogs, enroll courses and make an appointment recommended."
-                        };
-                        recommendations.Add($"{substance}: {substanceRecommendation}");
                     }
+
+                    // Unified recommendation for ASSIST
+                    if (totalScore == 0)
+                    {
+                        recommendation = "No risk: No substance use reported. Continue maintaining a healthy lifestyle.";
+                    }
+                    else if (totalScore <= 10 && !hasHighRiskIndicator)
+                    {
+                        recommendation = "Low risk: Minimal substance use detected. Consider reading educational blogs for awareness.";
+                    }
+                    else if (totalScore <= 26 || substanceScores.Count(s => s.Value > 0) > 1)
+                    {
+                        recommendation = "Moderate risk: Some substance use detected. We recommend enrolling in educational courses and monitoring your usage.";
+                    }
+                    else
+                    {
+                        recommendation = "High risk: Significant substance use or high-risk behaviors detected. We strongly recommend enrolling in courses, reading blogs, and scheduling a professional consultation.";
+                    }
+                    Console.WriteLine($"ASSIST: TotalScore={totalScore}, HighRiskIndicator={hasHighRiskIndicator}, Recommendation={recommendation}");
                     break;
+
                 case "CRAFFT":
                     Console.WriteLine($"CRAFFT Submission - Q1: {userAnswers.GetValueOrDefault("CRAFFT_Q1", "None")}, Q2: {userAnswers.GetValueOrDefault("CRAFFT_Q2", "None")}, Q3: {userAnswers.GetValueOrDefault("CRAFFT_Q3", "None")}");
                     bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
-                        userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
-                        userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+                                  userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
+                                  userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
 
                     foreach (var question in questions)
                     {
@@ -804,16 +821,31 @@
                         }
                         totalScore += answer.ScoreValue;
                         scoreDetails.Add($"{question.QuestionId}: {answer.Answer}");
+                        // Check for high-risk indicators (Q4 or Q9 "Yes")
+                        if ((question.QuestionId == "CRAFFT_Q4" || question.QuestionId == "CRAFFT_Q9") && answer.Answer == "Yes")
+                        {
+                            hasHighRiskIndicator = true;
+                        }
                     }
-                    var recommendationString = totalScore switch
+
+                    // Unified recommendation for CRAFFT
+                    if (allZero && !hasHighRiskIndicator)
                     {
-                        0 => "No risk: No further action needed.",
-                        1 => "Low risk: Reading blogs recommended.",
-                        _ => "Moderate to high risk: Reading blogs, enrolling in courses, and making an appointment recommended."
-                    };
-                    
-                    recommendations.Add(recommendationString);
-                    
+                        recommendation = "No risk: No substance use or high-risk behaviors reported. Continue maintaining a healthy lifestyle.";
+                    }
+                    else if (totalScore <= 1 && !hasHighRiskIndicator)
+                    {
+                        recommendation = "Low risk: Minimal risk behaviors detected. Consider reading educational blogs for awareness.";
+                    }
+                    else if (totalScore <= 3 || hasHighRiskIndicator)
+                    {
+                        recommendation = "Moderate risk: Some risky behaviors detected. We recommend enrolling in educational courses and monitoring your behavior.";
+                    }
+                    else
+                    {
+                        recommendation = "High risk: Significant risky behaviors detected. We strongly recommend enrolling in courses, reading blogs, and scheduling a professional consultation.";
+                    }
+                    Console.WriteLine($"CRAFFT: TotalScore={totalScore}, HighRiskIndicator={hasHighRiskIndicator}, Recommendation={recommendation}");
                     break;
             }
 
@@ -825,7 +857,7 @@
                 MemberId = CurrentMemberId,
                 TotalScore = totalScore,
                 ScoreDetails = string.Join(";", scoreDetails),
-                Recommendation = string.Join(" ", recommendations),
+                Recommendation = recommendation,
                 CompletedOn = DateOnly.FromDateTime(DateTime.Now)
             };
 
@@ -838,9 +870,9 @@
                 return;
             }
 
-            Console.WriteLine($"Submission Payload: MemberId={assessmentResult.MemberId}, ResultId={assessmentResult.ResultId}, TotalScore={assessmentResult.TotalScore}");
+            Console.WriteLine($"Submission Payload: MemberId={assessmentResult.MemberId}, ResultId={assessmentResult.ResultId}, TotalScore={assessmentResult.TotalScore}, Recommendation={recommendation}");
             var result = await AssessmentApiService.SubmitAssessmentAsync(AssessmentId, assessmentResult);
-            
+
             if (result != null)
             {
                 showResults = true;

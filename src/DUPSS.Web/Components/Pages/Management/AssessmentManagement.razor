@@ -12,7 +12,7 @@
 
     <div class="management-actions">
         <button @onclick="ShowCreateAssessmentForm">Create New Assessment</button>
-        <button @onclick="ImportHardcodedAssessments">Import Hardcoded Assessments</button>
+        <button @onclick="ImportPremadeAssessments">Import Premade Assessments</button>
         <button @onclick="RefreshAssessments">Refresh List</button>
     </div>
 
@@ -174,7 +174,7 @@
         }
     }
 
-    private async Task ImportHardcodedAssessments()
+    private async Task ImportPremadeAssessments()
     {
         try
         {

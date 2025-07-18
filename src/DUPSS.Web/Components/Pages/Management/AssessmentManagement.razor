@@ -1,11 +1,13 @@
 ﻿@page "/Management/Assessment"
 @using DUPSS.Web.Components.Service
+@using DUPSS.Web.Components.Layout
 @using DUPSS.API.Models.DTOs
 @inject NavigationManager NavigationManager
 @inject AssessmentApiService AssessmentApiService
 @inject AssessmentQuestionApiService QuestionApiService
 @inject AssessmentAnswerApiService AnswerApiService
 @inject IJSRuntime JSRuntime
+@layout ManagementLayout
 
 <div class="assessment-management-container">
     <h1>Assessment Management</h1>

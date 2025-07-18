@@ -163,6 +163,7 @@
     private bool showEditForm = false;
     private AssessmentQuestionDTO newQuestion = new() { QuestionId = "", AssessmentId = "", Question = "", QuestionType = "MultipleChoice" };
     private AssessmentQuestionDTO? editingQuestion = null;
+    int nextQuestionNumber = 1;
     private string selectedSubstance = "Tobacco";
     private readonly List<string> substances = new()
     {
@@ -221,24 +222,33 @@
     {
         try
         {
-            // Generate unique QuestionId
-            int nextQuestionNumber = 1;
             if (AssessmentId.StartsWith("ASSIST"))
             {
-                var substanceQuestions = questions?.Where(q => q.QuestionId.StartsWith($"ASSIST_{selectedSubstance.ToUpper().Replace(" ", "_")}_")).ToList() ?? new();
+                // Handle null or empty questions list
+                var substanceQuestions = questions?.Where(q => q.QuestionId.StartsWith($"{AssessmentId}_{selectedSubstance.ToUpper().Replace(" ", "_")}_")).ToList() ?? new List<AssessmentQuestionDTO>();
                 nextQuestionNumber = substanceQuestions.Count + 1;
                 newQuestion.QuestionId = $"{AssessmentId}_{selectedSubstance.ToUpper().Replace(" ", "_")}_Q{nextQuestionNumber}";
-                newQuestion.Sequence = (substances.IndexOf(selectedSubstance) * 8) + nextQuestionNumber - 1;
+                // Use 0 as default sequence if no questions exist
+                var maxSequence = questions?.Any() == true ? questions.Where(q => q.AssessmentId == AssessmentId).Max(q => q.Sequence) : 0;
+                newQuestion.Sequence = maxSequence + 1;
             }
             else
             {
-                var existingQuestions = questions?.Count ?? 0;
-                nextQuestionNumber = existingQuestions + 1;
+                // Find the highest question number from existing QuestionIds
+                int maxQuestionNumber = 0;
+                if (questions?.Any() == true)
+                {
+                    maxQuestionNumber = questions
+                        .Where(q => q.QuestionId.StartsWith($"{AssessmentId}_Q"))
+                        .Select(q => int.Parse(q.QuestionId.Split('_').Last().Replace("Q", "")))
+                        .DefaultIfEmpty(0)
+                        .Max();
+                }
+                nextQuestionNumber = maxQuestionNumber + 1;
                 newQuestion.QuestionId = $"{AssessmentId}_Q{nextQuestionNumber}";
-                newQuestion.Sequence = existingQuestions;
+                newQuestion.Sequence = questions?.Any() == true ? questions.Max(q => q.Sequence) + 1 : 0;
             }
 
-            // Check for duplicate QuestionId
             if (questions?.Any(q => q.QuestionId == newQuestion.QuestionId) == true)
             {
                 await JSRuntime.InvokeVoidAsync("alert", $"Error: Question ID {newQuestion.QuestionId} already exists.");
@@ -296,7 +306,7 @@
                     Sequence = editingQuestion.Sequence
                 };
 
-                await QuestionApiService.CreateAsync(question);
+                await QuestionApiService.UpdateAsync(question);
                 await LoadQuestions();
                 showEditForm = false;
                 editingQuestion = null;

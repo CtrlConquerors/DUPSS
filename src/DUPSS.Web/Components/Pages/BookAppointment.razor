@@ -308,6 +308,8 @@
                 int active = consultantAppointments.Count(a => a.Status is "Pending" or "Accepted");
                 consultantLoad.Add((c, active));
             }
+
+
         }
 
         var best = consultantLoad.OrderBy(x => x.Load).ThenBy(_ => Guid.NewGuid()).FirstOrDefault();
@@ -360,6 +362,24 @@
         {
             await JS.InvokeVoidAsync("alert", "Appointment booked successfully!");
             Navigation.NavigateTo("/Appointment", true);
+
+            var member = await UserService.GetUserByIdAsync(newAppointment.MemberId);
+            var consultant = best.Consultant;
+
+            if (member != null && !string.IsNullOrEmpty(member.Email))
+            {
+                var subject = "Appointment Booked Successfully";
+                var cancelDeadline = newAppointment.AppointmentDate.ToLocalTime().AddMinutes(-30);
+                var body = $"Hello {member.Username},\n\n" +
+                           $"Your appointment at {newAppointment.AppointmentDate.ToLocalTime():dd/MM/yyyy HH:mm} " +
+                           $"with consultant: {consultant?.Username ?? "Unknown"} has been booked successfully.\n\n" +
+                           $"Please be on time and check your notifications for any updates.\n\n" +
+                           $"Note: You can cancel this appointment before {cancelDeadline:HH:mm dd/MM/yyyy}.";
+
+
+                await EmailService.SendEmailAsync(member.Email, subject, body);
+            }
+
         }
         else
         {

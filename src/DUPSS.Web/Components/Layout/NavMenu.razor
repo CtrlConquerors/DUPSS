@@ -58,11 +58,6 @@
 
                 </AuthorizeView>
 
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="/AppointmentHome">Appointment</NavLink>
-                </li>
-
-
                 <AuthorizeView Roles="CO">
                     <Authorized>
 
@@ -71,6 +66,12 @@
                         </li>
 
                     </Authorized>
+
+                    <NotAuthorized>
+                        <li class="nav-item">
+                            <NavLink class="nav-link" href="/AppointmentHome">Appointment</NavLink>
+                        </li>
+                    </NotAuthorized>
 
                 </AuthorizeView>
 

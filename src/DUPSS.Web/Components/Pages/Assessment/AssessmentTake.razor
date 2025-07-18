@@ -641,6 +641,13 @@
             case "ASSIST" when currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"):
             {
                 int substanceIndex = currentQuestionIndex / 8;
+                // Check if this is the last substance ("Other")
+                if (substanceIndex == substances.Count - 1)
+                {
+                    Console.WriteLine("Last substance Q1 answered 'No', submitting assessment");
+                    await SubmitAssessment();
+                    return;
+                }
                 currentQuestionIndex = (substanceIndex + 1) * 8;
                 if (currentQuestionIndex >= questions.Count)
                 {
@@ -651,8 +658,8 @@
             case "CRAFFT" when currentQuestion.QuestionId == "CRAFFT_Q4":
             {
                 bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
-                    userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
-                    userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+                              userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
+                              userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
                 if (allZero)
                 {
                     Console.WriteLine("CRAFFT Q1-Q3 all '0', submitting after Q4");

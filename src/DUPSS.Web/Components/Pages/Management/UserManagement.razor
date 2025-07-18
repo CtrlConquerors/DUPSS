@@ -131,89 +131,95 @@
 
                 @if (showCreateForm)
                 {
-                    <div class="edit-form-card">
-                        <h5>Create New User</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Username <span class="text-danger">*</span></label>
-                            <input class="form-control" @bind="newUser.Username"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input class="form-control" type="email" @bind="newUser.Email"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Password <span class="text-danger">*</span></label>
-                            <input class="form-control" type="password" @bind="newUserPassword"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Phone Number</label>
-                            <input class="form-control" @bind="newUser.PhoneNumber"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" @bind="newUser.DoB"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Role <span class="text-danger">*</span></label>
-                            <select class="form-select" @bind="newUser.RoleId">
-                                <option value="">Select Role</option>
-                                @foreach (var role in availableRoles)
+                    <div class="modal-overlay">
+                        <div class="modal-dialog">
+                            <div class="edit-form-card">
+                                <h5>Create New User</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                                    <input class="form-control" @bind="newUser.Username" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input class="form-control" type="email" @bind="newUser.Email" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Password <span class="text-danger">*</span></label>
+                                    <input class="form-control" type="password" @bind="newUserPassword" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number</label>
+                                    <input class="form-control" @bind="newUser.PhoneNumber" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" @bind="newUser.DoB" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="newUser.RoleId">
+                                        <option value="">Select Role</option>
+                                        @foreach (var role in availableRoles)
+                                        {
+                                            <option value="@role.RoleId">@role.RoleName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
+                                    <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
+                                </div>
+                                @if (!string.IsNullOrEmpty(message))
                                 {
-                                    <option value="@role.RoleId">@role.RoleName</option>
+                                    <div class="alert alert-info mt-3">@message</div>
                                 }
-                            </select>
+                            </div>
                         </div>
-
-                        <div>
-                            <button class="btn btn-success me-2" @onclick="CreateUser">Create</button>
-                            <button class="btn btn-secondary" @onclick="CancelCreate">Cancel</button>
-                        </div>
-                        @if (!string.IsNullOrEmpty(message))
-                        {
-                            <div class="alert alert-info mt-3">@message</div>
-                        }
                     </div>
                 }
 
                 @if (editingUserId != null && editingUser != null)
                 {
-                    <div class="edit-form-card">
-                        <h5>Edit User: @editingUser.Username</h5>
-                        <div class="mb-3">
-                            <label class="form-label">Username <span class="text-danger">*</span></label>
-                            <input class="form-control" @bind="editingUser.Username"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Email <span class="text-danger">*</span></label>
-                            <input class="form-control" type="email" @bind="editingUser.Email"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Phone Number</label>
-                            <input class="form-control" @bind="editingUser.PhoneNumber"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Date of Birth</label>
-                            <input type="date" class="form-control" @bind="editingUser.DoB"/>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Role <span class="text-danger">*</span></label>
-                            <select class="form-select" @bind="editingUser.RoleId">
-                                <option value="">Select Role</option>
-                                @foreach (var role in availableRoles)
+                    <div class="modal-overlay">
+                        <div class="modal-dialog">
+                            <div class="edit-form-card">
+                                <h5>Edit User: @editingUser.Username</h5>
+                                <div class="mb-3">
+                                    <label class="form-label">Username <span class="text-danger">*</span></label>
+                                    <input class="form-control" @bind="editingUser.Username" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Email <span class="text-danger">*</span></label>
+                                    <input class="form-control" type="email" @bind="editingUser.Email" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Phone Number</label>
+                                    <input class="form-control" @bind="editingUser.PhoneNumber" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Date of Birth</label>
+                                    <input type="date" class="form-control" @bind="editingUser.DoB" />
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Role <span class="text-danger">*</span></label>
+                                    <select class="form-select" @bind="editingUser.RoleId">
+                                        <option value="">Select Role</option>
+                                        @foreach (var role in availableRoles)
+                                        {
+                                            <option value="@role.RoleId">@role.RoleName</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div>
+                                    <button class="btn btn-success me-2" @onclick="SaveEdit">Save</button>
+                                    <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                                </div>
+                                @if (!string.IsNullOrEmpty(message))
                                 {
-                                    <option value="@role.RoleId">@role.RoleName</option>
+                                    <div class="alert alert-info mt-3">@message</div>
                                 }
-                            </select>
+                            </div>
                         </div>
-
-                        <div>
-                            <button class="btn btn-success me-2" @onclick="SaveEdit">Save</button>
-                            <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
-                        </div>
-                        @if (!string.IsNullOrEmpty(message))
-                        {
-                            <div class="alert alert-info mt-3">@message</div>
-                        }
                     </div>
                 }
                 @if (showCampaignHistory)

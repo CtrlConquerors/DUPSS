@@ -219,7 +219,7 @@
         {
             var answer = new AssessmentAnswerDTO
             {
-                AnswerId = GenerateShortGuid(),
+                AnswerId = QuestionId + "_" + $"{newAnswer.Answer.ToUpper().Replace(" ", "_")}",
                 QuestionId = QuestionId,
                 Answer = newAnswer.Answer,
                 AnswerDetails = newAnswer.AnswerDetails,

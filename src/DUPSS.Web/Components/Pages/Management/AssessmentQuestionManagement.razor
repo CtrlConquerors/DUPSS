@@ -227,14 +227,14 @@
             {
                 var substanceQuestions = questions?.Where(q => q.QuestionId.StartsWith($"ASSIST_{selectedSubstance.ToUpper().Replace(" ", "_")}_")).ToList() ?? new();
                 nextQuestionNumber = substanceQuestions.Count + 1;
-                newQuestion.QuestionId = $"ASSIST_{selectedSubstance.ToUpper().Replace(" ", "_")}_Q{nextQuestionNumber}";
+                newQuestion.QuestionId = $"{AssessmentId}_{selectedSubstance.ToUpper().Replace(" ", "_")}_Q{nextQuestionNumber}";
                 newQuestion.Sequence = (substances.IndexOf(selectedSubstance) * 8) + nextQuestionNumber - 1;
             }
             else
             {
                 var existingQuestions = questions?.Count ?? 0;
                 nextQuestionNumber = existingQuestions + 1;
-                newQuestion.QuestionId = $"{AssessmentId.Split('-')[0]}_Q{nextQuestionNumber}";
+                newQuestion.QuestionId = $"{AssessmentId}_Q{nextQuestionNumber}";
                 newQuestion.Sequence = existingQuestions;
             }
 

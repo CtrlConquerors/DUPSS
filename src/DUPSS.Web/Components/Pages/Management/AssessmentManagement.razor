@@ -308,7 +308,7 @@
                             {
                                 var answerDto = new AssessmentAnswerDTO
                                 {
-                                    AnswerId = $"{ASSIST}_{substanceId}_Q{question.QuestionId.Split('_')[2]}_{answer.Answer.ToUpper().Replace(" ", "_")}",
+                                    AnswerId = $"{ASSIST}_{substanceId}_{question.QuestionId.Split('_')[2]}_{answer.Answer.ToUpper().Replace(" ", "_")}",
                                     QuestionId = question.QuestionId,
                                     Answer = answer.Answer,
                                     ScoreValue = answer.ScoreValue

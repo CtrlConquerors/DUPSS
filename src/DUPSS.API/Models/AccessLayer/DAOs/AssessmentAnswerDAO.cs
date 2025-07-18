@@ -47,7 +47,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         QuestionId = a.Question.QuestionId,
                         AssessmentId = a.Question.AssessmentId,
                         Question = a.Question.Question,
-                        QuestionType = a.Question.QuestionType
+                        QuestionType = a.Question.QuestionType,
+                        Sequence = a.Question.Sequence
                     } : null
                 })
                 .FirstOrDefaultAsync();
@@ -70,7 +71,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                         QuestionId = a.Question.QuestionId,
                         AssessmentId = a.Question.AssessmentId,
                         Question = a.Question.Question,
-                        QuestionType = a.Question.QuestionType
+                        QuestionType = a.Question.QuestionType,
+                        Sequence = a.Question.Sequence
                     } : null
                 })
                 .ToListAsync();

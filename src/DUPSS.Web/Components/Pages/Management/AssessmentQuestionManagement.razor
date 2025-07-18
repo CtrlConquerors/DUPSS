@@ -1,5 +1,4 @@
-﻿@* Question Management Page *@
-@page "/Management/Assessment/{AssessmentId}/Questions/"
+﻿@page "/Management/Assessment/{AssessmentId}/Questions/"
 @using DUPSS.Web.Components.Service
 @using DUPSS.API.Models.DTOs
 @inject NavigationManager NavigationManager
@@ -60,6 +59,18 @@
                             <option value="Text">Text</option>
                         </select>
                     </div>
+                    @if (AssessmentId.StartsWith("ASSIST"))
+                    {
+                        <div class="form-group">
+                            <label for="substance">Substance:</label>
+                            <select id="substance" @bind="selectedSubstance">
+                                @foreach (var substance in substances)
+                                {
+                                    <option value="@substance">@substance</option>
+                                }
+                            </select>
+                        </div>
+                    }
                     <div class="form-actions">
                         <button type="submit">Create Question</button>
                         <button type="button" @onclick="CancelCreateQuestion">Cancel</button>
@@ -76,16 +87,18 @@
                     <thead>
                     <tr>
                         <th>Question ID</th>
+                        <th>Sequence</th>
                         <th>Question Text</th>
                         <th>Type</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (var question in questions)
+                    @foreach (var question in questions.OrderBy(q => q.Sequence))
                     {
                         <tr>
                             <td>@question.QuestionId</td>
+                            <td>@question.Sequence</td>
                             <td>@question.Question</td>
                             <td>@question.QuestionType</td>
                             <td>
@@ -122,6 +135,10 @@
                             <option value="Text">Text</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="editSequence">Sequence:</label>
+                        <input id="editSequence" type="number" @bind="editingQuestion.Sequence" required/>
+                    </div>
                     <div class="form-actions">
                         <button type="submit">Update Question</button>
                         <button type="button" @onclick="CancelEditQuestion">Cancel</button>
@@ -146,6 +163,12 @@
     private bool showEditForm = false;
     private AssessmentQuestionDTO newQuestion = new() { QuestionId = "", AssessmentId = "", Question = "", QuestionType = "MultipleChoice" };
     private AssessmentQuestionDTO? editingQuestion = null;
+    private string selectedSubstance = "Tobacco";
+    private readonly List<string> substances = new()
+    {
+        "Tobacco", "Alcohol", "Cannabis", "Cocaine", "Amphetamines",
+        "Inhalants", "Sedatives", "Hallucinogens", "Opioids", "Other"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -172,7 +195,7 @@
             isLoading = true;
             hasError = false;
             allQuestions = await QuestionApiService.GetAllAsync();
-            questions = allQuestions?.Where(q => q.AssessmentId == AssessmentId).ToList();
+            questions = allQuestions?.Where(q => q.AssessmentId == AssessmentId).OrderBy(q => q.Sequence).ToList();
         }
         catch (Exception ex)
         {
@@ -189,37 +212,57 @@
     private void ShowCreateQuestionForm()
     {
         newQuestion = new() { QuestionId = "", AssessmentId = AssessmentId, Question = "", QuestionType = "MultipleChoice" };
+        selectedSubstance = substances.First();
         showCreateForm = true;
         showEditForm = false;
-    }
-
-    private string GenerateShortGuid()
-    {
-        return Convert.ToBase64String(Guid.NewGuid().ToByteArray())
-            .Replace("=", "")
-            .Replace("+", "")
-            .Replace("/", "");
     }
 
     private async Task CreateQuestion()
     {
         try
         {
+            // Generate unique QuestionId
+            int nextQuestionNumber = 1;
+            if (AssessmentId.StartsWith("ASSIST"))
+            {
+                var substanceQuestions = questions?.Where(q => q.QuestionId.StartsWith($"ASSIST_{selectedSubstance.ToUpper().Replace(" ", "_")}_")).ToList() ?? new();
+                nextQuestionNumber = substanceQuestions.Count + 1;
+                newQuestion.QuestionId = $"ASSIST_{selectedSubstance.ToUpper().Replace(" ", "_")}_Q{nextQuestionNumber}";
+                newQuestion.Sequence = (substances.IndexOf(selectedSubstance) * 8) + nextQuestionNumber - 1;
+            }
+            else
+            {
+                var existingQuestions = questions?.Count ?? 0;
+                nextQuestionNumber = existingQuestions + 1;
+                newQuestion.QuestionId = $"{AssessmentId.Split('-')[0]}_Q{nextQuestionNumber}";
+                newQuestion.Sequence = existingQuestions;
+            }
+
+            // Check for duplicate QuestionId
+            if (questions?.Any(q => q.QuestionId == newQuestion.QuestionId) == true)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Error: Question ID {newQuestion.QuestionId} already exists.");
+                return;
+            }
+
             var question = new AssessmentQuestionDTO
             {
-                QuestionId = GenerateShortGuid(),
+                QuestionId = newQuestion.QuestionId,
                 AssessmentId = AssessmentId,
                 Question = newQuestion.Question,
-                QuestionType = newQuestion.QuestionType
+                QuestionType = newQuestion.QuestionType,
+                Sequence = newQuestion.Sequence
             };
 
             await QuestionApiService.CreateAsync(question);
+            Console.WriteLine($"Created question: {question.QuestionId}, Sequence: {question.Sequence}");
             await LoadQuestions();
             showCreateForm = false;
             await JSRuntime.InvokeVoidAsync("alert", "Question created successfully!");
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"Error creating question: {ex.Message}");
             await JSRuntime.InvokeVoidAsync("alert", $"Error creating question: {ex.Message}");
         }
     }
@@ -231,7 +274,8 @@
             QuestionId = question.QuestionId,
             AssessmentId = question.AssessmentId,
             Question = question.Question,
-            QuestionType = question.QuestionType
+            QuestionType = question.QuestionType,
+            Sequence = question.Sequence
         };
         showEditForm = true;
         showCreateForm = false;
@@ -243,15 +287,16 @@
         {
             if (editingQuestion != null)
             {
-                var question = new AssessmentQuestionDTO()
+                var question = new AssessmentQuestionDTO
                 {
                     QuestionId = editingQuestion.QuestionId,
                     AssessmentId = editingQuestion.AssessmentId,
                     Question = editingQuestion.Question,
-                    QuestionType = editingQuestion.QuestionType
+                    QuestionType = editingQuestion.QuestionType,
+                    Sequence = editingQuestion.Sequence
                 };
 
-                await QuestionApiService.UpdateAsync(question);
+                await QuestionApiService.CreateAsync(question);
                 await LoadQuestions();
                 showEditForm = false;
                 editingQuestion = null;

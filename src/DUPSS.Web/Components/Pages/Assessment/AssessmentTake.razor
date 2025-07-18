@@ -3,6 +3,8 @@
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
 @inject AssessmentApiService AssessmentApiService
+@inject AssessmentQuestionApiService QuestionApiService
+@inject AssessmentAnswerApiService AnswerApiService
 @inject NavigationManager NavigationManager
 @inject AuthenticationStateProvider AuthProvider
 @inject IJSRuntime JS
@@ -108,7 +110,7 @@
             <div class="assessment-info">
                 <h1>@assessment.AssessmentType</h1>
                 <p class="assessment-description">@assessment.Description</p>
-                @if (AssessmentId == "ASSIST")
+                @if (AssessmentType == "ASSIST")
                 {
                     <p class="substance-info">Current Section: @GetCurrentSubstance()</p>
                 }
@@ -211,7 +213,7 @@
                         Previous
                     </button>
 
-                    @if (AssessmentId == "CRAFFT" && currentQuestion.QuestionId == "CRAFFT_Q4" && IsCrafftQ1ToQ3AllZero())
+                    @if (AssessmentType == "CRAFFT" && currentQuestion.QuestionId == $"{AssessmentId}_Q4" && IsCrafftQ1ToQ3AllZero())
                     {
                         <button class="submit-button"
                                 @onclick="SubmitAssessment"
@@ -315,6 +317,7 @@
     private List<string> selectedAnswerIds = new();
     private string? CurrentMemberId;
     private bool isFirstQuestionAnswered = false; // Track if first question is explicitly answered
+    private string? AssessmentType => assessment?.AssessmentType;
 
     private AssessmentQuestionDTO currentQuestion => questions[currentQuestionIndex];
     private List<AssessmentAnswerDTO> currentAnswers => questionAnswers.GetValueOrDefault(currentQuestion.QuestionId, new List<AssessmentAnswerDTO>());
@@ -327,8 +330,9 @@
 
     private string GetCurrentSubstance()
     {
+        if (AssessmentType != "ASSIST") return string.Empty;
         int substanceIndex = currentQuestionIndex / 8;
-        return substances[substanceIndex];
+        return substanceIndex < substances.Count ? substances[substanceIndex] : string.Empty;
     }
 
     protected override async Task OnInitializedAsync()
@@ -355,21 +359,8 @@
                 return;
             }
 
-            // Load questions and answers
-            if (AssessmentId == "ASSIST")
-            {
-                LoadAssistQuestions();
-            }
-            else if (AssessmentId == "CRAFFT")
-            {
-                LoadCrafftQuestions();
-            }
-            else
-            {
-                hasError = true;
-                errorMessage = "Unsupported assessment type.";
-                return;
-            }
+            // Load questions and answers dynamically
+            await LoadQuestionsAsync();
 
             if (!questions.Any())
             {
@@ -400,180 +391,34 @@
         }
     }
 
-    private void LoadAssistQuestions()
+    private async Task LoadQuestionsAsync()
     {
-        questions = new List<AssessmentQuestionDTO>();
-        questionAnswers = new Dictionary<string, List<AssessmentAnswerDTO>>();
-
-        var frequencyAnswers = new List<AssessmentAnswerDTO>
+        try
         {
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_0", Answer = "Never", ScoreValue = 0 },
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_2", Answer = "Once or twice", ScoreValue = 2 },
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_3", Answer = "Monthly", ScoreValue = 3 },
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_4", Answer = "Weekly", ScoreValue = 4 },
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_fA_6", Answer = "Daily or almost daily", ScoreValue = 6 }
-        };
+            // Fetch questions and sort by Sequence
+            questions = (await QuestionApiService.GetAllAsync())
+                .Where(q => q.AssessmentId == AssessmentId)
+                .OrderBy(q => q.Sequence)
+                .ToList();
 
-        var yesNoAnswers = new List<AssessmentAnswerDTO>
-        {
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_yNA_yes", Answer = "Yes", ScoreValue = 0 }, // Score set per question
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_yNA_no", Answer = "No", ScoreValue = 0 }
-        };
-
-        var injectionAnswers = new List<AssessmentAnswerDTO>
-        {
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_iA_0", Answer = "Never", ScoreValue = 0 },
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_iA_6", Answer = "Yes, in the past 3 months", ScoreValue = 6 },
-            new() { QuestionId = "ASSIST", AnswerId = "ASSIST_iA_3", Answer = "Yes, but not in the past 3 months", ScoreValue = 3 }
-        };
-
-        foreach (var substance in substances)
-        {
-            var substanceId = substance.ToUpper().Replace(" ", "_");
-            var substanceQuestions = new List<AssessmentQuestionDTO>
+            // Fetch answers for each question
+            questionAnswers = new Dictionary<string, List<AssessmentAnswerDTO>>();
+            var allAnswers = await AnswerApiService.GetAllAsync();
+            foreach (var question in questions)
             {
-                new() { QuestionId = $"ASSIST_{substanceId}_Q1", AssessmentId = AssessmentId, Question = $"In your life, have you ever used {substance.ToLower()}?", QuestionType = "YesNo" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q2", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often have you used {substance.ToLower()}?", QuestionType = "MultipleChoice" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q3", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often have you had a strong desire or urge to use {substance.ToLower()}?", QuestionType = "MultipleChoice" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q4", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often has {substance.ToLower()} use led to health, social, legal, or financial problems?", QuestionType = "MultipleChoice" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q5", AssessmentId = AssessmentId, Question = $"In the past 3 months, how often have you failed to do what was normally expected of you because of {substance.ToLower()}?", QuestionType = "MultipleChoice" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q6", AssessmentId = AssessmentId, Question = $"Has a friend or relative or anyone else ever expressed concern about your use of {substance.ToLower()}?", QuestionType = "YesNo" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q7", AssessmentId = AssessmentId, Question = $"Have you ever tried and failed to control, cut down, or stop using {substance.ToLower()}?", QuestionType = "YesNo" },
-                new() { QuestionId = $"ASSIST_{substanceId}_Q8", AssessmentId = AssessmentId, Question = $"Have you ever used {substance.ToLower()} by injection?", QuestionType = "MultipleChoice" }
-            };
-
-            questions.AddRange(substanceQuestions);
-
-            questionAnswers[$"ASSIST_{substanceId}_Q1"] = yesNoAnswers.Select(a => new AssessmentAnswerDTO
-            {
-                AnswerId = $"ASSIST_{substanceId}_Q1_{a.Answer.ToUpper()}",
-                QuestionId = $"ASSIST_{substanceId}_Q1",
-                Answer = a.Answer,
-                ScoreValue = a.ScoreValue
-            }).ToList();
-
-            for (int i = 2; i <= 5; i++)
-            {
-                questionAnswers[$"ASSIST_{substanceId}_Q{i}"] = frequencyAnswers.Select(a => new AssessmentAnswerDTO
-                {
-                    AnswerId = $"ASSIST_{substanceId}_Q{i}_{a.Answer.ToUpper().Replace(" ", "_")}",
-                    QuestionId = $"ASSIST_{substanceId}_Q{i}",
-                    Answer = a.Answer,
-                    ScoreValue = a.ScoreValue
-                }).ToList();
+                questionAnswers[question.QuestionId] = allAnswers
+                    .Where(a => a.QuestionId == question.QuestionId)
+                    .ToList();
             }
 
-            questionAnswers[$"ASSIST_{substanceId}_Q6"] = yesNoAnswers.Select(a => new AssessmentAnswerDTO
-            {
-                AnswerId = $"ASSIST_{substanceId}_Q6_{a.Answer.ToUpper()}",
-                QuestionId = $"ASSIST_{substanceId}_Q6",
-                Answer = a.Answer,
-                ScoreValue = a.Answer == "Yes" ? 7 : 0
-            }).ToList();
-
-            questionAnswers[$"ASSIST_{substanceId}_Q7"] = yesNoAnswers.Select(a => new AssessmentAnswerDTO
-            {
-                AnswerId = $"ASSIST_{substanceId}_Q7_{a.Answer.ToUpper()}",
-                QuestionId = $"ASSIST_{substanceId}_Q7",
-                Answer = a.Answer,
-                ScoreValue = a.Answer == "Yes" ? 4 : 0
-            }).ToList();
-
-            questionAnswers[$"ASSIST_{substanceId}_Q8"] = injectionAnswers.Select(a => new AssessmentAnswerDTO
-            {
-                AnswerId = $"ASSIST_{substanceId}_Q8_{a.Answer.ToUpper().Replace(" ", "_").Replace(",", "")}",
-                QuestionId = $"ASSIST_{substanceId}_Q8",
-                Answer = a.Answer,
-                ScoreValue = a.ScoreValue
-            }).ToList();
+            Console.WriteLine($"Loaded {questions.Count} questions and {questionAnswers.Sum(kv => kv.Value.Count)} answers for AssessmentId: {AssessmentId}");
         }
-
-        Console.WriteLine($"Loaded ASSIST questions: {questions.Count} total, {questionAnswers.Count} question-answer sets");
-    }
-
-    private void LoadCrafftQuestions()
-    {
-        questions = new List<AssessmentQuestionDTO>
+        catch (Exception ex)
         {
-            new() { QuestionId = "CRAFFT_Q1", AssessmentId = AssessmentId, Question = "During the PAST 12 MONTHS, on how many days did you drink more than a few sips of beer, wine, or any drink containing alcohol? Put '0' if none.", QuestionType = "Numeric" },
-            new() { QuestionId = "CRAFFT_Q2", AssessmentId = AssessmentId, Question = "During the PAST 12 MONTHS, on how many days did you use any marijuana (cannabis, weed, oil, wax, or hash by smoking, vaping, dabbing, or in edibles) or 'synthetic marijuana' (like 'K2,' 'Spice')? Put '0' if none.", QuestionType = "Numeric" },
-            new() { QuestionId = "CRAFFT_Q3", AssessmentId = AssessmentId, Question = "During the PAST 12 MONTHS, on how many days did you use anything else to get high (like other illegal drugs, pills, prescription or over-the-counter medications, and things that you sniff, huff, vape, or inject)? Put '0' if none.", QuestionType = "Numeric" },
-            new() { QuestionId = "CRAFFT_Q4", AssessmentId = AssessmentId, Question = "Have you ever ridden in a CAR driven by someone (including yourself) who was high or had been using alcohol or drugs?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q5", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs to RELAX, feel better about yourself, or fit in?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q6", AssessmentId = AssessmentId, Question = "Do you ever use alcohol or drugs while you are by yourself, ALONE?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q7", AssessmentId = AssessmentId, Question = "Do you ever FORGET things you did while using alcohol or drugs?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q8", AssessmentId = AssessmentId, Question = "Do your family or FRIENDS ever tell you that you should cut down on your drinking or drug use?", QuestionType = "YesNo" },
-            new() { QuestionId = "CRAFFT_Q9", AssessmentId = AssessmentId, Question = "Have you ever gotten into TROUBLE while you were using alcohol or drugs?", QuestionType = "YesNo" }
-        };
-
-        questionAnswers = new Dictionary<string, List<AssessmentAnswerDTO>>
-        {
-            {
-                "CRAFFT_Q1", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q1_0", QuestionId = "CRAFFT_Q1", Answer = "0", ScoreValue = 0 },
-                    new() { AnswerId = "CRAFFT_Q1_1PLUS", QuestionId = "CRAFFT_Q1", Answer = "1 or more", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q2", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q2_0", QuestionId = "CRAFFT_Q2", Answer = "0", ScoreValue = 0 },
-                    new() { AnswerId = "CRAFFT_Q2_1PLUS", QuestionId = "CRAFFT_Q2", Answer = "1 or more", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q3", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q3_0", QuestionId = "CRAFFT_Q3", Answer = "0", ScoreValue = 0 },
-                    new() { AnswerId = "CRAFFT_Q3_1PLUS", QuestionId = "CRAFFT_Q3", Answer = "1 or more", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q4", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q4_YES", QuestionId = "CRAFFT_Q4", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q4_NO", QuestionId = "CRAFFT_Q4", Answer = "No", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q5", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q5_YES", QuestionId = "CRAFFT_Q5", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q5_NO", QuestionId = "CRAFFT_Q5", Answer = "No", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q6", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q6_YES", QuestionId = "CRAFFT_Q6", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q6_NO", QuestionId = "CRAFFT_Q6", Answer = "No", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q7", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q7_YES", QuestionId = "CRAFFT_Q7", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q7_NO", QuestionId = "CRAFFT_Q7", Answer = "No", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q8", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q8_YES", QuestionId = "CRAFFT_Q8", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q8_NO", QuestionId = "CRAFFT_Q8", Answer = "No", ScoreValue = 0 }
-                }
-            },
-            {
-                "CRAFFT_Q9", new List<AssessmentAnswerDTO>
-                {
-                    new() { AnswerId = "CRAFFT_Q9_YES", QuestionId = "CRAFFT_Q9", Answer = "Yes", ScoreValue = 1 },
-                    new() { AnswerId = "CRAFFT_Q9_NO", QuestionId = "CRAFFT_Q9", Answer = "No", ScoreValue = 0 }
-                }
-            }
-        };
-
-        Console.WriteLine($"Loaded {questions.Count} CRAFFT questions, {questionAnswers.Count} answer sets.");
+            Console.WriteLine($"Error loading questions/answers: {ex.Message}");
+            hasError = true;
+            errorMessage = $"Failed to load questions: {ex.Message}";
+        }
     }
 
     private void LoadCurrentQuestionAnswers()
@@ -595,24 +440,24 @@
         }
 
         // If Q1 is "No", auto-set "No"/"Never" for Q2–Q8 of the same substance
-        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && answerId.EndsWith("_NO"))
+        if (AssessmentType == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1") && answerId.EndsWith("_NO"))
         {
             var substanceId = currentQuestion.QuestionId.Split('_')[1];
             for (int i = 2; i <= 7; i++)
             {
-                userAnswers[$"ASSIST_{substanceId}_Q{i}"] = $"ASSIST_{substanceId}_Q{i}_NO";
+                userAnswers[$"{AssessmentId}_{substanceId}_Q{i}"] = $"{AssessmentId}_{substanceId}_Q{i}_NO";
             }
-            userAnswers[$"ASSIST_{substanceId}_Q8"] = $"ASSIST_{substanceId}_Q8_NEVER";
+            userAnswers[$"{AssessmentId}_{substanceId}_Q8"] = $"{AssessmentId}_{substanceId}_Q8_NEVER";
         }
 
         StateHasChanged();
     }
-    
+
     private bool IsCrafftQ1ToQ3AllZero()
     {
-        return userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
-            userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
-            userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+        return userAnswers.GetValueOrDefault($"{AssessmentId}_Q1", "").EndsWith("_0") &&
+               userAnswers.GetValueOrDefault($"{AssessmentId}_Q2", "").EndsWith("_0") &&
+               userAnswers.GetValueOrDefault($"{AssessmentId}_Q3", "").EndsWith("_0");
     }
 
     private bool IsAnswerSelected()
@@ -636,7 +481,7 @@
             return;
         SaveCurrentAnswer();
 
-        switch (AssessmentId)
+        switch (AssessmentType)
         {
             case "ASSIST" when currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"):
             {
@@ -655,11 +500,11 @@
                 }
                 break;
             }
-            case "CRAFFT" when currentQuestion.QuestionId == "CRAFFT_Q4":
+            case "CRAFFT" when currentQuestion.QuestionId == $"{AssessmentId}_Q4":
             {
-                bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
-                              userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
-                              userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+                bool allZero = userAnswers.GetValueOrDefault($"{AssessmentId}_Q1", "").EndsWith("_0") &&
+                              userAnswers.GetValueOrDefault($"{AssessmentId}_Q2", "").EndsWith("_0") &&
+                              userAnswers.GetValueOrDefault($"{AssessmentId}_Q3", "").EndsWith("_0");
                 if (allZero)
                 {
                     Console.WriteLine("CRAFFT Q1-Q3 all '0', submitting after Q4");
@@ -686,13 +531,13 @@
             return;
         SaveCurrentAnswer();
 
-        if (AssessmentId == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1"))
-        {   
+        if (AssessmentType == "ASSIST" && currentQuestion.QuestionId.EndsWith("_Q1"))
+        {
             int substanceIndex = currentQuestionIndex / 8;
             if (substanceIndex > 0)
             {
                 var prevSubstanceIndex = substanceIndex - 1;
-                var prevSubstanceQ1Id = $"ASSIST_{substances[prevSubstanceIndex].ToUpper().Replace(" ", "_")}_Q1";
+                var prevSubstanceQ1Id = $"{AssessmentId}_{substances[prevSubstanceIndex].ToUpper().Replace(" ", "_")}_Q1";
                 var prevQ1Answer = userAnswers.GetValueOrDefault(prevSubstanceQ1Id, string.Empty);
                 currentQuestionIndex = prevQ1Answer.EndsWith("_NO") ? prevSubstanceIndex * 8 : ((prevSubstanceIndex * 8) + 7);
             }
@@ -746,14 +591,14 @@
             string recommendation = string.Empty;
             bool hasHighRiskIndicator = false;
 
-            switch (AssessmentId)
+            switch (AssessmentType)
             {
                 case "ASSIST":
                     var substanceScores = new Dictionary<string, int>();
                     foreach (var substance in substances)
                     {
                         var substanceId = substance.ToUpper().Replace(" ", "_");
-                        if (userAnswers[$"ASSIST_{substanceId}_Q1"] == $"ASSIST_{substanceId}_Q1_NO")
+                        if (userAnswers[$"{AssessmentId}_{substanceId}_Q1"] == $"{AssessmentId}_{substanceId}_Q1_NO")
                         {
                             substanceScores[substance] = 0;
                             scoreDetails.Add($"{substance}: No use reported");
@@ -765,7 +610,7 @@
 
                         for (int i = 2; i <= 8; i++)
                         {
-                            var questionId = $"ASSIST_{substanceId}_Q{i}";
+                            var questionId = $"{AssessmentId}_{substanceId}_Q{i}";
                             if (!userAnswers.TryGetValue(questionId, out var answerId) || string.IsNullOrEmpty(answerId))
                                 continue;
                             var answer = questionAnswers[questionId].FirstOrDefault(a => a.AnswerId == answerId);
@@ -809,14 +654,14 @@
                     break;
 
                 case "CRAFFT":
-                    Console.WriteLine($"CRAFFT Submission - Q1: {userAnswers.GetValueOrDefault("CRAFFT_Q1", "None")}, Q2: {userAnswers.GetValueOrDefault("CRAFFT_Q2", "None")}, Q3: {userAnswers.GetValueOrDefault("CRAFFT_Q3", "None")}");
-                    bool allZero = userAnswers.GetValueOrDefault("CRAFFT_Q1", "").EndsWith("_0") &&
-                                  userAnswers.GetValueOrDefault("CRAFFT_Q2", "").EndsWith("_0") &&
-                                  userAnswers.GetValueOrDefault("CRAFFT_Q3", "").EndsWith("_0");
+                    Console.WriteLine($"CRAFFT Submission - Q1: {userAnswers.GetValueOrDefault($"{AssessmentId}_Q1", "None")}, Q2: {userAnswers.GetValueOrDefault($"{AssessmentId}_Q2", "None")}, Q3: {userAnswers.GetValueOrDefault($"{AssessmentId}_Q3", "None")}");
+                    bool allZero = userAnswers.GetValueOrDefault($"{AssessmentId}_Q1", "").EndsWith("_0") &&
+                                  userAnswers.GetValueOrDefault($"{AssessmentId}_Q2", "").EndsWith("_0") &&
+                                  userAnswers.GetValueOrDefault($"{AssessmentId}_Q3", "").EndsWith("_0");
 
                     foreach (var question in questions)
                     {
-                        if (!question.QuestionId.StartsWith("CRAFFT_Q") || (allZero && question.QuestionId != "CRAFFT_Q4"))
+                        if (!question.QuestionId.StartsWith($"{AssessmentId}_Q") || (allZero && question.QuestionId != $"{AssessmentId}_Q4"))
                             continue;
                         if (!userAnswers.TryGetValue(question.QuestionId, out var answerId) || string.IsNullOrEmpty(answerId))
                             continue;
@@ -829,7 +674,7 @@
                         totalScore += answer.ScoreValue;
                         scoreDetails.Add($"{question.QuestionId}: {answer.Answer}");
                         // Check for high-risk indicators (Q4 or Q9 "Yes")
-                        if ((question.QuestionId == "CRAFFT_Q4" || question.QuestionId == "CRAFFT_Q9") && answer.Answer == "Yes")
+                        if ((question.QuestionId == $"{AssessmentId}_Q4" || question.QuestionId == $"{AssessmentId}_Q9") && answer.Answer == "Yes")
                         {
                             hasHighRiskIndicator = true;
                         }

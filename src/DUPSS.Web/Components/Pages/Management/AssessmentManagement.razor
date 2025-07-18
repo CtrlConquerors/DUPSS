@@ -1,9 +1,10 @@
-﻿@* Assessment Management Main Page *@
-@page "/Management/Assessment"
+﻿@page "/Management/Assessment"
 @using DUPSS.Web.Components.Service
 @using DUPSS.API.Models.DTOs
 @inject NavigationManager NavigationManager
 @inject AssessmentApiService AssessmentApiService
+@inject AssessmentQuestionApiService QuestionApiService
+@inject AssessmentAnswerApiService AnswerApiService
 @inject IJSRuntime JSRuntime
 
 <div class="assessment-management-container">
@@ -11,6 +12,7 @@
 
     <div class="management-actions">
         <button @onclick="ShowCreateAssessmentForm">Create New Assessment</button>
+        <button @onclick="ImportHardcodedAssessments">Import Hardcoded Assessments</button>
         <button @onclick="RefreshAssessments">Refresh List</button>
     </div>
 
@@ -87,7 +89,7 @@
                                 <button @onclick="() => ManageQuestions(assessment.AssessmentId)">Manage Questions
                                 </button>
                                 <button @onclick="() => DeleteAssessment(assessment.AssessmentId)"
-                                        @onclick:preventDefault="true">Delete
+                                        @onsubmit:preventDefault="true">Delete
                                 </button>
                             </td>
                         </tr>
@@ -141,6 +143,11 @@
     private bool showEditForm = false;
     private AssessmentDTO newAssessment = new() { AssessmentId = "", AssessmentType = "", Version = "1.0", Language = "eng" };
     private AssessmentDTO? editingAssessment = null;
+    private readonly List<string> substances = new()
+    {
+        "Tobacco", "Alcohol", "Cannabis", "Cocaine", "Amphetamines",
+        "Inhalants", "Sedatives", "Hallucinogens", "Opioids", "Other"
+    };
 
     protected override async Task OnInitializedAsync()
     {
@@ -164,6 +171,217 @@
         {
             isLoading = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task ImportHardcodedAssessments()
+    {
+        try
+        {
+            // Check for existing assessments
+            var existingAssessments = await AssessmentApiService.GetAllAsync();
+            const string ASSIST = "ASSIST-eng-3.0";
+            const string CRAFFT = "CRAFFT-eng-2.1";
+            var assistExists = existingAssessments.Any(a => a.AssessmentId == ASSIST);
+            var crafftExists = existingAssessments.Any(a => a.AssessmentId == CRAFFT);
+
+            // Import ASSIST
+            if (!assistExists)
+            {
+                var assist = new AssessmentDTO
+                {
+                    AssessmentId = ASSIST,
+                    AssessmentType = "ASSIST",
+                    Version = "3.0",
+                    Language = "eng",
+                    Description = "Alcohol, Smoking and Substance Involvement Screening Test"
+                };
+                await AssessmentApiService.CreateAsync(assist);
+                Console.WriteLine("Created ASSIST assessment");
+
+                var frequencyAnswers = new List<AssessmentAnswerDTO>
+                {
+                    new() { QuestionId = "", AnswerId = "ASSIST_fA_0", Answer = "Never", ScoreValue = 0 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_fA_2", Answer = "Once or twice", ScoreValue = 2 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_fA_3", Answer = "Monthly", ScoreValue = 3 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_fA_4", Answer = "Weekly", ScoreValue = 4 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_fA_6", Answer = "Daily or almost daily", ScoreValue = 6 }
+                };
+
+                var yesNoAnswers = new List<AssessmentAnswerDTO>
+                {
+                    new() { QuestionId = "", AnswerId = "ASSIST_yNA_yes", Answer = "Yes", ScoreValue = 0 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_yNA_no", Answer = "No", ScoreValue = 0 }
+                };
+
+                var injectionAnswers = new List<AssessmentAnswerDTO>
+                {
+                    new() { QuestionId = "", AnswerId = "ASSIST_iA_0", Answer = "Never", ScoreValue = 0 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_iA_6", Answer = "Yes, in the past 3 months", ScoreValue = 6 },
+                    new() { QuestionId = "", AnswerId = "ASSIST_iA_3", Answer = "Yes, but not in the past 3 months", ScoreValue = 3 }
+                };
+
+                int sequence = 0;
+                foreach (var substance in substances)
+                {
+                    var substanceId = substance.ToUpper().Replace(" ", "_");
+                    var substanceQuestions = new List<AssessmentQuestionDTO>
+                    {
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q1", AssessmentId = ASSIST, Question = $"In your life, have you ever used {substance.ToLower()}?", QuestionType = "YesNo", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q2", AssessmentId = ASSIST, Question = $"In the past 3 months, how often have you used {substance.ToLower()}?", QuestionType = "MultipleChoice", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q3", AssessmentId = ASSIST, Question = $"In the past 3 months, how often have you had a strong desire or urge to use {substance.ToLower()}?", QuestionType = "MultipleChoice", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q4", AssessmentId = ASSIST, Question = $"In the past 3 months, how often has {substance.ToLower()} use led to health, social, legal, or financial problems?", QuestionType = "MultipleChoice", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q5", AssessmentId = ASSIST, Question = $"In the past 3 months, how often have you failed to do what was normally expected of you because of {substance.ToLower()}?", QuestionType = "MultipleChoice", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q6", AssessmentId = ASSIST, Question = $"Has a friend or relative or anyone else ever expressed concern about your use of {substance.ToLower()}?", QuestionType = "YesNo", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q7", AssessmentId = ASSIST, Question = $"Have you ever tried and failed to control, cut down, or stop using {substance.ToLower()}?", QuestionType = "YesNo", Sequence = sequence++ },
+                        new() { QuestionId = $"{ASSIST}_{substanceId}_Q8", AssessmentId = ASSIST, Question = $"Have you ever used {substance.ToLower()} by injection?", QuestionType = "MultipleChoice", Sequence = sequence++ }
+                    };
+
+                    foreach (var question in substanceQuestions)
+                    {
+                        await QuestionApiService.CreateAsync(question);
+                        Console.WriteLine($"Created question: {question.QuestionId}, Sequence: {question.Sequence}");
+
+                        if (question.QuestionId.EndsWith("_Q1"))
+                        {
+                            foreach (var answer in yesNoAnswers)
+                            {
+                                var answerDto = new AssessmentAnswerDTO
+                                {
+                                    AnswerId = $"{ASSIST}_{substanceId}_Q1_{answer.Answer.ToUpper()}",
+                                    QuestionId = question.QuestionId,
+                                    Answer = answer.Answer,
+                                    ScoreValue = answer.ScoreValue
+                                };
+                                await AnswerApiService.CreateAsync(answerDto);
+                                Console.WriteLine($"Created answer: {answerDto.AnswerId}");
+                            }
+                        }
+                        else if (question.QuestionId.EndsWith("_Q6"))
+                        {
+                            foreach (var answer in yesNoAnswers)
+                            {
+                                var answerDto = new AssessmentAnswerDTO
+                                {
+                                    AnswerId = $"{ASSIST}_{substanceId}_Q6_{answer.Answer.ToUpper()}",
+                                    QuestionId = question.QuestionId,
+                                    Answer = answer.Answer,
+                                    ScoreValue = answer.Answer == "Yes" ? 7 : 0
+                                };
+                                await AnswerApiService.CreateAsync(answerDto);
+                                Console.WriteLine($"Created answer: {answerDto.AnswerId}");
+                            }
+                        }
+                        else if (question.QuestionId.EndsWith("_Q7"))
+                        {
+                            foreach (var answer in yesNoAnswers)
+                            {
+                                var answerDto = new AssessmentAnswerDTO
+                                {
+                                    AnswerId = $"{ASSIST}_{substanceId}_Q7_{answer.Answer.ToUpper()}",
+                                    QuestionId = question.QuestionId,
+                                    Answer = answer.Answer,
+                                    ScoreValue = answer.Answer == "Yes" ? 4 : 0
+                                };
+                                await AnswerApiService.CreateAsync(answerDto);
+                                Console.WriteLine($"Created answer: {answerDto.AnswerId}");
+                            }
+                        }
+                        else if (question.QuestionId.EndsWith("_Q8"))
+                        {
+                            foreach (var answer in injectionAnswers)
+                            {
+                                var answerDto = new AssessmentAnswerDTO
+                                {
+                                    AnswerId = $"{ASSIST}_{substanceId}_Q8_{answer.Answer.ToUpper().Replace(" ", "_").Replace(",", "")}",
+                                    QuestionId = question.QuestionId,
+                                    Answer = answer.Answer,
+                                    ScoreValue = answer.ScoreValue
+                                };
+                                await AnswerApiService.CreateAsync(answerDto);
+                                Console.WriteLine($"Created answer: {answerDto.AnswerId}");
+                            }
+                        }
+                        else
+                        {
+                            foreach (var answer in frequencyAnswers)
+                            {
+                                var answerDto = new AssessmentAnswerDTO
+                                {
+                                    AnswerId = $"{ASSIST}_{substanceId}_Q{question.QuestionId.Split('_')[2]}_{answer.Answer.ToUpper().Replace(" ", "_")}",
+                                    QuestionId = question.QuestionId,
+                                    Answer = answer.Answer,
+                                    ScoreValue = answer.ScoreValue
+                                };
+                                await AnswerApiService.CreateAsync(answerDto);
+                                Console.WriteLine($"Created answer: {answerDto.AnswerId}");
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Import CRAFFT
+            if (!crafftExists)
+            {
+                var crafft = new AssessmentDTO
+                {
+                    AssessmentId = CRAFFT,
+                    AssessmentType = "CRAFFT",
+                    Version = "2.1",
+                    Language = "eng",
+                    Description = "Car, Relax, Alone, Forget, Friends, Trouble Screening"
+                };
+                await AssessmentApiService.CreateAsync(crafft);
+                Console.WriteLine("Created CRAFFT assessment");
+
+                var crafftQuestions = new List<AssessmentQuestionDTO>
+                {
+                    new() { QuestionId = $"{CRAFFT}_Q1", AssessmentId = CRAFFT, Question = "During the PAST 12 MONTHS, on how many days did you drink more than a few sips of beer, wine, or any drink containing alcohol? Put '0' if none.", QuestionType = "Numeric", Sequence = 0 },
+                    new() { QuestionId = $"{CRAFFT}_Q2", AssessmentId = CRAFFT, Question = "During the PAST 12 MONTHS, on how many days did you use any marijuana (cannabis, weed, oil, wax, or hash by smoking, vaping, dabbing, or in edibles) or 'synthetic marijuana' (like 'K2,' 'Spice')? Put '0' if none.", QuestionType = "Numeric", Sequence = 1 },
+                    new() { QuestionId = $"{CRAFFT}_Q3", AssessmentId = CRAFFT, Question = "During the PAST 12 MONTHS, on how many days did you use anything else to get high (like other illegal drugs, pills, prescription or over-the-counter medications, and things that you sniff, huff, vape, or inject)? Put '0' if none.", QuestionType = "Numeric", Sequence = 2 },
+                    new() { QuestionId = $"{CRAFFT}_Q4", AssessmentId = CRAFFT, Question = "Have you ever ridden in a CAR driven by someone (including yourself) who was high or had been using alcohol or drugs?", QuestionType = "YesNo", Sequence = 3 },
+                    new() { QuestionId = $"{CRAFFT}_Q5", AssessmentId = CRAFFT, Question = "Do you ever use alcohol or drugs to RELAX, feel better about yourself, or fit in?", QuestionType = "YesNo", Sequence = 4 },
+                    new() { QuestionId = $"{CRAFFT}_Q6", AssessmentId = CRAFFT, Question = "Do you ever use alcohol or drugs while you are by yourself, ALONE?", QuestionType = "YesNo", Sequence = 5 },
+                    new() { QuestionId = $"{CRAFFT}_Q7", AssessmentId = CRAFFT, Question = "Do you ever FORGET things you did while using alcohol or drugs?", QuestionType = "YesNo", Sequence = 6 },
+                    new() { QuestionId = $"{CRAFFT}_Q8", AssessmentId = CRAFFT, Question = "Do your family or FRIENDS ever tell you that you should cut down on your drinking or drug use?", QuestionType = "YesNo", Sequence = 7 },
+                    new() { QuestionId = $"{CRAFFT}_Q9", AssessmentId = CRAFFT, Question = "Have you ever gotten into TROUBLE while you were using alcohol or drugs?", QuestionType = "YesNo", Sequence = 8 }
+                };
+
+                foreach (var question in crafftQuestions)
+                {
+                    await QuestionApiService.CreateAsync(question);
+                    Console.WriteLine($"Created question: {question.QuestionId}, Sequence: {question.Sequence}");
+
+                    var answers = question.QuestionId switch
+                    {
+                        $"{CRAFFT}_Q1" or $"{CRAFFT}_Q2" or $"{CRAFFT}_Q3" => new List<AssessmentAnswerDTO>
+                        {
+                            new() { AnswerId = $"{question.QuestionId}_0", QuestionId = question.QuestionId, Answer = "0", ScoreValue = 0 },
+                            new() { AnswerId = $"{question.QuestionId}_1PLUS", QuestionId = question.QuestionId, Answer = "1 or more", ScoreValue = 0 }
+                        },
+                        _ => new List<AssessmentAnswerDTO>
+                        {
+                            new() { AnswerId = $"{question.QuestionId}_YES", QuestionId = question.QuestionId, Answer = "Yes", ScoreValue = 1 },
+                            new() { AnswerId = $"{question.QuestionId}_NO", QuestionId = question.QuestionId, Answer = "No", ScoreValue = 0 }
+                        }
+                    };
+
+                    foreach (var answer in answers)
+                    {
+                        await AnswerApiService.CreateAsync(answer);
+                        Console.WriteLine($"Created answer: {answer.AnswerId}");
+                    }
+                }
+            }
+
+            await LoadAssessments();
+            await JSRuntime.InvokeVoidAsync("alert", "Hardcoded assessments imported successfully!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error importing assessments: {ex.Message}");
+            await JSRuntime.InvokeVoidAsync("alert", $"Error importing assessments: {ex.Message}");
         }
     }
 

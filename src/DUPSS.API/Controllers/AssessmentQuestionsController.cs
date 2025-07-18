@@ -65,7 +65,8 @@ namespace DUPSS.API.Controllers
                     QuestionId = questionDTO.QuestionId,
                     AssessmentId = questionDTO.AssessmentId,
                     Question = questionDTO.Question,
-                    QuestionType = questionDTO.QuestionType
+                    QuestionType = questionDTO.QuestionType,
+                    Sequence = questionDTO.Sequence,
                 };
 
                 var createdQuestion = await _assessmentQuestionDAO.CreateAsync(question);
@@ -91,7 +92,8 @@ namespace DUPSS.API.Controllers
                     QuestionId = questionDTO.QuestionId,
                     AssessmentId = questionDTO.AssessmentId,
                     Question = questionDTO.Question,
-                    QuestionType = questionDTO.QuestionType
+                    QuestionType = questionDTO.QuestionType,
+                    Sequence = questionDTO.Sequence,
                 };
 
                 var updatedQuestion = await _assessmentQuestionDAO.UpdateAsync(question);

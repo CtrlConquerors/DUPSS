@@ -23,7 +23,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 QuestionId = assessmentQuestion.QuestionId,
                 AssessmentId = assessmentQuestion.AssessmentId,
                 Question = assessmentQuestion.Question,
-                QuestionType = assessmentQuestion.QuestionType
+                QuestionType = assessmentQuestion.QuestionType,
+                Sequence = assessmentQuestion.Sequence,
             };
         }
 
@@ -39,6 +40,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     AssessmentId = q.AssessmentId,
                     Question = q.Question,
                     QuestionType = q.QuestionType,
+                    Sequence = q.Sequence,
                     Assessment = q.Assessment != null ? new AssessmentDTO
                     {
                         AssessmentId = q.Assessment.AssessmentId,
@@ -62,6 +64,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     AssessmentId = q.AssessmentId,
                     Question = q.Question,
                     QuestionType = q.QuestionType,
+                    Sequence = q.Sequence,
                     Assessment = q.Assessment != null ? new AssessmentDTO
                     {
                         AssessmentId = q.Assessment.AssessmentId,
@@ -83,6 +86,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
             existingQuestion.AssessmentId = assessmentQuestion.AssessmentId;
             existingQuestion.Question = assessmentQuestion.Question;
             existingQuestion.QuestionType = assessmentQuestion.QuestionType;
+            existingQuestion.Sequence = assessmentQuestion.Sequence;
 
             await _context.SaveChangesAsync();
             return new AssessmentQuestionDTO
@@ -90,7 +94,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                 QuestionId = existingQuestion.QuestionId,
                 AssessmentId = existingQuestion.AssessmentId,
                 Question = existingQuestion.Question,
-                QuestionType = existingQuestion.QuestionType
+                QuestionType = existingQuestion.QuestionType,
+                Sequence = existingQuestion.Sequence,
             };
         }
 

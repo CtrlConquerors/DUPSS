@@ -1,9 +1,9 @@
 ﻿@page "/AppointmentHome"
 @using DUPSS.API.Models.DTOs
 @using DUPSS.Web.Components.Service
+@inject AuthenticationStateProvider AuthenticationStateProvider
 @inject UserApiService UserService
-<AuthorizeView Roles="AD,ST,MA,ME">
-    <Authorized>
+
 <div class="animated-bg-shapes">
     <span></span>
     <span></span>
@@ -104,34 +104,39 @@
         }
     </section>
 
-    <footer class="appointment-home-footer text-center mt-4">
-        <a href="/Appointment" class="appointment-home-cta me-3">
-            📖 View Your Appointment History
-        </a>
-        <a href="/BookAppointment" class="appointment-home-cta"
-           style="background:linear-gradient(90deg,#22c55e 60%,#4ade80 100%)">
-            📌 Book an Appointment Now
-        </a>
-    </footer>
+            @if (!isAuthenticated)
+            {
+                <p class="text-info">
+                    You can browse appointment information, but please <a href="/login">log in</a> to book or view your appointment history.
+                </p>
+            }
+            else
+            {
+                <footer class="appointment-home-footer text-center mt-4">
+                    <a href="/Appointment" class="appointment-home-cta me-3">
+                        📖 View Your Appointment History
+                    </a>
+                    <a href="/BookAppointment" class="appointment-home-cta"
+                       style="background:linear-gradient(90deg,#22c55e 60%,#4ade80 100%)">
+                        📌 Book an Appointment Now
+                    </a>
+                </footer>
+            }
+   
 
 
 </main>
-    </Authorized>
-    <NotAuthorized>
-        <div class="access-denied">
-            <h2>Access Denied</h2>
-            <p>
-                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
-                account.
-            </p>
-        </div>
-    </NotAuthorized>
-</AuthorizeView>
+
 @code {
     private List<UserDTO>? consultants;
+    private bool isAuthenticated = false;
 
     protected override async Task OnInitializedAsync()
     {
         consultants = await UserService.GetConsultantsAsync();
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        isAuthenticated = user.Identity.IsAuthenticated;
+
     }
 }

@@ -73,7 +73,12 @@
 .filter-dropdown-container {
     min-width: 150px;
 }
-
+.notes {
+    font-size:10px !important;
+}
+.form-control{
+    height:50px;
+}
 .form-control, .form-select {
     border-radius: 8px;
     border: 1px solid #ced4da;
@@ -449,4 +454,36 @@
         width: 40px;
         height: 40px;
     }
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1050;
+    pointer-events: auto; /* Ensure overlay is interactive */
+}
+
+.modal-dialog {
+    background: #fff;
+    border-radius: 8px;
+    padding: 2rem;
+    min-width: 1100px;
+    max-width: 1100px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    position: relative;
+    opacity: 1 !important; /* Ensure fully visible */
+    pointer-events: auto; /* Ensure dialog is interactive */
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
 }

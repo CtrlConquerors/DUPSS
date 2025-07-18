@@ -132,6 +132,14 @@ h3 {
         background: #fbbf24; /* yellow-400 */
     }
 
+.dashboard-card.expired {
+    background: #a21caf; /* violet-700 */
+    color: #fff;
+}
+
+    .dashboard-card.expired:hover {
+        background: #d946ef; /* fuchsia-500 */
+    }
 /* Remove transform and shadow on hover for calm UX */
 .dashboard-card {
     transition: background 0.2s;
@@ -312,4 +320,7 @@ h3 {
         width: 95%;
         min-width: unset;
     }
+}
+.fas{
+    font-size:20px;
 }

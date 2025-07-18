@@ -39,6 +39,7 @@ else
                     <option>Finished</option>
                     <option>Cancel</option>
                     <option>Missed</option>
+                    <option>Expired</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -146,12 +147,13 @@ else
     private async Task AutoUpdateExpiredAppointments()
     {
         var now = DateTime.UtcNow;
-        TimeSpan duration = TimeSpan.FromMinutes(60); 
+        var appointmentDuration = TimeSpan.FromMinutes(40); // vẫn giữ nếu cần dùng chỗ khác
+        var minAcceptLeadTime = TimeSpan.FromMinutes(30);
 
         foreach (var appt in appointments)
         {
-            var endTime = appt.AppointmentDate.Add(duration);
-            if (endTime < now && (appt.Status == "Pending" || appt.Status == "Accepted"))
+            // Nếu quá 1 tiếng từ lúc bắt đầu mà vẫn là Accepted → Missed
+            if (appt.Status == "Accepted" && appt.AppointmentDate + TimeSpan.FromHours(1) < now)
             {
                 var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
                 if (success)
@@ -159,9 +161,22 @@ else
                     appt.Status = "Missed";
                 }
             }
+
+            // Nếu gần đến giờ hẹn mà vẫn chưa được Accept → Expired
+            if (appt.Status == "Pending" && appt.AppointmentDate - now <= minAcceptLeadTime)
+            {
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Expired");
+                if (success)
+                {
+                    appt.Status = "Expired";
+                }
+            }
         }
-        ApplyFilter(); 
+
+        ApplyFilter();
     }
+
+
 
 
     private async Task UpdateStatus(string appointmentId, string newStatus)

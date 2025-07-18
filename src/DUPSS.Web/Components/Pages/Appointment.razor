@@ -61,6 +61,8 @@ else
                     <option>Declined</option>
                     <option>Finished</option>
                     <option>Cancel</option>
+                    <option>Missed</option>
+                    <option>Expired</option>
                 </select>
             </div>
             <div class="col-auto">
@@ -269,9 +271,13 @@ else
     private async Task AutoUpdateExpiredAppointments()
     {
         var now = DateTime.UtcNow;
+        var appointmentDuration = TimeSpan.FromMinutes(40); // vẫn giữ nếu cần dùng chỗ khác
+        var minAcceptLeadTime = TimeSpan.FromMinutes(30);
+
         foreach (var appt in appointments)
         {
-            if (appt.AppointmentDate.AddMinutes(40) < now && (appt.Status == "Pending" || appt.Status == "Accepted"))
+            // Nếu quá 1 tiếng từ lúc bắt đầu mà vẫn là Accepted → Missed
+            if (appt.Status == "Accepted" && appt.AppointmentDate + TimeSpan.FromHours(1) < now)
             {
                 var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
                 if (success)
@@ -279,9 +285,22 @@ else
                     appt.Status = "Missed";
                 }
             }
+
+            // Nếu gần đến giờ hẹn mà vẫn chưa được Accept → Expired
+            if (appt.Status == "Pending" && appt.AppointmentDate - now <= minAcceptLeadTime)
+            {
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Expired");
+                if (success)
+                {
+                    appt.Status = "Expired";
+                }
+            }
         }
+
         ApplyFilter();
     }
+
+
 
     private void ApplyFilter()
     {
@@ -377,56 +396,56 @@ else
     // }
 
 
-    private async Task GenerateAvailableSlots()
-    {
-        allAvailableSlots.Clear();
-        DateTime now = DateTime.Now;
-        DateTime minTime = now.AddHours(12);
-        DateTime endDate = now.Date.AddDays(7);
+    // private async Task GenerateAvailableSlots()
+    // {
+    //     allAvailableSlots.Clear();
+    //     DateTime now = DateTime.Now;
+    //     DateTime minTime = now.AddHours(12);
+    //     DateTime endDate = now.Date.AddDays(7);
 
-        TimeSpan slotDuration = TimeSpan.FromMinutes(40);
-        TimeSpan slotStep = TimeSpan.FromMinutes(45);
-        TimeSpan eveningStart = TimeSpan.FromHours(17.5);
-        TimeSpan eveningEnd = TimeSpan.FromHours(21.5);
-        TimeSpan morningStart = TimeSpan.FromHours(9);
-        TimeSpan morningEnd = TimeSpan.FromHours(11.5);
+    //     TimeSpan slotDuration = TimeSpan.FromMinutes(40);
+    //     TimeSpan slotStep = TimeSpan.FromMinutes(45);
+    //     TimeSpan eveningStart = TimeSpan.FromHours(17.5);
+    //     TimeSpan eveningEnd = TimeSpan.FromHours(21.5);
+    //     TimeSpan morningStart = TimeSpan.FromHours(9);
+    //     TimeSpan morningEnd = TimeSpan.FromHours(11.5);
 
-        for (DateTime day = now.Date; day <= endDate; day = day.AddDays(1))
-        {
-            var dow = day.DayOfWeek;
-            if (dow >= DayOfWeek.Monday && dow <= DayOfWeek.Friday)
-                AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
-            else
-            {
-                AddSlotsForPeriod(day, morningStart, morningEnd, slotDuration, slotStep, minTime);
-                AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
-            }
-        }
-    }
+    //     for (DateTime day = now.Date; day <= endDate; day = day.AddDays(1))
+    //     {
+    //         var dow = day.DayOfWeek;
+    //         if (dow >= DayOfWeek.Monday && dow <= DayOfWeek.Friday)
+    //             AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
+    //         else
+    //         {
+    //             AddSlotsForPeriod(day, morningStart, morningEnd, slotDuration, slotStep, minTime);
+    //             AddSlotsForPeriod(day, eveningStart, eveningEnd, slotDuration, slotStep, minTime);
+    //         }
+    //     }
+    // }
 
-    private void AddSlotsForPeriod(DateTime day, TimeSpan start, TimeSpan end,
-        TimeSpan duration, TimeSpan step, DateTime minTime)
-    {
-        for (var t = start; t + duration <= end; t += step)
-        {
-            var slot = day.Add(t);
-            if (slot > minTime)
-                allAvailableSlots.Add(slot);
-        }
-    }
+    // private void AddSlotsForPeriod(DateTime day, TimeSpan start, TimeSpan end,
+    //     TimeSpan duration, TimeSpan step, DateTime minTime)
+    // {
+    //     for (var t = start; t + duration <= end; t += step)
+    //     {
+    //         var slot = day.Add(t);
+    //         if (slot > minTime)
+    //             allAvailableSlots.Add(slot);
+    //     }
+    // }
 
-    private void OnDateChanged(ChangeEventArgs e)
-    {
-        selectedDateString = e.Value?.ToString();
-        if (!string.IsNullOrEmpty(selectedDateString))
-        {
-            var date = DateTime.Parse(selectedDateString);
-            availableSlotsInDay = allAvailableSlots.Where(s => s.Date == date.Date).OrderBy(s => s).ToList();
-        }
-        else
-        {
-            availableSlotsInDay.Clear();
-        }
-    }
+    // private void OnDateChanged(ChangeEventArgs e)
+    // {
+    //     selectedDateString = e.Value?.ToString();
+    //     if (!string.IsNullOrEmpty(selectedDateString))
+    //     {
+    //         var date = DateTime.Parse(selectedDateString);
+    //         availableSlotsInDay = allAvailableSlots.Where(s => s.Date == date.Date).OrderBy(s => s).ToList();
+    //     }
+    //     else
+    //     {
+    //         availableSlotsInDay.Clear();
+    //     }
+    // }
 }
 

@@ -55,8 +55,15 @@ else
                 <div class="dashboard-card-value">@declinedCount</div>
             </div>
         </div>
-        
-        
+        <div class="dashboard-card glass expired">
+            <div class="dashboard-card-icon"><i class="fas fa-ban"></i></div>
+            <div>
+                <div class="dashboard-card-title">Expired</div>
+                <div class="dashboard-card-value">@expiredCount</div>
+            </div>
+        </div>
+
+
     </div>
 
     <h4>📅 Upcoming Appointments</h4>
@@ -109,6 +116,7 @@ else
     private int canceledCount;
     private int declinedCount;
     private int missedCount;
+    private int expiredCount;
 
     protected override async Task OnInitializedAsync()
     {
@@ -143,6 +151,7 @@ else
             canceledCount = allAppointments.Count(a => a.Status == "Cancel");
             declinedCount = allAppointments.Count(a => a.Status == "Declined");
             missedCount = allAppointments.Count(a => a.Status == "Missed");
+            missedCount = allAppointments.Count(a => a.Status == "Expired");
         }
 
         isLoading = false;

@@ -4,7 +4,7 @@
 @using DUPSS.API.Models.DTOs
 
 @inject EmailService EmailService
-@inject AppointmentApiService AppointmentApiService
+@inject AppointmentApiService AppointmentService
 @inject UserApiService UserService
 @inject NavigationManager Navigation
 @inject AuthenticationStateProvider AuthProvider
@@ -108,6 +108,7 @@
     private List<AppointmentDTO> existingAppointments = new();
     private const int MaxActiveAppointments = 1;
     private bool canBook = true;
+    private List<AppointmentDTO>? userAppointments;
 
     // OLD CODE: used when allowing user to choose consultant manually
     // private bool autoSelectConsultant = true;
@@ -140,12 +141,23 @@
                         ?? user.FindFirst("sub")?.Value
                         ?? user.FindFirst("MemberId")?.Value;
 
+
+
             if (!string.IsNullOrEmpty(memberId))
             {
+                string? userId = memberId; // ✅ Fix added here
+
+                userAppointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
+                await AutoUpdateExpiredAppointments();
+
+
                 newAppointment.MemberId = memberId;
-                existingAppointments = await AppointmentApiService.GetAppointmentsForMemberAsync(memberId);
+
+                existingAppointments = await AppointmentService.GetAppointmentsForMemberAsync(memberId);
                 var activeCount = existingAppointments.Count(a => a.Status is "Pending" or "Accepted");
                 canBook = activeCount < MaxActiveAppointments;
+
+                
             }
         }
         else
@@ -155,6 +167,43 @@
 
         GenerateAvailableSlots();
     }
+
+
+    
+
+    private async Task AutoUpdateExpiredAppointments()
+    {
+        var now = DateTime.UtcNow;
+        var appointmentDuration = TimeSpan.FromMinutes(40); // có thể dùng cho tính toán
+        var minAcceptLeadTime = TimeSpan.FromMinutes(30);
+
+        foreach (var appt in userAppointments)
+        {
+            // Nếu Accepted nhưng quá 1 tiếng vẫn chưa kết thúc → Missed
+            if (appt.Status == "Accepted" && appt.AppointmentDate + TimeSpan.FromHours(1) < now)
+            {
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
+                if (success)
+                {
+                    appt.Status = "Missed";
+                }
+            }
+
+            // Nếu Pending mà gần đến giờ (dưới 30p) thì không thể accept nữa → Expired
+            if (appt.Status == "Pending" && appt.AppointmentDate - now <= minAcceptLeadTime)
+            {
+                var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Expired");
+                if (success)
+                {
+                    appt.Status = "Expired";
+                }
+            }
+        }
+    }
+
+
+
+
 
     private void OnDateChanged(ChangeEventArgs e)
     {
@@ -240,7 +289,7 @@
 
         foreach (var c in availableConsultants)
         {
-            var consultantAppointments = await AppointmentApiService.GetAppointmentsForConsultantAsync(c.UserId);
+            var consultantAppointments = await AppointmentService.GetAppointmentsForConsultantAsync(c.UserId);
 
             bool hasConflict = consultantAppointments.Any(a =>
             {
@@ -305,7 +354,7 @@
             }
         */
 
-                    var success = await AppointmentApiService.CreateAppointmentAsync(newAppointment);
+                    var success = await AppointmentService.CreateAppointmentAsync(newAppointment);
 
         if (success)
         {

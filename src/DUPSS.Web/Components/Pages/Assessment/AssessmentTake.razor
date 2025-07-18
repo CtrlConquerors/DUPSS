@@ -101,6 +101,49 @@
                     <span class="button-icon"><i class="bi bi-arrow-left"></i></span>
                     Back to Assessments
                 </button>
+                
+                @switch (riskLevel){
+                            case 1:
+                                <button class="primary-button" @onclick="GoToBlogs">
+                                    <span class="button-icon">📋</span>
+                                    Go to Blogs
+                                </button>
+                            break;
+                            case 2:
+                                <button class="primary-button" @onclick="GoToBlogs">
+                                    <span class="button-icon">📋</span>
+                                    Go to Blogs
+                                </button>
+                                <button class="primary-button" @onclick="GoToCourses">
+                                    <span class="button-icon">📋</span>
+                                    Go to Courses
+                                </button>
+                            break;
+                            case 3:
+                                <button class="primary-button" @onclick="GoToBlogs">
+                                    <span class="button-icon">📋</span>
+                                    Go to Blogs
+                                </button>
+                                <button class="primary-button" @onclick="GoToCourses">
+                                    <span class="button-icon">📋</span>
+                                    Go to Courses
+                                </button>
+                                <button class="primary-button" @onclick="GoToAppointments">
+                                    <span class="button-icon">📋</span>
+                                    Go to Appointments
+                                </button>
+                            break;
+                            default:
+                            break;
+                        }
+
+
+
+
+
+
+
+
             </div>
         </div>
     }
@@ -312,6 +355,7 @@
     private bool isSubmitting = false;
     private bool showResults = false;
     private bool showExitConfirmation = false;
+    private int riskLevel = 0;
     private string errorMessage = string.Empty;
     private int currentQuestionIndex = 0;
     private List<string> selectedAnswerIds = new();
@@ -484,37 +528,37 @@
         switch (AssessmentType)
         {
             case "ASSIST" when currentQuestion.QuestionId.EndsWith("_Q1") && userAnswers[currentQuestion.QuestionId].EndsWith("_NO"):
-            {
-                int substanceIndex = currentQuestionIndex / 8;
-                // Check if this is the last substance ("Other")
-                if (substanceIndex == substances.Count - 1)
                 {
-                    Console.WriteLine("Last substance Q1 answered 'No', submitting assessment");
-                    await SubmitAssessment();
-                    return;
+                    int substanceIndex = currentQuestionIndex / 8;
+                    // Check if this is the last substance ("Other")
+                    if (substanceIndex == substances.Count - 1)
+                    {
+                        Console.WriteLine("Last substance Q1 answered 'No', submitting assessment");
+                        await SubmitAssessment();
+                        return;
+                    }
+                    currentQuestionIndex = (substanceIndex + 1) * 8;
+                    if (currentQuestionIndex >= questions.Count)
+                    {
+                        currentQuestionIndex = questions.Count - 1;
+                    }
+                    break;
                 }
-                currentQuestionIndex = (substanceIndex + 1) * 8;
-                if (currentQuestionIndex >= questions.Count)
-                {
-                    currentQuestionIndex = questions.Count - 1;
-                }
-                break;
-            }
             case "CRAFFT" when currentQuestion.QuestionId == $"{AssessmentId}_Q4":
-            {
-                bool allZero = userAnswers.GetValueOrDefault($"{AssessmentId}_Q1", "").EndsWith("_0") &&
-                              userAnswers.GetValueOrDefault($"{AssessmentId}_Q2", "").EndsWith("_0") &&
-                              userAnswers.GetValueOrDefault($"{AssessmentId}_Q3", "").EndsWith("_0");
-                if (allZero)
                 {
-                    Console.WriteLine("CRAFFT Q1-Q3 all '0', submitting after Q4");
-                    await SubmitAssessment();
-                    return;
+                    bool allZero = userAnswers.GetValueOrDefault($"{AssessmentId}_Q1", "").EndsWith("_0") &&
+                                  userAnswers.GetValueOrDefault($"{AssessmentId}_Q2", "").EndsWith("_0") &&
+                                  userAnswers.GetValueOrDefault($"{AssessmentId}_Q3", "").EndsWith("_0");
+                    if (allZero)
+                    {
+                        Console.WriteLine("CRAFFT Q1-Q3 all '0', submitting after Q4");
+                        await SubmitAssessment();
+                        return;
+                    }
+                    currentQuestionIndex++;
+                    Console.WriteLine($"CRAFFT Q4 answered, Q1-Q3 not all '0', navigating to Q5, Index: {currentQuestionIndex}, QuestionId: {questions[currentQuestionIndex].QuestionId}");
+                    break;
                 }
-                currentQuestionIndex++;
-                Console.WriteLine($"CRAFFT Q4 answered, Q1-Q3 not all '0', navigating to Q5, Index: {currentQuestionIndex}, QuestionId: {questions[currentQuestionIndex].QuestionId}");
-                break;
-            }
             default:
                 currentQuestionIndex++;
                 break;
@@ -637,18 +681,22 @@
                     if (totalScore == 0)
                     {
                         recommendation = "No risk: No substance use reported. Continue maintaining a healthy lifestyle.";
+                        riskLevel = 0;
                     }
                     else if (totalScore <= 10 && !hasHighRiskIndicator)
                     {
                         recommendation = "Low risk: Minimal substance use detected. Consider reading educational blogs for awareness.";
+                        riskLevel = 1;
                     }
                     else if (totalScore <= 26 || substanceScores.Count(s => s.Value > 0) > 1)
                     {
                         recommendation = "Moderate risk: Some substance use detected. We recommend enrolling in educational courses and monitoring your usage.";
+                        riskLevel = 2;
                     }
                     else
                     {
                         recommendation = "High risk: Significant substance use or high-risk behaviors detected. We strongly recommend enrolling in courses, reading blogs, and scheduling a professional consultation.";
+                        riskLevel = 3;
                     }
                     Console.WriteLine($"ASSIST: TotalScore={totalScore}, HighRiskIndicator={hasHighRiskIndicator}, Recommendation={recommendation}");
                     break;
@@ -684,18 +732,22 @@
                     if (allZero && !hasHighRiskIndicator)
                     {
                         recommendation = "No risk: No substance use or high-risk behaviors reported. Continue maintaining a healthy lifestyle.";
+                        riskLevel = 0;
                     }
                     else if (totalScore <= 1 && !hasHighRiskIndicator)
                     {
                         recommendation = "Low risk: Minimal risk behaviors detected. Consider reading educational blogs for awareness.";
+                        riskLevel = 1;
                     }
-                    else if (totalScore <= 3 || hasHighRiskIndicator)
+                    else if (totalScore <= 3 || !hasHighRiskIndicator)
                     {
                         recommendation = "Moderate risk: Some risky behaviors detected. We recommend enrolling in educational courses and monitoring your behavior.";
+                        riskLevel = 2;
                     }
                     else
                     {
                         recommendation = "High risk: Significant risky behaviors detected. We strongly recommend enrolling in courses, reading blogs, and scheduling a professional consultation.";
+                        riskLevel = 3;
                     }
                     Console.WriteLine($"CRAFFT: TotalScore={totalScore}, HighRiskIndicator={hasHighRiskIndicator}, Recommendation={recommendation}");
                     break;
@@ -794,4 +846,17 @@
     {
         NavigationManager.NavigateTo("/Assessment", forceLoad: true);
     }
+    private void GoToBlogs()
+    {
+        NavigationManager.NavigateTo("/Blog", forceLoad: true);
+    }
+    private void GoToCourses()
+    {
+        NavigationManager.NavigateTo("/Course", forceLoad: true);
+    }
+    private void GoToAppointments()
+    {
+        NavigationManager.NavigateTo("/Appointment", forceLoad: true);
+    }
+
 }

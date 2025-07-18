@@ -173,72 +173,76 @@
 
     @if (showEditForm)
     {
-        <div class="card p-3 my-4 edit-form-card">
-            <h5>@(isNewAppointment ? "Add New Appointment" : "Edit Appointment: " + appointmentToEdit.AppointmentId)</h5>
+        <div class="modal-overlay">
+            <div class="modal-dialog">
+                <div class="edit-form-card">
+                    <h5>@(isNewAppointment ? "Add New Appointment" : "Edit Appointment: " + appointmentToEdit.AppointmentId)</h5>
 
-            @if (!string.IsNullOrEmpty(validationMessage))
-            {
-                <div class="alert alert-danger" role="alert">
-                    @validationMessage
+                    @if (!string.IsNullOrEmpty(validationMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @validationMessage
+                        </div>
+                    }
+
+                    <div class="mb-3">
+                        <label class="form-label">Appointment Date</label>
+                        <input type="date" class="form-control" @bind="appointmentToEdit.AppointmentDate"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Member</label>
+                        <select class="form-select" @bind="appointmentToEdit.MemberId">
+                            <option value="">Select Member</option>
+                            @if (memberUsers != null)
+                            {
+                                @foreach (var member in memberUsers)
+                                {
+                                    <option value="@member.UserId">@member.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Consultant</label>
+                        <select class="form-select" @bind="appointmentToEdit.ConsultantId">
+                            <option value="">Select Consultant</option>
+                            @if (consultantUsers != null)
+                            {
+                                @foreach (var consultant in consultantUsers)
+                                {
+                                    <option value="@consultant.UserId">@consultant.Username</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Topic</label>
+                        <input class="form-control" @bind="appointmentToEdit.Topic"/>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Status</label>
+                        <select class="form-select" @bind="appointmentToEdit.Status">
+                            <option value="Pending">Pending</option>
+                            <option value="Accepted">Accepted</option>
+                            <option value="Declined">Declined</option>
+                            <option value="Finished">Finished</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Notes<span class="notes"> drag the bottom right spot to expand the box</span></label>
+                        <textarea class="form-control" @bind="appointmentToEdit.Notes" rows="4"></textarea>
+                    </div>
+
+                    <div>
+                        <button class="btn btn-success me-2" @onclick="SaveAppointment">Save</button>
+                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                    </div>
                 </div>
-            }
-
-            <div class="mb-3">
-                <label class="form-label">Appointment Date</label>
-                <input type="date" class="form-control" @bind="appointmentToEdit.AppointmentDate"/>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Member</label>
-                <select class="form-select" @bind="appointmentToEdit.MemberId">
-                    <option value="">Select Member</option>
-                    @if (memberUsers != null)
-                    {
-                        @foreach (var member in memberUsers)
-                        {
-                            <option value="@member.UserId">@member.Username</option>
-                        }
-                    }
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Consultant</label>
-                <select class="form-select" @bind="appointmentToEdit.ConsultantId">
-                    <option value="">Select Consultant</option>
-                    @if (consultantUsers != null)
-                    {
-                        @foreach (var consultant in consultantUsers)
-                        {
-                            <option value="@consultant.UserId">@consultant.Username</option>
-                        }
-                    }
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Topic</label>
-                <input class="form-control" @bind="appointmentToEdit.Topic"/>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Status</label>
-                <select class="form-select" @bind="appointmentToEdit.Status">
-                    <option value="Pending">Pending</option>
-                    <option value="Accepted">Accepted</option>
-                    <option value="Declined">Declined</option>
-                    <option value="Finished">Finished</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Notes</label>
-                <textarea class="form-control" @bind="appointmentToEdit.Notes" rows="4"></textarea>
-            </div>
-
-            <div>
-                <button class="btn btn-success me-2" @onclick="SaveAppointment">Save</button>
-                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
             </div>
         </div>
     }

@@ -74,7 +74,8 @@
     min-width: 150px;
 }
 .notes {
-    font-size:10px !important;
+    font-size: 10px !important;
+    color: cornflowerblue;
 }
 .form-control{
     height:50px;

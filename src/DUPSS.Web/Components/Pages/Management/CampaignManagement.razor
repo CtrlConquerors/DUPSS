@@ -181,75 +181,77 @@
 
             @if (showEditForm)
             {
-                <div class="card p-3 my-4 edit-form-card">
-                    <h5>@(isNewCampaign ? "Add New Campaign" : "Edit Campaign: " + campaignToEdit.Title)</h5>
+                <div class="modal-overlay">
+                    <div class="modal-dialog">
+                        <div class="edit-form-card">
+                            <h5>@(isNewCampaign ? "Add New Campaign" : "Edit Campaign: " + campaignToEdit.Title)</h5>
 
-                    @if (!string.IsNullOrEmpty(validationMessage))
-                    {
-                        <div class="alert alert-danger" role="alert">
-                            @validationMessage
-                        </div>
-                    }
-
-                    <div class="mb-3">
-                        <label class="form-label">Title</label>
-                        <input class="form-control" @bind="campaignToEdit.Title"/>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Description</label>
-                        <textarea class="form-control" @bind="campaignToEdit.Description" rows="3"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" class="form-control" @bind="campaignToEdit.StartDate"/>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">End Date</label>
-                        <input type="date" class="form-control" @bind="campaignToEdit.EndDate"/>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Status</label>
-                        <select class="form-select" @bind="campaignToEdit.Status">
-                            <option value="">Select Status</option>
-                            <option value="Active">Active</option>
-                            <option value="Planned">Planned</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Location</label>
-                        <input class="form-control" @bind="campaignToEdit.Location"/>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Introduction</label>
-                        <textarea class="form-control" @bind="campaignToEdit.Introduction" rows="3"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Staff</label>
-                        <select class="form-select" @bind="campaignToEdit.StaffId">
-                            <option value="">Select Staff</option>
-                            @if (staffUsers != null)
+                            @if (!string.IsNullOrEmpty(validationMessage))
                             {
-                                @foreach (var staff in staffUsers)
-                                {
-                                    <option value="@staff.UserId">@staff.Username</option>
-                                }
+                                <div class="alert alert-danger" role="alert">
+                                    @validationMessage
+                                </div>
                             }
-                        </select>
-                    </div>
 
+                            <div class="mb-3">
+                                <label class="form-label">Title</label>
+                                <input class="form-control" @bind="campaignToEdit.Title"/>
+                            </div>
 
+                            <div class="mb-3">
+                                <label class="form-label">Description</label>
+                                <textarea class="form-control" @bind="campaignToEdit.Description" rows="3"></textarea>
+                            </div>
 
-                    <div>
-                        <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
-                        <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                            <div class="mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" class="form-control" @bind="campaignToEdit.StartDate"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" class="form-control" @bind="campaignToEdit.EndDate"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Status</label>
+                                <select class="form-select" @bind="campaignToEdit.Status">
+                                    <option value="">Select Status</option>
+                                    <option value="Active">Active</option>
+                                    <option value="Planned">Planned</option>
+                                    <option value="Completed">Completed</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Location</label>
+                                <input class="form-control" @bind="campaignToEdit.Location"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Introduction<span class="notes"> (drag the bottom right spot to expand the box)</span></label>
+                                <textarea class="form-control" @bind="campaignToEdit.Introduction" rows="3"></textarea>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Staff</label>
+                                <select class="form-select" @bind="campaignToEdit.StaffId">
+                                    <option value="">Select Staff</option>
+                                    @if (staffUsers != null)
+                                    {
+                                        @foreach (var staff in staffUsers)
+                                        {
+                                            <option value="@staff.UserId">@staff.Username</option>
+                                        }
+                                    }
+                                </select>
+                            </div>
+
+                            <div>
+                                <button class="btn btn-success me-2" @onclick="SaveCampaign">Save</button>
+                                <button class="btn btn-secondary" @onclick="CancelEdit">Cancel</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             }

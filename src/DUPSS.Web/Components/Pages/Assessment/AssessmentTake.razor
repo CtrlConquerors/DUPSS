@@ -94,11 +94,11 @@
 
             <div class="results-actions">
                 <button class="primary-button" @onclick="TakeAnotherAssessment">
-                    <span class="button-icon">📋</span>
+                    <i class="fas fa-clipboard-list"></i>
                     Take Another Assessment
                 </button>
                 <button class="secondary-button" @onclick="GoBackToAssessments">
-                    <span class="button-icon"><i class="bi bi-arrow-left"></i></span>
+                    <i class="fas fa-arrow-left"></i>
                     Back to Assessments
                 </button>
                 
@@ -252,7 +252,7 @@
                     <button class="secondary-button"
                             @onclick="PreviousQuestion"
                             disabled="@(currentQuestionIndex == 0)">
-                        <span class="button-icon">←</span>
+                        <i class="fas fa-arrow-left"></i>
                         Previous
                     </button>
 
@@ -279,7 +279,7 @@
                                 @onclick="NextQuestion"
                                 disabled="@(currentQuestionIndex == 0 ? !IsFirstQuestionAnswered() : !IsAnswerSelected())">
                             Next
-                            <span class="button-icon">→</span>
+                            <i class="fas fa-arrow-right"></i>
                         </button>
                     }
                     else
@@ -305,7 +305,7 @@
 
         <div class="assessment-footer">
             <button class="exit-button" @onclick="ConfirmExit">
-                <span class="button-icon">×</span>
+                <i class="fas fa-sign-out-alt"></i>
                 Exit Assessment
             </button>
         </div>

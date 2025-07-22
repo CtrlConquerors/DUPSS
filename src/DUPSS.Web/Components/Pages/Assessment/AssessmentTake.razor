@@ -52,7 +52,7 @@
     }
     else if (showResults && assessmentResult != null)
     {
-        <div class="results-container">
+        <div class="results-container  @GetRiskMarginClass()">
             <div class="results-header">
                 <div class="results-icon">✅</div>
                 <h2>Assessment Complete</h2>
@@ -94,7 +94,7 @@
 
             <div class="results-actions">
                 <button class="primary-button" @onclick="TakeAnotherAssessment">
-                    <i class="fas fa-clipboard-list"></i>
+                   
                     Take Another Assessment
                 </button>
                 <button class="secondary-button" @onclick="GoBackToAssessments">
@@ -105,31 +105,31 @@
                 @switch (riskLevel){
                             case 1:
                                 <button class="primary-button" @onclick="GoToBlogs">
-                                    <span class="button-icon">📋</span>
+                                    <i class="fas fa-blog"></i>
                                     Go to Blogs
                                 </button>
                             break;
                             case 2:
                                 <button class="primary-button" @onclick="GoToBlogs">
-                                    <span class="button-icon">📋</span>
+                                    <i class="fas fa-blog"></i>
                                     Go to Blogs
                                 </button>
                                 <button class="primary-button" @onclick="GoToCourses">
-                                    <span class="button-icon">📋</span>
+                                    <i class="fas fa-book-open"></i>
                                     Go to Courses
                                 </button>
                             break;
                             case 3:
                                 <button class="primary-button" @onclick="GoToBlogs">
-                                    <span class="button-icon">📋</span>
+                                    <i class="fas fa-blog"></i>
                                     Go to Blogs
                                 </button>
                                 <button class="primary-button" @onclick="GoToCourses">
-                                    <span class="button-icon">📋</span>
+                                    <i class="fas fa-book-open"></i>
                                     Go to Courses
                                 </button>
                                 <button class="primary-button" @onclick="GoToAppointments">
-                                    <span class="button-icon">📋</span>
+                                    
                                     Go to Appointments
                                 </button>
                             break;
@@ -314,7 +314,7 @@
 
 @if (showExitConfirmation)
 {
-    <div class="modal-overlay" @onclick="CancelExit">
+    <div class="modal-overlay" tabindex="-1" role="dialog" aria-modal="true" @onclick="CancelExit">
         <div class="modal-content" @onclick:stopPropagation="true">
             <div class="modal-header">
                 <h3>Exit Assessment?</h3>
@@ -858,5 +858,14 @@
     {
         NavigationManager.NavigateTo("/Appointment", forceLoad: true);
     }
-
+    private string GetRiskMarginClass()
+{
+    return riskLevel switch
+    {
+        1 => "results-low-risk",
+        2 => "results-moderate-risk",
+        3 => "results-high-risk",
+        _ => "results-low-risk"
+    };
+}
 }

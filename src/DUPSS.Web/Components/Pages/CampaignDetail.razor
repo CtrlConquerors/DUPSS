@@ -26,16 +26,15 @@ else
             <div class="campaign-hero-image" style="background-image: url('@(campaign.ImageUrl ?? "https://placehold.co/1200x400/F0F0F0/000000?text=Campaign+Image")');"></div>
             <div class="campaign-hero-title">
                 <span class="title-letters">
-                    @foreach (var c in campaign.Title)
+                    @foreach (var word in campaign.Title.Split(' '))
                     {
-                        if (c == ' ')
-                        {
-                            <span class="title-letter" style="width:0.4em;display:inline-block;">&nbsp;</span>
-                        }
-                        else
-                        {
-                            <span class="title-letter">@c</span>
-                        }
+                        <span class="title-word">
+                            @foreach (var c in word)
+                            {
+                                <span class="title-letter">@c</span>
+                            }
+                        </span>
+                        <span> </span>
                     }
                 </span>
                 <div class="campaign-hero-meta">

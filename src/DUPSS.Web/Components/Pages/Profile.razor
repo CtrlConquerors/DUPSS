@@ -114,29 +114,31 @@
                     }
                     else
                     {
-                        <table class="profile-table">
-                            <thead>
-                                <tr>
-                                    <th>Course</th>
-                                    <th>Status</th>
-                                    <th>Enroll Date</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (var enroll in enrollments)
-                                {
+                        <div class="profile-table-container">
+                            <table class="profile-tabl">
+                                <thead>
                                     <tr>
-                                        <td>@enroll.Course?.CourseName</td>
-                                        <td>@enroll.Status</td>
-                                        <td>@enroll.EnrollDate.ToString("yyyy-MM-dd")</td>
-                                        <td>
-                                            <a class="profile-link" href="/CourseDetailPage/@enroll.CourseId">View</a>
-                                        </td>
+                                        <th>Course</th>
+                                        <th>Status</th>
+                                        <th>Enroll Date</th>
+                                        <th>Action</th>
                                     </tr>
-                                }
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach (var enroll in enrollments)
+                                    {
+                                        <tr>
+                                            <td>@enroll.Course?.CourseName</td>
+                                            <td>@enroll.Status</td>
+                                            <td>@enroll.EnrollDate.ToString("yyyy-MM-dd")</td>
+                                            <td>
+                                                <a class="profile-link" href="/CourseDetailPage/@enroll.CourseId">View</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                 </div>
             </div>

@@ -38,27 +38,37 @@ h3 {
     }
 
     .status-badge.Pending {
-        background: linear-gradient(90deg, #fbbf24 60%, #fcd34d 100%);
+        background: #2563eb; /* Today (blue-600) */
         color: #fff;
     }
 
-    .status-badge.declined {
-        background: linear-gradient(90deg, #ef4444 60%, #f87171 100%);
+    .status-badge.accepted {
+        background: #0ea5e9; /* Upcoming (sky-500) */
         color: #fff;
     }
 
     .status-badge.finished {
-        background: linear-gradient(90deg, #facc15 60%, #fde047 100%);
-        color: #333;
-    }
-
-    .status-badge.accepted {
-        background: linear-gradient(90deg, #22c55e 60%, #4ade80 100%);
+        background: #22c55e; /* Finished (green-500) */
         color: #fff;
     }
 
-    .status-badge.Completed {
-        background: linear-gradient(90deg, #0ea5e9 60%, #38bdf8 100%);
+    .status-badge.declined {
+        background: #ef4444; /* Declined (red-500) */
+        color: #fff;
+    }
+
+    .status-badge.cancelled {
+        background: #6b7280; /* Cancelled (gray-500) */
+        color: #fff;
+    }
+
+    .status-badge.missed {
+        background: #f59e42; /* Missed (orange-400) */
+        color: #fff;
+    }
+
+    .status-badge.expired {
+        background: #a21caf; /* Expired (violet-700) */
         color: #fff;
     }
 

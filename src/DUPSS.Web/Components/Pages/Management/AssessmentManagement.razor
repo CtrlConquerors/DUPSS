@@ -78,24 +78,32 @@
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach (var assessment in assessments)
-                    {
-                        <tr>
-                            <td>@assessment.AssessmentId</td>
-                            <td>@assessment.AssessmentType</td>
-                            <td>@assessment.Version</td>
-                            <td>@assessment.Language</td>
-                            <td>@(assessment.Description ?? "No description")</td>
-                            <td>
-                                <button @onclick="() => EditAssessment(assessment)">Edit</button>
-                                <button @onclick="() => ManageQuestions(assessment.AssessmentId)">Manage Questions
-                                </button>
-                                <button @onclick="() => DeleteAssessment(assessment.AssessmentId)"
-                                        @onsubmit:preventDefault="true">Delete
-                                </button>
-                            </td>
-                        </tr>
-                    }
+                        @foreach (var assessment in assessments)
+                        {
+                            <tr>
+                                <td>@assessment.AssessmentId</td>
+                                <td>@assessment.AssessmentType</td>
+                                <td>@assessment.Version</td>
+                                <td>@assessment.Language</td>
+                                <td>@(assessment.Description ?? "No description")</td>
+                                <td class="actions-cell">
+                                    <button class="action-menu-btn" @onclick="() => OpenActionMenu(assessment)">
+                                        <i class="fas fa-ellipsis-vertical"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+
+                        @if (actionMenuOpenAssessment != null)
+                        {
+                            <div class="action-modal-overlay" @onclick="CloseActionMenu">
+                                <div class="action-modal-dialog" @onclick:stopPropagation>
+                                    <button class="popup-action-btn edit" @onclick="() => { EditAssessment(actionMenuOpenAssessment); CloseActionMenu(); }">Edit</button>
+                                    <button class="popup-action-btn manage" @onclick="() => { ManageQuestions(actionMenuOpenAssessment.AssessmentId); CloseActionMenu(); }">Manage Questions</button>
+                                    <button class="popup-action-btn delete" @onclick="() => { DeleteAssessment(actionMenuOpenAssessment.AssessmentId); CloseActionMenu(); }">Delete</button>
+                                </div>
+                            </div>
+                        }
                     </tbody>
                 </table>
             }
@@ -138,6 +146,8 @@
 
 @code {
     private List<AssessmentDTO>? assessments;
+    private string? actionMenuOpenId = null;
+    private AssessmentDTO? actionMenuOpenAssessment = null;
     private bool isLoading = true;
     private bool hasError = false;
     private string errorMessage = "";
@@ -155,7 +165,23 @@
     {
         await LoadAssessments();
     }
+    private void ToggleActionMenu(string assessmentId)
+    {
+        if (actionMenuOpenId == assessmentId)
+            actionMenuOpenId = null;
+        else
+            actionMenuOpenId = assessmentId;
+    }
 
+    private void OpenActionMenu(AssessmentDTO assessment)
+    {
+        actionMenuOpenAssessment = assessment;
+    }
+
+    private void CloseActionMenu()
+    {
+        actionMenuOpenAssessment = null;
+    }
     private async Task LoadAssessments()
     {
         try

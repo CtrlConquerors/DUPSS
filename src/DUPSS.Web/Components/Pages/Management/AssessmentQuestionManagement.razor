@@ -119,31 +119,33 @@
 
         @if (showEditForm && editingQuestion != null)
         {
-            <div class="edit-form">
-                <h3>Edit Question</h3>
-                <form @onsubmit="UpdateQuestion" @onsubmit:preventDefault="true">
-                    <div class="form-group">
-                        <label for="editQuestionText">Question Text:</label>
-                        <textarea id="editQuestionText" @bind="editingQuestion.Question" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="editQuestionType">Question Type:</label>
-                        <select id="editQuestionType" @bind="editingQuestion.QuestionType">
-                            <option value="MultipleChoice">Multiple Choice</option>
-                            <option value="YesNo">Yes/No</option>
-                            <option value="Scale">Scale</option>
-                            <option value="Text">Text</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="editSequence">Sequence:</label>
-                        <input id="editSequence" type="number" @bind="editingQuestion.Sequence" required/>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit">Update Question</button>
-                        <button type="button" @onclick="CancelEditQuestion">Cancel</button>
-                    </div>
-                </form>
+            <div class="edit-modal-overlay" @onclick="CancelEditQuestion">
+                <div class="edit-modal-dialog" @onclick:stopPropagation>
+                    <h3>Edit Question</h3>
+                    <form @onsubmit="UpdateQuestion" @onsubmit:preventDefault="true">
+                        <div class="form-group">
+                            <label for="editQuestionText">Question Text:</label>
+                            <textarea id="editQuestionText" @bind="editingQuestion.Question" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editQuestionType">Question Type:</label>
+                            <select id="editQuestionType" @bind="editingQuestion.QuestionType">
+                                <option value="MultipleChoice">Multiple Choice</option>
+                                <option value="YesNo">Yes/No</option>
+                                <option value="Scale">Scale</option>
+                                <option value="Text">Text</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editSequence">Sequence:</label>
+                            <input id="editSequence" type="number" @bind="editingQuestion.Sequence" required />
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit">Update Question</button>
+                            <button type="button" @onclick="CancelEditQuestion">Cancel</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         }
     }

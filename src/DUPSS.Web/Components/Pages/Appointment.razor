@@ -275,7 +275,7 @@ else
     private async Task AutoUpdateExpiredAppointments()
     {
         var now = DateTime.UtcNow;
-        var appointmentDuration = TimeSpan.FromMinutes(40); // vẫn giữ nếu cần dùng chỗ khác
+        var appointmentDuration = TimeSpan.FromMinutes(40); 
         var minAcceptLeadTime = TimeSpan.FromMinutes(30);
 
         foreach (var appt in appointments)

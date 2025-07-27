@@ -9,7 +9,8 @@
 @inject RoleApiService RoleApiService
 @inject IJSRuntime JS
 @layout ManagementLayout
-
+<AuthorizeView Roles="AD,MA">
+    <Authorized>
 <div class="appointment-management-container">
     <div class="header-section">
         <h1 class="page-title">Appointment Management</h1>
@@ -247,7 +248,17 @@
         </div>
     }
 </div>
-
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 @code {
     // Changed the type to AppointmentDTO to match the AppointmentApiService return type
     private List<AppointmentDTO>? appointments;

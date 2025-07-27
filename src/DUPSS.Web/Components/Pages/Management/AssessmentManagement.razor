@@ -8,7 +8,8 @@
 @inject AssessmentAnswerApiService AnswerApiService
 @inject IJSRuntime JSRuntime
 @layout ManagementLayout
-
+<AuthorizeView Roles="AD,MA"> 
+    <Authorized>
 <div class="assessment-management-container">
     <h1>Assessment Management</h1>
 
@@ -143,6 +144,17 @@
         }
     }
 </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     private List<AssessmentDTO>? assessments;

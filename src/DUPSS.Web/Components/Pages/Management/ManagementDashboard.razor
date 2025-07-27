@@ -109,7 +109,7 @@
                                 int xStarts = -140;
                                 var pxs = xStarts + maxIndex * xSteps;
                                 var pys = 55 - (max == 0 ? 0 : (max * 45 / (max == 0 ? 1 : max)));
-                                <g><text x="@pxs" y="@(pys - 1)" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">@max</text></g>
+                                @* <g><text x="15" y="@(pys - 2)" font-size="12" fill="#2563eb" text-anchor="middle" font-weight="bold">@max</text></g> *@
                                 
                                 // X Axis Day Labels
                                 var days = Enumerable.Range(0, 7)
@@ -139,7 +139,7 @@
                                     var px = xStart + j * xStep;
                                     var py = 55 - (max == 0 ? 0 : (appointmentsPerDay[j] * 45 / (max == 0 ? 1 : max)));
                                     <circle cx="@px" cy="@py" r="3" fill="#2563eb"/>
-                                    @:<text x="@px" y="@(py - 7)" font-size="10" fill="#2563eb" text-anchor="middle">@appointmentsPerDay[j]</text>
+                                    <g><text x="@px" y="@(py - 5)" font-size="6" fill="#000" text-anchor="middle">@appointmentsPerDay[j]</text></g>
 
                                 }
                                 
@@ -153,7 +153,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="dashboard-quick-actions">
+                @* <div class="dashboard-quick-actions">
                     <a href="/Management/User?showCreate=true" class="dashboard-action-btn bg-blue">
                         <i class="fas fa-user-plus"></i> Add User
                     </a>
@@ -169,7 +169,7 @@
                     <a href="/Management/Blog" class="dashboard-action-btn bg-red">
                         <i class="fas fa-blog"></i> New Blog
                     </a>
-                </div>
+                </div> *@
                 <div class="dashboard-shortcuts">
                     <h3>Quick Links</h3>
                     <ul>
@@ -324,10 +324,10 @@
     private UserDTO? currentUser;
     private int topCourseEnrollments = 0;
     private double topCourseCompletionRate = 0.0;
-    private int maxUsers = 1000; // Set your system's user capacity here
-    private int systemUsagePercent => maxUsers > 0
-        ? (int)Math.Round((totalUsers / (double)maxUsers) * 100)
-        : 0;
+    // private int maxUsers = 1000; Set your system's user capacity here
+    // private int systemUsagePercent => maxUsers > 0
+    //     ? (int)Math.Round((totalUsers / (double)maxUsers) * 100)
+    //     : 0;
 
     private class DashboardCard
     {

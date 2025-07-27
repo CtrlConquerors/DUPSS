@@ -336,15 +336,37 @@ else
         if (success)
         {
             var appt = appointments.FirstOrDefault(a => a.AppointmentId == appointmentId);
-            if (appt != null) appt.Status = newStatus;
-            ApplyFilter();
-            await JS.InvokeVoidAsync("alert", $"Appointment marked as {newStatus}.");
+            if (appt != null)
+            {
+                appt.Status = newStatus;
+                ApplyFilter();
+
+                await JS.InvokeVoidAsync("alert", $"Appointment marked as {newStatus}.");
+
+                if (newStatus == "Cancel")
+                {
+                    // Gửi email thông báo hủy cho consultant
+                    if (appt.Consultant != null && !string.IsNullOrEmpty(appt.Consultant.Email))
+                    {
+                        var start = appt.AppointmentDate.ToLocalTime();
+                        var subject = "Appointment Cancelled Notification";
+                        var body = $"Hello {appt.Consultant.Username},\n\n" +
+                                   $"The appointment with member {appt.Member?.Username ?? "Unknown"} " +
+                                   $"scheduled on {start:dd/MM/yyyy HH:mm} has been cancelled by the member.\n\n" +
+                                   $"Please update your schedule accordingly.\n\n" +
+                                   $"Best regards,\nDUPSS System";
+
+                        await EmailService.SendEmailAsync(appt.Consultant.Email, subject, body);
+                    }
+                }
+            }
         }
         else
         {
             await JS.InvokeVoidAsync("alert", "Failed to update appointment status.");
         }
     }
+
 
 
 

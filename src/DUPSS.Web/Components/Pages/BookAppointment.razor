@@ -293,7 +293,7 @@
 
             bool hasConflict = consultantAppointments.Any(a =>
             {
-                if (a.Status == "Cancel") return false;
+                if (a.Status is not ("Pending" or "Accepted")) return false;
 
                 var existingStart = a.AppointmentDate;
                 var existingEnd = existingStart.AddMinutes(40);
@@ -312,7 +312,22 @@
 
         }
 
-        var best = consultantLoad.OrderBy(x => x.Load).ThenBy(_ => Guid.NewGuid()).FirstOrDefault();
+        if (consultantLoad.Count == 0)
+        {
+            await JS.InvokeVoidAsync("alert", "No available consultant at selected time.");
+            return;
+        }
+
+   
+        int minLoad = consultantLoad.Min(x => x.Load);
+
+
+        var candidates = consultantLoad.Where(x => x.Load == minLoad).ToList();
+
+     
+        var random = new Random();
+        var best = candidates[random.Next(candidates.Count)];
+
 
         if (best.Consultant != null)
         {

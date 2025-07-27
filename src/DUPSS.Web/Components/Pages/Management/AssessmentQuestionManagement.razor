@@ -6,6 +6,8 @@
 @inject AssessmentApiService AssessmentApiService
 @inject IJSRuntime JSRuntime
 
+<AuthorizeView Roles="AD,MA"> 
+    <Authorized>
 <div class="question-management-container">
     <div class="navigation">
         <button @onclick="GoBackToAssessments">← Back to Assessments</button>
@@ -150,6 +152,17 @@
         }
     }
 </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="access-denied">
+            <h2>Access Denied</h2>
+            <p>
+                You do not have permission to access this page. Please <a href="/login">log in</a> with an authorized
+                account.
+            </p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
 
 @code {
     [Parameter]

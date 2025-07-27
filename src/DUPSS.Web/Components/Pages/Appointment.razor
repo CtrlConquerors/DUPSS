@@ -86,7 +86,7 @@ else
         <tbody>
             @foreach (var appt in filteredAppointments
           .OrderByDescending(a => a.Status == "Pending" || a.Status == "Accepted")
-          .ThenBy(a => a.AppointmentDate))
+                   .ThenByDescending(a => a.AppointmentDate))
             {
                 <tr>
 
@@ -108,7 +108,7 @@ else
                         @if (appt.Status == "Pending" || appt.Status == "Accepted")
                         {
                             var hoursBefore = (appt.AppointmentDate - DateTime.UtcNow).TotalHours;
-                            if (hoursBefore >= 4)
+                            if (hoursBefore >= 2)
                             {
                                 @* <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button> *@
                                 <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>
@@ -275,7 +275,7 @@ else
     private async Task AutoUpdateExpiredAppointments()
     {
         var now = DateTime.UtcNow;
-        var appointmentDuration = TimeSpan.FromMinutes(40); // vẫn giữ nếu cần dùng chỗ khác
+        var appointmentDuration = TimeSpan.FromMinutes(40); 
         var minAcceptLeadTime = TimeSpan.FromMinutes(30);
 
         foreach (var appt in appointments)

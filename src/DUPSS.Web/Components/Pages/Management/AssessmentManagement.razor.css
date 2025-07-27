@@ -62,8 +62,7 @@
             .management-actions button:nth-child(3):focus {
                 background: #0ea5e9;
             }
-
-.loading, .error {
+ .error {
     background: #ffeaea;
     color: #d32f2f;
     border: 1.5px solid #f8bbbc;
@@ -74,6 +73,18 @@
     text-align: center;
     font-size: 1.09rem;
     box-shadow: 0 1.5px 6px 0 rgba(185, 28, 28, 0.08);
+}
+.loading {
+    background: #f3f4f6; /* light gray */
+    color: #4b5563; /* dark gray */
+    border: 1.5px solid #d1d5db;
+    border-radius: 10px;
+    padding: 16px 22px;
+    margin: 24px 0;
+    font-weight: 600;
+    text-align: center;
+    font-size: 1.09rem;
+    box-shadow: 0 1.5px 6px 0 rgba(107, 114, 128, 0.08);
 }
 
     .error button, .loading button {

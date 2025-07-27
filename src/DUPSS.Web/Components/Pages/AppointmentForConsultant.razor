@@ -238,8 +238,8 @@ else
                 var body = $"Hello {member.Username},\n\n" +
                            $"Your consultant has added a new note for your appointment on " +
                            $"{appt.AppointmentDate.ToLocalTime():dd/MM/yyyy HH:mm}.\n\n" +
-                           $"Note: {appt.Notes}\n\n" +
-                           $"Please remember to join the appointment on time."
+                           $"Note: {appt.Notes}\n\n" 
+              
     ;
                 await EmailService.SendEmailAsync(member.Email, subject, body);
             }

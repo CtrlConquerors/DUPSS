@@ -210,8 +210,8 @@
                                 <p>
                                     <b>Phone:</b> @(string.IsNullOrEmpty(currentUser.PhoneNumber) ? "N/A" : currentUser.PhoneNumber)
                                 </p>
-                                <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>vl
-                                <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p>
+                                <p><b>Date of Birth:</b> @(currentUser.DoB?.ToString() ?? "N/A")</p>
+                                @* <p><b>Account Created:</b> @currentUser.CreatedDate.ToString("yyyy-MM-dd")</p> *@
                                 <p><b>Role:</b> @currentUser.Role?.RoleName</p>
                             </div>
                         }

@@ -189,7 +189,7 @@
                 }
             }
 
-            // Nếu Pending mà gần đến giờ (dưới 30p) thì không thể accept nữa → Expired
+        
             if (appt.Status == "Pending" && appt.AppointmentDate - now <= minAcceptLeadTime)
             {
                 var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Expired");

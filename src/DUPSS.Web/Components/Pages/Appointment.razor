@@ -280,7 +280,7 @@ else
 
         foreach (var appt in appointments)
         {
-            // Nếu quá 1 tiếng từ lúc bắt đầu mà vẫn là Accepted → Missed
+    
             if (appt.Status == "Accepted" && appt.AppointmentDate + TimeSpan.FromHours(1) < now)
             {
                 var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");
@@ -290,7 +290,7 @@ else
                 }
             }
 
-            // Nếu gần đến giờ hẹn mà vẫn chưa được Accept → Expired
+ 
             if (appt.Status == "Pending" && appt.AppointmentDate - now <= minAcceptLeadTime)
             {
                 var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Expired");
@@ -345,7 +345,7 @@ else
 
                 if (newStatus == "Cancel")
                 {
-                    // Gửi email thông báo hủy cho consultant
+            
                     if (appt.Consultant != null && !string.IsNullOrEmpty(appt.Consultant.Email))
                     {
                         var start = appt.AppointmentDate.ToLocalTime();

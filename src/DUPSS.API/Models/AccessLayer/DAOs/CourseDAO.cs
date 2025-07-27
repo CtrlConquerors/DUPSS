@@ -57,8 +57,8 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                     ConsultantId = c.ConsultantId,
                     // ImageUrl and ImageUrl2 are [NotMapped] and should not be fabricated here.
                     // The Blazor component will determine the correct URL based on files in wwwroot.
-                    ImageUrl = null, // Set to null, the client will resolve it
-                    ImageUrl2 = null, // Set to null, the client will resolve it
+                    ImageUrl = null, 
+                    ImageUrl2 = null, 
                     CreatedDate = c.CreatedDate,
                     Status = c.Status,
                     Inventory = c.Inventory,

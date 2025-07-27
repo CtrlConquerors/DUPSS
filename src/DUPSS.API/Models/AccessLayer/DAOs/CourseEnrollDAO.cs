@@ -80,8 +80,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                             StaffId = ce.Course.StaffId,
                             Description = ce.Course.Description,
                             ConsultantId = ce.Course.ConsultantId,
-                            ImageUrl = $"images/{ce.Course.CourseId}.jpg", // This assumes images are static files
-                            ImageUrl2 = $"images/{ce.Course.ConsultantId}.jpg", // Added ImageUrl2 for consultant picture
+                           
                             CreatedDate = ce.Course.CreatedDate,
                             Status = ce.Course.Status,
                             Inventory = ce.Course.Inventory,
@@ -154,8 +153,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                             StaffId = ce.Course.StaffId,
                             Description = ce.Course.Description,
                             ConsultantId = ce.Course.ConsultantId,
-                            ImageUrl = $"images/{ce.Course.CourseId}.jpg",
-                            ImageUrl2 = $"images/{ce.Course.ConsultantId}.jpg", // Added ImageUrl2 for consultant picture
+                         
                             CreatedDate = ce.Course.CreatedDate,
                             Status = ce.Course.Status,
                             Inventory = ce.Course.Inventory,
@@ -279,8 +277,7 @@ namespace DUPSS.API.Models.AccessLayer.DAOs
                             StaffId = ce.Course.StaffId,       // Added: Required property
                             ConsultantId = ce.Course.ConsultantId, // Added: Required property
                             Description = ce.Course.Description,
-                            ImageUrl = $"images/{ce.Course.CourseId}.jpg",
-                            ImageUrl2 = $"images/{ce.Course.ConsultantId}.jpg",
+                     
                             CreatedDate = ce.Course.CreatedDate,
                             Status = ce.Course.Status,
                             Inventory = ce.Course.Inventory,

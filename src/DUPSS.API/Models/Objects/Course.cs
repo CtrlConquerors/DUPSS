@@ -8,7 +8,7 @@ namespace DUPSS.API.Models.Objects
     {
         public Course()
         {
-            // Default constructor for EF Core
+          
         }
 
         [Key]
@@ -26,7 +26,7 @@ namespace DUPSS.API.Models.Objects
         [Required]
         public required string StaffId { get; set; }
 
-        // Changed from 'required string' to 'string?' to allow null values from the database
+        
         [MaxLength(1000)]
         public string? Description { get; set; }
 
@@ -43,7 +43,7 @@ namespace DUPSS.API.Models.Objects
         [JsonIgnore]
         public List<CourseEnroll> Enrollments { get; set; } = new List<CourseEnroll>();
 
-        // [NotMapped] properties for UI display, not stored in DB
+       
         [NotMapped]
         public string? ImageUrl { get; set; }
         [NotMapped]

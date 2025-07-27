@@ -25,7 +25,7 @@ namespace DUPSS.Web.Components.Service
                 From = new MailAddress(senderEmail, "ALPHA SWP391"),
                 Subject = subject,
                 Body = body,
-                IsBodyHtml = isHtml // 👈 Thêm dòng này để hỗ trợ HTML
+                IsBodyHtml = isHtml 
             };
             mailMessage.To.Add(toEmail);
 

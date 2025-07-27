@@ -110,7 +110,7 @@
     private bool canBook = true;
     private List<AppointmentDTO>? userAppointments;
 
-    // OLD CODE: used when allowing user to choose consultant manually
+   
     // private bool autoSelectConsultant = true;
 
     private List<DateTime> allAvailableSlots = new(); // all slot in 7 days
@@ -145,7 +145,7 @@
 
             if (!string.IsNullOrEmpty(memberId))
             {
-                string? userId = memberId; // ✅ Fix added here
+                string? userId = memberId; 
 
                 userAppointments = await AppointmentService.GetAppointmentsForMemberAsync(userId);
                 await AutoUpdateExpiredAppointments();
@@ -174,12 +174,12 @@
     private async Task AutoUpdateExpiredAppointments()
     {
         var now = DateTime.UtcNow;
-        var appointmentDuration = TimeSpan.FromMinutes(40); // có thể dùng cho tính toán
+        var appointmentDuration = TimeSpan.FromMinutes(40); 
         var minAcceptLeadTime = TimeSpan.FromMinutes(30);
 
         foreach (var appt in userAppointments)
         {
-            // Nếu Accepted nhưng quá 1 tiếng vẫn chưa kết thúc → Missed
+   
             if (appt.Status == "Accepted" && appt.AppointmentDate + TimeSpan.FromHours(1) < now)
             {
                 var success = await AppointmentService.UpdateAppointmentStatusAsync(appt.AppointmentId, "Missed");

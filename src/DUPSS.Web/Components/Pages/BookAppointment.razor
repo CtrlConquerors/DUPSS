@@ -368,10 +368,12 @@
 
             if (member != null && !string.IsNullOrEmpty(member.Email))
             {
+                var start = newAppointment.AppointmentDate.ToLocalTime();
+                var end = start.AddMinutes(40);
                 var subject = "Appointment Booked Successfully";
                 var cancelDeadline = newAppointment.AppointmentDate.ToLocalTime().AddMinutes(-30);
                 var body = $"Hello {member.Username},\n\n" +
-                           $"Your appointment at {newAppointment.AppointmentDate.ToLocalTime():dd/MM/yyyy HH:mm} " +
+                           $"Your appointment at {start:dd/MM/yyyy HH:mm} - {end:HH:mm}\n" +
                            $"with consultant: {consultant?.Username ?? "Unknown"} has been booked successfully.\n\n" +
                            $"Please be on time and check your notifications for any updates.\n\n" +
                            $"Note: You can cancel this appointment before {cancelDeadline:HH:mm dd/MM/yyyy}.";
@@ -379,6 +381,22 @@
 
                 await EmailService.SendEmailAsync(member.Email, subject, body);
             }
+
+            // Send email to consultant
+            if (consultant != null && !string.IsNullOrEmpty(consultant.Email))
+            {
+                var start = newAppointment.AppointmentDate.ToLocalTime();
+                var end = start.AddMinutes(40);
+                var subject = "New Appointment Assigned";
+                var body = $"Hello {consultant.Username}\n\n" +
+                           $"You have been assigned a new appointment with member: {member?.Username ?? "Unknown"}.\n" +
+                           $"Time: {start:dd/MM/yyyy HH:mm} - {end:HH:mm}\n" +
+                           $"Topic: {newAppointment.Topic}\n" +
+                           $"Please check your schedule in the system for more details.";
+
+                await EmailService.SendEmailAsync(consultant.Email, subject, body);
+            }
+
 
         }
         else

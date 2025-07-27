@@ -108,7 +108,7 @@ else
                         @if (appt.Status == "Pending" || appt.Status == "Accepted")
                         {
                             var hoursBefore = (appt.AppointmentDate - DateTime.UtcNow).TotalHours;
-                            if (hoursBefore >= 4)
+                            if (hoursBefore >= 2)
                             {
                                 @* <button class="btn btn-warning" @onclick="() => StartReschedule(appt)">✏️ Reschedule</button> *@
                                 <button class="btn btn-danger btn-sm" @onclick="@(() => UpdateStatus(appt.AppointmentId, "Cancel"))"> ❌ Cancel</button>

@@ -371,7 +371,7 @@
                 var start = newAppointment.AppointmentDate.ToLocalTime();
                 var end = start.AddMinutes(40);
                 var subject = "Appointment Booked Successfully";
-                var cancelDeadline = newAppointment.AppointmentDate.ToLocalTime().AddMinutes(-30);
+                var cancelDeadline = newAppointment.AppointmentDate.ToLocalTime().AddHours(-2);
                 var body = $"Hello {member.Username},\n\n" +
                            $"Your appointment at {start:dd/MM/yyyy HH:mm} - {end:HH:mm}\n" +
                            $"with consultant: {consultant?.Username ?? "Unknown"} has been booked successfully.\n\n" +

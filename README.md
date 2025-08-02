@@ -49,40 +49,41 @@ Built using **Blazor**, **Web API**, **CSS**, **C#** and **JavaScript** .
 ## 📸 Screenshots
 
 ### 🏠 Homepage 
-![Homepage 1](./images/Others/Homepage1.png)
+![Homepage 1](./src/DUPSS.Web/wwwroot/images/Others/Homepage1.png)
 
 ### 🏠 Homepage 
-![Homepage 2](./images/Others/Homepage2.png)
+![Homepage 2](./src/DUPSS.Web/wwwroot/images/Others/Homepage2.png)
 
 ### 👤 Profile Page
-![Profile Page](./images/Others/Profile.png)
+![Profile Page](./src/DUPSS.Web/wwwroot/images/Others/Profile.png)
 
 ### 📅 Appointment Booking
-![Appointment Booking](./images/Others/BookingAppointment.png)
+![Appointment Booking](./src/DUPSS.Web/wwwroot/images/Others/BookingAppointment.png)
 
 ### 📚 Course 
-![Course 1](./images/Others/Course1.png)
+![Course 1](./src/DUPSS.Web/wwwroot/images/Others/Course1.png)
 
 ### 📚 Course 
-![Course 2](./images/Others/Course2.png)
+![Course 2](./src/DUPSS.Web/wwwroot/images/Others/Course2.png)
 
 ### 📝 Blog 
-![Blog 1](./images/Others/Blog1.png)
+![Blog 1](./src/DUPSS.Web/wwwroot/images/Others/Blog1.png)
 
 ### 📝 Blog 
-![Blog 2](./images/Others/Blog2.png)
+![Blog 2](./src/DUPSS.Web/wwwroot/images/Others/Blog2.png)
 
 ### 📝 Assessment 
-![Assessment 1](./images/Others/Assessment1.png)
+![Assessment 1](./src/DUPSS.Web/wwwroot/images/Others/Assessment1.png)
 
 ### 📝 Assessment 
-![Assessment 2](./images/Others/Assessment2.png)
+![Assessment 2](./src/DUPSS.Web/wwwroot/images/Others/Assessment2.png)
 
 ### 📊 Dashboard
-![Dashboard](./images/Others/Dashboard.png)
+![Dashboard](./src/DUPSS.Web/wwwroot/images/Others/Dashboard.png)
 
 ### 🧾 About Us
-![About Us](./images/Others/AboutUs.png)
+![About Us](./src/DUPSS.Web/wwwroot/images/Others/AboutUs.png)
+
 
 ---
 

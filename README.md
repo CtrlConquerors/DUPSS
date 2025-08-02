@@ -85,7 +85,7 @@ Built using **Blazor**, **Web API**, **CSS**, **C#** and **JavaScript** .
 ![About Us](./src/DUPSS.Web/wwwroot/images/Others/AboutUs.png)
 
 ### Login
-![About Us](./src/DUPSS.Web/wwwroot/images/Others/Login.png)
+![Login](./src/DUPSS.Web/wwwroot/images/Others/Login.png)
 
 
 ---
